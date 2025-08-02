@@ -1,0 +1,149 @@
+{
+  "locations": [
+    {
+      "id": "grande_mosquee_niamey",
+      "name": "Grande Mosquée de Niamey",
+      "type": "mosque",
+      "address": "Avenue de l'Indépendance, Niamey",
+      "latitude": 13.5116,
+      "longitude": 2.1254,
+      "phone": "+227 20 72 34 56",
+      "website": "https://grandemosquee-niamey.ne",
+      "rating": 4.8,
+      "reviews": 245,
+      "isOpen": true,
+      "openingHours": {
+        "monday": "05:00-22:00",
+        "tuesday": "05:00-22:00",
+        "wednesday": "05:00-22:00",
+        "thursday": "05:00-22:00",
+        "friday": "05:00-22:00",
+        "saturday": "05:00-22:00",
+        "sunday": "05:00-22:00"
+      },
+      "services": ["prayer", "education", "community_events"],
+      "facilities": ["parking", "ablution", "library", "wheelchair_access"],
+      "description": "La plus grande mosquée de Niamey, centre spirituel et culturel de la communauté musulmane."
+    },
+    {
+      "id": "centre_islamique_niamey",
+      "name": "Centre Islamique de Niamey",
+      "type": "islamic_center",
+      "address": "Quartier Plateau, Niamey",
+      "latitude": 13.5200,
+      "longitude": 2.1100,
+      "phone": "+227 20 73 45 67",
+      "rating": 4.6,
+      "reviews": 156,
+      "isOpen": true,
+      "openingHours": {
+        "monday": "06:00-21:00",
+        "tuesday": "06:00-21:00",
+        "wednesday": "06:00-21:00",
+        "thursday": "06:00-21:00",
+        "friday": "06:00-21:00",
+        "saturday": "06:00-21:00",
+        "sunday": "06:00-21:00"
+      },
+      "services": ["prayer", "education", "counseling", "marriage"],
+      "facilities": ["parking", "ablution", "conference_room", "bookstore"],
+      "description": "Centre islamique moderne offrant des services communautaires et éducatifs."
+    },
+    {
+      "id": "mosquee_vendredi",
+      "name": "Mosquée du Vendredi",
+      "type": "mosque",
+      "address": "Marché Central, Niamey",
+      "latitude": 13.5050,
+      "longitude": 2.1300,
+      "phone": "+227 20 74 56 78",
+      "rating": 4.7,
+      "reviews": 189,
+      "isOpen": false,
+      "openingHours": {
+        "monday": "05:00-21:00",
+        "tuesday": "05:00-21:00",
+        "wednesday": "05:00-21:00",
+        "thursday": "05:00-21:00",
+        "friday": "05:00-22:00",
+        "saturday": "05:00-21:00",
+        "sunday": "05:00-21:00"
+      },
+      "services": ["prayer", "friday_sermon"],
+      "facilities": ["ablution", "sound_system"],
+      "description": "Mosquée historique connue pour ses sermons du vendredi."
+    },
+    {
+      "id": "ecole_coranique_alazhar",
+      "name": "École Coranique Al-Azhar",
+      "type": "school",
+      "address": "Quartier Lazaret, Niamey",
+      "latitude": 13.4950,
+      "longitude": 2.1400,
+      "phone": "+227 20 75 67 89",
+      "rating": 4.5,
+      "reviews": 98,
+      "isOpen": true,
+      "openingHours": {
+        "monday": "07:00-17:00",
+        "tuesday": "07:00-17:00",
+        "wednesday": "07:00-17:00",
+        "thursday": "07:00-17:00",
+        "friday": "07:00-12:00",
+        "saturday": "07:00-17:00",
+        "sunday": "closed"
+      },
+      "services": ["education", "quran_memorization", "arabic_language"],
+      "facilities": ["classrooms", "library", "playground"],
+      "description": "École coranique réputée pour l'enseignement du Coran et de la langue arabe."
+    },
+    {
+      "id": "centre_medical_islamique",
+      "name": "Centre Médical Islamique",
+      "type": "medical_center",
+      "address": "Quartier Terminus, Niamey",
+      "latitude": 13.5300,
+      "longitude": 2.1200,
+      "phone": "+227 20 76 78 90",
+      "rating": 4.3,
+      "reviews": 67,
+      "isOpen": true,
+      "openingHours": {
+        "monday": "08:00-18:00",
+        "tuesday": "08:00-18:00",
+        "wednesday": "08:00-18:00",
+        "thursday": "08:00-18:00",
+        "friday": "08:00-18:00",
+        "saturday": "08:00-14:00",
+        "sunday": "emergency_only"
+      },
+      "services": ["medical_care", "emergency", "consultation"],
+      "facilities": ["pharmacy", "laboratory", "emergency_room"],
+      "description": "Centre médical offrant des soins conformes aux principes islamiques."
+    },
+    {
+      "id": "bibliotheque_islamique",
+      "name": "Bibliothèque Islamique",
+      "type": "library",
+      "address": "Université de Niamey, Niamey",
+      "latitude": 13.5400,
+      "longitude": 2.1050,
+      "phone": "+227 20 77 89 01",
+      "rating": 4.4,
+      "reviews": 45,
+      "isOpen": true,
+      "openingHours": {
+        "monday": "08:00-20:00",
+        "tuesday": "08:00-20:00",
+        "wednesday": "08:00-20:00",
+        "thursday": "08:00-20:00",
+        "friday": "08:00-12:00",
+        "saturday": "08:00-18:00",
+        "sunday": "14:00-18:00"
+      },
+      "services": ["research", "study", "book_lending"],
+      "facilities": ["reading_room", "computer_access", "wifi"],
+      "description": "Bibliothèque spécialisée dans les études islamiques et la recherche."
+    }
+  ]
+}

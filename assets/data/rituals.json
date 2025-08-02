@@ -1,0 +1,98 @@
+{
+  "rituals": [
+    {
+      "id": "fajr",
+      "title": "Prière du Fajr",
+      "description": "Prière de l'aube, première prière de la journée",
+      "type": "prayer",
+      "frequency": "daily",
+      "scheduledTime": "05:30",
+      "duration": 900,
+      "priority": 5,
+      "tags": ["obligatoire", "aube"],
+      "isActive": true
+    },
+    {
+      "id": "dhuhr",
+      "title": "Prière du Dhuhr",
+      "description": "Prière de midi",
+      "type": "prayer",
+      "frequency": "daily",
+      "scheduledTime": "12:30",
+      "duration": 900,
+      "priority": 5,
+      "tags": ["obligatoire", "midi"],
+      "isActive": true
+    },
+    {
+      "id": "asr",
+      "title": "Prière de l'Asr",
+      "description": "Prière de l'après-midi",
+      "type": "prayer",
+      "frequency": "daily",
+      "scheduledTime": "15:45",
+      "duration": 900,
+      "priority": 5,
+      "tags": ["obligatoire", "après-midi"],
+      "isActive": true
+    },
+    {
+      "id": "maghrib",
+      "title": "Prière du Maghrib",
+      "description": "Prière du coucher du soleil",
+      "type": "prayer",
+      "frequency": "daily",
+      "scheduledTime": "18:15",
+      "duration": 900,
+      "priority": 5,
+      "tags": ["obligatoire", "coucher"],
+      "isActive": true
+    },
+    {
+      "id": "isha",
+      "title": "Prière de l'Isha",
+      "description": "Prière de la nuit",
+      "type": "prayer",
+      "frequency": "daily",
+      "scheduledTime": "19:45",
+      "duration": 900,
+      "priority": 5,
+      "tags": ["obligatoire", "nuit"],
+      "isActive": true
+    },
+    {
+      "id": "dhikr_morning",
+      "title": "Dhikr du matin",
+      "description": "Invocations à réciter le matin",
+      "type": "dhikr",
+      "frequency": "daily",
+      "duration": 900,
+      "priority": 3,
+      "tags": ["matin", "protection"],
+      "isActive": true
+    },
+    {
+      "id": "dhikr_evening",
+      "title": "Dhikr du soir",
+      "description": "Invocations à réciter le soir",
+      "type": "dhikr",
+      "frequency": "daily",
+      "duration": 900,
+      "priority": 3,
+      "tags": ["soir", "protection"],
+      "isActive": true
+    },
+    {
+      "id": "friday_prayer",
+      "title": "Prière du Vendredi",
+      "description": "Prière congregationnelle du vendredi",
+      "type": "prayer",
+      "frequency": "weekly",
+      "scheduledTime": "12:30",
+      "duration": 3600,
+      "priority": 5,
+      "tags": ["obligatoire", "vendredi", "communauté"],
+      "isActive": true
+    }
+  ]
+}

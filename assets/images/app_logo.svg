@@ -1,0 +1,13 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with Islamic green -->
+  <circle cx="60" cy="60" r="60" fill="#2A9D8F"/>
+  
+  <!-- Crescent moon -->
+  <path d="M45 25C35 35 35 55 35 65C35 75 35 95 45 95C55 85 65 75 65 65C65 55 55 35 45 25Z" fill="#1D3557"/>
+  
+  <!-- Star -->
+  <path d="M75 45L77 51L83 51L78 55L80 61L75 57L70 61L72 55L67 51L73 51L75 45Z" fill="#1D3557"/>
+  
+  <!-- Arabic calligraphy style decoration -->
+  <path d="M30 75C35 70 40 70 45 75C50 80 55 80 60 75C65 70 70 70 75 75C80 80 85 80 90 75" stroke="#F1FAEE" stroke-width="2" fill="none"/>
+</svg>
