@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Routes de l'application
+// Feature imports
+import 'features/auth/presentation/onboarding_screen.dart';
+import 'features/home/presentation/menu_screen.dart';
+import 'features/rituals/presentation/timeline_screen.dart';
+import 'features/rituals/presentation/duas_screen.dart';
+
+// Application routes
 class AppRoutes {
   static const String splash = '/';
   static const String menu = '/menu';
   static const String timeline = '/timeline';
   static const String duas = '/duas';
-  // Les autres routes non implémentées sont commentées
+  // Other routes to be implemented
   // static const String map = '/map';
   // static const String videos = '/videos';
   // static const String health = '/health';
@@ -15,62 +21,64 @@ class AppRoutes {
 }
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     final _router = GoRouter(
       initialLocation: AppRoutes.splash,
       routes: [
-        // Écran de démarrage
+        // Splash/Onboarding Screen
         GoRoute(
           path: AppRoutes.splash,
-          builder: (context, state) => OnboardingScreen(),
+          builder: (context, state) =>  OnboardingScreen(),
         ),
         
-        // Menu principal
+        // Main Menu
         GoRoute(
           path: AppRoutes.menu,
-          builder: (context, state) => MenuScreen(),
+          builder: (context, state) => const MenuScreen(),
         ),
         
-        // Écran de la chronologie
+        // Timeline Screen
         GoRoute(
           path: AppRoutes.timeline,
-          builder: (context, state) => TimelineScreen(),
+          builder: (context, state) =>  TimelineScreen(),
         ),
         
-        // Écran des douas
+        // Duas Screen
         GoRoute(
           path: AppRoutes.duas,
-          builder: (context, state) => DuasScreen(),
+          builder: (context, state) =>  DuasScreen(),
         ),
         
-        // Les routes non implémentées sont commentées pour l'instant
+        // Other routes to be implemented
         /*
         GoRoute(
           path: AppRoutes.map,
-          builder: (context, state) => _buildPlaceholderScreen('Map & Location'),
+          builder: (context, state) => const MapScreen(),
         ),
         GoRoute(
           path: AppRoutes.videos,
-          builder: (context, state) => _buildPlaceholderScreen('Video Preparation'),
+          builder: (context, state) => const VideosScreen(),
         ),
         GoRoute(
           path: AppRoutes.health,
-          builder: (context, state) => _buildPlaceholderScreen('My Health'),
+          builder: (context, state) => const HealthScreen(),
         ),
         GoRoute(
           path: AppRoutes.profile,
-          builder: (context, state) => _buildPlaceholderScreen('Profile & Emergency'),
+          builder: (context, state) => const ProfileScreen(),
         ),
         */
       ],
       errorBuilder: (context, state) => Scaffold(
         body: Center(
-          child: Text('Page non trouvée: ${state.uri.path}'),
+          child: Text('Page not found: ${state.uri.path}'),
         ),
       ),
     );
