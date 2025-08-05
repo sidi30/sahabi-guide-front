@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../shared/constants/app_colors.dart';
+
 class AppTheme {
   // Colors
-  static const Color primaryColor = Color(0xFF1D3557);
-  static const Color secondaryColor = Color(0xFF2A9D8F);
-  static const Color accentColor = Color(0xFFE63946);
-  static const Color backgroundColor = Color(0xFFF1FAEE);
-  static const Color surfaceColor = Colors.white;
-  static const Color errorColor = Color(0xFFE63946);
+  static const Color primaryColor = AppColors.primary;
+  static const Color secondaryColor = AppColors.secondary;
+  static const Color accentColor = AppColors.accent;
+  static const Color backgroundColor = AppColors.backgroundColor;
+  static const Color surfaceColor = AppColors.surface;
+  static const Color errorColor = AppColors.error;
   
   // Text Colors
-  static const Color textPrimary = Color(0xFF1D3557);
-  static const Color textSecondary = Color(0xFF457B9D);
-  static const Color textLight = Color(0xFF6C757D);
+  static const Color textPrimary = AppColors.textPrimary;
+  static const Color textSecondary = AppColors.textSecondary;
+  static const Color textLight = AppColors.textLight;
   
   // Dark Theme Colors
-  static const Color darkBackgroundColor = Color(0xFF121212);
+  static const Color darkBackgroundColor = AppColors.darkBackgroundColor;
   static const Color darkSurfaceColor = Color(0xFF1E1E1E);
   static const Color darkTextPrimary = Color(0xFFE8F4F8);
 
@@ -30,12 +32,10 @@ class AppTheme {
         primary: primaryColor,
         secondary: secondaryColor,
         surface: surfaceColor,
-        background: backgroundColor,
         error: errorColor,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textPrimary,
-        onBackground: textPrimary,
         onError: Colors.white,
       ),
       
@@ -204,12 +204,10 @@ class AppTheme {
         primary: secondaryColor,
         secondary: primaryColor,
         surface: darkSurfaceColor,
-        background: darkBackgroundColor,
         error: errorColor,
         onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: darkTextPrimary,
-        onBackground: darkTextPrimary,
         onError: Colors.white,
       ),
       
