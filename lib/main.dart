@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
 
-// Feature imports
-import 'features/auth/presentation/onboarding_screen.dart';
-import 'features/home/presentation/menu_screen.dart';
-import 'features/rituals/presentation/timeline_screen.dart';
-import 'features/rituals/presentation/duas_screen.dart';
-
-// Application routes
+// Routes de l'application
 class AppRoutes {
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String menu = '/menu';
   static const String timeline = '/timeline';
   static const String duas = '/duas';
@@ -21,6 +17,7 @@ class AppRoutes {
 }
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -29,16 +26,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _router = GoRouter(
+    final router = GoRouter(
       initialLocation: AppRoutes.splash,
       routes: [
         // Splash/Onboarding Screen
         GoRoute(
           path: AppRoutes.splash,
-          builder: (context, state) =>  OnboardingScreen(),
+          builder: (context, state) => const SplashPage(),
         ),
         
-        // Main Menu
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (context, state) => const OnboardingScreen(),
+        ),
+
+        // Menu principal
         GoRoute(
           path: AppRoutes.menu,
           builder: (context, state) => const MenuScreen(),
@@ -86,7 +88,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Hajj Companion',
       debugShowCheckedModeBanner: false,
-      routerConfig: _router,
+      routerConfig: router,
       theme: ThemeData(
         primaryColor: const Color(0xFF1D3557),
         colorScheme: ColorScheme.fromSwatch().copyWith(
@@ -112,6 +114,8 @@ class MyApp extends StatelessWidget {
 }
 
 class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
@@ -371,7 +375,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  const MenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -506,6 +510,8 @@ class MenuScreen extends StatelessWidget {
 }
 
 class TimelineScreen extends StatelessWidget {
+  const TimelineScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -601,6 +607,8 @@ class TimelineScreen extends StatelessWidget {
 }
 
 class DuasScreen extends StatefulWidget {
+  const DuasScreen({super.key});
+
   @override
   State<DuasScreen> createState() => _DuasScreenState();
 }

@@ -202,7 +202,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.timer_outlined,
                       size: 16,
                       color: AppTheme.textSecondary,
