@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
 
 // Routes de l'application
 class AppRoutes {
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String menu = '/menu';
   static const String timeline = '/timeline';
   static const String duas = '/duas';
@@ -15,7 +17,8 @@ class AppRoutes {
 }
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -29,9 +32,14 @@ class MyApp extends StatelessWidget {
         // Écran de démarrage
         GoRoute(
           path: AppRoutes.splash,
-          builder: (context, state) => OnboardingScreen(),
+          builder: (context, state) => const SplashPage(),
         ),
         
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (context, state) => const OnboardingScreen(),
+        ),
+
         // Menu principal
         GoRoute(
           path: AppRoutes.menu,

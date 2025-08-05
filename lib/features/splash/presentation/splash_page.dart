@@ -8,7 +8,6 @@ import '../../../main.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/constants/class App.dart';
 
-
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -75,9 +74,7 @@ class _SplashPageState extends State<SplashPage>
     // Navigate to home screen after 5 seconds
     Timer(const Duration(seconds: 3), () {
       // GOROUTER page replacement to home screen
-      context.pushReplacement(
-        AppRoutes.menu
-      );
+      context.pushReplacement(AppRoutes.onboarding);
     });
   }
 
@@ -111,7 +108,7 @@ class _SplashPageState extends State<SplashPage>
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.fastfood,
+                        Icons.eco_outlined,
                         color: AppColors.primary,
                         size: 70,
                       ),
@@ -140,7 +137,7 @@ class _SplashPageState extends State<SplashPage>
                 Opacity(
                   opacity: _opacityAnimation.value,
                   child: Text(
-                    'Trouvez les meilleures plats et Boissons locaux',
+                    'Your guide for a blessed and seamless pilgrimage.',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -194,7 +191,7 @@ class _SplashPageState extends State<SplashPage>
                         ],
                       ),
                       child: Icon(
-                        Icons.restaurant,
+                        Icons.eco_outlined,
                         color: AppColors.primary,
                         size: 24 * _radiusAnimation.value,
                       ),
