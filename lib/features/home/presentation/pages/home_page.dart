@@ -6,11 +6,11 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/user_model.dart';
-import '../../data/repositories/home_repository_impl.dart';
+import '../../domain/repositories/home_repository.dart';
 import '../../../auth/domain/usecases/logout_usecase.dart';
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final repository = sl<HomeRepositoryImpl>();
+  final repository = sl<HomeRepository>();
   final menuItems = await repository.getHomeMenuItems();
   final dashboardData = await repository.getDashboardData();
   final user = await repository.getCurrentUser();
@@ -28,10 +28,10 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeData = ref.watch(homeProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sahabi Guide'),
+        automaticallyImplyLeading: false, 
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -85,6 +85,7 @@ class HomePage extends ConsumerWidget {
       ),
     );
   }
+
 
   Widget _buildHomeContent(BuildContext context, Map<String, dynamic> data) {
     final user = data['user'] as UserModel?;

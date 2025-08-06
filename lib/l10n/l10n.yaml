@@ -1,0 +1,17 @@
+arb-dir: l10n
+template-arb-file: app_en.arb
+override-getters: true
+override-to-locale: true
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+synthetic-package: false
+preferred-supported-locales: ["en_US", "fr_FR", "ar_AE"]
+nullable-getter: false
+format: true
+use-escaping: false
+
+# Supported locales with their display names
+locale-map:
+  en: English
+  fr: Français
+  ar: العربية

@@ -1,114 +1,269 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Routes de l'application
-class AppRoutes {
-  static const String splash = '/';
-  static const String onboarding = '/onboarding';
-  static const String menu = '/menu';
-  static const String timeline = '/timeline';
-  static const String duas = '/duas';
-  // Other routes to be implemented
-  // static const String map = '/map';
-  // static const String videos = '/videos';
-  // static const String health = '/health';
-  // static const String profile = '/profile';
-}
+import 'core/di/injection_container.dart';
+import 'shared/constants/app_colors.dart';
+import 'features/settings/presentation/providers/settings_provider.dart';
+import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/splash/presentation/splash_page.dart';
+import 'shared/presentation/widgets/main_shell.dart';
+import 'features/home/presentation/pages/home_page.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
+// Simple placeholder widget for unimplemented screens
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const PlaceholderScreen({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text(
+          '$title - Page en construction',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+      ),
+    );
+  }
+}
+
+// Application Routes
+class AppRoutes {
+  // Initial routes
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
+
+  // Main shell routes
+  static const String home = '/home';
+  static const String rituals = '/rituals';
+  static const String map = '/map';
+  static const String videos = '/videos';
+  static const String profile = '/profile';
+  static const String settings = '/settings';
+
+  // Nested routes
+  static const String timeline = '/rituals/timeline';
+  static const String duas = '/rituals/duas';
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize dependencies
+  await initializeDependencies();
+
+  // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+
+  // Create settings notifier and load initial settings
+  final settingsNotifier = SettingsNotifier(prefs: prefs);
+  await settingsNotifier.loadSettings();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        settingsProvider.overrideWith((ref) => settingsNotifier),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.light(
+        primary: AppColors.primaryColor,
+        secondary: AppColors.secondaryColor,
+        surface: AppColors.surfaceColor,
+        error: AppColors.errorColor,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.primaryColor,
+        background: AppColors.backgroundColor,
+        onBackground: AppColors.primaryColor,
+        brightness: Brightness.light,
+      ),
+      scaffoldBackgroundColor: AppColors.backgroundColor,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.appBarBackground,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: AppColors.appBarText,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(
+          color: AppColors.appBarIcon,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.bottomNavBackground,
+        selectedItemColor: AppColors.bottomNavSelected,
+        unselectedItemColor: AppColors.bottomNavUnselected,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        background: AppColors.darkBackground,
+        surface: AppColors.darkSurface,
+        error: AppColors.error,
+        onPrimary: AppColors.textOnPrimary,
+        onSecondary: AppColors.textOnSecondary,
+        onSurface: Colors.white,
+        onBackground: Colors.white,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.darkSurface,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.darkSurface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final currentThemeMode = settings.themeMode;
+    final currentLocale = settings.locale;
+
+    // Convert AppThemeMode to ThemeMode
+    final themeMode = switch (currentThemeMode) {
+      AppThemeMode.dark => ThemeMode.dark,
+      AppThemeMode.light => ThemeMode.light,
+      AppThemeMode.system => ThemeMode.system,
+    };
+
     final router = GoRouter(
       initialLocation: AppRoutes.splash,
       routes: [
-        // Splash/Onboarding Screen
+        // Splash Screen
         GoRoute(
           path: AppRoutes.splash,
           builder: (context, state) => const SplashPage(),
         ),
-        
+
+        // Onboarding Screen
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingScreen(),
         ),
 
-        // Menu principal
-        GoRoute(
-          path: AppRoutes.menu,
-          builder: (context, state) => const MenuScreen(),
+        // Main Shell with Bottom Navigation
+        ShellRoute(
+          builder: (context, state, child) => MainShell(child: child),
+          routes: [
+            // Home Screen
+            GoRoute(
+              path: AppRoutes.home,
+              builder: (context, state) => const HomePage(),
+            ),
+
+            // Rituals Section
+            GoRoute(
+              path: AppRoutes.rituals,
+              redirect: (context, state) => AppRoutes.timeline,
+            ),
+            GoRoute(
+              path: AppRoutes.timeline,
+              builder: (context, state) => const TimelineScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.duas,
+              builder: (context, state) => const DuasScreen(),
+            ),
+
+            // Map Screen
+            GoRoute(
+              path: AppRoutes.map,
+              builder: (context, state) =>
+                  const PlaceholderScreen(title: 'Carte'),
+            ),
+
+            // Videos Screen
+            GoRoute(
+              path: AppRoutes.videos,
+              builder: (context, state) =>
+                  const PlaceholderScreen(title: 'Vidéos'),
+            ),
+
+            // Profile Screen
+            GoRoute(
+              path: AppRoutes.profile,
+              builder: (context, state) =>
+                  const PlaceholderScreen(title: 'Profil'),
+            ),
+
+            // Settings Screen
+            GoRoute(
+              path: AppRoutes.settings,
+              builder: (context, state) => const SettingsScreen(),
+            ),
+          ],
         ),
-        
-        // Timeline Screen
-        GoRoute(
-          path: AppRoutes.timeline,
-          builder: (context, state) =>  TimelineScreen(),
-        ),
-        
-        // Duas Screen
-        GoRoute(
-          path: AppRoutes.duas,
-          builder: (context, state) =>  DuasScreen(),
-        ),
-        
-        // Other routes to be implemented
-        /*
-        GoRoute(
-          path: AppRoutes.map,
-          builder: (context, state) => const MapScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.videos,
-          builder: (context, state) => const VideosScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.health,
-          builder: (context, state) => const HealthScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.profile,
-          builder: (context, state) => const ProfileScreen(),
-        ),
-        */
       ],
       errorBuilder: (context, state) => Scaffold(
         body: Center(
-          child: Text('Page not found: ${state.uri.path}'),
+          child: Text('Page non trouvée: ${state.uri.path}'),
         ),
       ),
     );
 
     return MaterialApp.router(
-      title: 'Hajj Companion',
+      title: 'Sahabi Guide',
       debugShowCheckedModeBanner: false,
+      locale: currentLocale,
+      themeMode: themeMode,
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('fr'), // French
+        Locale('ar'), // Arabic
+      ],
       routerConfig: router,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF1D3557),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: const Color(0xFF2A9D8F),
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          iconTheme: IconThemeData(
-            color: Color(0xFF1D3557),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -237,7 +392,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 icon: Icons.volume_up,
                                 title: 'Hausa',
                                 isSelected: selectedLanguage == 'hausa',
-                                onTap: () => setState(() => selectedLanguage = 'hausa'),
+                                onTap: () =>
+                                    setState(() => selectedLanguage = 'hausa'),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -246,7 +402,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 icon: Icons.volume_up,
                                 title: 'Djerma',
                                 isSelected: selectedLanguage == 'djerma',
-                                onTap: () => setState(() => selectedLanguage = 'djerma'),
+                                onTap: () =>
+                                    setState(() => selectedLanguage = 'djerma'),
                               ),
                             ),
                           ],
@@ -260,8 +417,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: selectedRole.isNotEmpty && selectedLanguage.isNotEmpty
-                                  ? () => context.push(AppRoutes.menu)
+                              onPressed: selectedRole.isNotEmpty &&
+                                      selectedLanguage.isNotEmpty
+                                  ? () => context.push(AppRoutes.home)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4FC3F7),
@@ -420,7 +578,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de la carte
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -431,7 +591,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran des vidéos
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -442,7 +604,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de santé
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -453,7 +617,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de profil
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),

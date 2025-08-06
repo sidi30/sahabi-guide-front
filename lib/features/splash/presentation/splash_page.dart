@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../main.dart';
 import '../../../shared/constants/app_colors.dart';
-import '../../../shared/constants/class App.dart';
+import '../../../shared/constants/AppSizes.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
