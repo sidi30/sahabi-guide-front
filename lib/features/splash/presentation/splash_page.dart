@@ -104,7 +104,7 @@ class _SplashPageState extends State<SplashPage>
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -160,13 +160,13 @@ class _SplashPageState extends State<SplashPage>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.primary.withOpacity(0.5),
+                            color: AppColors.primary.withValues(alpha: 0.5),
                             width: 4,
                             strokeAlign: BorderSide.strokeAlignOutside,
                           ),
                           gradient: SweepGradient(
                             colors: [
-                              AppColors.primary.withOpacity(0.1),
+                              AppColors.primary.withValues(alpha: 0.1),
                               AppColors.primary,
                             ],
                             stops: const [0.75, 1.0],
@@ -184,7 +184,7 @@ class _SplashPageState extends State<SplashPage>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 10,
                             spreadRadius: 1,
                           ),

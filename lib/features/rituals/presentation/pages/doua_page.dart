@@ -105,18 +105,18 @@ class _DouaPageState extends State<DouaPage> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Arafat Duas List
             ...arafatDuas.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> dua = entry.value;
               return _buildDouaCard(dua, index, true);
             }),
-            
+
             const SizedBox(height: 40),
-            
+
             // Mina Section
             const Text(
               'Mina',
@@ -126,16 +126,16 @@ class _DouaPageState extends State<DouaPage> {
                 color: Color(0xFF1D3557),
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Mina Duas List
             ...minaDuas.asMap().entries.map((entry) {
               int index = entry.key + arafatDuas.length;
               Map<String, dynamic> dua = entry.value;
               return _buildDouaCard(dua, index, false);
             }),
-            
+
             const SizedBox(height: 100), // Space for bottom nav
           ],
         ),
@@ -146,7 +146,7 @@ class _DouaPageState extends State<DouaPage> {
 
   Widget _buildDouaCard(Map<String, dynamic> dua, int index, bool isArafat) {
     bool isPlaying = playingIndex == index;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -155,7 +155,7 @@ class _DouaPageState extends State<DouaPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -200,7 +200,9 @@ class _DouaPageState extends State<DouaPage> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isPlaying ? const Color(0xFF4FC3F7) : const Color(0xFFE5F4FD),
+                color: isPlaying
+                    ? const Color(0xFF4FC3F7)
+                    : const Color(0xFFE5F4FD),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -222,7 +224,7 @@ class _DouaPageState extends State<DouaPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

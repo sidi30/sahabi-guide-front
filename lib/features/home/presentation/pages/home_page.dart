@@ -6,6 +6,7 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/user_model.dart';
+import '../../../../shared/providers/providers.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/domain/usecases/logout_usecase.dart';
 
@@ -14,7 +15,7 @@ final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final menuItems = await repository.getHomeMenuItems();
   final dashboardData = await repository.getDashboardData();
   final user = await repository.getCurrentUser();
-  
+
   return {
     'menuItems': menuItems,
     'dashboardData': dashboardData,
@@ -28,42 +29,43 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeData = ref.watch(homeProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sahabi Guide'),
-        automaticallyImplyLeading: false, 
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: Show notifications
-            },
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == 'logout') {
-                final logoutUseCase = sl<LogoutUseCase>();
-                await logoutUseCase();
-                if (context.mounted) {
-                  context.go(AppConstants.loginRoute);
-                }
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(width: 8),
-                    Text('Déconnexion'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: Text(getTitleByIndex(ref.watch(navigationIndexProvider))),
+      //   automaticallyImplyLeading: false,
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.notifications_outlined),
+      //       onPressed: () {
+      //         // TODO: Show notifications
+      //       },
+      //     ),
+      //     PopupMenuButton<String>(
+      //       onSelected: (value) async {
+      //         if (value == 'logout') {
+      //           final logoutUseCase = sl<LogoutUseCase>();
+      //           await logoutUseCase();
+      //           if (context.mounted) {
+      //             context.go(AppConstants.loginRoute);
+      //           }
+      //         }
+      //       },
+      //       itemBuilder: (context) => [
+      //         const PopupMenuItem(
+      //           value: 'logout',
+      //           child: Row(
+      //             children: [
+      //               Icon(Icons.logout),
+      //               SizedBox(width: 8),
+      //               Text('Déconnexion'),
+      //             ],
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      // ),
       body: homeData.when(
         data: (data) => _buildHomeContent(context, data),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -86,7 +88,6 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-
   Widget _buildHomeContent(BuildContext context, Map<String, dynamic> data) {
     final user = data['user'] as UserModel?;
     final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
@@ -99,29 +100,29 @@ class HomePage extends ConsumerWidget {
         children: [
           // Welcome Section
           _buildWelcomeSection(context, user),
-          
+
           const SizedBox(height: 24),
-          
+
           // Prayer Times Card
           _buildPrayerTimesCard(context, dashboardData),
-          
+
           const SizedBox(height: 24),
-          
+
           // Quick Stats
           _buildQuickStats(context, dashboardData),
-          
+
           const SizedBox(height: 24),
-          
+
           // Menu Grid
           Text(
             'Fonctionnalités',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           _buildMenuGrid(context, menuItems),
         ],
       ),
@@ -132,7 +133,7 @@ class HomePage extends ConsumerWidget {
     final now = DateTime.now();
     final hour = now.hour;
     String greeting;
-    
+
     if (hour < 12) {
       greeting = 'Bonjour';
     } else if (hour < 17) {
@@ -160,22 +161,22 @@ class HomePage extends ConsumerWidget {
                 Text(
                   '$greeting,',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
-                  ),
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
                 ),
                 Text(
                   user?.firstName ?? 'Utilisateur',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Que la paix soit avec vous',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
                 ),
               ],
             ),
@@ -184,7 +185,7 @@ class HomePage extends ConsumerWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(30),
             ),
             child: const Icon(
@@ -198,8 +199,10 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPrayerTimesCard(BuildContext context, Map<String, dynamic> dashboardData) {
-    final currentPrayer = dashboardData['currentPrayer'] as Map<String, dynamic>;
+  Widget _buildPrayerTimesCard(
+      BuildContext context, Map<String, dynamic> dashboardData) {
+    final currentPrayer =
+        dashboardData['currentPrayer'] as Map<String, dynamic>;
     final nextPrayer = dashboardData['nextPrayer'] as Map<String, dynamic>;
 
     return Card(
@@ -211,8 +214,8 @@ class HomePage extends ConsumerWidget {
             Text(
               'Prières d\'aujourd\'hui',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -224,14 +227,15 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prière actuelle',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                              color: AppTheme.textSecondary,
+                            ),
                       ),
                       Text(
                         currentPrayer['name'],
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       Text(
                         currentPrayer['time'],
@@ -247,20 +251,21 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prochaine prière',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                              color: AppTheme.textSecondary,
+                            ),
                       ),
                       Text(
                         nextPrayer['name'],
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       Text(
                         'dans ${nextPrayer['remaining']}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.secondaryColor,
-                        ),
+                              color: AppTheme.secondaryColor,
+                            ),
                       ),
                     ],
                   ),
@@ -273,7 +278,8 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, Map<String, dynamic> dashboardData) {
+  Widget _buildQuickStats(
+      BuildContext context, Map<String, dynamic> dashboardData) {
     final todayStats = dashboardData['todayStats'] as Map<String, dynamic>;
 
     return Row(
@@ -311,7 +317,8 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String title, String value,
+      IconData icon, Color color) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -322,15 +329,15 @@ class HomePage extends ConsumerWidget {
             Text(
               value,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
             ),
             Text(
               title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
             ),
           ],
         ),
@@ -338,7 +345,8 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuGrid(BuildContext context, List<Map<String, dynamic>> menuItems) {
+  Widget _buildMenuGrid(
+      BuildContext context, List<Map<String, dynamic>> menuItems) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -357,8 +365,9 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildMenuCard(BuildContext context, Map<String, dynamic> item) {
-    final color = Color(int.parse(item['color'].substring(1), radix: 16) + 0xFF000000);
-    
+    final color =
+        Color(int.parse(item['color'].substring(1), radix: 16) + 0xFF000000);
+
     return Card(
       child: InkWell(
         onTap: () => context.go(item['route']),
@@ -372,7 +381,7 @@ class HomePage extends ConsumerWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
@@ -385,16 +394,16 @@ class HomePage extends ConsumerWidget {
               Text(
                 item['title'],
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 item['subtitle'],
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
+                      color: AppTheme.textSecondary,
+                    ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

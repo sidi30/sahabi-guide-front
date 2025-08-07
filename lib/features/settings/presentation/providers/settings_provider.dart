@@ -1,42 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sahabi_guide/shared/constants/app_locale.dart';
 
 // Enums
 enum AppThemeMode { system, light, dark }
 enum AudioLanguage { hausa, zarma }
 
 // Supported locales
-const List<Locale> supportedLocales = [
-  Locale('en'), // English
-  Locale('fr'), // French
-  Locale('ar'), // Arabic
-];
+final List<Locale> supportedLocales = AppLocale.values.map((e) => e.locale).toList();
 
 // State class
 class SettingsState {
   final AppThemeMode themeMode;
   final AudioLanguage audioLanguage;
-  final Locale? locale;
+  final AppLocale locale;
 
   const SettingsState({
-    required this.themeMode,
-    required this.audioLanguage,
-    this.locale,
+    this.themeMode = AppThemeMode.system,
+    this.audioLanguage = AudioLanguage.hausa,
+    this.locale = AppLocale.en, // Default to English
   });
 
-  factory SettingsState.initial() {
-    return const SettingsState(
-      themeMode: AppThemeMode.system,
-      audioLanguage: AudioLanguage.hausa,
-      locale: null,
-    );
-  }
+  factory SettingsState.initial() => const SettingsState();
 
   SettingsState copyWith({
     AppThemeMode? themeMode,
     AudioLanguage? audioLanguage,
-    Locale? locale,
+    AppLocale? locale,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -51,11 +42,11 @@ class SettingsState {
     return other is SettingsState &&
         other.themeMode == themeMode &&
         other.audioLanguage == audioLanguage &&
-        other.locale?.languageCode == locale?.languageCode;
+        other.locale == locale;
   }
 
   @override
-  int get hashCode => Object.hash(themeMode, audioLanguage, locale?.languageCode);
+  int get hashCode => Object.hash(themeMode, audioLanguage, locale);
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -74,11 +65,27 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final themeIndex = prefs.getInt(_themeKey) ?? 0;
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
+      
+      // Default to system locale if available, otherwise English
+      AppLocale defaultLocale = AppLocale.en;
+      try {
+        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        defaultLocale = AppLocale.tryFromLocale(systemLocale) ?? AppLocale.en;
+      } catch (_) {}
 
       state = state.copyWith(
-        themeMode: AppThemeMode.values[themeIndex],
-        audioLanguage: AudioLanguage.values[languageIndex],
-        locale: localeCode != null ? Locale(localeCode) : null,
+        themeMode: themeIndex < AppThemeMode.values.length 
+            ? AppThemeMode.values[themeIndex] 
+            : AppThemeMode.system,
+        audioLanguage: languageIndex < AudioLanguage.values.length 
+            ? AudioLanguage.values[languageIndex] 
+            : AudioLanguage.hausa,
+        locale: localeCode != null 
+            ? AppLocale.values.firstWhere(
+                (e) => e.locale.languageCode == localeCode,
+                orElse: () => defaultLocale,
+              )
+            : defaultLocale,
       );
     } catch (e) {
       // Reset to default settings if loading fails
@@ -88,21 +95,20 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {
+    if (state.themeMode == mode) return; // No change needed
     await prefs.setInt(_themeKey, mode.index);
     state = state.copyWith(themeMode: mode);
   }
 
   Future<void> setAudioLanguage(AudioLanguage language) async {
+    if (state.audioLanguage == language) return; // No change needed
     await prefs.setInt(_languageKey, language.index);
     state = state.copyWith(audioLanguage: language);
   }
 
-  Future<void> setLocale(Locale? locale) async {
-    if (locale != null) {
-      await prefs.setString(_localeKey, locale.languageCode);
-    } else {
-      await prefs.remove(_localeKey);
-    }
+  Future<void> setLocale(AppLocale locale) async {
+    if (state.locale == locale) return; // No change needed
+    await prefs.setString(_localeKey, locale.locale.languageCode);
     state = state.copyWith(locale: locale);
   }
 }

@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sahabi_guide/shared/constants/app_colors.dart';
+import 'package:sahabi_guide/shared/providers/providers.dart';
 
 class NavigationItem {
   final IconData icon;
@@ -18,16 +20,16 @@ class NavigationItem {
   });
 }
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   final Widget child;
 
   const MainShell({super.key, required this.child});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
 
   final List<NavigationItem> _navigationItems = const [
@@ -71,8 +73,11 @@ class _MainShellState extends State<MainShell> {
 
   void _updateSelectedIndex() {
     final currentRoute = GoRouterState.of(context).uri.toString();
-    final index = _navigationItems.indexWhere((item) => item.route == currentRoute);
+    final index =
+        _navigationItems.indexWhere((item) => item.route == currentRoute);
     if (index != -1 && index != _selectedIndex) {
+      //ref.read(navigationIndexProvider.notifier).state = index;
+
       setState(() {
         _selectedIndex = index;
       });
@@ -86,6 +91,27 @@ class _MainShellState extends State<MainShell> {
     context.go(_navigationItems[index].route);
   }
 
+  String getTitleByIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'My Hajj';
+      case 1:
+        return 'My Duas';
+      case 2:
+        return 'Map & Location';
+      case 3:
+        return 'Video Preparation';
+      case 4:
+        return 'Internet & eSIM';
+      case 5:
+        return 'My Health';
+      case 6:
+        return 'Profile';
+      default:
+        return 'Unknown';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
@@ -93,7 +119,7 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Sahabi Guide'),
+        title: Text(getTitleByIndex(_selectedIndex)),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -137,7 +163,9 @@ class _MainShellState extends State<MainShell> {
                   .toList(),
             ),
           // Divider for navigation rail
-          if (isLargeScreen) const VerticalDivider(thickness: 1, width: 1, color: AppColors.divider),
+          if (isLargeScreen)
+            const VerticalDivider(
+                thickness: 1, width: 1, color: AppColors.divider),
           // Main content
           Expanded(child: widget.child),
         ],
@@ -146,60 +174,67 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: isLargeScreen
           ? null
           : Container(
+              margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
-                    offset: const Offset(0, -2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: BottomNavigationBar(
-                    currentIndex: _selectedIndex,
-                    onTap: _onDestinationSelected,
-                    type: BottomNavigationBarType.fixed,
-                    backgroundColor: AppColors.surface.withOpacity(0.8),
-                    selectedItemColor: AppColors.primary,
-                    unselectedItemColor: AppColors.textLight,
-                    selectedLabelStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 11,
-                    ),
-                    elevation: 0,
-                    showSelectedLabels: true,
-                    showUnselectedLabels: true,
-                    items: _navigationItems
-                        .map(
-                          (item) => BottomNavigationBarItem(
-                            icon: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Icon(item.icon),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(_navigationItems.length, (index) {
+                    final item = _navigationItems[index];
+                    final isSelected = _selectedIndex == index;
+                    
+                    return GestureDetector(
+                      onTap: () => _onDestinationSelected(index),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected 
+                              ? AppColors.primary.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isSelected ? item.selectedIcon : item.icon,
+                              size: 22,
+                              color: isSelected 
+                                  ? AppColors.primary 
+                                  : AppColors.textLight,
                             ),
-                            activeIcon: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
+                            const SizedBox(height: 4),
+                            Text(
+                              item.label,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: isSelected 
+                                    ? FontWeight.w600 
+                                    : FontWeight.normal,
+                                color: isSelected 
+                                    ? AppColors.primary 
+                                    : AppColors.textLight,
                               ),
-                              child: Icon(item.selectedIcon),
                             ),
-                            label: item.label,
-                          ),
-                        )
-                        .toList(),
-                  ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ),
             ),

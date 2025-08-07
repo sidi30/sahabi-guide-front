@@ -19,7 +19,7 @@ final duasProvider = FutureProvider<List<RitualModel>>((ref) async {
 
 class RitualsPage extends ConsumerStatefulWidget {
   final bool showDuasOnly;
-  
+
   const RitualsPage({
     super.key,
     this.showDuasOnly = false,
@@ -54,13 +54,15 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.showDuasOnly ? 'Douas' : 'Rituels'),
-        bottom: widget.showDuasOnly ? null : TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Rituels', icon: Icon(Icons.schedule)),
-            Tab(text: 'Douas', icon: Icon(Icons.book)),
-          ],
-        ),
+        bottom: widget.showDuasOnly
+            ? null
+            : TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Rituels', icon: Icon(Icons.schedule)),
+                  Tab(text: 'Douas', icon: Icon(Icons.book)),
+                ],
+              ),
       ),
       body: widget.showDuasOnly
           ? _buildDuasTab()
@@ -109,8 +111,8 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             Text(
               emptyMessage,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey,
-              ),
+                    color: Colors.grey,
+                  ),
             ),
           ],
         ),
@@ -144,7 +146,8 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: _getRitualColor(ritual.type).withOpacity(0.1),
+                      color:
+                          _getRitualColor(ritual.type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Icon(
@@ -160,16 +163,18 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                       children: [
                         Text(
                           ritual.title,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           ritual.description,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -182,22 +187,23 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                       children: [
                         Text(
                           '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: _getRitualColor(ritual.type),
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getRitualColor(ritual.type),
+                                  ),
                         ),
                         Text(
                           _getFrequencyText(ritual.frequency),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                         ),
                       ],
                     ),
                 ],
               ),
-              
               if (ritual.duration != null) ...[
                 const SizedBox(height: 12),
                 Row(
@@ -211,13 +217,12 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                     Text(
                       _formatDuration(ritual.duration!),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                            color: AppTheme.textSecondary,
+                          ),
                     ),
                   ],
                 ),
               ],
-              
               if (ritual.tags.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
@@ -225,17 +230,18 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                   runSpacing: 4,
                   children: ritual.tags.map((tag) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryColor.withOpacity(0.1),
+                        color: AppTheme.secondaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         tag,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.secondaryColor,
-                          fontWeight: FontWeight.w500,
-                        ),
+                              color: AppTheme.secondaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     );
                   }).toList(),

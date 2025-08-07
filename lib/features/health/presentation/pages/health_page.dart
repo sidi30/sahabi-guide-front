@@ -29,7 +29,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
     _allergiesController.text = 'Aucune allergie connue';
     _medicationsController.text = 'Vitamine D, Oméga 3';
     _emergencyContactController.text = '+227 96 12 34 56 (Dr. Amadou)';
-    _medicalNotesController.text = 'Suivi médical régulier. Dernière visite: 15/07/2024';
+    _medicalNotesController.text =
+        'Suivi médical régulier. Dernière visite: 15/07/2024';
   }
 
   @override
@@ -74,7 +75,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                             width: 50,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: AppTheme.secondaryColor.withOpacity(0.1),
+                              color: AppTheme.secondaryColor
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(25),
                             ),
                             child: const Icon(
@@ -90,15 +92,21 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                               children: [
                                 Text(
                                   'Profil Médical',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 Text(
                                   'Informations médicales sécurisées',
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: AppTheme.textSecondary,
+                                      ),
                                 ),
                               ],
                             ),
@@ -109,19 +117,23 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.verified_user, color: Colors.green, size: 20),
+                            const Icon(Icons.verified_user,
+                                color: Colors.green, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'Données chiffrées et sécurisées',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.green.shade700,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.green.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ],
                         ),
@@ -137,8 +149,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 'Informations Médicales',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
 
               const SizedBox(height: 16),
@@ -191,8 +203,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 'Contact d\'Urgence',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
 
               const SizedBox(height: 16),
@@ -218,8 +230,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 'Notes Médicales',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
 
               const SizedBox(height: 16),
@@ -240,8 +252,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 'Actions Rapides',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
 
               const SizedBox(height: 16),
@@ -288,7 +300,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -296,14 +308,16 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.privacy_tip, color: Colors.blue, size: 20),
+                        const Icon(Icons.privacy_tip,
+                            color: Colors.blue, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Confidentialité',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue.shade700,
+                                  ),
                         ),
                       ],
                     ),
@@ -311,8 +325,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     Text(
                       'Vos informations médicales sont stockées de manière sécurisée et chiffrée sur votre appareil. Elles ne sont partagées qu\'en cas d\'urgence avec votre consentement.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.blue.shade600,
-                      ),
+                            color: Colors.blue.shade600,
+                          ),
                     ),
                   ],
                 ),
@@ -343,7 +357,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -352,16 +366,16 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
+                      color: AppTheme.textSecondary,
+                    ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -406,7 +420,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                   children: [
                     Icon(Icons.qr_code, size: 80, color: Colors.grey),
                     SizedBox(height: 8),
-                    Text('QR Code Médical', style: TextStyle(color: Colors.grey)),
+                    Text('QR Code Médical',
+                        style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -456,7 +471,8 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                 const SnackBar(content: Text('Appel d\'urgence en cours...')),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
             child: const Text('Appeler'),
           ),
         ],

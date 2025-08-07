@@ -8,29 +8,29 @@ class MenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFF1D3557)),
-          onPressed: () {},
-        ),
-        title: const Text(
-          'Hajj Guide',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.menu, color: Color(0xFF1D3557)),
+      //     onPressed: () {},
+      //   ),
+      //   title: const Text(
+      //     'Hajj Guide',
+      //     style: TextStyle(
+      //       color: Color(0xFF1D3557),
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w600,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      // ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             const SizedBox(height: 20),
-            
+
             // First Row - My Hajj & My Duas
             Row(
               children: [
@@ -53,9 +53,9 @@ class MenuPage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Second Row - Map & Video
             Row(
               children: [
@@ -66,7 +66,8 @@ class MenuPage extends StatelessWidget {
                     color: const Color(0xFF4FC3F7),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Map & Location - Coming soon!')),
+                        const SnackBar(
+                            content: Text('Map & Location - Coming soon!')),
                       );
                     },
                   ),
@@ -79,16 +80,17 @@ class MenuPage extends StatelessWidget {
                     color: const Color(0xFF4FC3F7),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Video Preparation - Coming soon!')),
+                        const SnackBar(
+                            content: Text('Video Preparation - Coming soon!')),
                       );
                     },
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Internet & eSIM (Full Width)
             _buildFullWidthCard(
               icon: Icons.wifi,
@@ -96,13 +98,14 @@ class MenuPage extends StatelessWidget {
               color: const Color(0xFF4FC3F7),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Internet & eSIM - Coming soon!')),
+                  const SnackBar(
+                      content: Text('Internet & eSIM - Coming soon!')),
                 );
               },
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Third Row - Health & Profile
             Row(
               children: [
@@ -113,7 +116,8 @@ class MenuPage extends StatelessWidget {
                     color: const Color(0xFF4FC3F7),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('My Health - Coming soon!')),
+                        const SnackBar(
+                            content: Text('My Health - Coming soon!')),
                       );
                     },
                   ),
@@ -126,7 +130,9 @@ class MenuPage extends StatelessWidget {
                     color: const Color(0xFF4FC3F7),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Profile & Emergency - Coming soon!')),
+                        const SnackBar(
+                            content:
+                                Text('Profile & Emergency - Coming soon!')),
                       );
                     },
                   ),
@@ -155,7 +161,7 @@ class MenuPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -202,7 +208,7 @@ class MenuPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -238,7 +244,7 @@ class MenuPage extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

@@ -9,6 +9,7 @@ class VideoPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -39,9 +40,9 @@ class VideoPage extends StatelessWidget {
                 color: Color(0xFF1D3557),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -61,9 +62,9 @@ class VideoPage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Rituals Section
             const Text(
               'Rituals',
@@ -73,9 +74,9 @@ class VideoPage extends StatelessWidget {
                 color: Color(0xFF1D3557),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -95,9 +96,9 @@ class VideoPage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // App Usage Section
             const Text(
               'App Usage',
@@ -107,9 +108,9 @@ class VideoPage extends StatelessWidget {
                 color: Color(0xFF1D3557),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
@@ -129,7 +130,7 @@ class VideoPage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 100), // Space for bottom nav
           ],
         ),
@@ -145,7 +146,7 @@ class VideoPage extends StatelessWidget {
         height: 120,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: const Color(0xFF4FC3F7).withOpacity(0.1),
+          color: const Color(0xFF4FC3F7).withValues(alpha: 0.1),
         ),
         child: Stack(
           children: [
@@ -157,13 +158,13 @@ class VideoPage extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF4FC3F7).withOpacity(0.8),
-                    const Color(0xFF2A9D8F).withOpacity(0.8),
+                    const Color(0xFF4FC3F7).withValues(alpha: 0.8),
+                    const Color(0xFF2A9D8F).withValues(alpha: 0.8),
                   ],
                 ),
               ),
             ),
-            
+
             // Play button
             const Center(
               child: CircleAvatar(
@@ -176,7 +177,7 @@ class VideoPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Title
             Positioned(
               bottom: 12,
@@ -205,7 +206,7 @@ class VideoPage extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

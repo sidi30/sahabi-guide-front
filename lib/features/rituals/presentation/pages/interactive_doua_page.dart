@@ -50,9 +50,9 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
               },
               color: const Color(0xFF4FC3F7),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Mina Section
             _buildDouaSection(
               title: 'Mina',
@@ -66,16 +66,17 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
               },
               color: const Color(0xFF2A9D8F),
             ),
-            
+
             const Spacer(),
-            
+
             // Bottom Navigation
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildBottomNavItem(Icons.home, 'Home', false, () => context.go('/home')),
+                  _buildBottomNavItem(
+                      Icons.home, 'Home', false, () => context.go('/home')),
                   _buildBottomNavItem(Icons.favorite, 'Duas', true, () {}),
                   _buildBottomNavItem(Icons.map, 'Map', false, () {}),
                   _buildBottomNavItem(Icons.person, 'Profile', false, () {}),
@@ -103,7 +104,7 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -118,7 +119,7 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -169,9 +170,9 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Arabic Text Sample
           Container(
             width: double.infinity,
@@ -205,7 +206,7 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
               ],
             ),
           ),
-          
+
           if (isPlaying) ...[
             const SizedBox(height: 16),
             Container(
@@ -232,7 +233,8 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
     );
   }
 
-  Widget _buildBottomNavItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
+  Widget _buildBottomNavItem(
+      IconData icon, String label, bool isActive, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(

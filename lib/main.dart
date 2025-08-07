@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
+import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart' show VideoPage;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
+import 'features/map/presentation/pages/map_page.dart' show MapPage;
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
@@ -83,7 +86,7 @@ class MyApp extends ConsumerWidget {
   ThemeData _buildLightTheme() {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.light(
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primaryColor,
         secondary: AppColors.secondaryColor,
         surface: AppColors.surfaceColor,
@@ -160,110 +163,129 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch for theme changes
     final settings = ref.watch(settingsProvider);
     final currentThemeMode = settings.themeMode;
-    final currentLocale = settings.locale;
+    final currentLocale = settings.locale.locale;
 
-    // Convert AppThemeMode to ThemeMode
-    final themeMode = switch (currentThemeMode) {
-      AppThemeMode.dark => ThemeMode.dark,
-      AppThemeMode.light => ThemeMode.light,
-      AppThemeMode.system => ThemeMode.system,
-    };
+    // Use a Builder to ensure the theme updates without rebuilding the entire app
+    return Builder(
+      builder: (context) {
+        // Convert AppThemeMode to ThemeMode
+        final themeMode = switch (currentThemeMode) {
+          AppThemeMode.dark => ThemeMode.dark,
+          AppThemeMode.light => ThemeMode.light,
+          AppThemeMode.system =>
+            Theme.of(context).platform == TargetPlatform.iOS ||
+                    Theme.of(context).platform == TargetPlatform.macOS
+                ? ThemeMode.system
+                : ThemeMode.light,
+        };
 
-    final router = GoRouter(
-      initialLocation: AppRoutes.splash,
-      routes: [
-        // Splash Screen
-        GoRoute(
-          path: AppRoutes.splash,
-          builder: (context, state) => const SplashPage(),
-        ),
-
-        // Onboarding Screen
-        GoRoute(
-          path: AppRoutes.onboarding,
-          builder: (context, state) => const OnboardingScreen(),
-        ),
-
-        // Main Shell with Bottom Navigation
-        ShellRoute(
-          builder: (context, state, child) => MainShell(child: child),
+        final router = GoRouter(
+          initialLocation: AppRoutes.splash,
           routes: [
-            // Home Screen
+            // Splash Screen
             GoRoute(
-              path: AppRoutes.home,
-              builder: (context, state) => const HomePage(),
+              path: AppRoutes.splash,
+              builder: (context, state) => const SplashPage(),
             ),
 
-            // Rituals Section
+            // Onboarding Screen
             GoRoute(
-              path: AppRoutes.rituals,
-              redirect: (context, state) => AppRoutes.timeline,
-            ),
-            GoRoute(
-              path: AppRoutes.timeline,
-              builder: (context, state) => const TimelineScreen(),
-            ),
-            GoRoute(
-              path: AppRoutes.duas,
-              builder: (context, state) => const DuasScreen(),
+              path: AppRoutes.onboarding,
+              builder: (context, state) => const OnboardingScreen(),
             ),
 
-            // Map Screen
-            GoRoute(
-              path: AppRoutes.map,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Carte'),
-            ),
+            // Main Shell with Bottom Navigation - Wraps all main screens including home
+            ShellRoute(
+              builder: (context, state, child) => MainShell(child: child),
+              routes: [
+                // Home Screen - Now wrapped in MainShell
+                GoRoute(
+                  path: AppRoutes.home,
+                  builder: (context, state) => const HomePage(),
+                ),
 
-            // Videos Screen
-            GoRoute(
-              path: AppRoutes.videos,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Vidéos'),
-            ),
+                // Rituals Section
+                GoRoute(
+                  path: AppRoutes.rituals,
+                  redirect: (context, state) => AppRoutes.timeline,
+                ),
+                GoRoute(
+                  path: AppRoutes.timeline,
+                  builder: (context, state) => const TimelineScreen(),
+                ),
+                GoRoute(
+                  path: AppRoutes.duas,
+                  builder: (context, state) => const DuasScreen(),
+                ),
 
-            // Profile Screen
-            GoRoute(
-              path: AppRoutes.profile,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Profil'),
-            ),
+                // Map Screen
+                GoRoute(
+                  path: AppRoutes.map,
+                  builder: (context, state) =>
+                      const MapPage(),
+                ),
 
-            // Settings Screen
-            GoRoute(
-              path: AppRoutes.settings,
-              builder: (context, state) => const SettingsScreen(),
+                // Videos Screen
+                GoRoute(
+                  path: AppRoutes.videos,
+                  builder: (context, state) =>
+                      const VideoPage(),
+                ),
+
+                // Profile Screen
+                GoRoute(
+                  path: AppRoutes.profile,
+                  builder: (context, state) =>
+                      const ProfilePage()
+                ),
+
+                // Settings Screen
+                GoRoute(
+                  path: AppRoutes.settings,
+                  builder: (context, state) => const SettingsScreen(),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
-      errorBuilder: (context, state) => Scaffold(
-        body: Center(
-          child: Text('Page non trouvée: ${state.uri.path}'),
-        ),
-      ),
-    );
+          errorBuilder: (context, state) => Scaffold(
+            body: Center(
+              child: Text('Page non trouvée: ${state.uri.path}'),
+            ),
+          ),
+        );
 
-    return MaterialApp.router(
-      title: 'Sahabi Guide',
-      debugShowCheckedModeBanner: false,
-      locale: currentLocale,
-      themeMode: themeMode,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'), // English
-        Locale('fr'), // French
-        Locale('ar'), // Arabic
-      ],
-      routerConfig: router,
+        return MaterialApp.router(
+          title: 'Sahabi Guide',
+          debugShowCheckedModeBanner: false,
+          locale: currentLocale,
+          themeMode: themeMode,
+          theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('fr'), // French
+            Locale('ar'), // Arabic
+          ],
+          routerConfig: router,
+          // Ensure the app updates when locale changes
+          builder: (context, child) {
+            // This makes the app update when the locale changes
+            return Localizations.override(
+              context: context,
+              locale: currentLocale,
+              child: child!,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -419,7 +441,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: ElevatedButton(
                               onPressed: selectedRole.isNotEmpty &&
                                       selectedLanguage.isNotEmpty
-                                  ? () => context.push(AppRoutes.home)
+                                  ? () => context.go(AppRoutes.home)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4FC3F7),
@@ -643,7 +665,7 @@ class MenuScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -722,7 +744,7 @@ class TimelineScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 1),
           ),
@@ -854,7 +876,7 @@ class _DuasScreenState extends State<DuasScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -869,7 +891,7 @@ class _DuasScreenState extends State<DuasScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(

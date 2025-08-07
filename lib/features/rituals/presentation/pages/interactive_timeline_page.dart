@@ -5,7 +5,8 @@ class InteractiveTimelinePage extends StatefulWidget {
   const InteractiveTimelinePage({super.key});
 
   @override
-  State<InteractiveTimelinePage> createState() => _InteractiveTimelinePageState();
+  State<InteractiveTimelinePage> createState() =>
+      _InteractiveTimelinePageState();
 }
 
 class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
@@ -92,7 +93,7 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -112,7 +113,8 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
                 LinearProgressIndicator(
                   value: _getProgressValue(),
                   backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4FC3F7)),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(Color(0xFF4FC3F7)),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -125,7 +127,7 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
               ],
             ),
           ),
-          
+
           // Timeline List
           Expanded(
             child: ListView.builder(
@@ -136,14 +138,15 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
               },
             ),
           ),
-          
+
           // Bottom Navigation
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildBottomNavItem(Icons.home, 'Home', false, () => context.go('/home')),
+                _buildBottomNavItem(
+                    Icons.home, 'Home', false, () => context.go('/home')),
                 _buildBottomNavItem(Icons.timeline, 'Timeline', true, () {}),
                 _buildBottomNavItem(Icons.map, 'Map', false, () {}),
                 _buildBottomNavItem(Icons.person, 'Profile', false, () {}),
@@ -156,15 +159,19 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
   }
 
   double _getProgressValue() {
-    int completed = ritualSteps.where((step) => step.status == RitualStatus.completed).length;
-    int inProgress = ritualSteps.where((step) => step.status == RitualStatus.inProgress).length;
+    int completed = ritualSteps
+        .where((step) => step.status == RitualStatus.completed)
+        .length;
+    int inProgress = ritualSteps
+        .where((step) => step.status == RitualStatus.inProgress)
+        .length;
     return (completed + (inProgress * 0.5)) / ritualSteps.length;
   }
 
   Widget _buildTimelineItem(RitualStep step, int index) {
     Color statusColor = _getStatusColor(step.status);
     IconData statusIcon = _getStatusIcon(step.status);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -194,9 +201,9 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
                 ),
             ],
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Content
           Expanded(
             child: Container(
@@ -206,7 +213,7 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 5,
                     offset: const Offset(0, 1),
                   ),
@@ -227,9 +234,10 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
+                          color: statusColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -262,7 +270,8 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4FC3F7),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -314,14 +323,15 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
     setState(() {
       ritualSteps[index].status = RitualStatus.completed;
       // Start next step if available
-      if (index + 1 < ritualSteps.length && 
+      if (index + 1 < ritualSteps.length &&
           ritualSteps[index + 1].status == RitualStatus.pending) {
         ritualSteps[index + 1].status = RitualStatus.inProgress;
       }
     });
   }
 
-  Widget _buildBottomNavItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
+  Widget _buildBottomNavItem(
+      IconData icon, String label, bool isActive, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(

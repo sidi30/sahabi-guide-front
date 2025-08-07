@@ -81,10 +81,10 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
               int index = entry.key;
               Map<String, dynamic> ritual = entry.value;
               bool isLast = index == rituals.length - 1;
-              
+
               return _buildTimelineItem(ritual, isLast);
             }),
-            
+
             const SizedBox(height: 100), // Space for bottom nav
           ],
         ),
@@ -104,18 +104,18 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: ritual['isActive'] 
-                    ? const Color(0xFF4FC3F7) 
-                    : ritual['isCompleted'] 
-                        ? const Color(0xFF10B981) 
+                color: ritual['isActive']
+                    ? const Color(0xFF4FC3F7)
+                    : ritual['isCompleted']
+                        ? const Color(0xFF10B981)
                         : const Color(0xFFE5E7EB),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                ritual['isActive'] 
+                ritual['isActive']
                     ? Icons.access_time
-                    : ritual['isCompleted'] 
-                        ? Icons.check 
+                    : ritual['isCompleted']
+                        ? Icons.check
                         : Icons.circle,
                 color: Colors.white,
                 size: 16,
@@ -125,15 +125,15 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
               Container(
                 width: 2,
                 height: 60,
-                color: ritual['isCompleted'] 
-                    ? const Color(0xFF10B981) 
+                color: ritual['isCompleted']
+                    ? const Color(0xFF10B981)
                     : const Color(0xFFE5E7EB),
               ),
           ],
         ),
-        
+
         const SizedBox(width: 16),
-        
+
         // Content
         Expanded(
           child: Container(
@@ -158,11 +158,11 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
                     color: Color(0xFF6B7280),
                   ),
                 ),
-                
+
                 // Action buttons for active ritual
                 if (ritual['isActive']) ...[
                   const SizedBox(height: 16),
-                  
+
                   // Audio Guide Button
                   if (ritual['hasAudio'])
                     Container(
@@ -185,7 +185,7 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
                         ),
                       ),
                     ),
-                  
+
                   // Video Demonstration Button
                   if (ritual['hasVideo'])
                     Container(
@@ -208,14 +208,14 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
                         ),
                       ),
                     ),
-                  
+
                   // Mark as completed button
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
                         ritual['isCompleted'] = true;
                         ritual['isActive'] = false;
-                        
+
                         // Activate next ritual if exists
                         int currentIndex = rituals.indexOf(ritual);
                         if (currentIndex < rituals.length - 1) {
@@ -254,7 +254,7 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
