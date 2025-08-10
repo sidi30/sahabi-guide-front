@@ -16,6 +16,7 @@ import 'features/settings/presentation/screens/settings_screen.dart';
 import 'features/splash/presentation/splash_page.dart';
 import 'shared/presentation/widgets/main_shell.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'l10n/app_localizations.dart';
 
 // Simple placeholder widget for unimplemented screens
 class PlaceholderScreen extends StatelessWidget {
@@ -83,6 +84,79 @@ Future<void> main() async {
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
+
+  // Keep router stable across rebuilds to avoid resetting navigation
+  static final GoRouter _router = GoRouter(
+    initialLocation: AppRoutes.splash,
+    routes: [
+      // Splash Screen
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashPage(),
+      ),
+
+      // Onboarding Screen
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // Main Shell with Bottom Navigation - Wraps all main screens including home
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          // Home Screen - Now wrapped in MainShell
+          GoRoute(
+            path: AppRoutes.home,
+            builder: (context, state) => const HomePage(),
+          ),
+
+          // Rituals Section
+          GoRoute(
+            path: AppRoutes.rituals,
+            redirect: (context, state) => AppRoutes.timeline,
+          ),
+          GoRoute(
+            path: AppRoutes.timeline,
+            builder: (context, state) => const TimelineScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.duas,
+            builder: (context, state) => const DuasScreen(),
+          ),
+
+          // Map Screen
+          GoRoute(
+            path: AppRoutes.map,
+            builder: (context, state) => const MapPage(),
+          ),
+
+          // Videos Screen
+          GoRoute(
+            path: AppRoutes.videos,
+            builder: (context, state) => const VideoPage(),
+          ),
+
+          // Profile Screen
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfilePage(),
+          ),
+
+          // Settings Screen
+          GoRoute(
+            path: AppRoutes.settings,
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Text('Page non trouvée: ${state.uri.path}'),
+      ),
+    ),
+  );
 
   ThemeData _buildLightTheme() {
     return ThemeData(
@@ -179,77 +253,6 @@ class MyApp extends ConsumerWidget {
                 : ThemeMode.light,
         };
 
-        final router = GoRouter(
-          initialLocation: AppRoutes.splash,
-          routes: [
-            // Splash Screen
-            GoRoute(
-              path: AppRoutes.splash,
-              builder: (context, state) => const SplashPage(),
-            ),
-
-            // Onboarding Screen
-            GoRoute(
-              path: AppRoutes.onboarding,
-              builder: (context, state) => const OnboardingScreen(),
-            ),
-
-            // Main Shell with Bottom Navigation - Wraps all main screens including home
-            ShellRoute(
-              builder: (context, state, child) => MainShell(child: child),
-              routes: [
-                // Home Screen - Now wrapped in MainShell
-                GoRoute(
-                  path: AppRoutes.home,
-                  builder: (context, state) => const HomePage(),
-                ),
-
-                // Rituals Section
-                GoRoute(
-                  path: AppRoutes.rituals,
-                  redirect: (context, state) => AppRoutes.timeline,
-                ),
-                GoRoute(
-                  path: AppRoutes.timeline,
-                  builder: (context, state) => const TimelineScreen(),
-                ),
-                GoRoute(
-                  path: AppRoutes.duas,
-                  builder: (context, state) => const DuasScreen(),
-                ),
-
-                // Map Screen
-                GoRoute(
-                  path: AppRoutes.map,
-                  builder: (context, state) => const MapPage(),
-                ),
-
-                // Videos Screen
-                GoRoute(
-                  path: AppRoutes.videos,
-                  builder: (context, state) => const VideoPage(),
-                ),
-
-                // Profile Screen
-                GoRoute(
-                    path: AppRoutes.profile,
-                    builder: (context, state) => const ProfilePage()),
-
-                // Settings Screen
-                GoRoute(
-                  path: AppRoutes.settings,
-                  builder: (context, state) => const SettingsScreen(),
-                ),
-              ],
-            ),
-          ],
-          errorBuilder: (context, state) => Scaffold(
-            body: Center(
-              child: Text('Page non trouvée: ${state.uri.path}'),
-            ),
-          ),
-        );
-
         return MaterialApp.router(
           title: 'Sahabi Guide',
           debugShowCheckedModeBanner: false,
@@ -258,16 +261,13 @@ class MyApp extends ConsumerWidget {
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           localizationsDelegates: const [
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en'), // English
-            Locale('fr'), // French
-            Locale('ar'), // Arabic
-          ],
-          routerConfig: router,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: _router,
           // Ensure the app updates when locale changes
           builder: (context, child) {
             // This makes the app update when the locale changes

@@ -8,24 +8,24 @@ class MapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Pilgrim\'s Map',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
+      //     onPressed: () => context.pop(),
+      //   ),
+      //   title: const Text(
+      //     'Pilgrim\'s Map',
+      //     style: TextStyle(
+      //       color: Color(0xFF1D3557),
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w600,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      // ),
       body: Stack(
         children: [
           // Map Container

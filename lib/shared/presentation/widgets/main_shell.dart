@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -96,11 +95,11 @@ class _MainShellState extends ConsumerState<MainShell> {
       case 1:
         return 'My Duas';
       case 2:
-        return 'Map & Location';
+        return 'Pilgrim\'s Map';
       case 3:
         return 'Video Preparation';
       case 4:
-        return 'Internet & eSIM';
+        return 'Settings';
       case 5:
         return 'My Health';
       case 6:
@@ -191,7 +190,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                   children: List.generate(_navigationItems.length, (index) {
                     final item = _navigationItems[index];
                     final isSelected = _selectedIndex == index;
-                    
+
                     return GestureDetector(
                       onTap: () => _onDestinationSelected(index),
                       child: Container(
@@ -200,7 +199,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: isSelected 
+                          color: isSelected
                               ? AppColors.primary.withValues(alpha: 0.1)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
@@ -211,8 +210,8 @@ class _MainShellState extends ConsumerState<MainShell> {
                             Icon(
                               isSelected ? item.selectedIcon : item.icon,
                               size: 22,
-                              color: isSelected 
-                                  ? AppColors.primary 
+                              color: isSelected
+                                  ? AppColors.primary
                                   : AppColors.textLight,
                             ),
                             const SizedBox(height: 4),
@@ -220,11 +219,11 @@ class _MainShellState extends ConsumerState<MainShell> {
                               item.label,
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: isSelected 
-                                    ? FontWeight.w600 
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
                                     : FontWeight.normal,
-                                color: isSelected 
-                                    ? AppColors.primary 
+                                color: isSelected
+                                    ? AppColors.primary
                                     : AppColors.textLight,
                               ),
                             ),

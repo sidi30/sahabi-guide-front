@@ -20,7 +20,7 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           _buildThemeSection(context, ref, settings),
-          //_buildLanguageSection(context, ref, settings),
+          _buildLanguageSection(context, ref, settings),
         ],
       ),
     );
@@ -47,9 +47,12 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(_getThemeModeName(mode)),
               value: mode,
               groupValue: settings.themeMode,
-              onChanged: (value) {
+              onChanged: (value) async {
                 if (value != null) {
-                  ref.read(settingsProvider.notifier).setThemeMode(value);
+                  await ref.read(settingsProvider.notifier).setThemeMode(value);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Theme changed successfully'), duration: Duration(milliseconds: 900)),
+                  );
                 }
               },
             );
@@ -114,11 +117,14 @@ class SettingsScreen extends ConsumerWidget {
                   title: Text(_getAudioLanguageName(lang, localizations)),
                   value: lang,
                   groupValue: settings.audioLanguage,
-                  onChanged: (value) {
+                  onChanged: (value) async {
                     if (value != null) {
-                      ref
+                      await ref
                           .read(settingsProvider.notifier)
                           .setAudioLanguage(value);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('OK'), duration: Duration(milliseconds: 900)),
+                      );
                     }
                   },
                 );
