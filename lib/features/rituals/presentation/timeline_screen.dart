@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class TimelineScreen extends StatelessWidget {
-  const TimelineScreen({Key? key}) : super(key: key);
+  const TimelineScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -3,12 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/theme.dart';
-import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/user_model.dart';
-import '../../../../shared/providers/providers.dart';
 import '../../domain/repositories/home_repository.dart';
-import '../../../auth/domain/usecases/logout_usecase.dart';
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repository = sl<HomeRepository>();

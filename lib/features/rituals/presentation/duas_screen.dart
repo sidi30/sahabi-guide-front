@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class DuasScreen extends StatefulWidget {
-  const DuasScreen({Key? key}) : super(key: key);
+  const DuasScreen({super.key});
 
   @override
   State<DuasScreen> createState() => _DuasScreenState();

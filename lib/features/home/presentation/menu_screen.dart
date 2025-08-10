@@ -6,7 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 // import '../../../rituals/presentation/duas_screen.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  const MenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

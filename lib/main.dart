@@ -4,7 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
-import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart' show VideoPage;
+import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
+    show VideoPage;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
@@ -94,8 +95,6 @@ class MyApp extends ConsumerWidget {
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: AppColors.primaryColor,
-        background: AppColors.backgroundColor,
-        onBackground: AppColors.primaryColor,
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: AppColors.backgroundColor,
@@ -125,16 +124,14 @@ class MyApp extends ConsumerWidget {
   ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
-        background: AppColors.darkBackground,
         surface: AppColors.darkSurface,
         error: AppColors.error,
         onPrimary: AppColors.textOnPrimary,
         onSecondary: AppColors.textOnSecondary,
         onSurface: Colors.white,
-        onBackground: Colors.white,
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: AppColors.darkBackground,
@@ -176,8 +173,8 @@ class MyApp extends ConsumerWidget {
           AppThemeMode.dark => ThemeMode.dark,
           AppThemeMode.light => ThemeMode.light,
           AppThemeMode.system =>
-            Theme.of(context).platform == TargetPlatform.iOS ||
-                    Theme.of(context).platform == TargetPlatform.macOS
+            Theme.of(context).platform == TargetPlatform.iOS
+                //  || Theme.of(context).platform == TargetPlatform.macOS
                 ? ThemeMode.system
                 : ThemeMode.light,
         };
@@ -224,23 +221,19 @@ class MyApp extends ConsumerWidget {
                 // Map Screen
                 GoRoute(
                   path: AppRoutes.map,
-                  builder: (context, state) =>
-                      const MapPage(),
+                  builder: (context, state) => const MapPage(),
                 ),
 
                 // Videos Screen
                 GoRoute(
                   path: AppRoutes.videos,
-                  builder: (context, state) =>
-                      const VideoPage(),
+                  builder: (context, state) => const VideoPage(),
                 ),
 
                 // Profile Screen
                 GoRoute(
-                  path: AppRoutes.profile,
-                  builder: (context, state) =>
-                      const ProfilePage()
-                ),
+                    path: AppRoutes.profile,
+                    builder: (context, state) => const ProfilePage()),
 
                 // Settings Screen
                 GoRoute(

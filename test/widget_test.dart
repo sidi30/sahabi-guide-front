@@ -16,7 +16,7 @@ void main() {
               routes: [
                 GoRoute(
                   path: '/',
-                  builder: (context, state) => OnboardingScreen(),
+                  builder: (context, state) => const OnboardingScreen(),
                 ),
               ],
             ),
@@ -30,7 +30,7 @@ void main() {
 
     testWidgets('Onboarding screen should be displayed initially', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        const ProviderScope(
           child: MaterialApp(
             home: OnboardingScreen(),
           ),
@@ -58,7 +58,7 @@ void main() {
                 secondary: Color(0xFF2A9D8F),
               ),
             ),
-            home: OnboardingScreen(),
+            home: const OnboardingScreen(),
           ),
         ),
       );

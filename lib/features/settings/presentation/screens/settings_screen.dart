@@ -28,7 +28,7 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildThemeSection(
       BuildContext context, WidgetRef ref, SettingsState settings) {
-    final List<AppThemeMode> themeModes = AppThemeMode.values;
+    const List<AppThemeMode> themeModes = AppThemeMode.values;
 
     return Card(
       margin: const EdgeInsets.all(16),
@@ -90,7 +90,7 @@ class SettingsScreen extends ConsumerWidget {
                     }
                   },
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -101,11 +101,11 @@ class SettingsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
+              const Padding(
+                padding: EdgeInsets.all(16),
                 child: Text(
                   'Audio Language',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -122,7 +122,7 @@ class SettingsScreen extends ConsumerWidget {
                     }
                   },
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),

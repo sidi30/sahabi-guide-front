@@ -66,6 +66,7 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
