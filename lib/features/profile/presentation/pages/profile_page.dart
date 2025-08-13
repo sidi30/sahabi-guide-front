@@ -83,7 +83,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: user.profileImageUrl != null
@@ -120,32 +120,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // User Name
                   Text(
                     user.fullName,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // Email
                   Text(
                     user.email,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                          color: AppTheme.textSecondary,
+                        ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Verification Status
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: user.isVerified ? Colors.green : Colors.orange,
                       borderRadius: BorderRadius.circular(16),
@@ -187,9 +188,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               if (user.phoneNumber != null)
                 _buildInfoRow('Téléphone', user.phoneNumber!),
               if (user.dateOfBirth != null)
-                _buildInfoRow('Date de naissance', _formatDate(user.dateOfBirth!)),
-              if (user.address != null)
-                _buildInfoRow('Adresse', user.address!),
+                _buildInfoRow(
+                    'Date de naissance', _formatDate(user.dateOfBirth!)),
+              if (user.address != null) _buildInfoRow('Adresse', user.address!),
             ],
           ),
 
@@ -202,7 +203,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
@@ -325,8 +326,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             ...children,
@@ -347,9 +348,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
           Expanded(
@@ -400,7 +401,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   children: [
                     Icon(Icons.qr_code, size: 80, color: Colors.grey),
                     SizedBox(height: 8),
-                    Text('QR Code Profil', style: TextStyle(color: Colors.grey)),
+                    Text('QR Code Profil',
+                        style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -450,7 +452,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 context.go(AppConstants.loginRoute);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
             child: const Text('Se déconnecter'),
           ),
         ],

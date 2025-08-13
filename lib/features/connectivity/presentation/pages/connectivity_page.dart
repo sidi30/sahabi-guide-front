@@ -46,7 +46,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: (_isConnected ? Colors.green : Colors.red).withOpacity(0.1),
+                            color: (_isConnected ? Colors.green : Colors.red)
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Icon(
@@ -62,43 +63,54 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                             children: [
                               Text(
                                 _isConnected ? 'Connecté' : 'Déconnecté',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: _isConnected ? Colors.green : Colors.red,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: _isConnected
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
                               ),
                               Text(
-                                _isConnected 
+                                _isConnected
                                     ? 'Connexion Internet active'
                                     : 'Aucune connexion Internet',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.textSecondary,
+                                    ),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    
                     if (_isConnected) ...[
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.signal_wifi_4_bar, color: Colors.green, size: 20),
+                            const Icon(Icons.signal_wifi_4_bar,
+                                color: Colors.green, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'Signal fort - WiFi domestique',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.green.shade700,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.green.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ],
                         ),
@@ -115,8 +127,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
             Text(
               'Synchronisation',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 16),
@@ -135,16 +147,15 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                         ),
                         Text(
                           _formatLastSync(_lastSync),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppTheme.secondaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                       ],
                     ),
-                    
                     const SizedBox(height: 16),
-                    
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -164,8 +175,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
             Text(
               'Paramètres de synchronisation',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 16),
@@ -175,7 +186,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 children: [
                   SwitchListTile(
                     title: const Text('Synchronisation automatique'),
-                    subtitle: const Text('Synchroniser automatiquement les données'),
+                    subtitle:
+                        const Text('Synchroniser automatiquement les données'),
                     value: _autoSync,
                     onChanged: (value) {
                       setState(() {
@@ -184,9 +196,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                     },
                     secondary: const Icon(Icons.sync),
                   ),
-                  
                   const Divider(height: 1),
-                  
                   SwitchListTile(
                     title: const Text('WiFi uniquement'),
                     subtitle: const Text('Synchroniser seulement en WiFi'),
@@ -208,8 +218,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
             Text(
               'Utilisation des données',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 16),
@@ -235,8 +245,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
             Text(
               'Fonctionnalités hors ligne',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 16),
@@ -249,7 +259,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
@@ -264,15 +274,13 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                       // TODO: Show downloaded rituals
                     },
                   ),
-                  
                   const Divider(height: 1),
-                  
                   ListTile(
                     leading: Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryColor.withOpacity(0.1),
+                        color: AppTheme.secondaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
@@ -297,8 +305,8 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
             Text(
               'Diagnostics réseau',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 16),
@@ -310,9 +318,11 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                   children: [
                     _buildDiagnosticRow('Ping', '23 ms', Colors.green),
                     const SizedBox(height: 12),
-                    _buildDiagnosticRow('Débit descendant', '45.2 Mbps', Colors.green),
+                    _buildDiagnosticRow(
+                        'Débit descendant', '45.2 Mbps', Colors.green),
                     const SizedBox(height: 12),
-                    _buildDiagnosticRow('Débit montant', '12.8 Mbps', Colors.green),
+                    _buildDiagnosticRow(
+                        'Débit montant', '12.8 Mbps', Colors.green),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -350,14 +360,14 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 Text(
                   download,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
                 Text(
                   'Téléchargé',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                        color: AppTheme.textSecondary,
+                      ),
                 ),
               ],
             ),
@@ -368,14 +378,14 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 Text(
                   upload,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
                 Text(
                   'Envoyé',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                        color: AppTheme.textSecondary,
+                      ),
                 ),
               ],
             ),
@@ -396,15 +406,15 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ),
       ],
@@ -416,7 +426,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
     setState(() {
       _isConnected = !_isConnected;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isConnected ? 'Connexion rétablie' : 'Connexion perdue'),
@@ -430,7 +440,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
     setState(() {
       _lastSync = DateTime.now();
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Synchronisation terminée'),

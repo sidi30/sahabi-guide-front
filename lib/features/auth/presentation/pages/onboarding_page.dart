@@ -21,25 +21,29 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final List<OnboardingData> _pages = [
     OnboardingData(
       title: 'Bienvenue dans Sahabi Guide',
-      description: 'Votre compagnon spirituel pour une pratique religieuse enrichie et guidée.',
+      description:
+          'Votre compagnon spirituel pour une pratique religieuse enrichie et guidée.',
       icon: Icons.mosque,
       color: AppTheme.primaryColor,
     ),
     OnboardingData(
       title: 'Rituels et Prières',
-      description: 'Suivez vos prières quotidiennes, récitez des duas et pratiquez le dhikr avec des guides audio.',
+      description:
+          'Suivez vos prières quotidiennes, récitez des duas et pratiquez le dhikr avec des guides audio.',
       icon: Icons.schedule,
       color: AppTheme.secondaryColor,
     ),
     OnboardingData(
       title: 'Localisation et Communauté',
-      description: 'Trouvez les mosquées, centres islamiques et événements près de chez vous.',
+      description:
+          'Trouvez les mosquées, centres islamiques et événements près de chez vous.',
       icon: Icons.location_on,
       color: AppTheme.accentColor,
     ),
     OnboardingData(
       title: 'Santé et Bien-être',
-      description: 'Gérez vos informations médicales et restez connecté avec votre communauté.',
+      description:
+          'Gérez vos informations médicales et restez connecté avec votre communauté.',
       icon: Icons.health_and_safety,
       color: AppTheme.primaryColor,
     ),
@@ -80,7 +84,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   Future<void> _completeOnboarding() async {
     final storageService = sl<StorageService>();
     await storageService.storeBool(AppConstants.onboardingKey, true);
-    
+
     if (mounted) {
       context.go(AppConstants.loginRoute);
     }
@@ -103,7 +107,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 ),
               ),
             ),
-            
+
             // Page View
             Expanded(
               child: PageView.builder(
@@ -122,7 +126,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                           width: 120,
                           height: 120,
                           decoration: BoxDecoration(
-                            color: page.color.withOpacity(0.1),
+                            color: page.color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(60),
                           ),
                           child: Icon(
@@ -131,28 +135,32 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                             color: page.color,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 48),
-                        
+
                         // Title
                         Text(
                           page.title,
-                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
                           textAlign: TextAlign.center,
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Description
                         Text(
                           page.description,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.textSecondary,
-                            height: 1.5,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                    height: 1.5,
+                                  ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -161,7 +169,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 },
               ),
             ),
-            
+
             // Page Indicator
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -174,15 +182,15 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   decoration: BoxDecoration(
                     color: _currentIndex == index
                         ? AppTheme.primaryColor
-                        : AppTheme.primaryColor.withOpacity(0.3),
+                        : AppTheme.primaryColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 48),
-            
+
             // Navigation Buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -197,7 +205,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     )
                   else
                     const SizedBox(width: 100),
-                  
+
                   // Next/Get Started Button
                   ElevatedButton(
                     onPressed: _nextPage,
@@ -210,7 +218,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 32),
           ],
         ),

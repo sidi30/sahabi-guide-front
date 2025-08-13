@@ -1,114 +1,304 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
+import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
+    show VideoPage;
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Routes de l'application
-class AppRoutes {
-  static const String splash = '/';
-  static const String onboarding = '/onboarding';
-  static const String menu = '/menu';
-  static const String timeline = '/timeline';
-  static const String duas = '/duas';
-  // Les autres routes non implémentées sont commentées
-  // static const String map = '/map';
-  // static const String videos = '/videos';
-  // static const String health = '/health';
-  // static const String profile = '/profile';
-}
+import 'core/di/injection_container.dart';
+import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
+import 'features/health/presentation/pages/health_page.dart';
+import 'features/map/presentation/pages/map_page.dart' show MapPage;
+import 'features/rituals/presentation/duas_screen.dart';
+import 'shared/constants/app_colors.dart';
+import 'features/settings/presentation/providers/settings_provider.dart';
+import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/splash/presentation/splash_page.dart';
+import 'shared/presentation/widgets/main_shell.dart';
+import 'features/home/presentation/pages/home_page.dart';
+import 'l10n/app_localizations.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
+// Simple placeholder widget for unimplemented screens
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const PlaceholderScreen({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    final router = GoRouter(
-      initialLocation: AppRoutes.splash,
-      routes: [
-        // Écran de démarrage
-        GoRoute(
-          path: AppRoutes.splash,
-          builder: (context, state) => const SplashPage(),
-        ),
-        
-        GoRoute(
-          path: AppRoutes.onboarding,
-          builder: (context, state) => const OnboardingScreen(),
-        ),
-
-        // Menu principal
-        GoRoute(
-          path: AppRoutes.menu,
-          builder: (context, state) => const MenuScreen(),
-        ),
-        
-        // Écran de la chronologie
-        GoRoute(
-          path: AppRoutes.timeline,
-          builder: (context, state) => TimelineScreen(),
-        ),
-        
-        // Écran des douas
-        GoRoute(
-          path: AppRoutes.duas,
-          builder: (context, state) => DuasScreen(),
-        ),
-        
-        // Les routes non implémentées sont commentées pour l'instant
-        /*
-        GoRoute(
-          path: AppRoutes.map,
-          builder: (context, state) => _buildPlaceholderScreen('Map & Location'),
-        ),
-        GoRoute(
-          path: AppRoutes.videos,
-          builder: (context, state) => _buildPlaceholderScreen('Video Preparation'),
-        ),
-        GoRoute(
-          path: AppRoutes.health,
-          builder: (context, state) => _buildPlaceholderScreen('My Health'),
-        ),
-        GoRoute(
-          path: AppRoutes.profile,
-          builder: (context, state) => _buildPlaceholderScreen('Profile & Emergency'),
-        ),
-        */
-      ],
-      errorBuilder: (context, state) => Scaffold(
-        body: Center(
-          child: Text('Page non trouvée: ${state.uri.path}'),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text(
+          '$title - Page en construction',
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
       ),
     );
+  }
+}
 
-    return MaterialApp.router(
-      title: 'Hajj Companion',
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF1D3557),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: const Color(0xFF2A9D8F),
+// Application Routes
+class AppRoutes {
+  // Initial routes
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
+
+  // Main shell routes
+  static const String home = '/home';
+  static const String rituals = '/rituals';
+  static const String map = '/map';
+  static const String videos = '/videos';
+  static const String profile = '/profile';
+  static const String settings = '/settings';
+
+  // Nested routes
+  static const String timeline = '/rituals/timeline';
+  static const String duas = '/rituals/duas';
+  static const String health = '/health';
+  static const String connectivity = '/connectivity';
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize dependencies
+  await initializeDependencies();
+
+  // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+
+  // Create settings notifier and load initial settings
+  final settingsNotifier = SettingsNotifier(prefs: prefs);
+  await settingsNotifier.loadSettings();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        settingsProvider.overrideWith((ref) => settingsNotifier),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  // Keep router stable across rebuilds to avoid resetting navigation
+  static final GoRouter _router = GoRouter(
+    initialLocation: AppRoutes.splash,
+    routes: [
+      // Splash Screen
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashPage(),
+      ),
+
+      // Onboarding Screen
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // Main Shell with Bottom Navigation - Wraps all main screens including home
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          // Home Screen - Now wrapped in MainShell
+          GoRoute(
+            path: AppRoutes.home,
+            builder: (context, state) => const HomePage(),
+          ),
+
+          // Rituals Section
+          GoRoute(
+            path: AppRoutes.rituals,
+            redirect: (context, state) => AppRoutes.timeline,
+          ),
+
+          // duas 
+          GoRoute(
+            path: AppRoutes.duas,
+            builder: (context, state) => const DuasScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.health,
+            builder: (context, state) => const HealthPage(),
+          ),
+
+          GoRoute(
+            path: AppRoutes.connectivity,
+            builder: (context, state) => const ConnectivityPage(),
+          ),
+
+          GoRoute(
+            path: AppRoutes.timeline,
+            builder: (context, state) => const TimelineScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.duas,
+            builder: (context, state) => const DuasScreen(),
+          ),
+
+          // Map Screen
+          GoRoute(
+            path: AppRoutes.map,
+            builder: (context, state) => const MapPage(),
+          ),
+
+          // Videos Screen
+          GoRoute(
+            path: AppRoutes.videos,
+            builder: (context, state) => const VideoPage(),
+          ),
+
+          // Profile Screen
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfilePage(),
+          ),
+
+          // Settings Screen
+          GoRoute(
+            path: AppRoutes.settings,
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
+    ],
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Text('Page non trouvée: ${state.uri.path}'),
+      ),
+    ),
+  );
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primaryColor,
+        secondary: AppColors.secondaryColor,
+        surface: AppColors.surfaceColor,
+        error: AppColors.errorColor,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.primaryColor,
+        brightness: Brightness.light,
+      ),
+      scaffoldBackgroundColor: AppColors.backgroundColor,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.appBarBackground,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: AppColors.appBarText,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          iconTheme: IconThemeData(
-            color: Color(0xFF1D3557),
-          ),
+        iconTheme: IconThemeData(
+          color: AppColors.appBarIcon,
         ),
       ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.bottomNavBackground,
+        selectedItemColor: AppColors.bottomNavSelected,
+        unselectedItemColor: AppColors.bottomNavUnselected,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.darkSurface,
+        error: AppColors.error,
+        onPrimary: AppColors.textOnPrimary,
+        onSecondary: AppColors.textOnSecondary,
+        onSurface: Colors.white,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.darkSurface,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.darkSurface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch for theme changes
+    final settings = ref.watch(settingsProvider);
+    final currentThemeMode = settings.themeMode;
+    final currentLocale = settings.locale.locale;
+
+    // Use a Builder to ensure the theme updates without rebuilding the entire app
+    return Builder(
+      builder: (context) {
+        // Convert AppThemeMode to ThemeMode
+        final themeMode = switch (currentThemeMode) {
+          AppThemeMode.dark => ThemeMode.dark,
+          AppThemeMode.light => ThemeMode.light,
+          AppThemeMode.system =>
+            Theme.of(context).platform == TargetPlatform.iOS
+                //  || Theme.of(context).platform == TargetPlatform.macOS
+                ? ThemeMode.system
+                : ThemeMode.light,
+        };
+
+        return MaterialApp.router(
+          title: 'Sahabi Guide',
+          debugShowCheckedModeBanner: false,
+          locale: currentLocale,
+          themeMode: themeMode,
+          theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: _router,
+          // Ensure the app updates when locale changes
+          builder: (context, child) {
+            // This makes the app update when the locale changes
+            return Localizations.override(
+              context: context,
+              locale: currentLocale,
+              child: child!,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -237,7 +427,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 icon: Icons.volume_up,
                                 title: 'Hausa',
                                 isSelected: selectedLanguage == 'hausa',
-                                onTap: () => setState(() => selectedLanguage = 'hausa'),
+                                onTap: () =>
+                                    setState(() => selectedLanguage = 'hausa'),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -246,7 +437,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 icon: Icons.volume_up,
                                 title: 'Djerma',
                                 isSelected: selectedLanguage == 'djerma',
-                                onTap: () => setState(() => selectedLanguage = 'djerma'),
+                                onTap: () =>
+                                    setState(() => selectedLanguage = 'djerma'),
                               ),
                             ),
                           ],
@@ -260,8 +452,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: selectedRole.isNotEmpty && selectedLanguage.isNotEmpty
-                                  ? () => context.push(AppRoutes.menu)
+                              onPressed: selectedRole.isNotEmpty &&
+                                      selectedLanguage.isNotEmpty
+                                  ? () => context.go(AppRoutes.home)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4FC3F7),
@@ -420,7 +613,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de la carte
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -431,7 +626,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran des vidéos
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -442,7 +639,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de santé
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -453,7 +652,9 @@ class MenuScreen extends StatelessWidget {
               onTap: () {
                 // TODO: Implémenter l'écran de profil
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                  const SnackBar(
+                      content:
+                          Text('Fonctionnalité en cours de développement')),
                 );
               },
             ),
@@ -477,7 +678,7 @@ class MenuScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -556,7 +757,7 @@ class TimelineScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 1),
           ),
@@ -606,210 +807,3 @@ class TimelineScreen extends StatelessWidget {
   }
 }
 
-class DuasScreen extends StatefulWidget {
-  const DuasScreen({super.key});
-
-  @override
-  State<DuasScreen> createState() => _DuasScreenState();
-}
-
-class _DuasScreenState extends State<DuasScreen> {
-  bool isPlayingArafah = false;
-  bool isPlayingMina = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'My Duas',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildDuasSection(
-              title: 'Day of Arafah',
-              subtitle: 'Special prayers for the most blessed day',
-              isPlaying: isPlayingArafah,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingArafah = !isPlayingArafah;
-                  if (isPlayingArafah) isPlayingMina = false;
-                });
-              },
-              color: const Color(0xFF4FC3F7),
-            ),
-            const SizedBox(height: 20),
-            _buildDuasSection(
-              title: 'Mina',
-              subtitle: 'Prayers during the days of Mina',
-              isPlaying: isPlayingMina,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingMina = !isPlayingMina;
-                  if (isPlayingMina) isPlayingArafah = false;
-                });
-              },
-              color: const Color(0xFF2A9D8F),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDuasSection({
-    required String title,
-    required String subtitle,
-    required bool isPlaying,
-    required VoidCallback onPlayPause,
-    required Color color,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.favorite_border,
-                  color: color,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1D3557),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: onPlayPause,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'In the name of Allah, the Most Gracious, the Most Merciful',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          if (isPlaying) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: 0.3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

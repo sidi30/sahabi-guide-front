@@ -7,7 +7,8 @@ import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/services/audio_service.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 
-final ritualDetailProvider = FutureProvider.family<RitualModel?, String>((ref, id) async {
+final ritualDetailProvider =
+    FutureProvider.family<RitualModel?, String>((ref, id) async {
   final useCase = sl<GetRitualsUseCase>();
   return await useCase.getRitualById(id);
 });
@@ -91,7 +92,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(ritualDetailProvider(widget.ritualId)),
+                onPressed: () =>
+                    ref.refresh(ritualDetailProvider(widget.ritualId)),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -120,7 +122,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: _getRitualColor(ritual.type).withOpacity(0.1),
+                          color: _getRitualColor(ritual.type)
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Icon(
@@ -136,17 +139,23 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                           children: [
                             Text(
                               ritual.title,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _getRitualTypeText(ritual.type),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: _getRitualColor(ritual.type),
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: _getRitualColor(ritual.type),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ],
                         ),
@@ -176,8 +185,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                     Text(
                       'Texte arabe',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Container(
@@ -190,9 +199,9 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                       child: Text(
                         ritual.arabicText!,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontFamily: 'Arabic',
-                          height: 2.0,
-                        ),
+                              fontFamily: 'Arabic',
+                              height: 2.0,
+                            ),
                         textAlign: TextAlign.right,
                         textDirection: TextDirection.rtl,
                       ),
@@ -215,8 +224,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                     Text(
                       'Translittération',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Container(
@@ -229,9 +238,9 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                       child: Text(
                         ritual.transliteration!,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          height: 1.5,
-                        ),
+                              fontStyle: FontStyle.italic,
+                              height: 1.5,
+                            ),
                       ),
                     ),
                   ],
@@ -252,8 +261,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                     Text(
                       'Traduction',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Container(
@@ -266,8 +275,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                       child: Text(
                         ritual.translation!,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.5,
-                        ),
+                              height: 1.5,
+                            ),
                       ),
                     ),
                   ],
@@ -288,24 +297,28 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                     Text(
                       'Audio',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         ElevatedButton.icon(
                           onPressed: () => _toggleAudio(ritual.audioPath),
-                          icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                          icon:
+                              Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
                           label: Text(_isPlaying ? 'Pause' : 'Écouter'),
                         ),
                         const SizedBox(width: 16),
                         if (ritual.duration != null)
                           Text(
                             _formatDuration(ritual.duration!),
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.textSecondary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.textSecondary,
+                                ),
                           ),
                       ],
                     ),
@@ -326,11 +339,12 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                   Text(
                     'Détails',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Fréquence', _getFrequencyText(ritual.frequency)),
+                  _buildDetailRow(
+                      'Fréquence', _getFrequencyText(ritual.frequency)),
                   if (ritual.scheduledTime != null)
                     _buildDetailRow(
                       'Heure prévue',
@@ -377,14 +391,14 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.textSecondary,
-            ),
+                  color: AppTheme.textSecondary,
+                ),
           ),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),

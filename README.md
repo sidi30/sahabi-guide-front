@@ -125,7 +125,7 @@ Chaque fonctionnalité est organisée en 3 couches :
 
 1. **Cloner le repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/sidi30/sahabi-guide-front.git
 cd sahabi-guide-front
 ```
 

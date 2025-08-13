@@ -1,0 +1,21 @@
+{
+  "appTitle": "Sahabi Guide",
+  "settings": "Settings",
+  "theme": "Theme",
+  "language": "Language",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "english": "English",
+  "french": "French",
+  "arabic": "Arabic",
+  "home": "Home",
+  "rituals": "Rituals",
+  "map": "Map",
+  "videos": "Videos",
+  "profile": "Profile",
+  "timeline": "Timeline",
+  "duas": "Duas",
+  "save": "Save",
+  "cancel": "Cancel"
+}

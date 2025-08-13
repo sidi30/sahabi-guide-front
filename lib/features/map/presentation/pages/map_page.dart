@@ -8,23 +8,24 @@ class MapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Pilgrim\'s Map',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
+      //     onPressed: () => context.pop(),
+      //   ),
+      //   title: const Text(
+      //     'Pilgrim\'s Map',
+      //     style: TextStyle(
+      //       color: Color(0xFF1D3557),
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w600,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      // ),
       body: Stack(
         children: [
           // Map Container
@@ -66,7 +67,7 @@ class MapPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Mock location markers
                 const Positioned(
                   top: 120,
@@ -77,7 +78,7 @@ class MapPage extends StatelessWidget {
                     label: 'Medical',
                   ),
                 ),
-                
+
                 const Positioned(
                   top: 200,
                   right: 80,
@@ -87,7 +88,7 @@ class MapPage extends StatelessWidget {
                     label: 'Mosque',
                   ),
                 ),
-                
+
                 // Zoom controls
                 Positioned(
                   right: 16,
@@ -103,7 +104,7 @@ class MapPage extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Bottom Action Buttons
           Positioned(
             bottom: 120,
@@ -133,7 +134,7 @@ class MapPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavBar(context, 1),
+      //bottomNavigationBar: _buildBottomNavBar(context, 1),
     );
   }
 
@@ -146,7 +147,7 @@ class MapPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -171,9 +172,9 @@ class MapPage extends StatelessWidget {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -252,7 +253,7 @@ class MapPage extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -352,7 +353,7 @@ class _MapMarker extends StatelessWidget {
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -372,7 +373,7 @@ class _MapMarker extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 2,
                 offset: const Offset(0, 1),
               ),
@@ -389,6 +390,7 @@ class _MapMarker extends StatelessWidget {
       ],
     );
   }
+
   IconData _getLocationIcon(String type) {
     switch (type) {
       case 'Mosquée':

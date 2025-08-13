@@ -13,7 +13,7 @@ export 'package:cached_network_image/cached_network_image.dart';
 
 // Constants and Theme
 import 'common_imports.dart';
-import 'constants/class App.dart';
+import 'constants/AppSizes.dart';
 import 'constants/app_colors.dart';
 
 // Utilities
