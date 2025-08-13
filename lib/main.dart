@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
@@ -9,7 +8,10 @@ import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
+import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
+import 'features/health/presentation/pages/health_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
+import 'features/rituals/presentation/duas_screen.dart';
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
@@ -57,6 +59,8 @@ class AppRoutes {
   // Nested routes
   static const String timeline = '/rituals/timeline';
   static const String duas = '/rituals/duas';
+  static const String health = '/health';
+  static const String connectivity = '/connectivity';
 }
 
 Future<void> main() async {
@@ -116,6 +120,22 @@ class MyApp extends ConsumerWidget {
             path: AppRoutes.rituals,
             redirect: (context, state) => AppRoutes.timeline,
           ),
+
+          // duas 
+          GoRoute(
+            path: AppRoutes.duas,
+            builder: (context, state) => const DuasScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.health,
+            builder: (context, state) => const HealthPage(),
+          ),
+
+          GoRoute(
+            path: AppRoutes.connectivity,
+            builder: (context, state) => const ConnectivityPage(),
+          ),
+
           GoRoute(
             path: AppRoutes.timeline,
             builder: (context, state) => const TimelineScreen(),
@@ -787,210 +807,3 @@ class TimelineScreen extends StatelessWidget {
   }
 }
 
-class DuasScreen extends StatefulWidget {
-  const DuasScreen({super.key});
-
-  @override
-  State<DuasScreen> createState() => _DuasScreenState();
-}
-
-class _DuasScreenState extends State<DuasScreen> {
-  bool isPlayingArafah = false;
-  bool isPlayingMina = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'My Duas',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildDuasSection(
-              title: 'Day of Arafah',
-              subtitle: 'Special prayers for the most blessed day',
-              isPlaying: isPlayingArafah,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingArafah = !isPlayingArafah;
-                  if (isPlayingArafah) isPlayingMina = false;
-                });
-              },
-              color: const Color(0xFF4FC3F7),
-            ),
-            const SizedBox(height: 20),
-            _buildDuasSection(
-              title: 'Mina',
-              subtitle: 'Prayers during the days of Mina',
-              isPlaying: isPlayingMina,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingMina = !isPlayingMina;
-                  if (isPlayingMina) isPlayingArafah = false;
-                });
-              },
-              color: const Color(0xFF2A9D8F),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDuasSection({
-    required String title,
-    required String subtitle,
-    required bool isPlaying,
-    required VoidCallback onPlayPause,
-    required Color color,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.favorite_border,
-                  color: color,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1D3557),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: onPlayPause,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'In the name of Allah, the Most Gracious, the Most Merciful',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          if (isPlaying) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: 0.3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

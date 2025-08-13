@@ -1,4 +1,5 @@
 import '../../../../core/utils/constants.dart';
+import '../../../../main.dart';
 
 abstract class HomeLocalDataSource {
   Future<List<Map<String, dynamic>>> getHomeMenuItems();
@@ -16,7 +17,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Prières et pratiques quotidiennes',
         'icon': 'schedule',
         'color': '#1D3557',
-        'route': AppConstants.ritualsRoute,
+        'route': AppRoutes.rituals,
       },
       {
         'id': 'duas',
@@ -24,7 +25,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Invocations et supplications',
         'icon': 'book',
         'color': '#2A9D8F',
-        'route': '/duas',
+        'route': AppRoutes.duas,
       },
       {
         'id': 'map',
@@ -32,7 +33,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Mosquées et lieux saints',
         'icon': 'location_on',
         'color': '#E63946',
-        'route': AppConstants.mapRoute,
+        'route': AppRoutes.map,
       },
       {
         'id': 'health',
@@ -40,7 +41,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Profil médical et bien-être',
         'icon': 'health_and_safety',
         'color': '#F77F00',
-        'route': AppConstants.healthRoute,
+        'route': AppRoutes.health,
       },
       {
         'id': 'profile',
@@ -48,7 +49,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Informations personnelles',
         'icon': 'person',
         'color': '#6F2DBD',
-        'route': AppConstants.profileRoute,
+        'route': AppRoutes.profile,
       },
       {
         'id': 'connectivity',
@@ -56,7 +57,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Connexion et synchronisation',
         'icon': 'wifi',
         'color': '#457B9D',
-        'route': AppConstants.connectivityRoute,
+        'route': AppRoutes.connectivity,
       },
     ];
   }

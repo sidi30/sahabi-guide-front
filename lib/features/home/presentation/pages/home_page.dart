@@ -28,41 +28,6 @@ class HomePage extends ConsumerWidget {
     final homeData = ref.watch(homeProvider);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(getTitleByIndex(ref.watch(navigationIndexProvider))),
-      //   automaticallyImplyLeading: false,
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.notifications_outlined),
-      //       onPressed: () {
-      //         // TODO: Show notifications
-      //       },
-      //     ),
-      //     PopupMenuButton<String>(
-      //       onSelected: (value) async {
-      //         if (value == 'logout') {
-      //           final logoutUseCase = sl<LogoutUseCase>();
-      //           await logoutUseCase();
-      //           if (context.mounted) {
-      //             context.go(AppConstants.loginRoute);
-      //           }
-      //         }
-      //       },
-      //       itemBuilder: (context) => [
-      //         const PopupMenuItem(
-      //           value: 'logout',
-      //           child: Row(
-      //             children: [
-      //               Icon(Icons.logout),
-      //               SizedBox(width: 8),
-      //               Text('Déconnexion'),
-      //             ],
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ],
-      // ),
       body: homeData.when(
         data: (data) => _buildHomeContent(context, data),
         loading: () => const Center(child: CircularProgressIndicator()),
