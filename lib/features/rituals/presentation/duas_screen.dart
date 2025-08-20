@@ -172,7 +172,6 @@ import 'package:go_router/go_router.dart';
 //   }
 // }
 
-
 class DuasScreen extends StatefulWidget {
   const DuasScreen({super.key});
 
@@ -183,6 +182,7 @@ class DuasScreen extends StatefulWidget {
 class _DuasScreenState extends State<DuasScreen> {
   bool isPlayingArafah = false;
   bool isPlayingMina = false;
+  bool isAutoPlayEnabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +193,7 @@ class _DuasScreenState extends State<DuasScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'), // retourn to home
         ),
         title: const Text(
           'My Duas',
@@ -209,6 +209,26 @@ class _DuasScreenState extends State<DuasScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Expanded(
+                flex: 3,
+                child: Text("Day Of Arafah",
+                    style: Theme.of(context).textTheme.titleLarge),
+              ),
+              Expanded(
+                  flex: 1,
+                  child: Row(children: [
+                    Text("Auto-play"),
+
+                    // enable or diable au to play
+                    Switch(
+                        onChanged: (bool? v) {
+                          isAutoPlayEnabled = v ?? false;
+                        },
+                        value: isAutoPlayEnabled)
+                  ]))
+            ]),
+            SizedBox(height: 24),
             _buildDuasSection(
               title: 'Day of Arafah',
               subtitle: 'Special prayers for the most blessed day',
