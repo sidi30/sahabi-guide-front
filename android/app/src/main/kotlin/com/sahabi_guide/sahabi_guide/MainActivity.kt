@@ -1,4 +1,4 @@
-package com.example.sahabi_guide
+package com.sahabi_guide.sahabi_guide
 
 import io.flutter.embedding.android.FlutterActivity
 

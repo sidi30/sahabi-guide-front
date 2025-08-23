@@ -131,7 +131,7 @@ class RitualModel {
   factory RitualModel.fromMap(Map<String, dynamic> map) {
     return RitualModel(
       id: map['id'] ?? '',
-      title: map['title'] ?? '',
+      title: map['name'] ?? map['title'] ?? '',
       description: map['description'] ?? '',
       type: RitualType.values.firstWhere(
         (e) => e.name == map['type'],
@@ -154,11 +154,15 @@ class RitualModel {
           : null,
       isCompleted: map['isCompleted'] ?? false,
       isActive: map['isActive'] ?? true,
-      priority: map['priority'] ?? 0,
+      priority: map['order'] ?? map['priority'] ?? 0,
       imageUrl: map['imageUrl'],
       metadata: map['metadata'],
-      createdAt: DateTime.parse(map['createdAt']),
-      updatedAt: DateTime.parse(map['updatedAt']),
+      createdAt: map['createdAt'] != null 
+          ? DateTime.parse(map['createdAt']) 
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null 
+          ? DateTime.parse(map['updatedAt']) 
+          : DateTime.now(),
     );
   }
 

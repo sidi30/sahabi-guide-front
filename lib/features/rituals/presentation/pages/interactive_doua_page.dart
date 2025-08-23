@@ -37,6 +37,11 @@ class _InteractiveDouaPageState extends State<InteractiveDouaPage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
+            // Conmtainer of autoPlay
+            Row(children: [
+              Text("Day Of Arafah",
+                  style: Theme.of(context).textTheme.titleLarge),
+            ]),
             // Day of Arafah Section
             _buildDouaSection(
               title: 'Day of Arafah',
