@@ -1,0 +1,6 @@
+* Utiliser des features recuperer selon les config d'une agence (_=exemple lagence peut decider de ne pas afficher la liste des Groupes etc..)
+* Sauvegarder le Token pendent la validte du hajj 
+* les features comme DOU'a ET vIDEOS DOIVENT ETRE Disponible sans AUth sauf pour des features comme Groupe ou Agence ont besoin de Auth 
+* otp VIA Email, Whatsapp ou phone 
+* RESET-PASS Soite via Platform Whatsapp, SMS , peut contacter un guide qui le Guide 
+* Pas de MDP dans l'App coté mobile juste AUth par OTP(Whatsapp, Telegram) au cas ou pas de canaux SMS

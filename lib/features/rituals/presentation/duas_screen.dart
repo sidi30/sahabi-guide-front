@@ -211,12 +211,12 @@ class _DuasScreenState extends State<DuasScreen> {
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: Text("Day Of Arafah",
                     style: Theme.of(context).textTheme.titleLarge),
               ),
               Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Row(children: [
                     Text("Auto-play"),
 
