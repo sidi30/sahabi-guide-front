@@ -7,10 +7,12 @@ class AppConstants {
   // API Constants
   static const String apiBaseUrl = 'https://api.hajjcompanion.com';
   static const int apiTimeout = 30000;
+  static const String apiHealthPath = '/health';
   
   // Storage Keys
   static const String authTokenKey = 'auth_token';
   static const String userProfileKey = 'user_profile';
+  static const String medicalProfileKey = 'medical_profile';
   static const String languageKey = 'selected_language';
   static const String themeKey = 'theme_mode';
   static const String onboardingKey = 'onboarding_completed';

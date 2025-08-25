@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -25,6 +26,7 @@ import '../../shared/services/audio_service.dart';
 import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
 import '../../shared/services/location_service.dart';
+import '../../shared/services/connectivity_service.dart';
 
 import '../network/dio_client.dart';
 
@@ -40,6 +42,7 @@ Future<void> initializeDependencies() async {
   
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => AudioPlayer());
+  sl.registerLazySingleton(() => Connectivity());
   
   // Core
   sl.registerLazySingleton(() => DioClient(sl()));
@@ -59,6 +62,10 @@ Future<void> initializeDependencies() async {
   
   sl.registerLazySingleton<LocationService>(
     () => LocationService(),
+  );
+  
+  sl.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityService(sl(), sl()),
   );
   
   // Auth Feature

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../../../core/theme/theme.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../shared/services/connectivity_service.dart';
 
 class ConnectivityPage extends ConsumerStatefulWidget {
   const ConnectivityPage({super.key});
@@ -15,6 +19,33 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
   bool _autoSync = true;
   bool _wifiOnly = false;
   DateTime _lastSync = DateTime.now().subtract(const Duration(minutes: 15));
+  late final ConnectivityService _connectivityService;
+  StreamSubscription<List<ConnectivityResult>>? _connSub;
+  String _pingValue = '—';
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivityService = sl<ConnectivityService>();
+    _initializeConnectivity();
+    _connSub = _connectivityService.statusStream.listen((results) async {
+      final reachable = await _connectivityService.hasInternet();
+      if (!mounted) return;
+      setState(() {
+        _isConnected = reachable;
+      });
+    });
+  }
+
+  Future<void> _initializeConnectivity() async {
+    try {
+      final reachable = await _connectivityService.hasInternet();
+      if (!mounted) return;
+      setState(() {
+        _isConnected = reachable;
+      });
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +347,11 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _buildDiagnosticRow('Ping', '23 ms', Colors.green),
+                    _buildDiagnosticRow(
+                      'Ping',
+                      _pingValue,
+                      _isConnected ? Colors.green : Colors.red,
+                    ),
                     const SizedBox(height: 12),
                     _buildDiagnosticRow(
                         'Débit descendant', '45.2 Mbps', Colors.green),
@@ -421,12 +456,12 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
     );
   }
 
-  void _checkConnection() {
-    // TODO: Implement actual connection check
+  void _checkConnection() async {
+    final reachable = await _connectivityService.hasInternet();
+    if (!mounted) return;
     setState(() {
-      _isConnected = !_isConnected;
+      _isConnected = reachable;
     });
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isConnected ? 'Connexion rétablie' : 'Connexion perdue'),
@@ -435,8 +470,25 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
     );
   }
 
-  void _syncNow() {
-    // TODO: Implement sync
+  void _syncNow() async {
+    // Respect WiFi-only setting
+    if (_wifiOnly) {
+      final types = await _connectivityService.getCurrentConnectivity();
+      final onWifi = types.contains(ConnectivityResult.wifi);
+      if (!onWifi) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('WiFi requis pour synchroniser'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+    }
+
+    // Simulate sync complete
+    if (!mounted) return;
     setState(() {
       _lastSync = DateTime.now();
     });
@@ -449,8 +501,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
     );
   }
 
-  void _runDiagnostics() {
-    // TODO: Implement network diagnostics
+  void _runDiagnostics() async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -466,15 +517,29 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
       ),
     );
 
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Test de connexion terminé'),
-          backgroundColor: Colors.green,
-        ),
-      );
+    final result = await _connectivityService.runDiagnostics();
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    setState(() {
+      _isConnected = result.reachable;
+      _pingValue = result.reachable ? '${result.pingMs} ms' : 'N/A';
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result.reachable
+              ? 'Connexion OK • Ping ${result.pingMs} ms'
+              : 'Connexion indisponible',
+        ),
+        backgroundColor: result.reachable ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _connSub?.cancel();
+    super.dispose();
   }
 
   String _formatLastSync(DateTime dateTime) {
