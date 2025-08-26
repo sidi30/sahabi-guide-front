@@ -3,6 +3,8 @@ import '../../../../main.dart';
 abstract class HomeLocalDataSource {
   Future<List<Map<String, dynamic>>> getHomeMenuItems();
   Future<Map<String, dynamic>> getDashboardData();
+  Future<List<Map<String, dynamic>>> getPrayerTimes();
+  Future<Map<String, dynamic>> getUserStats();
 }
 
 class HomeLocalDataSourceImpl implements HomeLocalDataSource {
@@ -107,6 +109,30 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
           'completed': true,
         },
       ],
+    };
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPrayerTimes() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return [
+      {'name': 'Fajr', 'time': '05:30'},
+      {'name': 'Dhuhr', 'time': '12:30'},
+      {'name': 'Asr', 'time': '15:45'},
+      {'name': 'Maghrib', 'time': '18:20'},
+      {'name': 'Isha', 'time': '19:45'},
+    ];
+  }
+
+  @override
+  Future<Map<String, dynamic>> getUserStats() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return {
+      'prayersCompleted': 3,
+      'totalPrayers': 5,
+      'duasRead': 7,
+      'dhikrCount': 156,
+      'streakDays': 4,
     };
   }
 }

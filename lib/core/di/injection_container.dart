@@ -14,11 +14,13 @@ import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
+import '../../features/rituals/data/datasources/rituals_remote_data_source.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
 
 import '../../features/home/data/datasources/home_local_data_source.dart';
+import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 
@@ -93,9 +95,14 @@ Future<void> initializeDependencies() async {
     () => RitualsLocalDataSourceImpl(),
   );
   
+  sl.registerLazySingleton<RitualsRemoteDataSource>(
+    () => RitualsRemoteDataSource(sl(), sl()),
+  );
+  
   sl.registerLazySingleton<RitualsRepository>(
     () => RitualsRepositoryImpl(
       localDataSource: sl(),
+      remoteDataSource: sl(),
     ),
   );
   
@@ -106,9 +113,15 @@ Future<void> initializeDependencies() async {
     () => HomeLocalDataSourceImpl(),
   );
   
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(sl(), sl()),
+  );
+  
   sl.registerLazySingleton<HomeRepository>(
     () => HomeRepositoryImpl(
       localDataSource: sl(),
+      remoteDataSource: sl(),
+      authRepository: sl(),
     ),
   );
   

@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
 import '../../core/utils/constants.dart';
 
 class NotificationService {
@@ -56,7 +57,10 @@ class NotificationService {
 
   static void _onNotificationTapped(NotificationResponse response) {
     if (kDebugMode) {
-      print('Notification tapped: ${response.payload}');
+      developer.log(
+        'Notification tapped: ${response.payload}',
+        name: 'NotificationService',
+      );
     }
     // Handle notification tap
   }
@@ -170,7 +174,11 @@ class NotificationService {
       );
     } catch (e) {
       // Fallback for older versions or handle scheduling differently
-      print('Notification scheduling error: $e');
+      developer.log(
+        'Notification scheduling error',
+        name: 'NotificationService',
+        error: e,
+      );
     }
   }
 
@@ -197,7 +205,11 @@ class NotificationService {
         final bool? enabled = await androidImplementation.areNotificationsEnabled();
         return enabled ?? false;
       } catch (e) {
-        print('Android permission check error: $e');
+        developer.log(
+          'Android permission check error',
+          name: 'NotificationService',
+          error: e,
+        );
         return false;
       }
     }
@@ -214,7 +226,11 @@ class NotificationService {
           sound: true,
         ) ?? false;
       } catch (e) {
-        print('iOS permission request error: $e');
+        developer.log(
+          'iOS permission request error',
+          name: 'NotificationService',
+          error: e,
+        );
         return false;
       }
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:developer' as developer;
 
 import '../../../../core/theme/theme.dart';
 
@@ -21,16 +22,26 @@ class _HealthPageState extends ConsumerState<HealthPage> {
   @override
   void initState() {
     super.initState();
-    _loadMockData();
+    _loadHealthProfile();
   }
 
-  void _loadMockData() {
-    _bloodTypeController.text = 'O+';
-    _allergiesController.text = 'Aucune allergie connue';
-    _medicationsController.text = 'Vitamine D, Oméga 3';
-    _emergencyContactController.text = '+227 96 12 34 56 (Dr. Amadou)';
-    _medicalNotesController.text =
-        'Suivi médical régulier. Dernière visite: 15/07/2024';
+  Future<void> _loadHealthProfile() async {
+    try {
+      // TODO: Replace with actual repository call
+      // final profile = await healthRepository.getMedicalProfile();
+      // For now, keep some default values until backend is connected
+      _bloodTypeController.text = '';
+      _allergiesController.text = '';
+      _medicationsController.text = '';
+      _emergencyContactController.text = '';
+      _medicalNotesController.text = '';
+    } catch (e) {
+      developer.log(
+        'Erreur lors du chargement du profil médical',
+        name: 'HealthPage',
+        error: e,
+      );
+    }
   }
 
   @override

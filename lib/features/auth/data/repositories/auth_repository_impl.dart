@@ -15,10 +15,24 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel> login(String email, String password) async {
     try {
-      final user = await remoteDataSource.login(email, password);
+      final response = await remoteDataSource.login(email, password);
       
-      // Generate mock token
-      final token = 'mock_token_${DateTime.now().millisecondsSinceEpoch}';
+      // Extract token from API response
+      final token = response['token'] ?? response['access_token'];
+      if (token == null) {
+        throw Exception('Token manquant dans la réponse de l\'API');
+      }
+      
+      // Extract user data and create UserModel
+      final userData = response['user'] ?? response['data']?['user'];
+      if (userData == null) {
+        throw Exception('Données utilisateur manquantes dans la réponse de l\'API');
+      }
+      final UserModel user = userData is Map<String, dynamic>
+          ? UserModel.fromMap(userData)
+          : userData is String
+              ? UserModel.fromJson(userData)
+              : throw Exception('Format des données utilisateur invalide');
       
       // Save token and user locally
       await localDataSource.saveAuthToken(token);
@@ -33,10 +47,24 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel> register(String email, String password, String firstName, String lastName) async {
     try {
-      final user = await remoteDataSource.register(email, password, firstName, lastName);
+      final response = await remoteDataSource.register(email, password, firstName, lastName);
       
-      // Generate mock token
-      final token = 'mock_token_${DateTime.now().millisecondsSinceEpoch}';
+      // Extract token from API response
+      final token = response['token'] ?? response['access_token'];
+      if (token == null) {
+        throw Exception('Token manquant dans la réponse de l\'API');
+      }
+      
+      // Extract user data and create UserModel
+      final userData = response['user'] ?? response['data']?['user'];
+      if (userData == null) {
+        throw Exception('Données utilisateur manquantes dans la réponse de l\'API');
+      }
+      final UserModel user = userData is Map<String, dynamic>
+          ? UserModel.fromMap(userData)
+          : userData is String
+              ? UserModel.fromJson(userData)
+              : throw Exception('Format des données utilisateur invalide');
       
       // Save token and user locally
       await localDataSource.saveAuthToken(token);

@@ -1,9 +1,8 @@
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password, String firstName, String lastName);
+  Future<Map<String, dynamic>> login(String email, String password);
+  Future<Map<String, dynamic>> register(String email, String password, String firstName, String lastName);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -12,22 +11,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.dioClient);
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      // Mock implementation - replace with actual API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Simulate successful login
-      if (email == 'test@example.com' && password == 'password') {
-        return UserModel(
-          id: '1',
-          email: email,
-          firstName: 'Test',
-          lastName: 'User',
-          isVerified: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+      final response = await dioClient.post(
+        '/auth/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
       } else {
         throw Exception('Email ou mot de passe incorrect');
       }
@@ -37,21 +32,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register(String email, String password, String firstName, String lastName) async {
+  Future<Map<String, dynamic>> register(String email, String password, String firstName, String lastName) async {
     try {
-      // Mock implementation - replace with actual API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Simulate successful registration
-      return UserModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        isVerified: false,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      final response = await dioClient.post(
+        '/auth/register',
+        data: {
+          'email': email,
+          'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
+        },
       );
+
+      if (response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Erreur lors de l\'inscription');
+      }
     } catch (e) {
       throw Exception('Erreur d\'inscription: $e');
     }

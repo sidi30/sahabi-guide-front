@@ -19,7 +19,7 @@ class SettingsState {
   const SettingsState({
     this.themeMode = AppThemeMode.system,
     this.audioLanguage = AudioLanguage.hausa,
-    this.locale = AppLocale.en, // Default to English
+    this.locale = AppLocale.fr, // Default to French
   });
 
   factory SettingsState.initial() => const SettingsState();
@@ -66,11 +66,14 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
       
-      // Default to system locale if available, otherwise English
-      AppLocale defaultLocale = AppLocale.en;
+      // Default to system locale if available, otherwise French
+      AppLocale defaultLocale = AppLocale.fr;
       try {
-        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-        defaultLocale = AppLocale.tryFromLocale(systemLocale) ?? AppLocale.en;
+        final systemLocale = WidgetsBinding.instance.window.locale;
+        final detectedLocale = AppLocale.tryFromLocale(systemLocale);
+        if (detectedLocale != null) {
+          defaultLocale = detectedLocale;
+        }
       } catch (_) {}
 
       state = state.copyWith(
