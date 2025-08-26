@@ -218,7 +218,7 @@ class _DuasScreenState extends State<DuasScreen> {
               Expanded(
                   flex: 2,
                   child: Row(children: [
-                    Text("Auto-play"),
+                    const Text("Auto-play"),
 
                     // enable or diable au to play
                     Switch(
