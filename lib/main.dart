@@ -11,7 +11,8 @@ import 'core/di/injection_container.dart';
 import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
-import 'features/rituals/presentation/duas_screen.dart';
+import 'features/rituals/presentation/pages/ritual_detail_page.dart';
+import 'features/rituals/presentation/pages/rituals_page.dart';
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
@@ -59,6 +60,7 @@ class AppRoutes {
   // Nested routes
   static const String timeline = '/rituals/timeline';
   static const String duas = '/rituals/duas';
+  static const String ritualDetail = '/rituals/detail/:id';
   static const String health = '/health';
   static const String connectivity = '/connectivity';
 }
@@ -121,28 +123,33 @@ class MyApp extends ConsumerWidget {
             redirect: (context, state) => AppRoutes.timeline,
           ),
 
-          // duas 
+          // Data-backed timeline and duas
+          GoRoute(
+            path: AppRoutes.timeline,
+            builder: (context, state) => const RitualsPage(),
+          ),
           GoRoute(
             path: AppRoutes.duas,
-            builder: (context, state) => const DuasScreen(),
+            builder: (context, state) => const RitualsPage(showDuasOnly: true),
           ),
+
+          // Ritual detail page
+          GoRoute(
+            path: AppRoutes.ritualDetail,
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return RitualDetailPage(ritualId: id);
+            },
+          ),
+
+          // Other sections
           GoRoute(
             path: AppRoutes.health,
             builder: (context, state) => const HealthPage(),
           ),
-
           GoRoute(
             path: AppRoutes.connectivity,
             builder: (context, state) => const ConnectivityPage(),
-          ),
-
-          GoRoute(
-            path: AppRoutes.timeline,
-            builder: (context, state) => const TimelineScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.duas,
-            builder: (context, state) => const DuasScreen(),
           ),
 
           // Map Screen
@@ -610,53 +617,25 @@ class MenuScreen extends StatelessWidget {
               icon: Icons.map_outlined,
               title: 'Map & Location',
               color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de la carte
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text('Fonctionnalité en cours de développement')),
-                );
-              },
+              onTap: () => context.push(AppRoutes.map),
             ),
             _buildMenuCard(
               icon: Icons.play_circle_outline,
               title: 'Video\nPreparation',
               color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran des vidéos
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text('Fonctionnalité en cours de développement')),
-                );
-              },
+              onTap: () => context.push(AppRoutes.videos),
             ),
             _buildMenuCard(
               icon: Icons.favorite,
               title: 'My Health',
               color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de santé
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text('Fonctionnalité en cours de développement')),
-                );
-              },
+              onTap: () => context.push(AppRoutes.health),
             ),
             _buildMenuCard(
               icon: Icons.account_circle_outlined,
               title: 'Profile &\nEmergency',
               color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de profil
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text('Fonctionnalité en cours de développement')),
-                );
-              },
+              onTap: () => context.push(AppRoutes.profile),
             ),
           ],
         ),

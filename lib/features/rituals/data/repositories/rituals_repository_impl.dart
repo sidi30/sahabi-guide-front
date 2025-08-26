@@ -29,32 +29,27 @@ class RitualsRepositoryImpl implements RitualsRepository {
   }
 
   @override
-  Future<List<RitualModel>> getDuas() async {
+  Future<List<RitualModel>> getTodayRituals() async {
     try {
       if (remoteDataSource != null) {
         // Try to fetch from remote first
-        final remoteData = await remoteDataSource!.getDuas();
+        final remoteData = await remoteDataSource!.getTodayRituals();
         return remoteData.map((data) => RitualModel.fromMap(data)).toList();
       }
     } catch (e) {
       // Fallback to local data if remote fails
-      developer.log('Failed to fetch duas from remote: $e', name: 'RitualsRepository');
+      developer.log('Failed to fetch today rituals from remote: $e', name: 'RitualsRepository');
     }
-    return await localDataSource.getDuas();
+    return await localDataSource.getTodayRituals();
   }
 
   @override
-  Future<RitualModel?> getRitualById(String id) async {
-    return await localDataSource.getRitualById(id);
+  Future<List<RitualModel>> getRitualsByType(RitualType type) async {
+    return await localDataSource.getRitualsByType(type);
   }
 
   @override
-  Future<void> markRitualAsCompleted(String id) async {
-    await localDataSource.markRitualAsCompleted(id);
-  }
-
-  @override
-  Future<void> updateRitual(RitualModel ritual) async {
-    await localDataSource.updateRitual(ritual);
+  Future<void> markAsCompleted(String ritualId) async {
+    await localDataSource.markAsCompleted(ritualId);
   }
 }
