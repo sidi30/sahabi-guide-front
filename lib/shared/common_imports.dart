@@ -12,7 +12,7 @@ export 'package:flutter/foundation.dart';
 export 'package:cached_network_image/cached_network_image.dart';
 
 // Constants and Theme
-import 'constants/AppSizes.dart';
+import 'constants/app_sizes.dart';
 import 'constants/app_colors.dart';
 
 // Utilities
