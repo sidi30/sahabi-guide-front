@@ -80,15 +80,6 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<LocationService>(
     () => LocationService(),
   );
-<<<<<<< HEAD
-
-  sl.registerLazySingleton<ConnectivityService>(
-    () => ConnectivityService(sl(), sl()),
-  );
-
-=======
-
->>>>>>> c6dd083 (impl::api-integrations for health, mapo pilgim psotion and alert)
   // Auth Feature
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(sl()),
@@ -113,15 +104,6 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<RitualsLocalDataSource>(
     () => RitualsLocalDataSourceImpl(),
   );
-<<<<<<< HEAD
-
-  sl.registerLazySingleton<RitualsRemoteDataSource>(
-    () => RitualsRemoteDataSource(sl(), sl()),
-  );
-
-=======
-
->>>>>>> c6dd083 (impl::api-integrations for health, mapo pilgim psotion and alert)
   sl.registerLazySingleton<RitualsRepository>(
     () => RitualsRepositoryImpl(
       localDataSource: sl(),
@@ -135,15 +117,6 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<HomeLocalDataSource>(
     () => HomeLocalDataSourceImpl(),
   );
-<<<<<<< HEAD
-
-  sl.registerLazySingleton<HomeRemoteDataSource>(
-    () => HomeRemoteDataSourceImpl(sl(), sl()),
-  );
-
-=======
-
->>>>>>> c6dd083 (impl::api-integrations for health, mapo pilgim psotion and alert)
   sl.registerLazySingleton<HomeRepository>(
     () => HomeRepositoryImpl(
       localDataSource: sl(),
@@ -152,10 +125,7 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  // Health Feature
-  sl.registerLazySingleton<HealthRemoteDataSource>(
-    () => HealthRemoteDataSource(sl(), sl()),
-  );
+
 
   sl.registerLazySingleton<HealthRepository>(
     () => HealthRepositoryImpl(

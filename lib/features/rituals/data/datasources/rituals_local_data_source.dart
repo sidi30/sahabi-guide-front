@@ -7,6 +7,7 @@ abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getTodayRituals();
   Future<void> markAsCompleted(String ritualId);
   Future<List<RitualModel>> getRitualsByType(RitualType type);
+  Future<List<RitualModel>> getDuas();
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
@@ -82,5 +83,10 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   Future<List<RitualModel>> getRitualsByType(RitualType type) async {
     final allRituals = await getRituals();
     return allRituals.where((ritual) => ritual.type == type).toList();
+  }
+  
+  @override
+  Future<List<RitualModel>> getDuas() {
+    return getRitualsByType(RitualType.dua);
   }
 }
