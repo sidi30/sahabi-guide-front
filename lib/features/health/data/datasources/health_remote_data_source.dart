@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../shared/models/medical_profile_model.dart';
