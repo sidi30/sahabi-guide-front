@@ -1,0 +1,4 @@
+
+l'API :  GET -> /api/v1/pilgrims est lister pour ette utiliser COTE MOBILE mais ne pas claire
+vue qu'elle recuperent la liste de tout les pelrin , 
+Question1 : Est ce qu'un pelerin a besoin de votre le sautre pelerin 

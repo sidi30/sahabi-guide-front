@@ -1,4 +1,3 @@
-import '../../../../shared/models/health_profile_model.dart';
 import '../../../../shared/models/medical_profile_model.dart';
 import '../repositories/health_repository.dart';
 

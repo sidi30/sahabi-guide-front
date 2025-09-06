@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:sahabi_guide/core/types/types.dart';
 
 class PilgrimPositionModel {
   final String id;

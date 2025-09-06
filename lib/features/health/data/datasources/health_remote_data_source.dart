@@ -2,12 +2,14 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../shared/models/health_profile_model.dart';
 import '../../../../shared/models/medical_profile_model.dart';
 import '../../../../shared/services/storage_service.dart';
 
 abstract class HealthRemoteDataSource {
   Future<MedicalProfileModel> getMedicalProfile();
   Future<MedicalProfileModel> saveMedicalProfile(MedicalProfileModel profile);
+  Future<HealthProfileModel> getPilgrimHealthProfile(String pilgrimId);
 }
 
 class HealthRemoteDataSourceImpl implements HealthRemoteDataSource {
@@ -56,6 +58,23 @@ class HealthRemoteDataSourceImpl implements HealthRemoteDataSource {
       throw Exception('Failed to save medical profile');
     } catch (e) {
       throw Exception('Error saving medical profile: $e');
+    }
+  }
+
+  @override
+  Future<HealthProfileModel> getPilgrimHealthProfile(String pilgrimId) async {
+    try {
+      final token = await _storageService.getSecurely(AppConstants.authTokenKey);
+      final response = await _dioClient.get(
+        '/api/v1/pilgrims/$pilgrimId/health-profile',
+        options: _buildAuthOptions(token),
+      );
+      if (response.statusCode == 200) {
+        return HealthProfileModel.fromMap(Map<String, dynamic>.from(response.data));
+      }
+      throw Exception('Failed to fetch pilgrim health profile');
+    } catch (e) {
+      throw Exception('Error fetching pilgrim health profile: $e');
     }
   }
 }

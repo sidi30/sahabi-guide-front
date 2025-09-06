@@ -15,19 +15,28 @@ class HealthRepositoryImpl implements HealthRepository {
   @override
   Future<MedicalProfileModel?> getMedicalProfile({bool forceRefresh = false}) async {
     try {
-      if (remoteDataSource != null) {
-        // Try to fetch from remote first
-        final remoteData = await remoteDataSource.getMedicalProfile();
-        return remoteData;
-      }
-    } catch (e) {
+      // Try to fetch from remote first
+      final remoteData = await remoteDataSource.getMedicalProfile();
+      return remoteData;
+        } catch (e) {
       // Fallback to local data if remote fails
       developer.log('Failed to fetch medical profile from remote: $e', name: 'HealthRepository');
     }
+    return null;
   }
   
   @override
   Future<MedicalProfileModel> saveMedicalProfile(MedicalProfileModel profile) {
     return remoteDataSource.saveMedicalProfile(profile);
+  }
+
+  @override
+  Future<HealthProfileModel> getPilgrimHealthProfile(String pilgrimId) async {
+    try {
+      return await remoteDataSource.getPilgrimHealthProfile(pilgrimId);
+    } catch (e) {
+      developer.log('Failed to fetch pilgrim health profile: $e', name: 'HealthRepository');
+      rethrow;
+    }
   }
 }

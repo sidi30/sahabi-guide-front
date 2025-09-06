@@ -228,7 +228,7 @@ class _DuasScreenState extends State<DuasScreen> {
                         value: isAutoPlayEnabled)
                   ]))
             ]),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             _buildDuasSection(
               title: 'Day of Arafah',
               subtitle: 'Special prayers for the most blessed day',

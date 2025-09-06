@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sahabi_guide/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -14,13 +15,11 @@ import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
-import '../../features/rituals/data/datasources/rituals_remote_data_source.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
 
 import '../../features/home/data/datasources/home_local_data_source.dart';
-import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 
@@ -28,6 +27,7 @@ import '../../features/health/data/datasources/health_remote_data_source.dart';
 import '../../features/health/data/repositories/health_repository_impl.dart';
 import '../../features/health/domain/repositories/health_repository.dart';
 import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
+import '../../features/health/domain/usecases/get_pilgrim_health_profile_usecase.dart';
 
 import '../../features/map/data/datasources/position_remote_data_source.dart';
 import '../../features/map/data/repositories/pilgrim_position_repository_impl.dart';
@@ -43,7 +43,6 @@ import '../../shared/services/audio_service.dart';
 import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
 import '../../shared/services/location_service.dart';
-import '../../shared/services/connectivity_service.dart';
 
 import '../network/dio_client.dart';
 
@@ -125,7 +124,18 @@ Future<void> initializeDependencies() async {
     ),
   );
 
+  // HomeRemoteDataSource
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(
+      sl(),
+      sl(),
+    ),
+  );
 
+  // Health Feature
+  sl.registerLazySingleton<HealthRemoteDataSource>(
+    () => HealthRemoteDataSourceImpl(sl(), sl()),
+  );
 
   sl.registerLazySingleton<HealthRepository>(
     () => HealthRepositoryImpl(
@@ -134,6 +144,7 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton(() => GetHealthProfileUseCase(sl()));
+  sl.registerLazySingleton(() => GetPilgrimHealthProfileUseCase(sl()));
 
   // Map/Position Feature
   sl.registerLazySingleton<PositionRemoteDataSource>(
