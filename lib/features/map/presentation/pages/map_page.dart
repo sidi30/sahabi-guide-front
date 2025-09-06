@@ -1,8 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/models/makkah_location_model.dart';
+import '../../data/datasources/makkah_locations_data_source.dart';
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   const MapPage({super.key});
+
+  @override
+  State<MapPage> createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> {
+  final MapController _mapController = MapController();
+  final MakkahLocationsDataSource _locationsDataSource = MakkahLocationsDataSourceImpl();
+  List<MakkahLocationModel> _locations = [];
+  String _selectedFilter = 'all';
+  bool _isSatelliteView = false;
+  
+  // Map tile URLs
+  final String _mapUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  final String _satelliteUrl = 'https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
+
+  void _loadLocations() {
+    setState(() {
+      _locations = _selectedFilter == 'all'
+          ? _locationsDataSource.getMakkahLocations()
+          : _locationsDataSource.getLocationsByType(_selectedFilter);
+    });
+  }
+
+  void _changeFilter(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+      _loadLocations();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,79 +68,91 @@ class MapPage extends StatelessWidget {
       // ),
       body: Stack(
         children: [
-          // Map Container
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.blue[50]!,
-                  Colors.green[50]!,
+          // OpenStreetMap Container
+          FlutterMap(
+            mapController: _mapController,
+            options: const MapOptions(
+              initialCenter: LatLng(21.4225, 39.8262), // Masjid al-Haram coordinates
+              initialZoom: 12.0,
+              minZoom: 10.0,
+              maxZoom: 18.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: _isSatelliteView ? _satelliteUrl : _mapUrl,
+                userAgentPackageName: 'com.sahabi.guide',
+              ),
+              MarkerLayer(
+                markers: _locations.map((location) => Marker(
+                  width: 40.0,
+                  height: 40.0,
+                  point: location.coordinates,
+                  child: GestureDetector(
+                    onTap: () => _showLocationInfo(location),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _getMarkerColor(location.type),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        _getMarkerIcon(location.type),
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                )).toList(),
+              ),
+            ],
+          ),
+
+          // Filter buttons at top
+          Positioned(
+            top: 60,
+            left: 16,
+            right: 16,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('all', 'All'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('holy_site', 'Holy Sites'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('mosque', 'Mosques'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('hospital', 'Hospitals'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('hajj_site', 'Hajj Sites'),
                 ],
               ),
             ),
-            child: Stack(
+          ),
+
+          // Zoom controls
+          Positioned(
+            right: 16,
+            bottom: 200,
+            child: Column(
               children: [
-                // Mock map with Makkah
-                const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Makkah',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1D3557),
-                        ),
-                      ),
-                      Text(
-                        'مكة',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Mock location markers
-                const Positioned(
-                  top: 120,
-                  left: 50,
-                  child: _MapMarker(
-                    icon: Icons.local_hospital,
-                    color: Colors.red,
-                    label: 'Medical',
-                  ),
-                ),
-
-                const Positioned(
-                  top: 200,
-                  right: 80,
-                  child: _MapMarker(
-                    icon: Icons.mosque,
-                    color: Color(0xFF2A9D8F),
-                    label: 'Mosque',
-                  ),
-                ),
-
-                // Zoom controls
-                Positioned(
-                  right: 16,
-                  top: 100,
-                  child: Column(
-                    children: [
-                      _buildZoomButton(Icons.add, () {}),
-                      const SizedBox(height: 8),
-                      _buildZoomButton(Icons.remove, () {}),
-                    ],
-                  ),
-                ),
+                // Map type toggle button
+                _buildMapTypeButton(),
+                const SizedBox(height: 8),
+                _buildZoomButton(Icons.add, () {
+                  _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
+                }),
+                const SizedBox(height: 8),
+                _buildZoomButton(Icons.remove, () {
+                  _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
+                }),
               ],
             ),
           ),
@@ -135,6 +187,215 @@ class MapPage extends StatelessWidget {
         ],
       ),
       //bottomNavigationBar: _buildBottomNavBar(context, 1),
+    );
+  }
+
+  Widget _buildFilterChip(String value, String label) {
+    final isSelected = _selectedFilter == value;
+    return GestureDetector(
+      onTap: () => _changeFilter(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF2A9D8F) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF2A9D8F) : Colors.grey.shade300,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey.shade700,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getMarkerColor(String type) {
+    switch (type) {
+      case 'mosque':
+      case 'holy_site':
+        return const Color(0xFF2A9D8F);
+      case 'hospital':
+        return Colors.red;
+      case 'hajj_site':
+        return const Color(0xFF457B9D);
+      case 'hotel':
+        return const Color(0xFFE63946);
+      case 'transport':
+        return const Color(0xFFF77F00);
+      case 'airport':
+        return const Color(0xFF6F4E37);
+      case 'mountain':
+      case 'cave':
+        return const Color(0xFF8D5524);
+      default:
+        return const Color(0xFF1D3557);
+    }
+  }
+
+  IconData _getMarkerIcon(String type) {
+    switch (type) {
+      case 'mosque':
+      case 'holy_site':
+        return Icons.mosque;
+      case 'hospital':
+        return Icons.local_hospital;
+      case 'hajj_site':
+        return Icons.place;
+      case 'hotel':
+        return Icons.hotel;
+      case 'transport':
+        return Icons.train;
+      case 'airport':
+        return Icons.flight;
+      case 'mountain':
+        return Icons.landscape;
+      case 'cave':
+        return Icons.terrain;
+      default:
+        return Icons.location_on;
+    }
+  }
+
+  void _showLocationInfo(MakkahLocationModel location) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _getMarkerColor(location.type),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _getMarkerIcon(location.type),
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1D3557),
+                        ),
+                      ),
+                      Text(
+                        location.nameArabic,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              location.description,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _mapController.move(location.coordinates, 16.0);
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.my_location),
+                    label: const Text('Center on Map'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2A9D8F),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Close'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade300,
+                      foregroundColor: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMapTypeButton() {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: Icon(
+          _isSatelliteView ? Icons.map : Icons.satellite_alt,
+          size: 20,
+        ),
+        onPressed: () {
+          setState(() {
+            _isSatelliteView = !_isSatelliteView;
+          });
+        },
+        padding: EdgeInsets.zero,
+      ),
     );
   }
 
@@ -246,161 +507,4 @@ class MapPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNavBar(BuildContext context, int currentIndex) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(
-            icon: Icons.home,
-            label: 'Home',
-            isActive: currentIndex == 0,
-            onTap: () => context.go('/menu'),
-          ),
-          _buildNavItem(
-            icon: Icons.map,
-            label: 'Map',
-            isActive: currentIndex == 1,
-            onTap: () => context.go('/map'),
-          ),
-          _buildNavItem(
-            icon: Icons.info_outline,
-            label: 'Info',
-            isActive: currentIndex == 2,
-            onTap: () => context.go('/videos'),
-          ),
-          _buildNavItem(
-            icon: Icons.person,
-            label: 'Profile',
-            isActive: currentIndex == 3,
-            onTap: () => context.go('/profile'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF4FC3F7) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MapMarker extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-
-  const _MapMarker({
-    required this.icon,
-    required this.color,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 2,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  IconData _getLocationIcon(String type) {
-    switch (type) {
-      case 'Mosquée':
-        return Icons.mosque;
-      case 'Centre Islamique':
-        return Icons.account_balance;
-      case 'École Coranique':
-        return Icons.school;
-      default:
-        return Icons.place;
-    }
-  }
 }

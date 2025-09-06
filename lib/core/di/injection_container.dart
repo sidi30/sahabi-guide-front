@@ -30,9 +30,13 @@ import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
 import '../../features/health/domain/usecases/get_pilgrim_health_profile_usecase.dart';
 
 import '../../features/map/data/datasources/position_remote_data_source.dart';
+import '../../features/map/data/datasources/makkah_locations_data_source.dart';
 import '../../features/map/data/repositories/pilgrim_position_repository_impl.dart';
+import '../../features/map/data/repositories/makkah_locations_repository_impl.dart';
 import '../../features/map/domain/repository/pilgrim_position_repository.dart';
+import '../../features/map/domain/repository/makkah_locations_repository.dart';
 import '../../features/map/domain/usecases/get_latest_pilgrim_position_usecase.dart';
+import '../../features/map/domain/usecases/get_makkah_locations_usecase.dart';
 
 import '../../features/alerts/data/datasources/alerts_remote_data_source.dart';
 import '../../features/alerts/data/repositories/alerts_repository_impl.dart';
@@ -158,6 +162,17 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton(() => GetLatestPilgrimPositionUseCase(sl()));
+
+  // Makkah Locations Feature
+  sl.registerLazySingleton<MakkahLocationsDataSource>(
+    () => MakkahLocationsDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<MakkahLocationsRepository>(
+    () => MakkahLocationsRepositoryImpl(dataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetMakkahLocationsUseCase(repository: sl()));
 
   // Alerts Feature
   sl.registerLazySingleton<AlertsRemoteDataSource>(
