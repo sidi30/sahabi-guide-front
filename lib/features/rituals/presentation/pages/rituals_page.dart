@@ -142,27 +142,27 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color:
-                          _getRitualColor(ritual.type).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Icon(
-                      _getRitualIcon(ritual.type),
-                      color: _getRitualColor(ritual.type),
-                      size: 24,
-                    ),
-                  ),
+                  // Container(
+                  //   width: 48,
+                  //   height: 48,
+                  //   decoration: BoxDecoration(
+                  //     color:
+                  //         _getRitualColor(ritual.type).withValues(alpha: 0.1),
+                  //     borderRadius: BorderRadius.circular(24),
+                  //   ),
+                  //   child: Icon(
+                  //     _getRitualIcon(ritual.type),
+                  //     color: _getRitualColor(ritual.type),
+                  //     size: 24,
+                  //   ),
+                  // ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          ritual.title,
+                          ritual.name,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -181,72 +181,76 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                       ],
                     ),
                   ),
-                  if (ritual.scheduledTime != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: _getRitualColor(ritual.type),
-                                  ),
-                        ),
-                        Text(
-                          _getFrequencyText(ritual.frequency),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
-                        ),
-                      ],
-                    ),
-                ],
+                //   if (ritual.scheduledTime != null)
+                //     Column(
+                //       crossAxisAlignment: CrossAxisAlignment.end,
+                //       children: [
+                //         Text(
+                //           '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
+                //           style:
+                //               Theme.of(context).textTheme.titleMedium?.copyWith(
+                //                     fontWeight: FontWeight.bold,
+                //                     color: _getRitualColor(ritual.type),
+                //                   ),
+                //         ),
+                //         Text(
+                //           _getFrequencyText(ritual.frequency),
+                //           style:
+                //               Theme.of(context).textTheme.bodySmall?.copyWith(
+                //                     color: AppTheme.textSecondary,
+                //                   ),
+                //         ),
+                //       ],
+                //     ),
+                // ],
+             // ),
+        //       if (ritual.duration != null) ...[
+        //         const SizedBox(height: 12),
+        //         Row(
+        //           children: [
+        //             const Icon(
+        //               Icons.timer_outlined,
+        //               size: 16,
+        //               color: AppTheme.textSecondary,
+        //             ),
+        //             const SizedBox(width: 4),
+        //             Text(
+        //               _formatDuration(ritual.duration!),
+        //               style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        //                     color: AppTheme.textSecondary,
+        //                   ),
+        //             ),
+        //           ],
+        //         ),
+        //       ],
+        //       if (ritual.tags.isNotEmpty) ...[
+        //         const SizedBox(height: 12),
+        //         Wrap(
+        //           spacing: 8,
+        //           runSpacing: 4,
+        //           children: ritual.tags.map((tag) {
+        //             return Container(
+        //               padding: const EdgeInsets.symmetric(
+        //                   horizontal: 8, vertical: 4),
+        //               decoration: BoxDecoration(
+        //                 color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+        //                 borderRadius: BorderRadius.circular(12),
+        //               ),
+        //               child: Text(
+        //                 tag,
+        //                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        //                       color: AppTheme.secondaryColor,
+        //                       fontWeight: FontWeight.w500,
+        //                     ),
+        //               ),
+        //             );
+        //           }).toList(),
+        //         ),
+        //       ],
+        //     ],
+        //   ),
+                ]
               ),
-              if (ritual.duration != null) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.timer_outlined,
-                      size: 16,
-                      color: AppTheme.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatDuration(ritual.duration!),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
-                    ),
-                  ],
-                ),
-              ],
-              if (ritual.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: ritual.tags.map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.secondaryColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        tag,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.secondaryColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
             ],
           ),
         ),
@@ -283,54 +287,54 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     );
   }
 
-  Color _getRitualColor(RitualType type) {
-    switch (type) {
-      case RitualType.prayer:
-        return AppTheme.primaryColor;
-      case RitualType.dua:
-        return AppTheme.secondaryColor;
-      case RitualType.dhikr:
-        return AppTheme.accentColor;
-      case RitualType.reading:
-        return Colors.purple;
-      case RitualType.charity:
-        return Colors.green;
-      case RitualType.fasting:
-        return Colors.orange;
-    }
-  }
+  // Color _getRitualColor(RitualType type) {
+  //   switch (type) {
+  //     case RitualType.prayer:
+  //       return AppTheme.primaryColor;
+  //     case RitualType.dua:
+  //       return AppTheme.secondaryColor;
+  //     case RitualType.dhikr:
+  //       return AppTheme.accentColor;
+  //     case RitualType.reading:
+  //       return Colors.purple;
+  //     case RitualType.charity:
+  //       return Colors.green;
+  //     case RitualType.fasting:
+  //       return Colors.orange;
+  //   }
+  // }
 
-  IconData _getRitualIcon(RitualType type) {
-    switch (type) {
-      case RitualType.prayer:
-        return Icons.schedule;
-      case RitualType.dua:
-        return Icons.book;
-      case RitualType.dhikr:
-        return Icons.favorite;
-      case RitualType.reading:
-        return Icons.menu_book;
-      case RitualType.charity:
-        return Icons.volunteer_activism;
-      case RitualType.fasting:
-        return Icons.no_meals;
-    }
-  }
+  // IconData _getRitualIcon(RitualType type) {
+  //   switch (type) {
+  //     case RitualType.prayer:
+  //       return Icons.schedule;
+  //     case RitualType.dua:
+  //       return Icons.book;
+  //     case RitualType.dhikr:
+  //       return Icons.favorite;
+  //     case RitualType.reading:
+  //       return Icons.menu_book;
+  //     case RitualType.charity:
+  //       return Icons.volunteer_activism;
+  //     case RitualType.fasting:
+  //       return Icons.no_meals;
+  //   }
+  // }
 
-  String _getFrequencyText(RitualFrequency frequency) {
-    switch (frequency) {
-      case RitualFrequency.daily:
-        return 'Quotidien';
-      case RitualFrequency.weekly:
-        return 'Hebdomadaire';
-      case RitualFrequency.monthly:
-        return 'Mensuel';
-      case RitualFrequency.yearly:
-        return 'Annuel';
-      case RitualFrequency.occasional:
-        return 'Occasionnel';
-    }
-  }
+  // String _getFrequencyText(RitualFrequency frequency) {
+  //   switch (frequency) {
+  //     case RitualFrequency.daily:
+  //       return 'Quotidien';
+  //     case RitualFrequency.weekly:
+  //       return 'Hebdomadaire';
+  //     case RitualFrequency.monthly:
+  //       return 'Mensuel';
+  //     case RitualFrequency.yearly:
+  //       return 'Annuel';
+  //     case RitualFrequency.occasional:
+  //       return 'Occasionnel';
+  //   }
+  // }
 
   String _formatDuration(Duration duration) {
     if (duration.inHours > 0) {

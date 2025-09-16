@@ -245,7 +245,7 @@ class _DuasPageState extends State<DuasPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      dua.title,
+                      dua.tag,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -266,7 +266,7 @@ class _DuasPageState extends State<DuasPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                dua.description,
+                dua.text,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -285,7 +285,7 @@ class _DuasPageState extends State<DuasPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      dua.arabicText,
+                      dua.translation,
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 18,
@@ -296,7 +296,7 @@ class _DuasPageState extends State<DuasPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      dua.transliteration,
+                      dua.translation,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[700],
@@ -307,24 +307,24 @@ class _DuasPageState extends State<DuasPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                children: dua.tags.map((tag) {
-                  return Chip(
-                    label: Text(
-                      tag,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    backgroundColor: const Color(0xFF4FC3F7).withOpacity(0.1),
-                    labelStyle: const TextStyle(
-                      color: Color(0xFF4FC3F7),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  );
-                }).toList(),
-              ),
+              // Wrap(
+              //   spacing: 8,
+              //   children: dua.tag.map((tag) {
+              //     return Chip(
+              //       label: Text(
+              //         tag,
+              //         style: const TextStyle(fontSize: 12),
+              //       ),
+              //       backgroundColor: const Color(0xFF4FC3F7).withOpacity(0.1),
+              //       labelStyle: const TextStyle(
+              //         color: Color(0xFF4FC3F7),
+              //         fontWeight: FontWeight.w500,
+              //       ),
+              //       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              //       visualDensity: VisualDensity.compact,
+              //     );
+              //   }).toList(),
+              // ),
             ],
           ),
         ),
@@ -367,7 +367,7 @@ class _DuasPageState extends State<DuasPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          dua.title,
+                          dua.tag,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -393,7 +393,7 @@ class _DuasPageState extends State<DuasPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    dua.description,
+                    dua.text,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -419,7 +419,7 @@ class _DuasPageState extends State<DuasPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          dua.arabicText,
+                          dua.translation,
                           textAlign: TextAlign.right,
                           style: const TextStyle(
                             fontSize: 20,
@@ -451,7 +451,7 @@ class _DuasPageState extends State<DuasPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          dua.transliteration,
+                          dua.translation,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFF1D3557),
@@ -492,32 +492,32 @@ class _DuasPageState extends State<DuasPage> {
                       ],
                     ),
                   ),
-                  if (dua.audioPath != null) ...[
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Play audio
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Lecture audio en cours...'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Écouter'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4FC3F7),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
+                  // if (dua.audioPath != null) ...[
+                  //   const SizedBox(height: 20),
+                  //   ElevatedButton.icon(
+                  //     onPressed: () {
+                  //       // Play audio
+                  //       ScaffoldMessenger.of(context).showSnackBar(
+                  //         const SnackBar(
+                  //           content: Text('Lecture audio en cours...'),
+                  //           duration: Duration(seconds: 2),
+                  //         ),
+                  //       );
+                  //     },
+                  //     icon: const Icon(Icons.play_arrow),
+                  //     label: const Text('Écouter'),
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: const Color(0xFF4FC3F7),
+                  //       padding: const EdgeInsets.symmetric(
+                  //         horizontal: 24,
+                  //         vertical: 12,
+                  //       ),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(12),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ],
                   const SizedBox(height: 20),
                 ],
               ),

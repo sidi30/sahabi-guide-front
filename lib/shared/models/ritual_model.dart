@@ -1,188 +1,66 @@
-import 'dart:convert';
-
-enum RitualType {
-  prayer,
-  dua,
-  dhikr,
-  reading,
-  charity,
-  fasting,
-}
-
-enum RitualFrequency {
-  daily,
-  weekly,
-  monthly,
-  yearly,
-  occasional,
-}
 
 class RitualModel {
   final String id;
-  final String title;
+  final String name;
+  final int order;
   final String description;
-  final RitualType type;
-  final RitualFrequency frequency;
-  final String? arabicText;
-  final String? transliteration;
-  final String? translation;
-  final String? audioPath;
-  final Duration? duration;
-  final List<String> tags;
-  final DateTime? scheduledTime;
-  final bool isCompleted;
-  final bool isActive;
-  final int priority;
-  final String? imageUrl;
-  final Map<String, dynamic>? metadata;
-  final DateTime createdAt;
-  final DateTime updatedAt;
 
-  RitualModel({
+  const RitualModel({
     required this.id,
-    required this.title,
+    required this.name,
+    required this.order,
     required this.description,
-    required this.type,
-    required this.frequency,
-    this.arabicText,
-    this.transliteration,
-    this.translation,
-    this.audioPath,
-    this.duration,
-    this.tags = const [],
-    this.scheduledTime,
-    this.isCompleted = false,
-    this.isActive = true,
-    this.priority = 0,
-    this.imageUrl,
-    this.metadata,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
-  RitualModel copyWith({
-    String? id,
-    String? title,
-    String? description,
-    RitualType? type,
-    RitualFrequency? frequency,
-    String? arabicText,
-    String? transliteration,
-    String? translation,
-    String? audioPath,
-    Duration? duration,
-    List<String>? tags,
-    DateTime? scheduledTime,
-    bool? isCompleted,
-    bool? isActive,
-    int? priority,
-    String? imageUrl,
-    Map<String, dynamic>? metadata,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
+  factory RitualModel.fromJson(Map<String, dynamic> json) {
     return RitualModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      type: type ?? this.type,
-      frequency: frequency ?? this.frequency,
-      arabicText: arabicText ?? this.arabicText,
-      transliteration: transliteration ?? this.transliteration,
-      translation: translation ?? this.translation,
-      audioPath: audioPath ?? this.audioPath,
-      duration: duration ?? this.duration,
-      tags: tags ?? this.tags,
-      scheduledTime: scheduledTime ?? this.scheduledTime,
-      isCompleted: isCompleted ?? this.isCompleted,
-      isActive: isActive ?? this.isActive,
-      priority: priority ?? this.priority,
-      imageUrl: imageUrl ?? this.imageUrl,
-      metadata: metadata ?? this.metadata,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      order: json['order'] as int,
+      description: json['description'] as String,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'title': title,
+      'name': name,
+      'order': order,
       'description': description,
-      'type': type.name,
-      'frequency': frequency.name,
-      'arabicText': arabicText,
-      'transliteration': transliteration,
-      'translation': translation,
-      'audioPath': audioPath,
-      'duration': duration?.inSeconds,
-      'tags': tags,
-      'scheduledTime': scheduledTime?.toIso8601String(),
-      'isCompleted': isCompleted,
-      'isActive': isActive,
-      'priority': priority,
-      'imageUrl': imageUrl,
-      'metadata': metadata,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
-  factory RitualModel.fromMap(Map<String, dynamic> map) {
+  RitualModel copyWith({
+    String? id,
+    String? name,
+    int? order,
+    String? description,
+  }) {
     return RitualModel(
-      id: map['id'] ?? '',
-      title: map['name'] ?? map['title'] ?? '',
-      description: map['description'] ?? '',
-      type: RitualType.values.firstWhere(
-        (e) => e.name == map['type'],
-        orElse: () => RitualType.dua,
-      ),
-      frequency: RitualFrequency.values.firstWhere(
-        (e) => e.name == map['frequency'],
-        orElse: () => RitualFrequency.daily,
-      ),
-      arabicText: map['arabicText'],
-      transliteration: map['transliteration'],
-      translation: map['translation'],
-      audioPath: map['audioPath'],
-      duration: map['duration'] != null 
-          ? Duration(seconds: map['duration']) 
-          : null,
-      tags: List<String>.from(map['tags'] ?? []),
-      scheduledTime: map['scheduledTime'] != null 
-          ? DateTime.parse(map['scheduledTime']) 
-          : null,
-      isCompleted: map['isCompleted'] ?? false,
-      isActive: map['isActive'] ?? true,
-      priority: map['order'] ?? map['priority'] ?? 0,
-      imageUrl: map['imageUrl'],
-      metadata: map['metadata'],
-      createdAt: map['createdAt'] != null 
-          ? DateTime.parse(map['createdAt']) 
-          : DateTime.now(),
-      updatedAt: map['updatedAt'] != null 
-          ? DateTime.parse(map['updatedAt']) 
-          : DateTime.now(),
+      id: id ?? this.id,
+      name: name ?? this.name,
+      order: order ?? this.order,
+      description: description ?? this.description,
     );
   }
 
-  String toJson() => json.encode(toMap());
-
-  factory RitualModel.fromJson(String source) => 
-      RitualModel.fromMap(json.decode(source));
-
   @override
   String toString() {
-    return 'RitualModel(id: $id, title: $title, description: $description, type: $type, frequency: $frequency, arabicText: $arabicText, transliteration: $transliteration, translation: $translation, audioPath: $audioPath, duration: $duration, tags: $tags, scheduledTime: $scheduledTime, isCompleted: $isCompleted, isActive: $isActive, priority: $priority, imageUrl: $imageUrl, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'RitualModel(id: $id, name: $name, order: $order, description: $description)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
-    return other is RitualModel && other.id == id;
+    return other is RitualModel &&
+        other.id == id &&
+        other.name == name &&
+        other.order == order &&
+        other.description == description;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode {
+    return id.hashCode ^ name.hashCode ^ order.hashCode ^ description.hashCode;
+  }
 }

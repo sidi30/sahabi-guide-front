@@ -4,9 +4,9 @@ import '../../../../shared/models/ritual_model.dart';
 
 abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals();
-  Future<List<RitualModel>> getTodayRituals();
+  //Future<List<RitualModel>> getTodayRituals();
   Future<void> markAsCompleted(String ritualId);
-  Future<List<RitualModel>> getRitualsByType(RitualType type);
+  //Future<List<RitualModel>> getRitualsByType(RitualType type);
   Future<List<RitualModel>> getDuas();
 }
 
@@ -27,9 +27,9 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
       final List<dynamic> ritualsList = jsonData['rituals'] ?? [];
       
       _cachedRituals = ritualsList.map((ritualJson) {
-        final ritual = RitualModel.fromMap(ritualJson);
+        final ritual = RitualModel.fromJson(ritualJson);
         return ritual.copyWith(
-          isCompleted: _completedRitualIds.contains(ritual.id),
+          //isCompleted: _completedRitualIds.contains(ritual.id),
         );
       }).toList();
       
@@ -39,24 +39,32 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
     }
   }
 
-  @override
-  Future<List<RitualModel>> getTodayRituals() async {
-    final allRituals = await getRituals();
-    final now = DateTime.now();
     
-    return allRituals.where((ritual) {
-      // Filter daily rituals and weekly rituals for today
-      if (ritual.frequency == RitualFrequency.daily) {
-        return true;
-      }
-      if (ritual.frequency == RitualFrequency.weekly && 
-          ritual.title.toLowerCase().contains('friday') && 
-          now.weekday == DateTime.friday) {
-        return true;
-      }
-      return false;
-    }).toList()..sort((a, b) => b.priority.compareTo(a.priority));
+  @override
+  Future<List<RitualModel>> getDuas() {
+    // TODO: implement getDuas
+    throw UnimplementedError();
   }
+
+
+  // @override
+  // Future<List<RitualModel>> getTodayRituals() async {
+  //   final allRituals = await getRituals();
+  //   final now = DateTime.now();
+    
+  //   return allRituals.where((ritual) {
+  //     // Filter daily rituals and weekly rituals for today
+  //     if (ritual.frequency == RitualFrequency.daily) {
+  //       return true;
+  //     }
+  //     if (ritual.frequency == RitualFrequency.weekly && 
+  //         ritual.title.toLowerCase().contains('friday') && 
+  //         now.weekday == DateTime.friday) {
+  //       return true;
+  //     }
+  //     return false;
+  //   }).toList()..sort((a, b) => b.priority.compareTo(a.priority));
+  // }
 
   @override
   Future<void> markAsCompleted(String ritualId) async {
@@ -71,7 +79,7 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
       _cachedRituals = _cachedRituals!.map((ritual) {
         if (ritual.id == ritualId) {
           return ritual.copyWith(
-            isCompleted: _completedRitualIds.contains(ritualId),
+            //isCompleted: _completedRitualIds.contains(ritualId),
           );
         }
         return ritual;
@@ -79,14 +87,14 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
     }
   }
 
-  @override
-  Future<List<RitualModel>> getRitualsByType(RitualType type) async {
-    final allRituals = await getRituals();
-    return allRituals.where((ritual) => ritual.type == type).toList();
-  }
+  // @override
+  // Future<List<RitualModel>> getRitualsByType(RitualType type) async {
+  //   final allRituals = await getRituals();
+  //   return allRituals.where((ritual) => ritual.type == type).toList();
+  // }
   
-  @override
-  Future<List<RitualModel>> getDuas() {
-    return getRitualsByType(RitualType.dua);
-  }
+  // @override
+  // Future<List<RitualModel>> getDuas() {
+  //   return getRitualsByType(RitualType.dua);
+  // }
 }

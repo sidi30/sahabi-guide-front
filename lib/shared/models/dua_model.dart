@@ -2,120 +2,66 @@ import 'dart:convert';
 
 class DuaModel {
   final String id;
-  final String title;
-  final String description;
-  final String type;
-  final String frequency;
-  final String arabicText;
-  final String transliteration;
+  final String text;
   final String translation;
-  final String? audioPath;
-  final int duration;
-  final int priority;
-  final List<String> tags;
-  final bool isActive;
+  final String tag;
 
-  DuaModel({
+  const DuaModel({
     required this.id,
-    required this.title,
-    required this.description,
-    required this.type,
-    required this.frequency,
-    required this.arabicText,
-    required this.transliteration,
+    required this.text,
     required this.translation,
-    this.audioPath,
-    required this.duration,
-    required this.priority,
-    required this.tags,
-    required this.isActive,
+    required this.tag,
   });
 
   DuaModel copyWith({
     String? id,
-    String? title,
-    String? description,
-    String? type,
-    String? frequency,
-    String? arabicText,
-    String? transliteration,
+    String? text,
     String? translation,
-    String? audioPath,
-    int? duration,
-    int? priority,
-    List<String>? tags,
-    bool? isActive,
+    String? tag,
   }) {
     return DuaModel(
       id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      type: type ?? this.type,
-      frequency: frequency ?? this.frequency,
-      arabicText: arabicText ?? this.arabicText,
-      transliteration: transliteration ?? this.transliteration,
+      text: text ?? this.text,
       translation: translation ?? this.translation,
-      audioPath: audioPath ?? this.audioPath,
-      duration: duration ?? this.duration,
-      priority: priority ?? this.priority,
-      tags: tags ?? this.tags,
-      isActive: isActive ?? this.isActive,
+      tag: tag ?? this.tag,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'title': title,
-      'description': description,
-      'type': type,
-      'frequency': frequency,
-      'arabicText': arabicText,
-      'transliteration': transliteration,
+      'text': text,
       'translation': translation,
-      'audioPath': audioPath,
-      'duration': duration,
-      'priority': priority,
-      'tags': tags,
-      'isActive': isActive,
+      'tag': tag,
     };
   }
 
-  factory DuaModel.fromMap(Map<String, dynamic> map) {
+  factory DuaModel.fromJson(Map<String, dynamic> json) {
     return DuaModel(
-      id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      type: map['type'] ?? '',
-      frequency: map['frequency'] ?? '',
-      arabicText: map['arabicText'] ?? '',
-      transliteration: map['transliteration'] ?? '',
-      translation: map['translation'] ?? '',
-      audioPath: map['audioPath'],
-      duration: map['duration'] ?? 0,
-      priority: map['priority'] ?? 0,
-      tags: List<String>.from(map['tags'] ?? []),
-      isActive: map['isActive'] ?? false,
+      id: json['id'] as String,
+      text: json['text'] as String,
+      translation: json['translation'] as String,
+      tag: json['tag'] as String,
     );
   }
 
-  String toJson() => json.encode(toMap());
-
-  factory DuaModel.fromJson(String source) => 
-      DuaModel.fromMap(json.decode(source));
-
   @override
   String toString() {
-    return 'DuaModel(id: $id, title: $title, type: $type)';
+    return 'DuaModel(id: $id, text: $text, translation: $translation, tag: $tag)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
-    return other is DuaModel && other.id == id;
+    return other is DuaModel &&
+        other.id == id &&
+        other.text == text &&
+        other.translation == translation &&
+        other.tag == tag;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode {
+    return id.hashCode ^ text.hashCode ^ translation.hashCode ^ tag.hashCode;
+  }
 }

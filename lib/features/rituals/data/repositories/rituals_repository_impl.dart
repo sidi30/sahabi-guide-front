@@ -19,7 +19,7 @@ class RitualsRepositoryImpl implements RitualsRepository {
       if (remoteDataSource != null) {
         // Try to fetch from remote first
         final remoteData = await remoteDataSource!.getRituals();
-        return remoteData.map((data) => RitualModel.fromMap(data)).toList();
+        return remoteData.map((data) => RitualModel.fromJson(data)).toList();
       }
     } catch (e) {
       // Fallback to local data if remote fails
@@ -50,7 +50,7 @@ class RitualsRepositoryImpl implements RitualsRepository {
       if (remoteDataSource != null) {
         // Try to fetch from remote first
         final remoteData = await remoteDataSource!.getDuas();
-        return remoteData.map((data) => RitualModel.fromMap(data)).toList();
+        return remoteData.map((data) => RitualModel.fromJson(data)).toList();
       } else {
         developer.log('Remote data source is null, fetching duas from local', name: 'RitualsRepository');
       }
@@ -61,20 +61,20 @@ class RitualsRepositoryImpl implements RitualsRepository {
     return await localDataSource.getDuas();
   }
 
-  @override
-  Future<List<RitualModel>> getRitualsByType(RitualType type) async {
-    return await localDataSource.getRitualsByType(type);
-  }
+  // @override
+  // Future<List<RitualModel>> getRitualsByType(RitualType type) async {
+  //   return await localDataSource.getRitualsByType(type);
+  // }
 
   @override
   Future<void> markAsCompleted(String ritualId) async {
     await localDataSource.markAsCompleted(ritualId);
   }
   
-  @override
-  Future<List<RitualModel>> getTodayRituals() {
-    return localDataSource.getTodayRituals();
-  }
+  // @override
+  // Future<List<RitualModel>> getTodayRituals() {
+  //   return localDataSource.getTodayRituals();
+  // }
 
   @override
   Future<RitualModel?> getRitualById(String id) async {
