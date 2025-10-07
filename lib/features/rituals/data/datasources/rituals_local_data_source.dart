@@ -2,7 +2,7 @@ import '../../../../shared/models/ritual_model.dart';
 
 abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals();
-  Future<List<RitualModel>> getDuas();
+  Future<List<DuaModel>> getDuas();
   Future<RitualModel?> getRitualById(String id);
   Future<void> markRitualAsCompleted(String id);
   Future<void> updateRitual(RitualModel ritual);
@@ -11,83 +11,56 @@ abstract class RitualsLocalDataSource {
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   @override
   Future<List<RitualModel>> getRituals() async {
-    // Mock data for rituals
+    // Mock data for rituals - will be replaced by real data from API
     final now = DateTime.now();
     return [
       RitualModel(
         id: '1',
+        code: 'FAJR',
         title: 'Prière du Fajr',
+        order: 1,
         description: 'Prière de l\'aube, première prière de la journée',
-        type: RitualType.prayer,
-        frequency: RitualFrequency.daily,
-        scheduledTime: DateTime(now.year, now.month, now.day, 5, 30),
-        priority: 5,
+        mediaRefs: ['audio/fajr.mp3'],
         createdAt: now,
         updatedAt: now,
       ),
       RitualModel(
         id: '2',
+        code: 'DHUHR',
         title: 'Prière du Dhuhr',
+        order: 2,
         description: 'Prière de midi',
-        type: RitualType.prayer,
-        frequency: RitualFrequency.daily,
-        scheduledTime: DateTime(now.year, now.month, now.day, 12, 30),
-        priority: 5,
+        mediaRefs: ['audio/dhuhr.mp3'],
         createdAt: now,
         updatedAt: now,
       ),
       RitualModel(
         id: '3',
+        code: 'ASR',
         title: 'Prière de l\'Asr',
+        order: 3,
         description: 'Prière de l\'après-midi',
-        type: RitualType.prayer,
-        frequency: RitualFrequency.daily,
-        scheduledTime: DateTime(now.year, now.month, now.day, 15, 45),
-        priority: 5,
+        mediaRefs: ['audio/asr.mp3'],
         createdAt: now,
         updatedAt: now,
       ),
       RitualModel(
         id: '4',
+        code: 'MAGHRIB',
         title: 'Prière du Maghrib',
+        order: 4,
         description: 'Prière du coucher du soleil',
-        type: RitualType.prayer,
-        frequency: RitualFrequency.daily,
-        scheduledTime: DateTime(now.year, now.month, now.day, 18, 15),
-        priority: 5,
+        mediaRefs: ['audio/maghrib.mp3'],
         createdAt: now,
         updatedAt: now,
       ),
       RitualModel(
         id: '5',
+        code: 'ISHA',
         title: 'Prière de l\'Isha',
+        order: 5,
         description: 'Prière de la nuit',
-        type: RitualType.prayer,
-        frequency: RitualFrequency.daily,
-        scheduledTime: DateTime(now.year, now.month, now.day, 19, 45),
-        priority: 5,
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '6',
-        title: 'Dhikr du matin',
-        description: 'Invocations à réciter le matin',
-        type: RitualType.dhikr,
-        frequency: RitualFrequency.daily,
-        duration: const Duration(minutes: 15),
-        priority: 3,
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '7',
-        title: 'Dhikr du soir',
-        description: 'Invocations à réciter le soir',
-        type: RitualType.dhikr,
-        frequency: RitualFrequency.daily,
-        duration: const Duration(minutes: 15),
-        priority: 3,
+        mediaRefs: ['audio/isha.mp3'],
         createdAt: now,
         updatedAt: now,
       ),
@@ -95,68 +68,29 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   }
 
   @override
-  Future<List<RitualModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas() async {
     final now = DateTime.now();
     return [
-      RitualModel(
+      DuaModel(
         id: 'dua1',
         title: 'Dua du matin',
-        description: 'Invocations à réciter au réveil',
-        type: RitualType.dua,
-        frequency: RitualFrequency.daily,
-        arabicText: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',
-        transliteration: 'Alhamdu lillahi alladhi ahyana ba\'da ma amatana wa ilayhi an-nushur',
-        translation: 'Louange à Allah qui nous a redonné la vie après nous avoir fait mourir, et vers Lui est la résurrection.',
-        audioPath: 'assets/audio/duas/morning_dua.mp3',
-        duration: const Duration(minutes: 2),
-        priority: 4,
-        createdAt: now,
-        updatedAt: now,
+        text: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',
+        audioUrl: 'assets/audio/duas/morning_dua.mp3',
+        tags: ['matin', 'réveil'],
       ),
-      RitualModel(
+      DuaModel(
         id: 'dua2',
         title: 'Dua avant le repas',
-        description: 'Invocation avant de manger',
-        type: RitualType.dua,
-        frequency: RitualFrequency.daily,
-        arabicText: 'بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ',
-        transliteration: 'Bismillahi wa \'ala barakati Allah',
-        translation: 'Au nom d\'Allah et avec la bénédiction d\'Allah.',
-        audioPath: 'assets/audio/duas/before_meal_dua.mp3',
-        duration: const Duration(seconds: 30),
-        priority: 2,
-        createdAt: now,
-        updatedAt: now,
+        text: 'بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ',
+        audioUrl: 'assets/audio/duas/before_meal_dua.mp3',
+        tags: ['repas', 'nourriture'],
       ),
-      RitualModel(
+      DuaModel(
         id: 'dua3',
         title: 'Dua après le repas',
-        description: 'Invocation après avoir mangé',
-        type: RitualType.dua,
-        frequency: RitualFrequency.daily,
-        arabicText: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',
-        transliteration: 'Alhamdu lillahi alladhi at\'amana wa saqana wa ja\'alana muslimin',
-        translation: 'Louange à Allah qui nous a nourris, nous a abreuvés et a fait de nous des musulmans.',
-        audioPath: 'assets/audio/duas/after_meal_dua.mp3',
-        duration: const Duration(seconds: 45),
-        priority: 2,
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: 'dua4',
-        title: 'Dua du voyage',
-        description: 'Invocation pour le voyage',
-        type: RitualType.dua,
-        frequency: RitualFrequency.occasional,
-        arabicText: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ',
-        transliteration: 'Subhana alladhi sakhkhara lana hadha wa ma kunna lahu muqrinin wa inna ila rabbina lamunqalibun',
-        translation: 'Gloire à Celui qui a mis ceci à notre service alors que nous n\'étions pas capables de les dominer. Et c\'est vers notre Seigneur que nous retournerons.',
-        audioPath: 'assets/audio/duas/travel_dua.mp3',
-        duration: const Duration(minutes: 1),
-        priority: 3,
-        createdAt: now,
-        updatedAt: now,
+        text: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',
+        audioUrl: 'assets/audio/duas/after_meal_dua.mp3',
+        tags: ['repas', 'remerciement'],
       ),
     ];
   }
@@ -164,11 +98,8 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   @override
   Future<RitualModel?> getRitualById(String id) async {
     final rituals = await getRituals();
-    final duas = await getDuas();
-    final allRituals = [...rituals, ...duas];
-    
     try {
-      return allRituals.firstWhere((ritual) => ritual.id == id);
+      return rituals.firstWhere((ritual) => ritual.id == id);
     } catch (e) {
       return null;
     }
@@ -177,14 +108,12 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   @override
   Future<void> markRitualAsCompleted(String id) async {
     // In a real app, this would update the local database
-    // For now, we'll just simulate the operation
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
   @override
   Future<void> updateRitual(RitualModel ritual) async {
     // In a real app, this would update the local database
-    // For now, we'll just simulate the operation
     await Future.delayed(const Duration(milliseconds: 500));
   }
 }

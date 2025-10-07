@@ -5,7 +5,8 @@ class AppConstants {
   static const String appDescription = 'Your guide for a blessed and seamless pilgrimage';
   
   // API Constants
-  static const String apiBaseUrl = 'https://api.hajjcompanion.com';
+  static const String apiBaseUrl = 'https://sahabi-care-api-production.up.railway.app';
+  static const String localApiBaseUrl = 'http://localhost:8080';
   static const int apiTimeout = 30000;
   
   // Storage Keys

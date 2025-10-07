@@ -1,4 +1,4 @@
-import '../../../../shared/models/user_model.dart';
+import '../../../../shared/models/pilgrim_model.dart';
 import '../../../../shared/services/storage_service.dart';
 import '../../../../core/utils/constants.dart';
 
@@ -6,9 +6,9 @@ abstract class AuthLocalDataSource {
   Future<void> saveAuthToken(String token);
   Future<String?> getAuthToken();
   Future<void> clearAuthToken();
-  Future<void> saveUser(UserModel user);
-  Future<UserModel?> getUser();
-  Future<void> clearUser();
+  Future<void> savePilgrim(PilgrimModel pilgrim);
+  Future<PilgrimModel?> getPilgrim();
+  Future<void> clearPilgrim();
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
@@ -32,21 +32,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveUser(UserModel user) async {
-    await storageService.storeSecurely(AppConstants.userProfileKey, user.toJson());
+  Future<void> savePilgrim(PilgrimModel pilgrim) async {
+    await storageService.storeSecurely(AppConstants.userProfileKey, pilgrim.toJson());
   }
 
   @override
-  Future<UserModel?> getUser() async {
-    final userJson = await storageService.getSecurely(AppConstants.userProfileKey);
-    if (userJson != null) {
-      return UserModel.fromJson(userJson);
+  Future<PilgrimModel?> getPilgrim() async {
+    final pilgrimJson = await storageService.getSecurely(AppConstants.userProfileKey);
+    if (pilgrimJson != null) {
+      return PilgrimModel.fromJson(pilgrimJson);
     }
     return null;
   }
 
   @override
-  Future<void> clearUser() async {
+  Future<void> clearPilgrim() async {
     await storageService.deleteSecurely(AppConstants.userProfileKey);
   }
 }

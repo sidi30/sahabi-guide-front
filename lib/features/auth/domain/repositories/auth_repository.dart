@@ -1,10 +1,11 @@
-import '../../../../shared/models/user_model.dart';
+import '../../../../shared/models/pilgrim_model.dart';
 
 abstract class AuthRepository {
-  Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password, String firstName, String lastName);
+  Future<AuthResponse> loginWithPassport(String passportNo);
+  Future<AuthResponse> verifyOtp(String passportNo, String otpCode);
   Future<void> logout();
-  Future<UserModel?> getCurrentUser();
+  Future<void> resendOtp(String passportNo);
+  Future<PilgrimModel?> getCurrentPilgrim();
   Future<bool> isLoggedIn();
   Future<void> saveAuthToken(String token);
   Future<String?> getAuthToken();

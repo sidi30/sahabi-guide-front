@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
+import 'core/di/injection_container.dart';
 
 // Routes de l'application
 class AppRoutes {
@@ -16,8 +17,12 @@ class AppRoutes {
   // static const String profile = '/profile';
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize dependencies
+  await setupDependencies();
+  
   runApp(const MyApp());
 }
 

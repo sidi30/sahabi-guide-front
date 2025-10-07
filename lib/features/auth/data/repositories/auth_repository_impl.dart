@@ -1,4 +1,4 @@
-import '../../../../shared/models/user_model.dart';
+import '../../../../shared/models/pilgrim_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../datasources/auth_local_data_source.dart';
@@ -13,36 +13,36 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthResponse> loginWithPassport(String passportNo) async {
     try {
-      final user = await remoteDataSource.login(email, password);
+      final authResponse = await remoteDataSource.loginWithPassport(passportNo);
       
-      // Generate mock token
-      final token = 'mock_token_${DateTime.now().millisecondsSinceEpoch}';
+      if (authResponse.success && authResponse.token != null) {
+        await localDataSource.saveAuthToken(authResponse.token!);
+        if (authResponse.pilgrim != null) {
+          await localDataSource.savePilgrim(authResponse.pilgrim!);
+        }
+      }
       
-      // Save token and user locally
-      await localDataSource.saveAuthToken(token);
-      await localDataSource.saveUser(user);
-      
-      return user;
+      return authResponse;
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<UserModel> register(String email, String password, String firstName, String lastName) async {
+  Future<AuthResponse> verifyOtp(String passportNo, String otpCode) async {
     try {
-      final user = await remoteDataSource.register(email, password, firstName, lastName);
+      final authResponse = await remoteDataSource.verifyOtp(passportNo, otpCode);
       
-      // Generate mock token
-      final token = 'mock_token_${DateTime.now().millisecondsSinceEpoch}';
+      if (authResponse.success && authResponse.token != null) {
+        await localDataSource.saveAuthToken(authResponse.token!);
+        if (authResponse.pilgrim != null) {
+          await localDataSource.savePilgrim(authResponse.pilgrim!);
+        }
+      }
       
-      // Save token and user locally
-      await localDataSource.saveAuthToken(token);
-      await localDataSource.saveUser(user);
-      
-      return user;
+      return authResponse;
     } catch (e) {
       rethrow;
     }
@@ -50,13 +50,23 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    try {
+      await remoteDataSource.logout();
+    } catch (e) {
+      // Continue with local logout even if remote fails
+    }
     await localDataSource.clearAuthToken();
-    await localDataSource.clearUser();
+    await localDataSource.clearPilgrim();
   }
 
   @override
-  Future<UserModel?> getCurrentUser() async {
-    return await localDataSource.getUser();
+  Future<void> resendOtp(String passportNo) async {
+    await remoteDataSource.resendOtp(passportNo);
+  }
+
+  @override
+  Future<PilgrimModel?> getCurrentPilgrim() async {
+    return await localDataSource.getPilgrim();
   }
 
   @override
