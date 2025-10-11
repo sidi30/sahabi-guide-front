@@ -53,9 +53,9 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(
-              colorScheme: ColorScheme.light(
-                primary: const Color(0xFF1D3557),
-                secondary: const Color(0xFF2A9D8F),
+              colorScheme: const ColorScheme.light(
+                primary: Color(0xFF1D3557),
+                secondary: Color(0xFF2A9D8F),
               ),
             ),
             home: OnboardingScreen(),

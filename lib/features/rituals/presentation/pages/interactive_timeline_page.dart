@@ -100,12 +100,12 @@ class _InteractiveTimelinePageState extends State<InteractiveTimelinePage> {
             ),
             child: Column(
               children: [
-                Text(
+                const Text(
                   'Hajj Progress',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1D3557),
+                    color: Color(0xFF1D3557),
                   ),
                 ),
                 const SizedBox(height: 16),

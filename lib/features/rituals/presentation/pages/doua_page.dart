@@ -113,7 +113,7 @@ class _DouaPageState extends State<DouaPage> {
               int index = entry.key;
               Map<String, dynamic> dua = entry.value;
               return _buildDouaCard(dua, index, true);
-            }).toList(),
+            }),
             
             const SizedBox(height: 40),
             
@@ -134,7 +134,7 @@ class _DouaPageState extends State<DouaPage> {
               int index = entry.key + arafatDuas.length;
               Map<String, dynamic> dua = entry.value;
               return _buildDouaCard(dua, index, false);
-            }).toList(),
+            }),
             
             const SizedBox(height: 100), // Space for bottom nav
           ],

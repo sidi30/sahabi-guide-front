@@ -83,7 +83,7 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
               bool isLast = index == rituals.length - 1;
               
               return _buildTimelineItem(ritual, isLast);
-            }).toList(),
+            }),
             
             const SizedBox(height: 100), // Space for bottom nav
           ],

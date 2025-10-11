@@ -1,104 +1,49 @@
 import 'dart:convert';
 
-enum RitualType {
-  prayer,
-  dua,
-  dhikr,
-  reading,
-  charity,
-  fasting,
-}
-
-enum RitualFrequency {
-  daily,
-  weekly,
-  monthly,
-  yearly,
-  occasional,
+enum RitualStatus {
+  notStarted,
+  inProgress,
+  completed,
 }
 
 class RitualModel {
   final String id;
+  final String code;
   final String title;
+  final int order;
   final String description;
-  final RitualType type;
-  final RitualFrequency frequency;
-  final String? arabicText;
-  final String? transliteration;
-  final String? translation;
-  final String? audioPath;
-  final Duration? duration;
-  final List<String> tags;
-  final DateTime? scheduledTime;
-  final bool isCompleted;
-  final bool isActive;
-  final int priority;
-  final String? imageUrl;
-  final Map<String, dynamic>? metadata;
+  final List<String> mediaRefs;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   RitualModel({
     required this.id,
+    required this.code,
     required this.title,
+    required this.order,
     required this.description,
-    required this.type,
-    required this.frequency,
-    this.arabicText,
-    this.transliteration,
-    this.translation,
-    this.audioPath,
-    this.duration,
-    this.tags = const [],
-    this.scheduledTime,
-    this.isCompleted = false,
-    this.isActive = true,
-    this.priority = 0,
-    this.imageUrl,
-    this.metadata,
+    this.mediaRefs = const [],
     required this.createdAt,
     required this.updatedAt,
   });
 
   RitualModel copyWith({
     String? id,
+    String? code,
     String? title,
+    int? order,
     String? description,
-    RitualType? type,
-    RitualFrequency? frequency,
-    String? arabicText,
-    String? transliteration,
-    String? translation,
-    String? audioPath,
-    Duration? duration,
-    List<String>? tags,
-    DateTime? scheduledTime,
-    bool? isCompleted,
-    bool? isActive,
-    int? priority,
-    String? imageUrl,
-    Map<String, dynamic>? metadata,
+    List<String>? mediaRefs,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return RitualModel(
       id: id ?? this.id,
+      code: code ?? this.code,
       title: title ?? this.title,
+      order: order ?? this.order,
       description: description ?? this.description,
-      type: type ?? this.type,
-      frequency: frequency ?? this.frequency,
-      arabicText: arabicText ?? this.arabicText,
-      transliteration: transliteration ?? this.transliteration,
-      translation: translation ?? this.translation,
-      audioPath: audioPath ?? this.audioPath,
-      duration: duration ?? this.duration,
-      tags: tags ?? this.tags,
-      scheduledTime: scheduledTime ?? this.scheduledTime,
-      isCompleted: isCompleted ?? this.isCompleted,
-      isActive: isActive ?? this.isActive,
-      priority: priority ?? this.priority,
-      imageUrl: imageUrl ?? this.imageUrl,
-      metadata: metadata ?? this.metadata,
+      mediaRefs: mediaRefs ?? this.mediaRefs,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -107,22 +52,11 @@ class RitualModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'code': code,
       'title': title,
+      'order': order,
       'description': description,
-      'type': type.name,
-      'frequency': frequency.name,
-      'arabicText': arabicText,
-      'transliteration': transliteration,
-      'translation': translation,
-      'audioPath': audioPath,
-      'duration': duration?.inSeconds,
-      'tags': tags,
-      'scheduledTime': scheduledTime?.toIso8601String(),
-      'isCompleted': isCompleted,
-      'isActive': isActive,
-      'priority': priority,
-      'imageUrl': imageUrl,
-      'metadata': metadata,
+      'mediaRefs': mediaRefs,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -131,32 +65,11 @@ class RitualModel {
   factory RitualModel.fromMap(Map<String, dynamic> map) {
     return RitualModel(
       id: map['id'] ?? '',
+      code: map['code'] ?? '',
       title: map['title'] ?? '',
+      order: map['order'] ?? 0,
       description: map['description'] ?? '',
-      type: RitualType.values.firstWhere(
-        (e) => e.name == map['type'],
-        orElse: () => RitualType.dua,
-      ),
-      frequency: RitualFrequency.values.firstWhere(
-        (e) => e.name == map['frequency'],
-        orElse: () => RitualFrequency.daily,
-      ),
-      arabicText: map['arabicText'],
-      transliteration: map['transliteration'],
-      translation: map['translation'],
-      audioPath: map['audioPath'],
-      duration: map['duration'] != null 
-          ? Duration(seconds: map['duration']) 
-          : null,
-      tags: List<String>.from(map['tags'] ?? []),
-      scheduledTime: map['scheduledTime'] != null 
-          ? DateTime.parse(map['scheduledTime']) 
-          : null,
-      isCompleted: map['isCompleted'] ?? false,
-      isActive: map['isActive'] ?? true,
-      priority: map['priority'] ?? 0,
-      imageUrl: map['imageUrl'],
-      metadata: map['metadata'],
+      mediaRefs: List<String>.from(map['mediaRefs'] ?? []),
       createdAt: DateTime.parse(map['createdAt']),
       updatedAt: DateTime.parse(map['updatedAt']),
     );
@@ -169,7 +82,7 @@ class RitualModel {
 
   @override
   String toString() {
-    return 'RitualModel(id: $id, title: $title, description: $description, type: $type, frequency: $frequency, arabicText: $arabicText, transliteration: $transliteration, translation: $translation, audioPath: $audioPath, duration: $duration, tags: $tags, scheduledTime: $scheduledTime, isCompleted: $isCompleted, isActive: $isActive, priority: $priority, imageUrl: $imageUrl, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'RitualModel(id: $id, code: $code, title: $title, order: $order, description: $description, mediaRefs: $mediaRefs, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -181,4 +94,149 @@ class RitualModel {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+class DuaModel {
+  final String id;
+  final String title;
+  final String text;
+  final String audioUrl;
+  final List<String> tags;
+
+  DuaModel({
+    required this.id,
+    required this.title,
+    required this.text,
+    required this.audioUrl,
+    this.tags = const [],
+  });
+
+  DuaModel copyWith({
+    String? id,
+    String? title,
+    String? text,
+    String? audioUrl,
+    List<String>? tags,
+  }) {
+    return DuaModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      text: text ?? this.text,
+      audioUrl: audioUrl ?? this.audioUrl,
+      tags: tags ?? this.tags,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'text': text,
+      'audioUrl': audioUrl,
+      'tags': tags,
+    };
+  }
+
+  factory DuaModel.fromMap(Map<String, dynamic> map) {
+    return DuaModel(
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      text: map['text'] ?? '',
+      audioUrl: map['audioUrl'] ?? '',
+      tags: List<String>.from(map['tags'] ?? []),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory DuaModel.fromJson(String source) => 
+      DuaModel.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'DuaModel(id: $id, title: $title, text: $text, audioUrl: $audioUrl, tags: $tags)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is DuaModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+class RitualProgressModel {
+  final String ritualId;
+  final RitualStatus status;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+
+  RitualProgressModel({
+    required this.ritualId,
+    required this.status,
+    this.startedAt,
+    this.completedAt,
+  });
+
+  RitualProgressModel copyWith({
+    String? ritualId,
+    RitualStatus? status,
+    DateTime? startedAt,
+    DateTime? completedAt,
+  }) {
+    return RitualProgressModel(
+      ritualId: ritualId ?? this.ritualId,
+      status: status ?? this.status,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'ritualId': ritualId,
+      'status': status.name,
+      'startedAt': startedAt?.toIso8601String(),
+      'completedAt': completedAt?.toIso8601String(),
+    };
+  }
+
+  factory RitualProgressModel.fromMap(Map<String, dynamic> map) {
+    return RitualProgressModel(
+      ritualId: map['ritualId'] ?? '',
+      status: RitualStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => RitualStatus.notStarted,
+      ),
+      startedAt: map['startedAt'] != null 
+          ? DateTime.parse(map['startedAt']) 
+          : null,
+      completedAt: map['completedAt'] != null 
+          ? DateTime.parse(map['completedAt']) 
+          : null,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory RitualProgressModel.fromJson(String source) => 
+      RitualProgressModel.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'RitualProgressModel(ritualId: $ritualId, status: $status, startedAt: $startedAt, completedAt: $completedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is RitualProgressModel && other.ritualId == ritualId;
+  }
+
+  @override
+  int get hashCode => ritualId.hashCode;
 }

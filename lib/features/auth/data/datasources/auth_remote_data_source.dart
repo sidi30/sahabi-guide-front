@@ -1,9 +1,12 @@
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/user_model.dart';
+import '../../../../shared/models/pilgrim_model.dart';
+import '../../../../core/utils/constants.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password, String firstName, String lastName);
+  Future<AuthResponse> loginWithPassport(String passportNo);
+  Future<AuthResponse> verifyOtp(String passportNo, String otpCode);
+  Future<void> logout();
+  Future<void> resendOtp(String passportNo);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -12,48 +15,54 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.dioClient);
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthResponse> loginWithPassport(String passportNo) async {
     try {
-      // Mock implementation - replace with actual API call
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await dioClient.post(
+        '/api/auth/passport/login',
+        data: PassportLoginRequest(passportNo: passportNo).toJson(),
+      );
       
-      // Simulate successful login
-      if (email == 'test@example.com' && password == 'password') {
-        return UserModel(
-          id: '1',
-          email: email,
-          firstName: 'Test',
-          lastName: 'User',
-          isVerified: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-      } else {
-        throw Exception('Email ou mot de passe incorrect');
-      }
+      return AuthResponse.fromJson(response.data);
     } catch (e) {
       throw Exception('Erreur de connexion: $e');
     }
   }
 
   @override
-  Future<UserModel> register(String email, String password, String firstName, String lastName) async {
+  Future<AuthResponse> verifyOtp(String passportNo, String otpCode) async {
     try {
-      // Mock implementation - replace with actual API call
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await dioClient.post(
+        '/api/auth/passport/verify',
+        data: PassportVerifyRequest(
+          passportNo: passportNo,
+          otpCode: otpCode,
+        ).toJson(),
+      );
       
-      // Simulate successful registration
-      return UserModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        isVerified: false,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      return AuthResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Erreur de vérification: $e');
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await dioClient.post('/api/auth/passport/logout');
+    } catch (e) {
+      throw Exception('Erreur de déconnexion: $e');
+    }
+  }
+
+  @override
+  Future<void> resendOtp(String passportNo) async {
+    try {
+      await dioClient.post(
+        '/api/auth/passport/resend',
+        data: PassportLoginRequest(passportNo: passportNo).toJson(),
       );
     } catch (e) {
-      throw Exception('Erreur d\'inscription: $e');
+      throw Exception('Erreur de renvoi: $e');
     }
   }
 }

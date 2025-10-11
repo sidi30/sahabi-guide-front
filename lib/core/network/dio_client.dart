@@ -8,9 +8,9 @@ class DioClient {
     _dio = dio;
     _dio.options = BaseOptions(
       baseUrl: AppConstants.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
+      connectTimeout: Duration(milliseconds: AppConstants.apiTimeout),
+      receiveTimeout: Duration(milliseconds: AppConstants.apiTimeout),
+      sendTimeout: Duration(milliseconds: AppConstants.apiTimeout),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -29,10 +29,10 @@ class DioClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Add auth token if available
-          // final token = await _getAuthToken();
-          // if (token != null) {
-          //   options.headers['Authorization'] = 'Bearer $token';
-          // }
+          final token = await _getAuthToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           handler.next(options);
         },
         onError: (error, handler) {
@@ -119,33 +119,40 @@ class DioClient {
     }
   }
 
+  Future<String?> _getAuthToken() async {
+    // This would typically get the token from secure storage
+    // For now, we'll return null - this should be implemented with proper token management
+    return null;
+  }
+
   void _handleError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        throw Exception('Connection timeout');
+        throw Exception('Timeout de connexion');
       case DioExceptionType.badResponse:
-        switch (error.response?.statusCode) {
-          case 400:
-            throw Exception('Bad request');
-          case 401:
-            throw Exception('Unauthorized');
-          case 403:
-            throw Exception('Forbidden');
-          case 404:
-            throw Exception('Not found');
-          case 500:
-            throw Exception('Internal server error');
-          default:
-            throw Exception('Something went wrong');
+        final statusCode = error.response?.statusCode;
+        if (statusCode == 401) {
+          throw Exception('Non autorisé');
+        } else if (statusCode == 403) {
+          throw Exception('Accès interdit');
+        } else if (statusCode == 404) {
+          throw Exception('Ressource non trouvée');
+        } else if (statusCode == 500) {
+          throw Exception('Erreur serveur');
+        } else {
+          throw Exception('Erreur HTTP: $statusCode');
         }
       case DioExceptionType.cancel:
-        throw Exception('Request cancelled');
+        throw Exception('Requête annulée');
+      case DioExceptionType.connectionError:
+        throw Exception('Erreur de connexion');
+      case DioExceptionType.badCertificate:
+        throw Exception('Certificat invalide');
       case DioExceptionType.unknown:
-        throw Exception('Network error');
       default:
-        throw Exception('Something went wrong');
+        throw Exception('Erreur inconnue: ${error.message}');
     }
   }
 }
