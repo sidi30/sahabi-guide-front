@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/utils/constants.dart';
 
 abstract class DuasRemoteDataSource {
   /// Calls the https://sahabi-care-api-production.up.railway.app/api/v1/duas endpoint.
@@ -18,7 +19,7 @@ abstract class DuasRemoteDataSource {
 
 class DuasRemoteDataSourceImpl implements DuasRemoteDataSource {
   final http.Client client;
-  final String baseUrl = 'https://sahabi-care-api-production.up.railway.app';
+  final String baseUrl = AppConstants.apiBaseUrl;
 
   DuasRemoteDataSourceImpl({required this.client});
 

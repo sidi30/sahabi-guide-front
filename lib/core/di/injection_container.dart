@@ -46,6 +46,7 @@ import '../../features/alerts/domain/usecases/get_pilgrim_alerts_usecase.dart';
 import '../../shared/services/audio_service.dart';
 import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
+import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
 
 import '../network/dio_client.dart';
@@ -83,6 +84,12 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<LocationService>(
     () => LocationService(),
   );
+  
+  // Auth Service
+  sl.registerLazySingleton<AuthService>(
+    () => AuthService(sl(), sl()),
+  );
+  
   // Auth Feature
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(sl()),

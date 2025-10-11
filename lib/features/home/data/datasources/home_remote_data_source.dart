@@ -53,7 +53,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/prayer-times',
+        '/api/v1/auth/users/prayer-times',
         options: options,
       );
 
@@ -78,8 +78,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         options.headers = {'Authorization': 'Bearer $token'};
       }
 
+      // TODO: Get current user ID from token or storage
+      final userId = 'current-user-id'; // Temporary - should be retrieved from auth
       final response = await _dioClient.get(
-        '/api/v1/user/stats',
+        '/api/v1/auth/users/$userId/stats',
         options: options,
       );
 

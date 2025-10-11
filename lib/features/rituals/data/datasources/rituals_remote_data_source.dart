@@ -65,7 +65,7 @@ class RitualsRemoteDataSource {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getRitualProgress(String pilgrimId) async {
+  Future<List<Map<String, dynamic>>> getRitualProgress(String userId) async {
     try {
       // Get auth token if available
       final token = await _storageService.getSecurely('auth_token');
@@ -76,7 +76,7 @@ class RitualsRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/pilgrims/$pilgrimId/rituals/progress',
+        '/api/v1/users/$userId/rituals/progress',
         options: options,
       );
 
@@ -91,7 +91,7 @@ class RitualsRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> updateRitualProgress(
-    String pilgrimId,
+    String userId,
     String ritualId,
     String status,
   ) async {
@@ -107,7 +107,7 @@ class RitualsRemoteDataSource {
       final data = {'status': status};
 
       final response = await _dioClient.dio.patch(
-        '/api/v1/pilgrims/$pilgrimId/rituals/$ritualId',
+        '/api/v1/users/$userId/rituals/$ritualId',
         data: data,
         options: options,
       );

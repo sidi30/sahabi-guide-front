@@ -10,8 +10,8 @@ class AlertsRepositoryImpl implements AlertsRepository {
   });
 
   @override
-  Future<List<PilgrimAlertModel>> getPilgrimAlerts(String pilgrimId) async {
-    final data = await remoteDataSource.getPilgrimAlerts(pilgrimId);
+  Future<List<PilgrimAlertModel>> getPilgrimAlerts(String userId) async {
+    final data = await remoteDataSource.getUserAlerts(userId);
     return data.map((alertData) => PilgrimAlertModel.fromMap(alertData)).toList();
   }
 }

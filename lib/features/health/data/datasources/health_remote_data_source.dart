@@ -30,8 +30,10 @@ class HealthRemoteDataSourceImpl implements HealthRemoteDataSource {
   Future<MedicalProfileModel> getMedicalProfile() async {
     try {
       final token = await _storageService.getSecurely(AppConstants.authTokenKey);
+      // TODO: Get current user ID from token or storage
+      final userId = 'current-user-id'; // Temporary - should be retrieved from auth
       final response = await _dioClient.get(
-        '/api/v1/health/profile',
+        '/api/v1/auth/users/$userId/health',
         options: _buildAuthOptions(token),
       );
       if (response.statusCode == 200) {
@@ -47,8 +49,10 @@ class HealthRemoteDataSourceImpl implements HealthRemoteDataSource {
   Future<MedicalProfileModel> saveMedicalProfile(MedicalProfileModel profile) async {
     try {
       final token = await _storageService.getSecurely(AppConstants.authTokenKey);
+      // TODO: Get current user ID from token or storage
+      final userId = 'current-user-id'; // Temporary - should be retrieved from auth
       final response = await _dioClient.put(
-        '/api/v1/health/profile',
+        '/api/v1/auth/users/$userId/health',
         data: profile.toMap(),
         options: _buildAuthOptions(token),
       );
@@ -62,11 +66,11 @@ class HealthRemoteDataSourceImpl implements HealthRemoteDataSource {
   }
 
   @override
-  Future<HealthProfileModel> getPilgrimHealthProfile(String pilgrimId) async {
+  Future<HealthProfileModel> getPilgrimHealthProfile(String userId) async {
     try {
       final token = await _storageService.getSecurely(AppConstants.authTokenKey);
       final response = await _dioClient.get(
-        '/api/v1/pilgrims/$pilgrimId/health-profile',
+        '/api/v1/auth/users/$userId/health',
         options: _buildAuthOptions(token),
       );
       if (response.statusCode == 200) {

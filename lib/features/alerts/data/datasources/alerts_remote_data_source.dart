@@ -9,7 +9,7 @@ class AlertsRemoteDataSource {
 
   AlertsRemoteDataSource(this._dioClient, this._storageService);
 
-  Future<List<MapKV>> getPilgrimAlerts(String pilgrimId) async {
+  Future<List<MapKV>> getUserAlerts(String userId) async {
     try {
       // Get auth token if available
       final token = await _storageService.getSecurely('auth_token');
@@ -20,17 +20,17 @@ class AlertsRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/pilgrims/$pilgrimId/alerts',
+        '/api/v1/auth/users/$userId/alerts',
         options: options,
       );
 
       if (response.statusCode == 200) {
         return List<MapKV>.from(response.data);
       } else {
-        throw Exception('Failed to fetch pilgrim alerts');
+        throw Exception('Failed to fetch user alerts');
       }
     } catch (e) {
-      throw Exception('Error fetching pilgrim alerts: $e');
+      throw Exception('Error fetching user alerts: $e');
     }
   }
 }

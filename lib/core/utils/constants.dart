@@ -5,12 +5,14 @@ class AppConstants {
   static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
-  static const String apiBaseUrl = 'http://localhost:8083';
+  static const String apiBaseUrl = 'http://localhost:8080';
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';
   
   // Storage Keys
   static const String authTokenKey = 'auth_token';
+  static const String userIdKey = 'user_id';
+  static const String passportNoKey = 'passport_no';
   static const String userProfileKey = 'user_profile';
   static const String medicalProfileKey = 'medical_profile';
   static const String languageKey = 'selected_language';

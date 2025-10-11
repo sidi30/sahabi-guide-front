@@ -21,7 +21,7 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
     try {
       final request = PassportLoginRequest(passportNo: passportNo);
       final response = await dioClient.post(
-        '/api/auth/passport/logout',
+        '/api/auth/passport/login',
         data: request.toJson(),
       );
 
