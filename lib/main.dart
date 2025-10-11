@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
+import 'features/auth/presentation/pages/auth_choice_page.dart';
+import 'features/auth/presentation/pages/passport_login_page.dart';
+import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
@@ -49,12 +53,19 @@ class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
 
+  // Authentication routes
+  static const String authChoice = '/auth-choice';
+  static const String passportLogin = '/passport-login';
+  static const String passportOtp = '/passport-otp';
+  static const String testPassportLogin = '/test-passport-login';
+
   // Main shell routes
   static const String home = '/home';
   static const String rituals = '/rituals';
   static const String map = '/map';
   static const String videos = '/videos';
   static const String profile = '/profile';
+  static const String pilgrimProfile = '/pilgrim-profile';
   static const String settings = '/settings';
 
   // Nested routes
@@ -105,6 +116,35 @@ class MyApp extends ConsumerWidget {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // Auth Choice Screen
+      GoRoute(
+        path: AppRoutes.authChoice,
+        builder: (context, state) => const AuthChoicePage(),
+      ),
+
+      // Authentication routes
+      GoRoute(
+        path: AppRoutes.passportLogin,
+        builder: (context, state) => const PassportLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.testPassportLogin,
+        builder: (context, state) => const PassportLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.passportOtp,
+        builder: (context, state) {
+          final passportNo = state.extra as String? ?? '';
+          return PassportOtpVerificationPage(passportNo: passportNo);
+        },
+      ),
+
+      // Pilgrim Profile Screen (outside shell)
+      GoRoute(
+        path: AppRoutes.pilgrimProfile,
+        builder: (context, state) => const PilgrimProfilePage(),
       ),
 
       // Main Shell with Bottom Navigation - Wraps all main screens including home
@@ -461,7 +501,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: ElevatedButton(
                               onPressed: selectedRole.isNotEmpty &&
                                       selectedLanguage.isNotEmpty
-                                  ? () => context.go(AppRoutes.home)
+                                  ? () => context.go(AppRoutes.authChoice)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4FC3F7),

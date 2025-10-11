@@ -59,4 +59,28 @@ class DuasRepositoryImpl implements DuasRepository {
       throw Exception('Failed to toggle favorite: $e');
     }
   }
+  @override
+  Future<List<DuaModel>> searchDuas(String query) async {
+    try {
+      // Get all duas first
+      final allDuas = await getDuas();
+
+      if (query.isEmpty) {
+        return allDuas;
+      }
+
+      // Filter duas based on the search query
+      final filteredDuas = allDuas.where((dua) {
+        final textMatch = dua.text.toLowerCase().contains(query.toLowerCase());
+        final translationMatch = dua.translation.toLowerCase().contains(query.toLowerCase());
+        final tagMatch = dua.tag.toLowerCase().contains(query.toLowerCase());
+
+        return textMatch || translationMatch || tagMatch;
+      }).toList();
+
+      return filteredDuas;
+    } catch (e) {
+      throw Exception('Failed to search duas: $e');
+    }
+  }
 }

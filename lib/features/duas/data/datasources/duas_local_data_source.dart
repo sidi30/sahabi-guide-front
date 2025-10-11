@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../shared/models/dua_model.dart';
 
 abstract class DuasLocalDataSource {
@@ -8,6 +10,7 @@ abstract class DuasLocalDataSource {
   Future<List<DuaModel>> getLocalDuas();
   Future<List<DuaModel>> getFavoriteDuas();
   Future<void> toggleFavorite(String duaId);
+  Future<List<DuaModel>> searchDuas(String query);
 }
 
 class DuasLocalDataSourceImpl implements DuasLocalDataSource {
@@ -52,7 +55,7 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
 
   @override
   Future<List<DuaModel>> getFavoriteDuas() async {
-    final allDuas = await getDuas();
+    final allDuas = await getLocalDuas();
     return allDuas.where((dua) => _favoriteDuaIds.contains(dua.id)).toList();
   }
 
@@ -67,13 +70,12 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
 
   @override
   Future<List<DuaModel>> searchDuas(String query) async {
-    final allDuas = await getDuas();
+    final allDuas = await getLocalDuas();
     final lowerQuery = query.toLowerCase();
 
     return allDuas.where((dua) {
       return dua.tag.toLowerCase().contains(lowerQuery) ||
           dua.text.toLowerCase().contains(lowerQuery) ||
-          dua.translation.contains(query) ||
           dua.translation.toLowerCase().contains(lowerQuery);
     }).toList();
   }

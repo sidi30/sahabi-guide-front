@@ -1,11 +1,11 @@
 class AppConstants {
   // App Info
-  static const String appName = 'Hajj Companion';
+  static const String appName = 'Sahabi Guide';
   static const String appVersion = '1.0.0';
-  static const String appDescription = 'Your guide for a blessed and seamless pilgrimage';
+  static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
-  static const String apiBaseUrl = 'https://api.hajjcompanion.com';
+  static const String apiBaseUrl = 'http://localhost:8083';
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';
   
