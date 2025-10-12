@@ -19,7 +19,7 @@ class RitualsRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/rituals',
+        '/api/v1/rituals/enriched',
         options: options,
       );
 

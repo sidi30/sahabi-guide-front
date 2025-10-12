@@ -26,6 +26,10 @@ class RitualModel {
   final Duration? estimatedDuration;
   final List<String> audioPaths;
   final String? videoPath;
+  // Nouveaux champs consommés depuis l'API enrichie
+  final List<String> steps;
+  final Map<String, String> practicalTips;
+  final int? contentVersion;
   final Map<String, String> translations;
   final List<String> tags;
   final bool isActive;
@@ -44,6 +48,9 @@ class RitualModel {
     this.estimatedDuration,
     this.audioPaths = const [],
     this.videoPath,
+    this.steps = const [],
+    this.practicalTips = const {},
+    this.contentVersion,
     this.translations = const {},
     this.tags = const [],
     this.isActive = false,
@@ -70,6 +77,9 @@ class RitualModel {
           : null,
       audioPaths: List<String>.from(json['audioPaths'] ?? []),
       videoPath: json['videoPath'],
+      steps: List<String>.from(json['steps'] ?? json['stepsList'] ?? const []),
+      practicalTips: Map<String, String>.from(json['practicalTips'] ?? const {}),
+      contentVersion: json['contentVersion'],
       translations: Map<String, String>.from(json['translations'] ?? {}),
       tags: List<String>.from(json['tags'] ?? []),
       isActive: json['isActive'] ?? false,
@@ -91,6 +101,9 @@ class RitualModel {
       'estimatedDuration': estimatedDuration?.inMinutes,
       'audioPaths': audioPaths,
       'videoPath': videoPath,
+      'steps': steps,
+      'practicalTips': practicalTips,
+      'contentVersion': contentVersion,
       'translations': translations,
       'tags': tags,
       'isActive': isActive,
