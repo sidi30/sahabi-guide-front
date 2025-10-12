@@ -6,6 +6,7 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../domain/repositories/home_repository.dart';
+import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repository = sl<HomeRepository>();
@@ -60,10 +61,24 @@ class HomePage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome Section
-          _buildWelcomeSection(context, user),
-
-          const SizedBox(height: 24),
+          // Welcome Section - Afficher seulement si authentifié
+          Consumer(
+            builder: (context, ref, _) {
+              final authState = ref.watch(authNotifierProvider);
+              
+              // Ne pas afficher le bloc si non connecté
+              if (!authState.isAuthenticated) {
+                return const SizedBox.shrink();
+              }
+              
+              return Column(
+                children: [
+                  _buildWelcomeSection(context, authState),
+                  const SizedBox(height: 24),
+                ],
+              );
+            },
+          ),
 
           // Prayer Times Card
           _buildPrayerTimesCard(context, dashboardData),
@@ -91,7 +106,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context, UserModel? user) {
+  Widget _buildWelcomeSection(BuildContext context, AuthState authState) {
     final now = DateTime.now();
     final hour = now.hour;
     String greeting;
@@ -103,6 +118,11 @@ class HomePage extends ConsumerWidget {
     } else {
       greeting = 'Bonsoir';
     }
+
+    // Récupérer le prénom depuis le profil du pèlerin authentifié
+    final firstName = authState.pilgrimProfile?.firstName ?? 
+                     authState.pilgrimProfile?.fullName?.split(' ').first ?? 
+                     'Pèlerin';
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -127,7 +147,7 @@ class HomePage extends ConsumerWidget {
                       ),
                 ),
                 Text(
-                  user?.firstName ?? 'Utilisateur',
+                  firstName,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

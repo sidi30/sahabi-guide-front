@@ -5,6 +5,12 @@ import '../../../../core/di/injection_container.dart';
 import '../../../auth/data/models/passport_auth_models.dart';
 import '../../../auth/domain/usecases/passport_auth_usecases.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
+import '../../../settings/presentation/screens/notifications_settings_screen.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
+import '../../../settings/presentation/screens/privacy_screen.dart';
+import '../../../settings/presentation/screens/help_screen.dart';
+import '../../../settings/presentation/screens/contact_screen.dart';
+import '../../../settings/presentation/screens/about_screen.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 
@@ -248,31 +254,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Gérer les notifications',
                 Icons.notifications_outlined,
                 () {
-                  // TODO: Navigate to notifications settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsSettingsScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
-                'Langue',
-                'Français',
-                Icons.language,
-                () {
-                  // TODO: Navigate to language settings
-                },
-              ),
-              _buildSettingsTile(
-                'Thème',
-                'Automatique',
+                'Langue & Thème',
+                'Personnaliser l\'interface',
                 Icons.palette_outlined,
                 () {
-                  // TODO: Navigate to theme settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
                 'Confidentialité',
-                'Paramètres de confidentialité',
+                'Protection de vos données',
                 Icons.privacy_tip_outlined,
                 () {
-                  // TODO: Navigate to privacy settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyScreen(),
+                    ),
+                  );
                 },
               ),
             ],
@@ -282,22 +292,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
           // Support Section
           _buildSectionCard(
-            'Support',
+            'Support & Aide',
             [
               _buildSettingsTile(
-                'Aide',
-                'Centre d\'aide et FAQ',
+                'Aide & FAQ',
+                'Trouvez des réponses rapidement',
                 Icons.help_outline,
                 () {
-                  // TODO: Navigate to help
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HelpScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
                 'Nous contacter',
-                'Envoyer un message',
+                'Besoin d\'assistance ?',
                 Icons.contact_support_outlined,
                 () {
-                  // TODO: Navigate to contact
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ContactScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
@@ -305,7 +323,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Version ${AppConstants.appVersion}',
                 Icons.info_outline,
                 () {
-                  // TODO: Show about dialog
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ),
+                  );
                 },
               ),
             ],

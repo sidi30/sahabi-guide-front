@@ -49,6 +49,21 @@ import '../../features/alerts/data/repositories/alerts_repository_impl.dart';
 import '../../features/alerts/domain/repositories/alerts_repository.dart';
 import '../../features/alerts/domain/usecases/get_pilgrim_alerts_usecase.dart';
 
+// Settings Feature
+import '../../features/settings/data/datasources/user_settings_remote_data_source.dart';
+import '../../features/settings/data/datasources/user_settings_local_data_source.dart';
+import '../../features/settings/data/datasources/contact_message_remote_data_source.dart';
+import '../../features/settings/data/repositories/user_settings_repository_impl.dart';
+import '../../features/settings/data/repositories/contact_message_repository_impl.dart';
+import '../../features/settings/domain/repositories/user_settings_repository.dart';
+import '../../features/settings/domain/repositories/contact_message_repository.dart';
+import '../../features/settings/domain/usecases/get_user_settings_usecase.dart';
+import '../../features/settings/domain/usecases/update_user_settings_usecase.dart';
+import '../../features/settings/domain/usecases/update_notification_settings_usecase.dart';
+import '../../features/settings/domain/usecases/reset_settings_usecase.dart';
+import '../../features/settings/domain/usecases/send_contact_message_usecase.dart';
+import '../../features/settings/domain/usecases/get_my_messages_usecase.dart';
+
 import '../../shared/services/audio_service.dart';
 import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
@@ -222,6 +237,43 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton(() => GetPilgrimAlertsUseCase(sl()));
+
+  // Settings Feature
+  sl.registerLazySingleton<UserSettingsRemoteDataSource>(
+    () => UserSettingsRemoteDataSourceImpl(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<UserSettingsLocalDataSource>(
+    () => UserSettingsLocalDataSourceImpl(secureStorage: sl()),
+  );
+
+  sl.registerLazySingleton<UserSettingsRepository>(
+    () => UserSettingsRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      authLocalDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetUserSettingsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateUserSettingsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateNotificationSettingsUseCase(sl()));
+  sl.registerLazySingleton(() => ResetSettingsUseCase(sl()));
+
+  // Contact Feature
+  sl.registerLazySingleton<ContactMessageRemoteDataSource>(
+    () => ContactMessageRemoteDataSourceImpl(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<ContactMessageRepository>(
+    () => ContactMessageRepositoryImpl(
+      remoteDataSource: sl(),
+      authLocalDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => SendContactMessageUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyMessagesUseCase(sl()));
 
   // Initialize services
   await sl<NotificationService>().initialize();
