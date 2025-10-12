@@ -7,6 +7,8 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/services/auth_service.dart';
+import '../../../../shared/widgets/notification_snackbar.dart';
+import '../../data/exceptions/auth_exceptions.dart';
 
 final passportLoginProvider = StateNotifierProvider<PassportLoginNotifier, PassportLoginState>((ref) {
   return PassportLoginNotifier(sl<AuthService>());
@@ -46,12 +48,18 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
       } else if (next.isSuccess) {
         context.go(AppConstants.homeRoute);
       } else if (next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        if (next.isPassportNotFound) {
+          // Afficher une boîte de dialogue pour passeport non enregistré
+          NotificationService.showErrorDialog(
+            context,
+            title: 'Inscription requise',
+            message: next.errorMessage ?? 'Vous n\'êtes pas inscrit. Rapprochez-vous de votre agence ou contactez-nous.',
+            actionText: 'Compris',
+          );
+        } else {
+          // Afficher une notification pour les autres erreurs
+          NotificationService.showError(context, next.errorMessage!);
+        }
       }
     });
 
@@ -214,7 +222,12 @@ class PassportLoginNotifier extends StateNotifier<PassportLoginState> {
   PassportLoginNotifier(this._authService) : super(const PassportLoginState());
 
   Future<void> loginWithPassport(String passportNo) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      isPassportNotFound: false,
+      requiresOtp: false,
+    );
 
     try {
       final result = await _authService.requestOtp(passportNo);
@@ -228,13 +241,17 @@ class PassportLoginNotifier extends StateNotifier<PassportLoginState> {
       } else {
         state = state.copyWith(
           isLoading: false,
+          requiresOtp: false,
           errorMessage: result.message,
+          isPassportNotFound: result.isPassportNotFound,
         );
       }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
+        requiresOtp: false,
         errorMessage: 'Erreur de connexion: ${e.toString()}',
+        isPassportNotFound: false,
       );
     }
   }
@@ -244,6 +261,7 @@ class PassportLoginState {
   final bool isLoading;
   final bool isSuccess;
   final bool requiresOtp;
+  final bool isPassportNotFound;
   final String? errorMessage;
   final String? passportNo;
 
@@ -251,6 +269,7 @@ class PassportLoginState {
     this.isLoading = false,
     this.isSuccess = false,
     this.requiresOtp = false,
+    this.isPassportNotFound = false,
     this.errorMessage,
     this.passportNo,
   });
@@ -259,6 +278,7 @@ class PassportLoginState {
     bool? isLoading,
     bool? isSuccess,
     bool? requiresOtp,
+    bool? isPassportNotFound,
     String? errorMessage,
     String? passportNo,
   }) {
@@ -266,6 +286,7 @@ class PassportLoginState {
       isLoading: isLoading ?? this.isLoading,
       isSuccess: isSuccess ?? this.isSuccess,
       requiresOtp: requiresOtp ?? this.requiresOtp,
+      isPassportNotFound: isPassportNotFound ?? this.isPassportNotFound,
       errorMessage: errorMessage,
       passportNo: passportNo ?? this.passportNo,
     );

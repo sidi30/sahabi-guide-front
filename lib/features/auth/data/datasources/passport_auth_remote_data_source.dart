@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/passport_auth_models.dart';
+import '../exceptions/auth_exceptions.dart';
 
 abstract class PassportAuthRemoteDataSource {
   Future<PassportAuthResponse> login(String passportNo);
@@ -29,6 +30,18 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
         return PassportAuthResponse.fromJson(response.data);
       } else {
         throw Exception('Numéro de passeport non trouvé');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        throw PassportNotFoundException(
+          'Numéro de passeport non enregistré',
+        );
+      } else if (e.response?.statusCode == 400) {
+        throw PassportValidationException(
+          e.response?.data['message'] ?? 'Numéro de passeport invalide',
+        );
+      } else {
+        throw Exception('Erreur de connexion: ${e.message}');
       }
     } catch (e) {
       throw Exception('Erreur de connexion: $e');

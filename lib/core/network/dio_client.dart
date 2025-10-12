@@ -36,7 +36,8 @@ class DioClient {
           handler.next(options);
         },
         onError: (error, handler) {
-          _handleError(error);
+          // Ne pas traiter l'erreur ici, laisser les couches supérieures gérer
+          // _handleError(error);
           handler.next(error);
         },
       ),

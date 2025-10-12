@@ -6,6 +6,7 @@ import '../../core/utils/app_logger.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/token_validator.dart';
 import 'storage_service.dart';
+import '../../features/auth/data/exceptions/auth_exceptions.dart';
 
 /// États d'authentification
 enum AuthState {
@@ -23,12 +24,14 @@ class AuthResult {
   final String message;
   final String? token;
   final Map<String, dynamic>? user;
+  final bool isPassportNotFound;
 
   AuthResult({
     required this.success,
     required this.message,
     this.token,
     this.user,
+    this.isPassportNotFound = false,
   });
 
   factory AuthResult.fromJson(Map<String, dynamic> json) {
@@ -37,6 +40,15 @@ class AuthResult {
       message: json['message'] ?? '',
       token: json['token'],
       user: json['user'],
+    );
+  }
+
+  // Factory pour passeport non trouvé
+  factory AuthResult.passportNotFound(String message) {
+    return AuthResult(
+      success: false,
+      message: message,
+      isPassportNotFound: true,
     );
   }
 }
@@ -118,11 +130,97 @@ class AuthService {
           message: 'Erreur lors de l\'envoi du code OTP',
         );
       }
-    } catch (e) {
+    } on DioException catch (e) {
       _setState(AuthState.error);
+      
+      AppLogger.error('DioException dans requestOtp: statusCode=${e.response?.statusCode}, data=${e.response?.data}');
+      AppLogger.error('DioException type: ${e.type}, message: ${e.message}');
+      
+      // Vérifier si c'est une erreur de connexion
+      if (e.type == DioExceptionType.connectionTimeout || 
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        return AuthResult(
+          success: false,
+          message: 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.',
+        );
+      }
+      
+      // Retourner un AuthResult spécial pour passeport non trouvé
+      if (e.response?.statusCode == 404) {
+        String errorMessage = 'Vous n\'êtes pas inscrit. Rapprochez-vous de votre agence ou contactez-nous.';
+        
+        // Extraire le message du backend si disponible
+        if (e.response?.data != null) {
+          try {
+            final responseData = e.response!.data;
+            AppLogger.info('Type de responseData: ${responseData.runtimeType}');
+            AppLogger.info('Contenu responseData: $responseData');
+            
+            if (responseData is Map<String, dynamic> && responseData['message'] != null) {
+              // Utiliser notre message personnalisé au lieu du message backend
+              errorMessage = 'Vous n\'êtes pas inscrit. Rapprochez-vous de votre agence ou contactez-nous.';
+              AppLogger.info('Message personnalisé utilisé: $errorMessage');
+            } else if (responseData is String) {
+              // Si la réponse est une chaîne JSON, la parser
+              final jsonData = json.decode(responseData);
+              if (jsonData['message'] != null) {
+                errorMessage = 'Vous n\'êtes pas inscrit. Rapprochez-vous de votre agence ou contactez-nous.';
+                AppLogger.info('Message personnalisé utilisé (String JSON): $errorMessage');
+              }
+            }
+          } catch (parseError) {
+            // Garder le message par défaut si le parsing échoue
+            AppLogger.warning('Erreur parsing réponse 404: $parseError');
+          }
+        }
+        
+        AppLogger.info('Message final pour 404: $errorMessage');
+        return AuthResult.passportNotFound(errorMessage);
+      } else if (e.response?.statusCode == 400) {
+        String errorMessage = 'Numéro de passeport invalide';
+        
+        // Extraire le message du backend si disponible
+        if (e.response?.data != null) {
+          try {
+            final responseData = e.response!.data;
+            if (responseData is Map<String, dynamic> && responseData['message'] != null) {
+              errorMessage = responseData['message'];
+            } else if (responseData is String) {
+              final jsonData = json.decode(responseData);
+              if (jsonData['message'] != null) {
+                errorMessage = jsonData['message'];
+              }
+            }
+          } catch (parseError) {
+            AppLogger.warning('Erreur parsing réponse 400: $parseError');
+          }
+        }
+        
+        return AuthResult(
+          success: false,
+          message: errorMessage,
+        );
+      }
+      
+      // Pour les autres codes d'erreur ou si pas de réponse
+      String errorMessage = 'Erreur de connexion';
+      if (e.response?.statusCode != null) {
+        errorMessage = 'Erreur serveur (${e.response!.statusCode})';
+      }
+      
       return AuthResult(
         success: false,
-        message: 'Erreur de connexion: ${e.toString()}',
+        message: errorMessage,
+      );
+    } catch (e) {
+      _setState(AuthState.error);
+      AppLogger.error('Exception générale dans requestOtp: $e');
+      
+      return AuthResult(
+        success: false,
+        message: 'Erreur inattendue: ${e.toString()}',
       );
     }
   }
