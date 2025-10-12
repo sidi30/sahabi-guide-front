@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../core/network/dio_client.dart';
+import '../../core/utils/app_logger.dart';
 import '../../core/utils/constants.dart';
 import 'storage_service.dart';
 
@@ -64,10 +65,10 @@ class AuthService {
   /// Initialise l'authentification au démarrage
   Future<void> _initializeAuth() async {
     _setState(AuthState.loading);
-    
+
     try {
       final token = await _storage.getSecurely(AppConstants.authTokenKey);
-      
+
       if (token != null && token.isNotEmpty) {
         // Valider le token
         final isValid = await validateToken(token);
@@ -99,7 +100,7 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final result = AuthResult.fromJson(response.data);
-        
+
         if (result.success) {
           _setState(AuthState.otpSent);
           // Stocker temporairement le numéro de passeport
@@ -107,7 +108,7 @@ class AuthService {
         } else {
           _setState(AuthState.error);
         }
-        
+
         return result;
       } else {
         _setState(AuthState.error);
@@ -140,20 +141,21 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final result = AuthResult.fromJson(response.data);
-        
+
         if (result.success && result.token != null) {
           // Stocker le token
-          await _storage.storeSecurely(AppConstants.authTokenKey, result.token!);
+          await _storage.storeSecurely(
+              AppConstants.authTokenKey, result.token!);
           _currentToken = result.token;
-          
+
           // Charger le profil utilisateur
           await _loadUserProfile();
-          
+
           _setState(AuthState.authenticated);
         } else {
           _setState(AuthState.error);
         }
-        
+
         return result;
       } else {
         _setState(AuthState.error);
@@ -186,7 +188,7 @@ class AuthService {
         final result = AuthResult.fromJson(response.data);
         return result.success;
       }
-      
+
       return false;
     } catch (e) {
       AppLogger.error('Erreur validation token', error: e);
@@ -206,13 +208,13 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final result = AuthResult.fromJson(response.data);
-        
+
         if (result.success) {
           _setState(AuthState.otpSent);
         } else {
           _setState(AuthState.error);
         }
-        
+
         return result;
       } else {
         _setState(AuthState.error);
@@ -234,7 +236,7 @@ class AuthService {
   Future<void> logout() async {
     try {
       final token = await _storage.getSecurely(AppConstants.authTokenKey);
-      
+
       if (token != null) {
         // Appeler l'endpoint de déconnexion
         await _dioClient.post(
@@ -252,7 +254,7 @@ class AuthService {
       await _storage.remove(AppConstants.userIdKey);
       await _storage.remove(AppConstants.passportNoKey);
       await _storage.remove(AppConstants.userProfileKey);
-      
+
       _currentToken = null;
       _currentUser = null;
       _userController.add(null);
@@ -265,7 +267,7 @@ class AuthService {
     if (_currentState == AuthState.authenticated && _currentToken != null) {
       return true;
     }
-    
+
     final token = await _storage.getSecurely(AppConstants.authTokenKey);
     return token != null && token.isNotEmpty;
   }
@@ -275,7 +277,7 @@ class AuthService {
     if (_currentUser != null) {
       return _currentUser;
     }
-    
+
     await _loadUserProfile();
     return _currentUser;
   }
@@ -285,7 +287,7 @@ class AuthService {
     if (_currentToken != null) {
       return _currentToken;
     }
-    
+
     _currentToken = await _storage.getSecurely(AppConstants.authTokenKey);
     return _currentToken;
   }
@@ -295,7 +297,7 @@ class AuthService {
     if (_currentUser != null && _currentUser!['id'] != null) {
       return _currentUser!['id'].toString();
     }
-    
+
     return await _storage.get(AppConstants.userIdKey);
   }
 
@@ -304,11 +306,11 @@ class AuthService {
     try {
       // D'abord essayer de charger depuis le storage
       final cachedProfile = await _storage.get(AppConstants.userProfileKey);
-      
+
       if (cachedProfile != null) {
         _currentUser = json.decode(cachedProfile);
         _userController.add(_currentUser);
-        
+
         // Stocker l'ID utilisateur
         if (_currentUser!['id'] != null) {
           await _storage.store(
@@ -317,16 +319,6 @@ class AuthService {
           );
         }
       }
-      
-      // TODO: Charger le profil depuis l'API si nécessaire
-      // final token = await getCurrentToken();
-      // if (token != null) {
-      //   final response = await _dioClient.get(
-      //     '/api/auth/profile',
-      //     options: Options(headers: {'Authorization': 'Bearer $token'}),
-      //   );
-      //   // Mettre à jour le profil
-      // }
     } catch (e) {
       print('Erreur lors du chargement du profil: $e');
     }
@@ -347,4 +339,3 @@ class AuthService {
     _userController.close();
   }
 }
-
