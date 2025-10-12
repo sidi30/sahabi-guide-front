@@ -55,17 +55,34 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
         passportNo: passportNo,
         otpCode: otpCode,
       );
+      
+      print('🔍 [OTP] Envoi requête: passportNo=$passportNo, otpCode=$otpCode');
+      
       final response = await dioClient.post(
         '/api/auth/passport/verify',
         data: request.toJson(),
       );
+
+      print('✅ [OTP] Réponse ${response.statusCode}: ${response.data}');
 
       if (response.statusCode == 200) {
         return PassportAuthResponse.fromJson(response.data);
       } else {
         throw Exception('Code OTP invalide');
       }
+    } on DioException catch (e) {
+      print('❌ [OTP] DioException: ${e.response?.statusCode} - ${e.response?.data}');
+      
+      // Extraire le message d'erreur du backend
+      String errorMessage = 'Code OTP invalide';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response!.data as Map<String, dynamic>;
+        errorMessage = data['message'] ?? errorMessage;
+      }
+      
+      throw Exception(errorMessage);
     } catch (e) {
+      print('❌ [OTP] Exception: $e');
       throw Exception('Erreur de vérification OTP: $e');
     }
   }

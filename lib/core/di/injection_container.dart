@@ -32,6 +32,16 @@ import '../../features/home/domain/repositories/home_repository.dart';
 
 import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
 
+// Connectivity Feature
+import '../../features/connectivity/data/datasources/connectivity_remote_data_source.dart';
+import '../../features/connectivity/data/datasources/connectivity_local_data_source.dart';
+import '../../features/connectivity/data/repositories/connectivity_repository_impl.dart';
+import '../../features/connectivity/domain/repositories/connectivity_repository.dart';
+import '../../features/connectivity/domain/usecases/get_connectivity_plans_usecase.dart';
+import '../../features/connectivity/domain/usecases/get_user_subscriptions_usecase.dart';
+import '../../features/connectivity/domain/usecases/subscribe_to_plan_usecase.dart';
+import '../../features/connectivity/domain/usecases/topup_subscription_usecase.dart';
+
 import '../../features/map/data/datasources/position_remote_data_source.dart';
 import '../../features/map/data/datasources/makkah_locations_data_source.dart';
 import '../../features/map/data/repositories/pilgrim_position_repository_impl.dart';
@@ -291,6 +301,27 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => GetHealthProfileUseCase(sl()));
   sl.registerLazySingleton(() => UpdateHealthProfileUseCase(sl()));
+
+  // Connectivity Feature
+  sl.registerLazySingleton<ConnectivityRemoteDataSource>(
+    () => ConnectivityRemoteDataSourceImpl(dioClient: sl(), secureStorage: sl()),
+  );
+
+  sl.registerLazySingleton<ConnectivityLocalDataSource>(
+    () => ConnectivityLocalDataSourceImpl(secureStorage: sl()),
+  );
+
+  sl.registerLazySingleton<ConnectivityRepository>(
+    () => ConnectivityRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetConnectivityPlansUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserSubscriptionsUseCase(sl()));
+  sl.registerLazySingleton(() => SubscribeToPlanUseCase(sl()));
+  sl.registerLazySingleton(() => TopupSubscriptionUseCase(sl()));
 
   // Initialize services
   await sl<NotificationService>().initialize();

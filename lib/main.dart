@@ -19,6 +19,7 @@ import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
 import 'features/auth/presentation/providers/passport_auth_provider.dart';
 import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
+import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
 import 'features/rituals/presentation/pages/ritual_detail_page.dart';
 import 'features/rituals/presentation/pages/rituals_page.dart';
@@ -215,7 +216,7 @@ class MyApp extends ConsumerWidget {
           ),
           GoRoute(
             path: AppRoutes.connectivity,
-            builder: (context, state) => const ConnectivityPage(),
+            builder: (context, state) => const ConnectivityEsimPage(),
           ),
 
           // Map Screen - PROTÉGÉE
@@ -347,12 +348,17 @@ class MyApp extends ConsumerWidget {
                 : ThemeMode.light,
         };
 
-        return MaterialApp.router(
-          title: 'Sahabi Guide',
-          debugShowCheckedModeBanner: false,
-          locale: locale,
-          themeMode: themeMode,
-          theme: _buildLightTheme(),
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: MaterialApp.router(
+            key: ValueKey(locale.languageCode), // Force rebuild avec animation
+            title: 'Sahabi Guide',
+            debugShowCheckedModeBanner: false,
+            locale: locale,
+            themeMode: themeMode,
+            theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -373,6 +379,7 @@ class MyApp extends ConsumerWidget {
               ),
             );
           },
+          ),
         );
       },
     );
