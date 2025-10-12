@@ -18,6 +18,7 @@ class _HelpScreenState extends State<HelpScreen> {
         title: const Text('Aide & FAQ'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: Column(
         children: [

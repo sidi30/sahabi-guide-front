@@ -70,10 +70,10 @@ class _SplashPageState extends State<SplashPage>
     // Request location permission
     //_requestLocationPermission();
 
-    // Navigate to home screen after 5 seconds
+    // Navigate to auth-choice screen after 3 seconds
     Timer(const Duration(seconds: 3), () {
-      // GOROUTER page replacement to home screen
-      context.pushReplacement(AppRoutes.onboarding);
+      // ✅ Redirection vers auth-choice (pas d'onboarding)
+      context.pushReplacement(AppRoutes.authChoice);
     });
   }
 

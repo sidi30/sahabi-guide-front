@@ -18,6 +18,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.settings_language),
         elevation: 0,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: ListView(
         children: [

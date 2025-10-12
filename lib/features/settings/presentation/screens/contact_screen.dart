@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/theme.dart';
 import '../../data/models/contact_message_model.dart';
 import '../providers/contact_message_provider.dart';
@@ -55,6 +56,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
         title: const Text('Nous Contacter'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -427,8 +429,13 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Retour à la page settings
+                Navigator.of(context).pop(); // Fermer la dialog
+                // Vérifier si on peut revenir en arrière, sinon aller à l'accueil
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop(); // Retour à la page précédente
+                } else {
+                  context.go('/home'); // Aller à l'accueil si pas de page précédente
+                }
               },
               child: const Text('OK'),
             ),

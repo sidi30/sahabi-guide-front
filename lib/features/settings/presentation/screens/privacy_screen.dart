@@ -11,6 +11,7 @@ class PrivacyScreen extends StatelessWidget {
         title: const Text('Confidentialité'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

@@ -15,6 +15,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
         title: const Text('Notifications'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: notificationSettings.when(
         data: (settings) => _buildContent(context, ref, settings),

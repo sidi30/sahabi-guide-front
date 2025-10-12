@@ -184,19 +184,19 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
 
                 const SizedBox(height: 32),
 
-                // Back to choice
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Autre méthode ? ',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                // Option pour accéder sans connexion
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () => context.go('/home'),
+                    icon: const Icon(Icons.arrow_back, size: 18),
+                    label: const Text(
+                      'Accéder sans se connecter',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () => context.go('/auth/choice'),
-                      child: const Text('Choisir'),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),

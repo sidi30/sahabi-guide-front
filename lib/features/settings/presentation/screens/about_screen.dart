@@ -42,6 +42,7 @@ class _AboutScreenState extends State<AboutScreen> {
         title: const Text('À Propos'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

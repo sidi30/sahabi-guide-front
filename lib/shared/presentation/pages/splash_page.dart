@@ -59,18 +59,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
     final storageService = sl<StorageService>();
 
-    // Check if onboarding is completed
-    final isOnboardingCompleted =
-        storageService.getBool(AppConstants.onboardingKey) ?? false;
-
     // Check if user is logged in
     final authToken =
         await storageService.getSecurely(AppConstants.authTokenKey);
 
-    if (!isOnboardingCompleted) {
-      context.go(AppConstants.onboardingRoute);
-    } else if (authToken == null) {
-      context.go(AppConstants.loginRoute);
+    // ✅ Redirection directe vers auth-choice (pas d'onboarding)
+    if (authToken == null) {
+      context.go('/auth-choice');
     } else {
       context.go(AppConstants.homeRoute);
     }
