@@ -41,14 +41,8 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
       final response = await remoteDataSource.verifyOtp(passportNo, otpCode);
       if (response.success && response.token != null) {
         await localDataSource.saveToken(response.token!);
-        // Récupérer le profil du pèlerin après connexion réussie
-        try {
-          final profile = await remoteDataSource.getPilgrimProfile(response.token!);
-          await localDataSource.savePilgrimProfile(profile);
-        } catch (e) {
-          // Le profil peut ne pas être disponible immédiatement
-          print('Profil pèlerin non disponible: $e');
-        }
+        // NE PAS récupérer le profil ici car cela peut bloquer l'authentification
+        // Le profil sera récupéré par le AuthProvider après la navigation
       }
       return response;
     } catch (e) {

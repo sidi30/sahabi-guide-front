@@ -206,7 +206,6 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  sl.registerLazySingleton(() => GetHealthProfileUseCase(sl()));
   sl.registerLazySingleton(() => GetPilgrimHealthProfileUseCase(sl()));
 
   // Map/Position Feature

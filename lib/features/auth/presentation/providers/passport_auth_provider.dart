@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/passport_auth_models.dart';
 import '../../data/repositories/passport_auth_repository_impl.dart';
 import '../../domain/usecases/passport_auth_usecases.dart';
@@ -156,9 +157,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         try {
           final profile = await getPilgrimProfileUseCase();
           state = state.copyWith(pilgrimProfile: profile);
-          print('✅ Profil récupéré avec succès');
+          AppLogger.info('✅ Profil récupéré avec succès');
         } catch (e) {
-          print('⚠️ Impossible de récupérer le profil: $e');
+          AppLogger.warning('⚠️ Impossible de récupérer le profil: $e');
           // On continue quand même, l'authentification est valide
         }
       } else {

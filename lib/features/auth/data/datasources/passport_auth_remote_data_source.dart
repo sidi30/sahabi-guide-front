@@ -129,13 +129,19 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
         ),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.data != null) {
         return PilgrimProfile.fromJson(response.data);
       } else {
-        throw Exception('Erreur lors de la récupération du profil');
+        throw Exception('Réponse invalide du serveur (status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Erreur serveur (${e.response?.statusCode}): ${e.response?.data}');
+      } else {
+        throw Exception('Erreur réseau: ${e.message}');
       }
     } catch (e) {
-      throw Exception('Erreur de récupération du profil: $e');
+      throw Exception('Erreur inattendue lors de la récupération du profil: $e');
     }
   }
 }
