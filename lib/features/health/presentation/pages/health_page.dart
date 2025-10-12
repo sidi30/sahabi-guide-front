@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/theme.dart';
@@ -39,7 +40,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Santé'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -237,7 +238,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     'QR Code',
                     'Partager',
                     Icons.qr_code,
-                    AppTheme.primaryColor,
+                    AppColors.primary,
                     () => _generateMedicalQR(),
                   ),
                 ),
@@ -247,7 +248,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     'Urgence',
                     'Appeler',
                     Icons.local_hospital,
-                    AppTheme.accentColor,
+                    AppColors.accent,
                     () => _callEmergency(),
                   ),
                 ),
@@ -325,12 +326,12 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                    color: AppColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: const Icon(
                     Icons.health_and_safety,
-                    color: AppTheme.secondaryColor,
+                    color: AppColors.secondary,
                     size: 25,
                   ),
                 ),
@@ -350,7 +351,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                         'Informations médicales sécurisées',
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
+                                  color: AppColors.textSecondary,
                                 ),
                       ),
                     ],
@@ -414,13 +415,13 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     child: Text(
                       'Aucun élément ajouté',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textSecondary,
+                            color: AppColors.textSecondary,
                           ),
                     ),
                   )
                 else
                   ...items.map((item) => ListTile(
-                        leading: Icon(icon, color: AppTheme.primaryColor),
+                        leading: Icon(icon, color: AppColors.primary),
                         title: Text(item),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -485,7 +486,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textSecondary,
+                      color: AppColors.textSecondary,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -643,7 +644,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.accentColor),
+                backgroundColor: AppColors.accent),
             child: const Text('Appeler'),
           ),
         ],

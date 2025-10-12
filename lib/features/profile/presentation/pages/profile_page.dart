@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/data/models/passport_auth_models.dart';
 import '../../../auth/domain/usecases/passport_auth_usecases.dart';
@@ -41,7 +42,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mon Profil'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: profileAsync.when(
@@ -111,17 +112,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppTheme.primaryColor,
+                        color: AppColors.primary,
                         width: 3,
                       ),
                     ),
                     child: const Icon(
                       Icons.person,
                       size: 50,
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primary,
                     ),
                   ),
 
@@ -132,7 +133,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     profile?.fullName ?? 'Nom non disponible',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: AppColors.primary,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -143,7 +144,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                      color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -152,14 +153,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         const Icon(
                           Icons.badge,
                           size: 18,
-                          color: AppTheme.secondaryColor,
+                          color: AppColors.secondary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Passeport: ${profile?.passportNo ?? 'N/A'}',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.secondaryColor,
+                            color: AppColors.secondary,
                           ),
                         ),
                       ],
@@ -228,12 +229,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
                   Icons.qr_code,
-                  color: AppTheme.primaryColor,
+                  color: AppColors.primary,
                 ),
               ),
               title: const Text('Mon QR Code'),
@@ -340,13 +341,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout, color: AppTheme.accentColor),
+              icon: const Icon(Icons.logout, color: AppColors.accent),
               label: const Text(
                 'Se déconnecter',
-                style: TextStyle(color: AppTheme.accentColor),
+                style: TextStyle(color: AppColors.accent),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.accentColor),
+                side: const BorderSide(color: AppColors.accent),
               ),
             ),
           ),
@@ -389,7 +390,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
             ),
@@ -412,7 +413,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     VoidCallback onTap,
   ) {
     return ListTile(
-      leading: Icon(icon, color: AppTheme.primaryColor),
+      leading: Icon(icon, color: AppColors.primary),
       title: Text(title),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -433,7 +434,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: AppTheme.primaryColor, width: 2),
+                border: Border.all(color: AppColors.primary, width: 2),
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.white,
               ),
@@ -441,12 +442,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code, size: 80, color: AppTheme.primaryColor),
+                    Icon(Icons.qr_code, size: 80, color: AppColors.primary),
                     SizedBox(height: 8),
                     Text(
                       'QR Code Profil',
                       style: TextStyle(
-                        color: AppTheme.primaryColor,
+                        color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -476,7 +477,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
+              backgroundColor: AppColors.primary,
             ),
             child: const Text('Partager'),
           ),

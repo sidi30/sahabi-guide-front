@@ -131,18 +131,18 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
     final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Vérification OTP',
           style: TextStyle(
-            color: AppColors.primaryColor,
+            color: AppColors.primary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -167,7 +167,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                         width: 80,
                         height: 80,
                         decoration: const BoxDecoration(
-                          color: AppColors.primaryColor,
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -182,7 +182,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor,
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -219,7 +219,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryColor),
+                      borderSide: const BorderSide(color: AppColors.primary),
                     ),
                     counterText: '',
                   ),
@@ -246,7 +246,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                   child: ElevatedButton(
                     onPressed: authState.isLoading ? null : _handleVerifyOtp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -282,7 +282,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                           child: const Text(
                             'Renvoyer le code',
                             style: TextStyle(
-                              color: AppColors.primaryColor,
+                              color: AppColors.primary,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),

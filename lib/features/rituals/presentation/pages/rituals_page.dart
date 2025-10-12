@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/theme.dart';
@@ -173,7 +174,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                           ritual.description,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppTheme.textSecondary,
+                                    color: AppColors.textSecondary,
                                   ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -197,7 +198,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 //           _getFrequencyText(ritual.frequency),
                 //           style:
                 //               Theme.of(context).textTheme.bodySmall?.copyWith(
-                //                     color: AppTheme.textSecondary,
+                //                     color: AppColors.textSecondary,
                 //                   ),
                 //         ),
                 //       ],
@@ -211,13 +212,13 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
         //             const Icon(
         //               Icons.timer_outlined,
         //               size: 16,
-        //               color: AppTheme.textSecondary,
+        //               color: AppColors.textSecondary,
         //             ),
         //             const SizedBox(width: 4),
         //             Text(
         //               _formatDuration(ritual.duration!),
         //               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        //                     color: AppTheme.textSecondary,
+        //                     color: AppColors.textSecondary,
         //                   ),
         //             ),
         //           ],

@@ -64,7 +64,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                       width: 100,
                       height: 100,
                       decoration: const BoxDecoration(
-                        color: AppColors.primaryColor,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -173,7 +173,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               ElevatedButton(
                 onPressed: _saveAndContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -237,7 +237,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
           color: isSelected ? const Color(0xFFE8F5F4) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryColor : Colors.transparent,
+            color: isSelected ? AppColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -246,7 +246,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
             Icon(
               icon,
               size: 40,
-              color: isSelected ? AppColors.primaryColor : Colors.grey,
+              color: isSelected ? AppColors.primary : Colors.grey,
             ),
             const SizedBox(height: 8),
             Text(
@@ -254,7 +254,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primaryColor : Colors.grey,
+                color: isSelected ? AppColors.primary : Colors.grey,
               ),
             ),
           ],
@@ -281,7 +281,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
           color: isSelected ? const Color(0xFFE8F5F4) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryColor : Colors.transparent,
+            color: isSelected ? AppColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -291,7 +291,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
             Icon(
               icon,
               size: 24,
-              color: isSelected ? AppColors.primaryColor : Colors.grey,
+              color: isSelected ? AppColors.primary : Colors.grey,
             ),
             const SizedBox(width: 8),
             Text(
@@ -299,7 +299,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primaryColor : Colors.grey,
+                color: isSelected ? AppColors.primary : Colors.grey,
               ),
             ),
           ],

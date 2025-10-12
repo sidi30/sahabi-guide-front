@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
@@ -9,7 +10,7 @@ class PrivacyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Confidentialité'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
@@ -124,12 +125,12 @@ Dernière mise à jour : 12 octobre 2025
           ),
           const SizedBox(height: 16),
           Card(
-            color: AppTheme.primaryColor.withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.email, color: AppTheme.primaryColor),
+                  const Icon(Icons.email, color: AppColors.primary),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -171,14 +172,14 @@ Dernière mise à jour : 12 octobre 2025
           children: [
             Row(
               children: [
-                Icon(icon, color: AppTheme.primaryColor, size: 24),
+                Icon(icon, color: AppColors.primary, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: AppColors.primary,
                         ),
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../shared/constants/app_colors.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -40,7 +41,7 @@ class _AboutScreenState extends State<AboutScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('À Propos'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
@@ -57,13 +58,13 @@ class _AboutScreenState extends State<AboutScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.mosque,
                       size: 50,
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -71,7 +72,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     'Sahabi Guide',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: AppColors.primary,
                         ),
                   ),
                   const SizedBox(height: 8),
@@ -85,14 +86,14 @@ class _AboutScreenState extends State<AboutScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                      color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       'Version $_version (Build $_buildNumber)',
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.secondaryColor,
+                        color: AppColors.secondary,
                       ),
                     ),
                   ),
@@ -124,13 +125,13 @@ Notre application accompagne les pèlerins à chaque étape de leur Hajj, de la 
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.star, color: AppTheme.primaryColor, size: 24),
+                      const Icon(Icons.star, color: AppColors.primary, size: 24),
                       const SizedBox(width: 12),
                       Text(
                         'Fonctionnalités Principales',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                              color: AppColors.primary,
                             ),
                       ),
                     ],
@@ -172,13 +173,13 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.code, color: AppTheme.primaryColor, size: 24),
+                      const Icon(Icons.code, color: AppColors.primary, size: 24),
                       const SizedBox(width: 12),
                       Text(
                         'Technologies Utilisées',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                              color: AppColors.primary,
                             ),
                       ),
                     ],
@@ -199,7 +200,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
           // Licences et crédits
           Card(
             child: ListTile(
-              leading: const Icon(Icons.description, color: AppTheme.primaryColor),
+              leading: const Icon(Icons.description, color: AppColors.primary),
               title: const Text('Licences Open Source'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
@@ -211,13 +212,13 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.mosque,
                       size: 30,
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primary,
                     ),
                   ),
                 );
@@ -271,7 +272,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                   icon: const Icon(Icons.privacy_tip),
                   label: const Text('Confidentialité'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.primaryColor,
+                    foregroundColor: AppColors.primary,
                   ),
                 ),
               ),
@@ -285,7 +286,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                   icon: const Icon(Icons.contact_support),
                   label: const Text('Contact'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -313,14 +314,14 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
           children: [
             Row(
               children: [
-                Icon(icon, color: AppTheme.primaryColor, size: 24),
+                Icon(icon, color: AppColors.primary, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: AppColors.primary,
                         ),
                   ),
                 ),
@@ -344,7 +345,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppTheme.secondaryColor),
+          Icon(icon, size: 20, color: AppColors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(text),

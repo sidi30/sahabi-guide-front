@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../data/models/contact_message_model.dart';
 import '../providers/contact_message_provider.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
@@ -54,7 +55,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nous Contacter'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
@@ -63,7 +64,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
         children: [
           // Informations de contact rapides
           Card(
-            color: AppTheme.primaryColor.withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -109,7 +110,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.access_time, color: AppTheme.primaryColor, size: 32),
+                  Icon(Icons.access_time, color: AppColors.primary, size: 32),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -147,7 +148,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       'Envoyer un message',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
+                            color: AppColors.primary,
                           ),
                     ),
                     const SizedBox(height: 16),
@@ -272,7 +273,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                             : const Icon(Icons.send),
                         label: Text(contactState.isLoading ? 'Envoi en cours...' : 'Envoyer'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
@@ -332,7 +333,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            Icon(icon, color: AppTheme.primaryColor, size: 28),
+            Icon(icon, color: AppColors.primary, size: 28),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -371,10 +372,10 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 24),
+            child: Icon(icon, color: AppColors.primary, size: 24),
           ),
           const SizedBox(height: 4),
           Text(

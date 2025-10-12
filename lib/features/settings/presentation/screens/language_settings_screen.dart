@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/constants/app_locale.dart';
@@ -27,17 +28,17 @@ class LanguageSettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primaryColor.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.primaryColor.withValues(alpha: 0.3),
+                color: AppColors.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.info_outline,
-                  color: AppColors.primaryColor,
+                  color: AppColors.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -45,7 +46,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
                   child: Text(
                     'Choisissez la langue de l\'interface\nChoose interface language\nاختر لغة الواجهة',
                     style: const TextStyle(
-                      color: AppColors.primaryColor,
+                      color: AppColors.primary,
                       fontSize: 13,
                       height: 1.4,
                     ),
@@ -146,7 +147,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
           height: 48,
           decoration: BoxDecoration(
             color: isSelected 
-                ? AppColors.primaryColor.withValues(alpha: 0.1)
+                ? AppColors.primary.withValues(alpha: 0.1)
                 : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(24),
           ),
@@ -161,7 +162,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
           appLocale.displayName,
           style: TextStyle(
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? AppColors.primaryColor : null,
+            color: isSelected ? AppColors.primary : null,
           ),
         ),
         subtitle: Text(
@@ -174,7 +175,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
         trailing: isSelected
             ? const Icon(
                 Icons.check_circle,
-                color: AppColors.primaryColor,
+                color: AppColors.primary,
                 size: 28,
               )
             : Icon(

@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import 'dart:async';
 
 import '../../../../core/theme/theme.dart';
@@ -112,7 +113,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
-                                      color: AppTheme.textSecondary,
+                                      color: AppColors.textSecondary,
                                     ),
                               ),
                             ],
@@ -180,7 +181,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                           _formatLastSync(_lastSync),
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppTheme.secondaryColor,
+                                    color: AppColors.secondary,
                                     fontWeight: FontWeight.w500,
                                   ),
                         ),
@@ -290,12 +291,12 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
                         Icons.download_done,
-                        color: AppTheme.primaryColor,
+                        color: AppColors.primary,
                       ),
                     ),
                     title: const Text('Rituels téléchargés'),
@@ -311,12 +312,12 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                        color: AppColors.secondary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
                         Icons.audiotrack,
-                        color: AppTheme.secondaryColor,
+                        color: AppColors.secondary,
                       ),
                     ),
                     title: const Text('Audio téléchargés'),
@@ -401,7 +402,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 Text(
                   'Téléchargé',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                 ),
               ],
@@ -419,7 +420,7 @@ class _ConnectivityPageState extends ConsumerState<ConnectivityPage> {
                 Text(
                   'Envoyé',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                 ),
               ],

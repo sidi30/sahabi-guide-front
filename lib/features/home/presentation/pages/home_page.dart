@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/theme.dart';
@@ -128,7 +129,7 @@ class HomePage extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+          colors: [AppColors.primary, AppColors.secondary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -209,7 +210,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prière actuelle',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondary,
+                              color: AppColors.textSecondary,
                             ),
                       ),
                       Text(
@@ -233,7 +234,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prochaine prière',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondary,
+                              color: AppColors.textSecondary,
                             ),
                       ),
                       Text(
@@ -246,7 +247,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'dans ${nextPrayer['remaining']}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.secondaryColor,
+                              color: AppColors.secondary,
                             ),
                       ),
                     ],
@@ -272,7 +273,7 @@ class HomePage extends ConsumerWidget {
             'Prières',
             '${todayStats['prayersCompleted']}/${todayStats['totalPrayers']}',
             Icons.schedule,
-            AppTheme.primaryColor,
+            AppColors.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -282,7 +283,7 @@ class HomePage extends ConsumerWidget {
             'Douas',
             '${todayStats['duasRead']}',
             Icons.book,
-            AppTheme.secondaryColor,
+            AppColors.secondary,
           ),
         ),
         const SizedBox(width: 12),
@@ -292,7 +293,7 @@ class HomePage extends ConsumerWidget {
             'Dhikr',
             '${todayStats['dhikrCount']}',
             Icons.favorite,
-            AppTheme.accentColor,
+            AppColors.accent,
           ),
         ),
       ],
@@ -318,7 +319,7 @@ class HomePage extends ConsumerWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
             ),
           ],
@@ -388,7 +389,7 @@ class HomePage extends ConsumerWidget {
                 child: Text(
                   item['subtitle'],
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

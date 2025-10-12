@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -16,7 +17,7 @@ class _HelpScreenState extends State<HelpScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Aide & FAQ'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
@@ -25,7 +26,7 @@ class _HelpScreenState extends State<HelpScreen> {
           // Barre de recherche
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppTheme.primaryColor.withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Rechercher une question...',
@@ -60,7 +61,7 @@ class _HelpScreenState extends State<HelpScreen> {
         },
         icon: const Icon(Icons.contact_support),
         label: const Text('Nous Contacter'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
       ),
     );
   }
@@ -281,7 +282,7 @@ Emportez toujours une batterie externe pour votre sécurité.
         title,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppTheme.primaryColor,
+              color: AppColors.primary,
             ),
       ),
     );
@@ -309,7 +310,7 @@ class _FAQItem extends StatelessWidget {
             fontSize: 15,
           ),
         ),
-        leading: const Icon(Icons.help_outline, color: AppTheme.primaryColor),
+        leading: const Icon(Icons.help_outline, color: AppColors.primary),
         children: [
           Padding(
             padding: const EdgeInsets.all(16),

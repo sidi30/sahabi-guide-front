@@ -256,16 +256,16 @@ class MyApp extends ConsumerWidget {
     return ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.light(
-        primary: AppColors.primaryColor,
-        secondary: AppColors.secondaryColor,
-        surface: AppColors.surfaceColor,
-        error: AppColors.errorColor,
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.surface,
+        error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onSurface: AppColors.primaryColor,
+        onSurface: AppColors.textPrimary,
         brightness: Brightness.light,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundColor,
+      scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.appBarBackground,
         elevation: 0,

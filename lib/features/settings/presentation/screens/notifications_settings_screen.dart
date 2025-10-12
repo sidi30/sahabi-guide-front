@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/theme/theme.dart';
 import '../providers/notifications_provider.dart';
 
@@ -13,7 +14,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: true, // ✅ Bouton retour automatique
       ),
@@ -49,7 +50,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppTheme.primaryColor, size: 32),
+                Icon(Icons.info_outline, color: AppColors.primary, size: 32),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -240,7 +241,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppTheme.primaryColor,
+              color: AppColors.primary,
             ),
       ),
     );
