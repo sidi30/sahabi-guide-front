@@ -187,17 +187,17 @@ class RitualsStateManager extends ChangeNotifier {
   }
 
   Future<void> pauseDua() async {
-    await _audioService.pauseAudio();
+    await _audioService.pause();
     notifyListeners();
   }
 
   Future<void> resumeDua() async {
-    await _audioService.resumeAudio();
+    await _audioService.resume();
     notifyListeners();
   }
 
   Future<void> stopDua() async {
-    await _audioService.stopAudio();
+    await _audioService.stop();
     _currentPlayingDua = null;
     notifyListeners();
   }

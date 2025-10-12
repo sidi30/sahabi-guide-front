@@ -51,23 +51,44 @@ class DuaModel {
   });
 
   factory DuaModel.fromJson(Map<String, dynamic> json) {
+    // L'API backend retourne: id, arabicText, frenchTranslation, englishTranslation, audioUrl, ritualId, orderIndex
+    // On adapte pour correspondre au modèle Flutter
+    
+    final arabicText = json['arabicText'] ?? json['text'] ?? '';
+    final frenchTranslation = json['frenchTranslation'] ?? json['translation'] ?? '';
+    final englishTranslation = json['englishTranslation'] ?? '';
+    final audioUrl = json['audioUrl'] ?? json['audioPath'] ?? '';
+    
+    // Construire les maps de traductions et d'audio
+    final Map<String, String> translations = {
+      'fr': frenchTranslation,
+      'ar': arabicText,
+      if (englishTranslation.isNotEmpty) 'en': englishTranslation,
+    };
+    
+    final Map<String, String> audioPaths = {};
+    if (audioUrl.isNotEmpty) {
+      audioPaths['fr'] = audioUrl;
+      audioPaths['ar'] = audioUrl;
+    }
+    
     return DuaModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      arabicText: json['arabicText'] as String,
-      transliteration: json['transliteration'] as String,
-      translation: json['translation'] as String,
+      id: json['id']?.toString() ?? '',
+      title: json['title'] ?? frenchTranslation.split(' ').take(5).join(' '), // Première phrase comme titre
+      description: json['description'] ?? frenchTranslation,
+      arabicText: arabicText,
+      transliteration: json['transliteration'] ?? '', // Pas disponible dans l'API actuelle
+      translation: frenchTranslation,
       type: _parseDuaType(json['type']),
-      audioPath: json['audioPath'] as String,
+      audioPath: audioUrl,
       duration: Duration(seconds: json['duration'] ?? 60),
-      priority: json['priority'] ?? 1,
-      tags: List<String>.from(json['tags'] ?? []),
+      priority: json['priority'] ?? json['orderIndex'] ?? 1,
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
       isActive: json['isActive'] ?? true,
       isFavorite: json['isFavorite'] ?? false,
-      translations: Map<String, String>.from(json['translations'] ?? {}),
-      audioPaths: Map<String, String>.from(json['audioPaths'] ?? {}),
-      ritualId: json['ritualId'],
+      translations: {...translations, ...?json['translations']},
+      audioPaths: {...audioPaths, ...?json['audioPaths']},
+      ritualId: json['ritualId']?.toString(),
       lastPlayedAt: json['lastPlayedAt'] != null 
           ? DateTime.parse(json['lastPlayedAt']) 
           : null,

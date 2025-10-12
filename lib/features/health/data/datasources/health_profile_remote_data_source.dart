@@ -15,7 +15,7 @@ class HealthProfileRemoteDataSourceImpl implements HealthProfileRemoteDataSource
   Future<HealthProfileModel> getHealthProfile(String userId, String token) async {
     try {
       final response = await dioClient.get(
-        '/api/pilgrims/$userId/health',
+        '/api/v1/auth/users/$userId/health',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -44,7 +44,7 @@ class HealthProfileRemoteDataSourceImpl implements HealthProfileRemoteDataSource
       String userId, HealthProfileModel profile, String token) async {
     try {
       final response = await dioClient.put(
-        '/api/pilgrims/$userId/health',
+        '/api/v1/auth/users/$userId/health',
         data: profile.toJson(),
         options: Options(
           headers: {

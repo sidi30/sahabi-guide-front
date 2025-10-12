@@ -25,7 +25,7 @@ import 'features/rituals/presentation/pages/rituals_page.dart';
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
-import 'features/splash/presentation/splash_page.dart';
+import 'shared/presentation/pages/splash_page.dart';
 import 'shared/presentation/widgets/main_shell.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';

@@ -102,7 +102,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     final duasAsync = ref.watch(duasProvider);
 
     return duasAsync.when(
-      data: (duas) => _buildTimelineView(duas, 'Aucune dua trouvée'),
+      data: (duas) => _buildDuasList(duas, 'Aucune dua trouvée'),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => _buildErrorWidget(error),
     );
@@ -151,6 +151,82 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             isLast: isLast,
             audioLanguage: audioLanguage,
             onMarkAsCompleted: () => _markAsCompleted(ritual),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDuasList(List<RitualModel> duas, String emptyMessage) {
+    if (duas.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.book_outlined,
+              size: 64,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              emptyMessage,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey,
+                  ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      color: const Color(0xFFF8F9FA),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: duas.length,
+        itemBuilder: (context, index) {
+          final dua = duas[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              leading: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.menu_book,
+                  color: AppColors.primary,
+                ),
+              ),
+              title: Text(
+                dua.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Text(
+                dua.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // TODO: Navigate to dua details
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Détails de: ${dua.name}')),
+                );
+              },
+            ),
           );
         },
       ),

@@ -80,7 +80,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryColor,
+      backgroundColor: Theme.of(context).primaryColor,
       body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
@@ -107,10 +107,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.mosque,
                         size: 60,
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
 

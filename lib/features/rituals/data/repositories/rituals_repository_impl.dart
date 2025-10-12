@@ -15,17 +15,54 @@ class RitualsRepositoryImpl implements RitualsRepository {
 
   @override
   Future<List<RitualModel>> getRituals() async {
+    // Strategy: Offline-first with API sync
+    // 1. Load from cache immediately (fast UI)
+    // 2. Try to fetch from API (latest data)
+    // 3. Update cache if API succeeds
+    // 4. Fallback to cache if API fails
+    
+    List<RitualModel> cachedRituals = [];
+    
     try {
-      if (remoteDataSource != null) {
-        // Try to fetch from remote first
-        final remoteData = await remoteDataSource!.getRituals();
-        return remoteData.map((data) => RitualModel.fromJson(data)).toList();
-      }
+      // Step 1: Load from local cache first
+      cachedRituals = await localDataSource.getRituals();
+      developer.log('Loaded ${cachedRituals.length} rituals from cache', name: 'RitualsRepository');
     } catch (e) {
-      // Fallback to local data if remote fails
-      developer.log('Failed to fetch rituals from remote: $e', name: 'RitualsRepository');
+      developer.log('Failed to load rituals from cache: $e', name: 'RitualsRepository');
     }
-    return await localDataSource.getRituals();
+    
+    // Step 2: Try to fetch fresh data from API
+    if (remoteDataSource != null) {
+      try {
+        final remoteData = await remoteDataSource!.getRituals();
+        final rituals = remoteData.map((data) => RitualModel.fromJson(data)).toList();
+        
+        // Déterminer la version de contenu maximale (pour cache)
+        int? maxContentVersion;
+        if (rituals.isNotEmpty && rituals.first.contentVersion != null) {
+          maxContentVersion = rituals
+              .map((r) => r.contentVersion ?? 0)
+              .reduce((a, b) => a > b ? a : b);
+        }
+        
+        // Step 3: Save to cache
+        await localDataSource.saveRituals(rituals, contentVersion: maxContentVersion);
+        developer.log('Saved ${rituals.length} rituals to cache (version: $maxContentVersion)', name: 'RitualsRepository');
+        
+        return rituals;
+      } catch (e) {
+        developer.log('Failed to fetch rituals from API: $e', name: 'RitualsRepository');
+        // Step 4: Fallback to cache if API fails
+        if (cachedRituals.isNotEmpty) {
+          developer.log('Using cached rituals as fallback', name: 'RitualsRepository');
+          return cachedRituals;
+        }
+        rethrow; // Si pas de cache et API KO, propager l'erreur
+      }
+    }
+    
+    // Si pas de remote data source configuré, utiliser le cache
+    return cachedRituals;
   }
 
   // @override
@@ -46,19 +83,37 @@ class RitualsRepositoryImpl implements RitualsRepository {
   // get duas
   @override
   Future<List<RitualModel>> getDuas() async {
+    // Strategy similaire: Offline-first
+    List<RitualModel> cachedDuas = [];
+    
     try {
-      if (remoteDataSource != null) {
-        // Try to fetch from remote first
-        final remoteData = await remoteDataSource!.getDuas();
-        return remoteData.map((data) => RitualModel.fromJson(data)).toList();
-      } else {
-        developer.log('Remote data source is null, fetching duas from local', name: 'RitualsRepository');
-      }
+      cachedDuas = await localDataSource.getDuas();
+      developer.log('Loaded ${cachedDuas.length} duas from cache', name: 'RitualsRepository');
     } catch (e) {
-      // Fallback to local data if remote fails
-      developer.log('Failed to fetch duas from remote: $e', name: 'RitualsRepository');
+      developer.log('Failed to load duas from cache: $e', name: 'RitualsRepository');
     }
-    return await localDataSource.getDuas();
+    
+    if (remoteDataSource != null) {
+      try {
+        final remoteData = await remoteDataSource!.getDuas();
+        final duas = remoteData.map((data) => RitualModel.fromJson(data)).toList();
+        
+        // Save to cache
+        await localDataSource.saveDuas(duas);
+        developer.log('Saved ${duas.length} duas to cache', name: 'RitualsRepository');
+        
+        return duas;
+      } catch (e) {
+        developer.log('Failed to fetch duas from API: $e', name: 'RitualsRepository');
+        if (cachedDuas.isNotEmpty) {
+          developer.log('Using cached duas as fallback', name: 'RitualsRepository');
+          return cachedDuas;
+        }
+        rethrow;
+      }
+    }
+    
+    return cachedDuas;
   }
 
   // @override

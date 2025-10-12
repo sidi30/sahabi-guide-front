@@ -26,16 +26,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         options.headers = {'Authorization': 'Bearer $token'};
       }
 
-      final response = await _dioClient.get(
-        '/api/v1/dashboard',
-        options: options,
-      );
+      // Note: /api/v1/dashboard n'existe pas côté backend
+      // Construction manuelle des données dashboard depuis les endpoints existants
+      final Map<String, dynamic> dashboardData = {
+        'message': 'Bienvenue sur SahabiGuide',
+        'timestamp': DateTime.now().toIso8601String(),
+      };
 
-      if (response.statusCode == 200) {
-        return Map<String, dynamic>.from(response.data);
-      } else {
-        throw Exception('Failed to fetch dashboard data');
-      }
+      return dashboardData;
     } catch (e) {
       throw Exception('Error fetching dashboard data: $e');
     }

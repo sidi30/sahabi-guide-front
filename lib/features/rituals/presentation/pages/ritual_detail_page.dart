@@ -5,7 +5,7 @@ import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
-import '../../../../shared/services/audio_service.dart';
+import '../../../../core/services/audio_service.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 
 final ritualDetailProvider =

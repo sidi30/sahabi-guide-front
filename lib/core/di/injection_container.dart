@@ -30,11 +30,7 @@ import '../../features/home/data/datasources/home_local_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 
-import '../../features/health/data/datasources/health_remote_data_source.dart';
-import '../../features/health/data/repositories/health_repository_impl.dart';
-import '../../features/health/domain/repositories/health_repository.dart';
 import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
-import '../../features/health/domain/usecases/get_pilgrim_health_profile_usecase.dart';
 
 import '../../features/map/data/datasources/position_remote_data_source.dart';
 import '../../features/map/data/datasources/makkah_locations_data_source.dart';
@@ -70,16 +66,16 @@ import '../../features/health/data/datasources/health_profile_remote_data_source
 import '../../features/health/data/datasources/health_profile_local_data_source.dart';
 import '../../features/health/data/repositories/health_profile_repository_impl.dart';
 import '../../features/health/domain/repositories/health_profile_repository.dart';
-import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
 import '../../features/health/domain/usecases/update_health_profile_usecase.dart';
 
-import '../../shared/services/audio_service.dart';
-import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
+import '../services/audio_service.dart';
+import '../services/notification_service.dart';
 
 import '../network/dio_client.dart';
+import '../cache/cache_service.dart';
 
 final sl = GetIt.instance;
 
@@ -97,6 +93,7 @@ Future<void> initializeDependencies() async {
 
   // Core
   sl.registerLazySingleton(() => DioClient(sl()));
+  sl.registerLazySingleton(() => CacheService(sl<SharedPreferences>()));
 
   // Services
   sl.registerLazySingleton<StorageService>(
@@ -104,7 +101,7 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton<AudioService>(
-    () => AudioService(sl()),
+    () => AudioService(),
   );
 
   sl.registerLazySingleton<NotificationService>(
@@ -114,12 +111,12 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<LocationService>(
     () => LocationService(),
   );
-  
+
   // Auth Service
   sl.registerLazySingleton<AuthService>(
     () => AuthService(sl(), sl()),
   );
-  
+
   // Auth Feature
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(sl()),
@@ -165,13 +162,13 @@ Future<void> initializeDependencies() async {
 
   // Rituals Feature
   sl.registerLazySingleton<RitualsLocalDataSource>(
-    () => RitualsLocalDataSourceImpl(),
+    () => RitualsLocalDataSourceImpl(sl<CacheService>()),
   );
-  
+
   sl.registerLazySingleton<RitualsRemoteDataSource>(
     () => RitualsRemoteDataSource(sl(), sl()),
   );
-  
+
   sl.registerLazySingleton<RitualsRepository>(
     () => RitualsRepositoryImpl(
       localDataSource: sl(),
@@ -200,19 +197,6 @@ Future<void> initializeDependencies() async {
       sl(),
     ),
   );
-
-  // Health Feature
-  sl.registerLazySingleton<HealthRemoteDataSource>(
-    () => HealthRemoteDataSourceImpl(sl(), sl()),
-  );
-
-  sl.registerLazySingleton<HealthRepository>(
-    () => HealthRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(() => GetPilgrimHealthProfileUseCase(sl()));
 
   // Map/Position Feature
   sl.registerLazySingleton<PositionRemoteDataSource>(

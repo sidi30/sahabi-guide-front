@@ -55,7 +55,7 @@ class HomePage extends ConsumerWidget {
   Widget _buildHomeContent(BuildContext context, Map<String, dynamic> data) {
     final user = data['user'] as UserModel?;
     final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
-    final dashboardData = data['dashboardData'] as Map<String, dynamic>;
+    final dashboardData = (data['dashboardData'] as Map<String, dynamic>?) ?? {};
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -185,8 +185,8 @@ class HomePage extends ConsumerWidget {
   Widget _buildPrayerTimesCard(
       BuildContext context, Map<String, dynamic> dashboardData) {
     final currentPrayer =
-        dashboardData['currentPrayer'] as Map<String, dynamic>;
-    final nextPrayer = dashboardData['nextPrayer'] as Map<String, dynamic>;
+        dashboardData['currentPrayer'] as Map<String, dynamic>? ?? {};
+    final nextPrayer = dashboardData['nextPrayer'] as Map<String, dynamic>? ?? {};
 
     return Card(
       child: Padding(
@@ -214,14 +214,14 @@ class HomePage extends ConsumerWidget {
                             ),
                       ),
                       Text(
-                        currentPrayer['name'],
+                        currentPrayer['name'] ?? 'N/A',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
                       Text(
-                        currentPrayer['time'],
+                        currentPrayer['time'] ?? '--:--',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
@@ -238,14 +238,14 @@ class HomePage extends ConsumerWidget {
                             ),
                       ),
                       Text(
-                        nextPrayer['name'],
+                        nextPrayer['name'] ?? 'N/A',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
                       Text(
-                        'dans ${nextPrayer['remaining']}',
+                        nextPrayer['remaining'] != null ? 'dans ${nextPrayer['remaining']}' : '--',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.secondary,
                             ),
@@ -263,7 +263,7 @@ class HomePage extends ConsumerWidget {
 
   Widget _buildQuickStats(
       BuildContext context, Map<String, dynamic> dashboardData) {
-    final todayStats = dashboardData['todayStats'] as Map<String, dynamic>;
+    final todayStats = dashboardData['todayStats'] as Map<String, dynamic>? ?? {};
 
     return Row(
       children: [
@@ -271,7 +271,7 @@ class HomePage extends ConsumerWidget {
           child: _buildStatCard(
             context,
             'Prières',
-            '${todayStats['prayersCompleted']}/${todayStats['totalPrayers']}',
+            '${todayStats['prayersCompleted'] ?? 0}/${todayStats['totalPrayers'] ?? 5}',
             Icons.schedule,
             AppColors.primary,
           ),
@@ -281,7 +281,7 @@ class HomePage extends ConsumerWidget {
           child: _buildStatCard(
             context,
             'Douas',
-            '${todayStats['duasRead']}',
+            '${todayStats['duasRead'] ?? 0}',
             Icons.book,
             AppColors.secondary,
           ),
@@ -291,7 +291,7 @@ class HomePage extends ConsumerWidget {
           child: _buildStatCard(
             context,
             'Dhikr',
-            '${todayStats['dhikrCount']}',
+            '${todayStats['dhikrCount'] ?? 0}',
             Icons.favorite,
             AppColors.accent,
           ),

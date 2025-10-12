@@ -1,49 +1,87 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../core/cache/cache_service.dart';
 
 abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals();
-  //Future<List<RitualModel>> getTodayRituals();
+  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion});
   Future<void> markAsCompleted(String ritualId);
-  //Future<List<RitualModel>> getRitualsByType(RitualType type);
   Future<List<RitualModel>> getDuas();
+  Future<void> saveDuas(List<RitualModel> duas);
+  Future<void> clearCache();
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
-  static const String _ritualsAssetPath = 'assets/data/rituals.json';
-  final Set<String> _completedRitualIds = {};
-  List<RitualModel>? _cachedRituals;
+  static const String _ritualsKey = 'rituals_list';
+  static const String _duasKey = 'duas_list';
+  
+  final CacheService _cacheService;
+
+  RitualsLocalDataSourceImpl(this._cacheService);
 
   @override
   Future<List<RitualModel>> getRituals() async {
-    if (_cachedRituals != null) {
-      return _cachedRituals!;
-    }
-
     try {
-      final String jsonString = await rootBundle.loadString(_ritualsAssetPath);
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
-      final List<dynamic> ritualsList = jsonData['rituals'] ?? [];
+      final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
       
-      _cachedRituals = ritualsList.map((ritualJson) {
-        final ritual = RitualModel.fromJson(ritualJson);
-        return ritual.copyWith(
-          //isCompleted: _completedRitualIds.contains(ritual.id),
-        );
-      }).toList();
+      if (cached == null) {
+        return []; // Retourner liste vide si pas de cache
+      }
+
+      final rituals = cached.data
+          .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
+          .toList();
       
-      return _cachedRituals!;
+      return rituals;
     } catch (e) {
-      throw Exception('Failed to load rituals: $e');
+      throw Exception('Failed to load cached rituals: $e');
     }
   }
 
-    
   @override
-  Future<List<RitualModel>> getDuas() {
-    // TODO: implement getDuas
-    throw UnimplementedError();
+  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion}) async {
+    try {
+      final ritualsJson = rituals.map((r) => r.toJson()).toList();
+      await _cacheService.set(
+        key: _ritualsKey,
+        data: ritualsJson,
+        contentVersion: contentVersion,
+      );
+    } catch (e) {
+      throw Exception('Failed to save rituals to cache: $e');
+    }
+  }
+
+  @override
+  Future<List<RitualModel>> getDuas() async {
+    try {
+      final cached = await _cacheService.get<List<dynamic>>(_duasKey);
+      
+      if (cached == null) {
+        return []; // Retourner liste vide si pas de cache
+      }
+
+      final duas = cached.data
+          .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      
+      return duas;
+    } catch (e) {
+      throw Exception('Failed to load cached duas: $e');
+    }
+  }
+
+  @override
+  Future<void> saveDuas(List<RitualModel> duas) async {
+    try {
+      final duasJson = duas.map((d) => d.toJson()).toList();
+      await _cacheService.set(
+        key: _duasKey,
+        data: duasJson,
+      );
+    } catch (e) {
+      throw Exception('Failed to save duas to cache: $e');
+    }
   }
 
 
@@ -68,33 +106,30 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
 
   @override
   Future<void> markAsCompleted(String ritualId) async {
-    if (_completedRitualIds.contains(ritualId)) {
-      _completedRitualIds.remove(ritualId);
-    } else {
-      _completedRitualIds.add(ritualId);
-    }
-    
-    // Update cache
-    if (_cachedRituals != null) {
-      _cachedRituals = _cachedRituals!.map((ritual) {
+    try {
+      // Charger les rituels actuels
+      final rituals = await getRituals();
+      
+      // Mettre à jour le statut
+      final updatedRituals = rituals.map((ritual) {
         if (ritual.id == ritualId) {
           return ritual.copyWith(
-            //isCompleted: _completedRitualIds.contains(ritualId),
+            status: RitualStatus.completed,
+            completedAt: DateTime.now(),
           );
         }
         return ritual;
       }).toList();
+      
+      // Sauvegarder les rituels mis à jour
+      await saveRituals(updatedRituals);
+    } catch (e) {
+      throw Exception('Failed to mark ritual as completed: $e');
     }
   }
 
-  // @override
-  // Future<List<RitualModel>> getRitualsByType(RitualType type) async {
-  //   final allRituals = await getRituals();
-  //   return allRituals.where((ritual) => ritual.type == type).toList();
-  // }
-  
-  // @override
-  // Future<List<RitualModel>> getDuas() {
-  //   return getRitualsByType(RitualType.dua);
-  // }
+  @override
+  Future<void> clearCache() async {
+    await _cacheService.clearAll();
+  }
 }

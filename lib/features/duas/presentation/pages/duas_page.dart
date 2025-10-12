@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:just_audio/just_audio.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../providers/duas_provider.dart';
 
@@ -10,22 +11,64 @@ class DuasPage extends StatefulWidget {
   State<DuasPage> createState() => _DuasPageState();
 }
 
-class _DuasPageState extends State<DuasPage> {
+class _DuasPageState extends State<DuasPage> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'all';
+  String _selectedLanguage = 'fr'; // 'fr' pour français, 'ar' pour arabe
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String? _currentPlayingId;
+  bool _isPlaying = false;
+  late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DuasProvider>().loadDuas();
+    });
+
+    _audioPlayer.playerStateStream.listen((PlayerState state) {
+      setState(() {
+        _isPlaying = state.playing;
+      });
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _audioPlayer.dispose();
+    _pulseController.dispose();
     super.dispose();
+  }
+
+  Future<void> _playAudio(String audioPath, String duaId) async {
+    try {
+      if (_currentPlayingId == duaId && _isPlaying) {
+        await _audioPlayer.pause();
+        setState(() {
+          _currentPlayingId = null;
+        });
+      } else {
+        await _audioPlayer.setAsset(audioPath);
+        await _audioPlayer.play();
+        setState(() {
+          _currentPlayingId = duaId;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erreur lors de la lecture audio'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -49,12 +92,47 @@ class _DuasPageState extends State<DuasPage> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          // Sélecteur de langue
+          PopupMenuButton<String>(
+            icon: Text(
+              _selectedLanguage == 'fr' ? '🇫🇷' : '🇸🇦',
+              style: const TextStyle(fontSize: 20),
+            ),
+            onSelected: (String value) {
+              setState(() {
+                _selectedLanguage = value;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'fr',
+                child: Row(
+                  children: [
+                    Text('🇫🇷', style: TextStyle(fontSize: 20)),
+                    SizedBox(width: 8),
+                    Text('Français'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'ar',
+                child: Row(
+                  children: [
+                    Text('🇸🇦', style: TextStyle(fontSize: 20)),
+                    SizedBox(width: 8),
+                    Text('العربية'),
+                  ],
+                ),
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.favorite_outline, color: Color(0xFF1D3557)),
             onPressed: () {
               // Show favorites
               setState(() {
-                _selectedFilter = _selectedFilter == 'favorites' ? 'all' : 'favorites';
+                _selectedFilter =
+                    _selectedFilter == 'favorites' ? 'all' : 'favorites';
               });
             },
           ),
@@ -99,8 +177,8 @@ class _DuasPageState extends State<DuasPage> {
             );
           }
 
-          final duas = _selectedFilter == 'favorites' 
-              ? provider.favoriteDuas 
+          final duas = _selectedFilter == 'favorites'
+              ? provider.favoriteDuas
               : provider.duas;
 
           return Column(
@@ -114,14 +192,16 @@ class _DuasPageState extends State<DuasPage> {
                   onChanged: provider.searchDuas,
                   decoration: InputDecoration(
                     hintText: 'Rechercher une dua...',
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF4FC3F7)),
+                    prefixIcon:
+                        const Icon(Icons.search, color: Color(0xFF4FC3F7)),
                     filled: true,
                     fillColor: const Color(0xFFF8F9FA),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
@@ -154,8 +234,8 @@ class _DuasPageState extends State<DuasPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _selectedFilter == 'favorites' 
-                                  ? Icons.favorite_outline 
+                              _selectedFilter == 'favorites'
+                                  ? Icons.favorite_outline
                                   : Icons.book_outlined,
                               size: 64,
                               color: Colors.grey[400],
@@ -223,7 +303,7 @@ class _DuasPageState extends State<DuasPage> {
 
   Widget _buildDuaCard(DuaModel dua, DuasProvider provider) {
     final isFavorite = provider.isFavorite(dua.id);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -245,7 +325,7 @@ class _DuasPageState extends State<DuasPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      dua.tag,
+                      dua.title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -266,7 +346,7 @@ class _DuasPageState extends State<DuasPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                dua.text,
+                dua.description,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -285,7 +365,7 @@ class _DuasPageState extends State<DuasPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      dua.translation,
+                      dua.arabicText,
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 18,
@@ -296,7 +376,9 @@ class _DuasPageState extends State<DuasPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      dua.translation,
+                      _selectedLanguage == 'fr'
+                          ? (dua.translations['fr'] ?? dua.translation)
+                          : (dua.translations['ar'] ?? dua.arabicText),
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[700],
@@ -307,6 +389,40 @@ class _DuasPageState extends State<DuasPage> {
                 ),
               ),
               const SizedBox(height: 12),
+              // Bouton audio
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        final audioKey =
+                            _selectedLanguage == 'fr' ? 'fr' : 'ar';
+                        final audioPath =
+                            dua.audioPaths[audioKey] ?? dua.audioPath;
+                        _playAudio(audioPath, dua.id);
+                      },
+                      icon: Icon(
+                        _currentPlayingId == dua.id && _isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        _currentPlayingId == dua.id && _isPlaying
+                            ? 'Pause'
+                            : 'Écouter',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4FC3F7),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               // Wrap(
               //   spacing: 8,
               //   children: dua.tag.map((tag) {
@@ -332,7 +448,8 @@ class _DuasPageState extends State<DuasPage> {
     );
   }
 
-  void _showDuaDetail(BuildContext context, DuaModel dua, DuasProvider provider) {
+  void _showDuaDetail(
+      BuildContext context, DuaModel dua, DuasProvider provider) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -367,7 +484,7 @@ class _DuasPageState extends State<DuasPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          dua.tag,
+                          dua.title,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -377,11 +494,11 @@ class _DuasPageState extends State<DuasPage> {
                       ),
                       IconButton(
                         icon: Icon(
-                          provider.isFavorite(dua.id) 
-                              ? Icons.favorite 
+                          provider.isFavorite(dua.id)
+                              ? Icons.favorite
                               : Icons.favorite_outline,
-                          color: provider.isFavorite(dua.id) 
-                              ? Colors.red 
+                          color: provider.isFavorite(dua.id)
+                              ? Colors.red
                               : Colors.grey,
                           size: 28,
                         ),
@@ -393,7 +510,7 @@ class _DuasPageState extends State<DuasPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    dua.text,
+                    dua.description,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -419,7 +536,7 @@ class _DuasPageState extends State<DuasPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          dua.translation,
+                          dua.arabicText,
                           textAlign: TextAlign.right,
                           style: const TextStyle(
                             fontSize: 20,
@@ -451,7 +568,7 @@ class _DuasPageState extends State<DuasPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          dua.translation,
+                          dua.transliteration,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFF1D3557),
@@ -492,32 +609,63 @@ class _DuasPageState extends State<DuasPage> {
                       ],
                     ),
                   ),
-                  // if (dua.audioPath != null) ...[
-                  //   const SizedBox(height: 20),
-                  //   ElevatedButton.icon(
-                  //     onPressed: () {
-                  //       // Play audio
-                  //       ScaffoldMessenger.of(context).showSnackBar(
-                  //         const SnackBar(
-                  //           content: Text('Lecture audio en cours...'),
-                  //           duration: Duration(seconds: 2),
-                  //         ),
-                  //       );
-                  //     },
-                  //     icon: const Icon(Icons.play_arrow),
-                  //     label: const Text('Écouter'),
-                  //     style: ElevatedButton.styleFrom(
-                  //       backgroundColor: const Color(0xFF4FC3F7),
-                  //       padding: const EdgeInsets.symmetric(
-                  //         horizontal: 24,
-                  //         vertical: 12,
-                  //       ),
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(12),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ],
+                  const SizedBox(height: 20),
+                  // Boutons audio
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final audioPath =
+                                dua.audioPaths['fr'] ?? dua.audioPath;
+                            _playAudio(audioPath, dua.id + '_fr');
+                          },
+                          icon: Icon(
+                            _currentPlayingId == dua.id + '_fr' && _isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Français 🇫🇷',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4FC3F7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final audioPath =
+                                dua.audioPaths['ar'] ?? dua.audioPath;
+                            _playAudio(audioPath, dua.id + '_ar');
+                          },
+                          icon: Icon(
+                            _currentPlayingId == dua.id + '_ar' && _isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'العربية 🇸🇦',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E7D32),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),

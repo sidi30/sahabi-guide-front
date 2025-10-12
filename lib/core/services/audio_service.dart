@@ -35,7 +35,7 @@ class AudioService extends ChangeNotifier {
 
   // Stream subscriptions
   StreamSubscription<Duration>? _positionSubscription;
-  StreamSubscription<Duration>? _durationSubscription;
+  StreamSubscription<Duration?>? _durationSubscription;
   StreamSubscription<PlayerState>? _playerStateSubscription;
 
   AudioService() {
@@ -44,40 +44,34 @@ class AudioService extends ChangeNotifier {
 
   void _initializeAudioPlayer() {
     // Listen to position changes
-    _positionSubscription = _audioPlayer.onPositionChanged.listen((position) {
+    _positionSubscription = _audioPlayer.positionStream.listen((position) {
       _position = position;
       notifyListeners();
     });
 
     // Listen to duration changes
-    _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
-      _duration = duration;
-      notifyListeners();
+    _durationSubscription = _audioPlayer.durationStream.listen((duration) {
+      if (duration != null) {
+        _duration = duration;
+        notifyListeners();
+      }
     });
 
     // Listen to player state changes
-    _playerStateSubscription = _audioPlayer.onPlayerStateChanged.listen((playerState) {
-      switch (playerState) {
-        case PlayerState.playing:
-          _state = AudioState.playing;
-          break;
-        case PlayerState.paused:
-          _state = AudioState.paused;
-          break;
-        case PlayerState.stopped:
+    _playerStateSubscription = _audioPlayer.playerStateStream.listen((playerState) {
+      if (playerState.playing) {
+        _state = AudioState.playing;
+      } else if (playerState.processingState == ProcessingState.completed) {
+        if (_isLooping) {
+          _restartAudio();
+        } else {
           _state = AudioState.stopped;
-          break;
-        case PlayerState.completed:
-          if (_isLooping) {
-            _restartAudio();
-          } else {
-            _state = AudioState.stopped;
-            _position = Duration.zero;
-          }
-          break;
-        case PlayerState.disposed:
-          _state = AudioState.stopped;
-          break;
+          _position = Duration.zero;
+        }
+      } else if (playerState.processingState == ProcessingState.idle) {
+        _state = AudioState.stopped;
+      } else {
+        _state = AudioState.paused;
       }
       notifyListeners();
     });
@@ -115,7 +109,7 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  Future<void> pauseAudio() async {
+  Future<void> pause() async {
     try {
       await _audioPlayer.pause();
     } catch (e) {
@@ -125,7 +119,7 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  Future<void> resumeAudio() async {
+  Future<void> resume() async {
     try {
       await _audioPlayer.play();
     } catch (e) {
@@ -135,7 +129,7 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  Future<void> stopAudio() async {
+  Future<void> stop() async {
     try {
       await _audioPlayer.stop();
       _position = Duration.zero;
@@ -143,6 +137,21 @@ class AudioService extends ChangeNotifier {
     } catch (e) {
       _state = AudioState.error;
       _errorMessage = 'Erreur lors de l\'arrêt: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  Future<void> playFromAssets(String assetPath) async {
+    try {
+      _state = AudioState.loading;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _audioPlayer.setAsset(assetPath);
+      await _audioPlayer.play();
+    } catch (e) {
+      _state = AudioState.error;
+      _errorMessage = 'Erreur lors de la lecture: ${e.toString()}';
       notifyListeners();
     }
   }
