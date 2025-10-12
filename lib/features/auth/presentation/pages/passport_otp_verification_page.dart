@@ -61,29 +61,40 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
     final authNotifier = ref.read(authNotifierProvider.notifier);
     await authNotifier.verifyOtp(widget.passportNo, _otpController.text.trim());
 
+    // Attendre un peu pour que l'état soit bien mis à jour
+    await Future.delayed(const Duration(milliseconds: 100));
+    
     final authState = ref.read(authNotifierProvider);
     
+    if (!mounted) return;
+    
     if (authState.error != null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: ${authState.error}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${authState.error}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } else if (authState.isAuthenticated) {
+      // Afficher le message de succès
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Connexion réussie !'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      
+      // Attendre que le snackbar s'affiche puis naviguer
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Connexion réussie !'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        // Naviguer vers la page de profil pèlerin
-        context.go('/pilgrim-profile');
+        // Utiliser pushReplacement pour éviter le retour arrière
+        context.go('/home');
+        print('✅ Navigation vers /home après authentification réussie');
       }
+    } else {
+      print('⚠️ Authentification: isAuthenticated=${authState.isAuthenticated}, error=${authState.error}');
     }
   }
 

@@ -14,6 +14,12 @@ import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 
+// Passport Auth
+import '../../features/auth/data/datasources/passport_auth_local_data_source.dart';
+import '../../features/auth/data/datasources/passport_auth_remote_data_source.dart';
+import '../../features/auth/data/repositories/passport_auth_repository_impl.dart';
+import '../../features/auth/domain/usecases/passport_auth_usecases.dart';
+
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
@@ -109,6 +115,29 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
+
+  // Passport Auth Feature
+  sl.registerLazySingleton<PassportAuthRemoteDataSource>(
+    () => PassportAuthRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<PassportAuthLocalDataSource>(
+    () => PassportAuthLocalDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<PassportAuthRepository>(
+    () => PassportAuthRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => PassportLoginUseCase(sl()));
+  sl.registerLazySingleton(() => PassportVerifyOtpUseCase(sl()));
+  sl.registerLazySingleton(() => PassportResendOtpUseCase(sl()));
+  sl.registerLazySingleton(() => PassportLogoutUseCase(sl()));
+  sl.registerLazySingleton(() => GetPilgrimProfileUseCase(sl()));
+  sl.registerLazySingleton(() => CheckAuthStatusUseCase(sl()));
 
   // Rituals Feature
   sl.registerLazySingleton<RitualsLocalDataSource>(

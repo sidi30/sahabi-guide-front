@@ -9,9 +9,11 @@ import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
+import 'core/router/auth_guard.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
+import 'features/auth/presentation/providers/passport_auth_provider.dart';
 import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
@@ -102,10 +104,30 @@ Future<void> main() async {
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // Keep router stable across rebuilds to avoid resetting navigation
-  static final GoRouter _router = GoRouter(
-    initialLocation: AppRoutes.splash,
-    routes: [
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
+  // Build router with auth guard support
+  GoRouter _buildRouter(WidgetRef ref) {
+    return GoRouter(
+      navigatorKey: navigatorKey,
+      initialLocation: AppRoutes.splash,
+      redirect: (context, state) {
+        // Vérifier l'état d'authentification
+        final isAuthenticated = ref.read(authNotifierProvider).isAuthenticated;
+        final isGoingToAuth = state.matchedLocation.startsWith('/passport-login') || 
+                             state.matchedLocation.startsWith('/passport-otp') ||
+                             state.matchedLocation.startsWith('/auth-choice');
+        
+        // Si l'utilisateur essaie d'accéder à une page protégée sans être authentifié
+        if (!isAuthenticated && AuthGuard.isProtectedRoute(state.matchedLocation)) {
+          print('🔒 Accès refusé à ${state.matchedLocation} - Redirection vers login');
+          return '/passport-login';
+        }
+        
+        // Pas de redirection nécessaire
+        return null;
+      },
+      routes: [
       // Splash Screen
       GoRoute(
         path: AppRoutes.splash,
@@ -141,7 +163,7 @@ class MyApp extends ConsumerWidget {
         },
       ),
 
-      // Pilgrim Profile Screen (outside shell)
+      // Pilgrim Profile Screen (outside shell) - PROTÉGÉ
       GoRoute(
         path: AppRoutes.pilgrimProfile,
         builder: (context, state) => const PilgrimProfilePage(),
@@ -182,7 +204,7 @@ class MyApp extends ConsumerWidget {
             },
           ),
 
-          // Other sections
+          // Other sections - PROTÉGÉES
           GoRoute(
             path: AppRoutes.health,
             builder: (context, state) => const HealthPage(),
@@ -192,7 +214,7 @@ class MyApp extends ConsumerWidget {
             builder: (context, state) => const ConnectivityPage(),
           ),
 
-          // Map Screen
+          // Map Screen - PROTÉGÉE
           GoRoute(
             path: AppRoutes.map,
             builder: (context, state) => const MapPage(),
@@ -204,7 +226,7 @@ class MyApp extends ConsumerWidget {
             builder: (context, state) => const VideoPage(),
           ),
 
-          // Profile Screen
+          // Profile Screen - PROTÉGÉE
           GoRoute(
             path: AppRoutes.profile,
             builder: (context, state) => const ProfilePage(),
@@ -217,13 +239,14 @@ class MyApp extends ConsumerWidget {
           ),
         ],
       ),
-    ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page non trouvée: ${state.uri.path}'),
+      ],
+      errorBuilder: (context, state) => Scaffold(
+        body: Center(
+          child: Text('Page non trouvée: ${state.uri.path}'),
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   ThemeData _buildLightTheme() {
     return ThemeData(
@@ -334,7 +357,7 @@ class MyApp extends ConsumerWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: _router,
+          routerConfig: _buildRouter(ref),
           // Ensure the app updates when locale changes
           builder: (context, child) {
             // This makes the app update when the locale changes

@@ -81,57 +81,53 @@ class PassportAuthResponse {
 }
 
 class PilgrimProfile {
-  final String passportNo;
-  final String firstName;
-  final String lastName;
-  final String? nationality;
-  final String? phoneNumber;
+  final String? id;
+  final String? passportNo;
+  final String? fullName;
+  final String? firstName;
+  final String? lastName;
+  final String? phone;
   final String? email;
-  final String? emergencyContact;
-  final String? medicalInfo;
-  final String? groupId;
-  final String? guideId;
+  final String? role;
+  final bool? enabled;
 
   PilgrimProfile({
-    required this.passportNo,
-    required this.firstName,
-    required this.lastName,
-    this.nationality,
-    this.phoneNumber,
+    this.id,
+    this.passportNo,
+    this.fullName,
+    this.firstName,
+    this.lastName,
+    this.phone,
     this.email,
-    this.emergencyContact,
-    this.medicalInfo,
-    this.groupId,
-    this.guideId,
+    this.role,
+    this.enabled,
   });
 
   factory PilgrimProfile.fromJson(Map<String, dynamic> json) {
     return PilgrimProfile(
-      passportNo: json['passportNo'] ?? '',
-      firstName: json['firstName'] ?? '',
-      lastName: json['lastName'] ?? '',
-      nationality: json['nationality'],
-      phoneNumber: json['phoneNumber'],
-      email: json['email'],
-      emergencyContact: json['emergencyContact'],
-      medicalInfo: json['medicalInfo'],
-      groupId: json['groupId'],
-      guideId: json['guideId'],
+      id: json['id']?.toString(),
+      passportNo: json['passportNo']?.toString(),
+      fullName: json['fullName']?.toString(),
+      firstName: json['firstName']?.toString(),
+      lastName: json['lastName']?.toString(),
+      phone: json['phone']?.toString(),
+      email: json['email']?.toString(),
+      role: json['role']?.toString(),
+      enabled: json['enabled'] as bool?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'passportNo': passportNo,
+      'fullName': fullName,
       'firstName': firstName,
       'lastName': lastName,
-      'nationality': nationality,
-      'phoneNumber': phoneNumber,
+      'phone': phone,
       'email': email,
-      'emergencyContact': emergencyContact,
-      'medicalInfo': medicalInfo,
-      'groupId': groupId,
-      'guideId': guideId,
+      'role': role,
+      'enabled': enabled,
     };
   }
 }

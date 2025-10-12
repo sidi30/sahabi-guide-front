@@ -121,7 +121,7 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
   Future<PilgrimProfile> getPilgrimProfile(String token) async {
     try {
       final response = await dioClient.get(
-        '/api/pilgrim/profile',
+        '/api/auth/passport/profile',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

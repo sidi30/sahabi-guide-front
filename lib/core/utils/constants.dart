@@ -5,7 +5,7 @@ class AppConstants {
   static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
-  static const String apiBaseUrl = 'http://localhost:8080';
+  static const String apiBaseUrl = 'http://localhost:8084';
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';
   

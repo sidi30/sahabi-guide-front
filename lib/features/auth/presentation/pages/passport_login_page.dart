@@ -41,7 +41,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
 
     ref.listen<PassportLoginState>(passportLoginProvider, (previous, next) {
       if (next.requiresOtp) {
-        context.push('/auth/verify', extra: _passportController.text);
+        context.push('/passport-otp', extra: _passportController.text);
       } else if (next.isSuccess) {
         context.go(AppConstants.homeRoute);
       } else if (next.errorMessage != null) {

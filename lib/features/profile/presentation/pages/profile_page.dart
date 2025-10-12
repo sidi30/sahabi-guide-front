@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../shared/models/user_model.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../auth/domain/usecases/logout_usecase.dart';
+import '../../../auth/data/models/passport_auth_models.dart';
+import '../../../auth/domain/usecases/passport_auth_usecases.dart';
+import '../../../auth/presentation/providers/passport_auth_provider.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 
-final userProfileProvider = FutureProvider<UserModel?>((ref) async {
-  final authRepository = sl<AuthRepository>();
-  return await authRepository.getCurrentUser();
+// Provider pour récupérer le profil du pèlerin
+final pilgrimProfileProvider = FutureProvider<PilgrimProfile?>((ref) async {
+  final getPilgrimProfileUseCase = sl<GetPilgrimProfileUseCase>();
+  try {
+    return await getPilgrimProfileUseCase();
+  } catch (e) {
+    print('Erreur récupération profil: $e');
+    return null;
+  }
 });
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -23,23 +29,27 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    final userAsync = ref.watch(userProfileProvider);
+    final profileAsync = ref.watch(pilgrimProfileProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              // TODO: Navigate to edit profile
-            },
-          ),
-        ],
+        title: const Text('Mon Profil'),
+        backgroundColor: AppTheme.primaryColor,
+        foregroundColor: Colors.white,
       ),
-      body: userAsync.when(
-        data: (user) => _buildProfileContent(context, user),
-        loading: () => const Center(child: CircularProgressIndicator()),
+      body: profileAsync.when(
+        data: (profile) => _buildProfileContent(context, profile, authState),
+        loading: () => const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Chargement du profil...'),
+            ],
+          ),
+        ),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -49,7 +59,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(userProfileProvider),
+                onPressed: () => ref.refresh(pilgrimProfileProvider),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -59,10 +69,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildProfileContent(BuildContext context, UserModel? user) {
-    if (user == null) {
-      return const Center(
-        child: Text('Utilisateur non trouvé'),
+  Widget _buildProfileContent(BuildContext context, PilgrimProfile? profile, AuthState authState) {
+    // Si pas de profil, afficher un message
+    if (profile == null && !authState.isAuthenticated) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.person_off, size: 80, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('Non connecté'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.go('/passport-login'),
+              child: const Text('Se connecter'),
+            ),
+          ],
+        ),
       );
     }
 
@@ -72,96 +95,91 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         children: [
           // Profile Header
           Card(
+            elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   // Profile Picture
-                  Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: user.profileImageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(50),
-                                child: Image.network(
-                                  user.profileImageUrl!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: AppTheme.primaryColor,
-                              ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppTheme.primaryColor,
+                        width: 3,
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppTheme.secondaryColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      size: 50,
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
 
                   const SizedBox(height: 16),
 
                   // User Name
                   Text(
-                    user.fullName,
+                    profile?.fullName ?? 'Nom non disponible',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
                         ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  // Email
-                  Text(
-                    user.email,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                    textAlign: TextAlign.center,
                   ),
 
                   const SizedBox(height: 8),
 
-                  // Verification Status
+                  // Passport Number
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: user.isVerified ? Colors.green : Colors.orange,
+                      color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.badge,
+                          size: 18,
+                          color: AppTheme.secondaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Passeport: ${profile?.passportNo ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.secondaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Account Status
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: (profile?.enabled ?? false) ? Colors.green : Colors.red,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          user.isVerified ? Icons.verified : Icons.pending,
+                          (profile?.enabled ?? false) ? Icons.check_circle : Icons.block,
                           size: 16,
                           color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          user.isVerified ? 'Vérifié' : 'En attente',
+                          (profile?.enabled ?? false) ? 'Compte Actif' : 'Compte Désactivé',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -182,15 +200,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           _buildSectionCard(
             'Informations Personnelles',
             [
-              _buildInfoRow('Prénom', user.firstName),
-              _buildInfoRow('Nom', user.lastName),
-              _buildInfoRow('Email', user.email),
-              if (user.phoneNumber != null)
-                _buildInfoRow('Téléphone', user.phoneNumber!),
-              if (user.dateOfBirth != null)
-                _buildInfoRow(
-                    'Date de naissance', _formatDate(user.dateOfBirth!)),
-              if (user.address != null) _buildInfoRow('Adresse', user.address!),
+              _buildInfoRow('Nom complet', profile?.fullName ?? 'Non renseigné'),
+              _buildInfoRow('Prénom', profile?.firstName ?? 'Non renseigné'),
+              _buildInfoRow('Nom', profile?.lastName ?? 'Non renseigné'),
+              _buildInfoRow('Passeport', profile?.passportNo ?? 'Non renseigné'),
+              if (profile?.phone != null)
+                _buildInfoRow('Téléphone', profile!.phone!),
+              if (profile?.email != null && profile!.email!.isNotEmpty)
+                _buildInfoRow('Email', profile.email!),
+              if (profile?.role != null)
+                _buildInfoRow('Rôle', profile!.role!),
             ],
           ),
 
@@ -212,9 +231,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
               title: const Text('Mon QR Code'),
-              subtitle: const Text('Partager mes informations de contact'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () => _showQRCode(context, user),
+              subtitle: const Text('Partager mes informations'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => _showQRCode(context, profile),
             ),
           ),
 
@@ -380,11 +399,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  void _showQRCode(BuildContext context, UserModel user) {
+  void _showQRCode(BuildContext context, PilgrimProfile? profile) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mon QR Code'),
+        title: const Text('Mon QR Code d\'Urgence'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -392,24 +411,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border: Border.all(color: AppTheme.primaryColor, width: 2),
                 borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
               ),
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code, size: 80, color: Colors.grey),
+                    Icon(Icons.qr_code, size: 80, color: AppTheme.primaryColor),
                     SizedBox(height: 8),
-                    Text('QR Code Profil',
-                        style: TextStyle(color: Colors.grey)),
+                    Text(
+                      'QR Code Profil',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Partagez ce QR code pour permettre aux autres de vous ajouter rapidement.',
+              'Ce QR code contient vos informations d\'urgence (nom, passeport, contacts).',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -422,9 +447,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // TODO: Share QR code
+              // TODO: Implémenter le partage du QR code
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Fonctionnalité à venir')),
+              );
               Navigator.of(context).pop();
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+            ),
             child: const Text('Partager'),
           ),
         ],
@@ -446,14 +477,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              final logoutUseCase = sl<LogoutUseCase>();
-              await logoutUseCase();
+              final authNotifier = ref.read(authNotifierProvider.notifier);
+              await authNotifier.logout();
               if (context.mounted) {
-                context.go(AppConstants.loginRoute);
+                context.go('/passport-login');
               }
             },
-            style:
-                ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Se déconnecter'),
           ),
         ],

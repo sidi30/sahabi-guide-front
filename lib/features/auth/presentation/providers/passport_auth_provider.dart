@@ -9,35 +9,29 @@ final passportAuthRepositoryProvider = Provider<PassportAuthRepository>((ref) {
   return sl<PassportAuthRepository>();
 });
 
-// Provider pour les use cases
+// Providers pour les use cases - Utilise GetIt directement pour éviter les doublons
 final passportLoginUseCaseProvider = Provider<PassportLoginUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return PassportLoginUseCase(repository);
+  return sl<PassportLoginUseCase>();
 });
 
 final passportVerifyOtpUseCaseProvider = Provider<PassportVerifyOtpUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return PassportVerifyOtpUseCase(repository);
+  return sl<PassportVerifyOtpUseCase>();
 });
 
 final passportResendOtpUseCaseProvider = Provider<PassportResendOtpUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return PassportResendOtpUseCase(repository);
+  return sl<PassportResendOtpUseCase>();
 });
 
 final passportLogoutUseCaseProvider = Provider<PassportLogoutUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return PassportLogoutUseCase(repository);
+  return sl<PassportLogoutUseCase>();
 });
 
 final getPilgrimProfileUseCaseProvider = Provider<GetPilgrimProfileUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return GetPilgrimProfileUseCase(repository);
+  return sl<GetPilgrimProfileUseCase>();
 });
 
 final checkAuthStatusUseCaseProvider = Provider<CheckAuthStatusUseCase>((ref) {
-  final repository = ref.watch(passportAuthRepositoryProvider);
-  return CheckAuthStatusUseCase(repository);
+  return sl<CheckAuthStatusUseCase>();
 });
 
 // État d'authentification
@@ -124,7 +118,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> login(String passportNo) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null);  // Auto-clear error
     try {
       final response = await loginUseCase(passportNo);
       if (response.success) {
@@ -151,13 +145,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final response = await verifyOtpUseCase(passportNo, otpCode);
       if (response.success && response.token != null) {
-        final profile = await getPilgrimProfileUseCase();
+        // Authentification réussie - on définit l'état même si le profil échoue
         state = state.copyWith(
           isLoading: false,
           isAuthenticated: true,
           token: response.token,
-          pilgrimProfile: profile,
         );
+        
+        // Essayer de récupérer le profil (ne bloque pas l'authentification si ça échoue)
+        try {
+          final profile = await getPilgrimProfileUseCase();
+          state = state.copyWith(pilgrimProfile: profile);
+          print('✅ Profil récupéré avec succès');
+        } catch (e) {
+          print('⚠️ Impossible de récupérer le profil: $e');
+          // On continue quand même, l'authentification est valide
+        }
       } else {
         state = state.copyWith(
           isLoading: false,
