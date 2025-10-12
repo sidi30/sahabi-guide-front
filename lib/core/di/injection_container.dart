@@ -64,6 +64,14 @@ import '../../features/settings/domain/usecases/reset_settings_usecase.dart';
 import '../../features/settings/domain/usecases/send_contact_message_usecase.dart';
 import '../../features/settings/domain/usecases/get_my_messages_usecase.dart';
 
+// Health Feature
+import '../../features/health/data/datasources/health_profile_remote_data_source.dart';
+import '../../features/health/data/datasources/health_profile_local_data_source.dart';
+import '../../features/health/data/repositories/health_profile_repository_impl.dart';
+import '../../features/health/domain/repositories/health_profile_repository.dart';
+import '../../features/health/domain/usecases/get_health_profile_usecase.dart';
+import '../../features/health/domain/usecases/update_health_profile_usecase.dart';
+
 import '../../shared/services/audio_service.dart';
 import '../../shared/services/notification_service.dart';
 import '../../shared/services/storage_service.dart';
@@ -274,6 +282,26 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => SendContactMessageUseCase(sl()));
   sl.registerLazySingleton(() => GetMyMessagesUseCase(sl()));
+
+  // Health Feature
+  sl.registerLazySingleton<HealthProfileRemoteDataSource>(
+    () => HealthProfileRemoteDataSourceImpl(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<HealthProfileLocalDataSource>(
+    () => HealthProfileLocalDataSourceImpl(secureStorage: sl()),
+  );
+
+  sl.registerLazySingleton<HealthProfileRepository>(
+    () => HealthProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      authLocalDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetHealthProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateHealthProfileUseCase(sl()));
 
   // Initialize services
   await sl<NotificationService>().initialize();

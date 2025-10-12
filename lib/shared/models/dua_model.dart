@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class DuaModel {
   final String id;
   final String text;

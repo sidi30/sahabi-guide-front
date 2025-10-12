@@ -63,9 +63,10 @@ dependencies:
   uuid: ^4.2.1
   path_provider: ^2.1.1
   permission_handler: ^11.1.0
-  logger: ^2.6.1
+  logger: ^2.0.2+1
   cached_network_image: ^3.4.1
   package_info_plus: ^8.0.0
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

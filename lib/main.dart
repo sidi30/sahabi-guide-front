@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
 import 'core/router/auth_guard.dart';
+import 'core/providers/language_provider.dart';
+import 'core/services/language_service.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
@@ -91,10 +93,14 @@ Future<void> main() async {
   final settingsNotifier = SettingsNotifier(prefs: prefs);
   await settingsNotifier.loadSettings();
 
+  // Create language service
+  final languageService = LanguageService(prefs);
+
   runApp(
     ProviderScope(
       overrides: [
         settingsProvider.overrideWith((ref) => settingsNotifier),
+        languageServiceProvider.overrideWithValue(languageService),
       ],
       child: const MyApp(),
     ),
@@ -114,13 +120,9 @@ class MyApp extends ConsumerWidget {
       redirect: (context, state) {
         // Vérifier l'état d'authentification
         final isAuthenticated = ref.read(authNotifierProvider).isAuthenticated;
-        final isGoingToAuth = state.matchedLocation.startsWith('/passport-login') || 
-                             state.matchedLocation.startsWith('/passport-otp') ||
-                             state.matchedLocation.startsWith('/auth-choice');
         
         // Si l'utilisateur essaie d'accéder à une page protégée sans être authentifié
         if (!isAuthenticated && AuthGuard.isProtectedRoute(state.matchedLocation)) {
-          print('🔒 Accès refusé à ${state.matchedLocation} - Redirection vers login');
           return '/passport-login';
         }
         
@@ -324,10 +326,10 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch for theme changes
+    // Watch for theme and language changes
     final settings = ref.watch(settingsProvider);
     final currentThemeMode = settings.themeMode;
-    final currentLocale = settings.locale.locale;
+    final locale = ref.watch(languageProvider);
 
     // Use a Builder to ensure the theme updates without rebuilding the entire app
     return Builder(
@@ -346,7 +348,7 @@ class MyApp extends ConsumerWidget {
         return MaterialApp.router(
           title: 'Sahabi Guide',
           debugShowCheckedModeBanner: false,
-          locale: currentLocale,
+          locale: locale,
           themeMode: themeMode,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
@@ -358,13 +360,15 @@ class MyApp extends ConsumerWidget {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           routerConfig: _buildRouter(ref),
-          // Ensure the app updates when locale changes
+          // Ensure the app updates when locale changes + support RTL
           builder: (context, child) {
-            // This makes the app update when the locale changes
-            return Localizations.override(
-              context: context,
-              locale: currentLocale,
-              child: child!,
+            return Directionality(
+              textDirection: LanguageService.getTextDirection(locale),
+              child: Localizations.override(
+                context: context,
+                locale: locale,
+                child: child!,
+              ),
             );
           },
         );

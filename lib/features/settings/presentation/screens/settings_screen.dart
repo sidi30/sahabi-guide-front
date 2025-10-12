@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
 import 'package:sahabi_guide/features/settings/settings.dart';
 import 'package:sahabi_guide/shared/constants/app_locale.dart';
+import 'package:sahabi_guide/core/providers/language_provider.dart';
+import 'package:sahabi_guide/features/settings/presentation/screens/language_settings_screen.dart';
 
 import '../../../../l10n/app_localizations.dart';
 
@@ -65,36 +67,35 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildLanguageSection(
       BuildContext context, WidgetRef ref, SettingsState settings) {
     final localizations = AppLocalizations.of(context)!;
+    final currentLocale = ref.watch(languageProvider);
+    final currentAppLocale = AppLocale.fromLocale(currentLocale);
 
     return Column(
       children: [
-        // UI Language Selection
+        // UI Language Selection - Navigation vers l'écran dédié
         Card(
           margin: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  localizations.language,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+          child: ListTile(
+            leading: const Icon(Icons.language, size: 28),
+            title: Text(
+              localizations.settings_language,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              ...AppLocale.values.map((locale) {
-                return RadioListTile<AppLocale>(
-                  title: Text(_getUILanguageName(locale, localizations)),
-                  value: locale,
-                  groupValue: settings.locale,
-                  onChanged: (AppLocale? newLocale) {
-                    if (newLocale != null) {
-                      ref.read(settingsProvider.notifier).setLocale(newLocale);
-                    }
-                  },
-                );
-              }),
-            ],
+            ),
+            subtitle: Text(
+              currentAppLocale.displayName,
+              style: const TextStyle(fontSize: 14),
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const LanguageSettingsScreen(),
+                ),
+              );
+            },
           ),
         ),
 
@@ -104,11 +105,11 @@ class SettingsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Audio Language',
-                  style: TextStyle(
+                  localizations.settings_audio_language,
+                  style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -123,7 +124,10 @@ class SettingsScreen extends ConsumerWidget {
                           .read(settingsProvider.notifier)
                           .setAudioLanguage(value);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('OK'), duration: Duration(milliseconds: 900)),
+                        SnackBar(
+                          content: Text(localizations.common_success),
+                          duration: const Duration(milliseconds: 900),
+                        ),
                       );
                     }
                   },
@@ -144,17 +148,6 @@ class SettingsScreen extends ConsumerWidget {
         return 'Clair';
       case AppThemeMode.dark:
         return 'Sombre';
-    }
-  }
-
-  String _getUILanguageName(AppLocale locale, AppLocalizations localizations) {
-    switch (locale) {
-      case AppLocale.fr:
-        return localizations.french;
-      case AppLocale.en:
-        return localizations.english;
-      case AppLocale.ar:
-        return localizations.arabic;
     }
   }
 

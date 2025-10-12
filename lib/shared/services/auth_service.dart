@@ -189,7 +189,7 @@ class AuthService {
       
       return false;
     } catch (e) {
-      print('Erreur lors de la validation du token: $e');
+      AppLogger.error('Erreur validation token', error: e);
       return false;
     }
   }
@@ -245,7 +245,7 @@ class AuthService {
         );
       }
     } catch (e) {
-      print('Erreur lors de la déconnexion: $e');
+      AppLogger.error('Erreur déconnexion', error: e);
     } finally {
       // Nettoyer les données locales
       await _storage.deleteSecurely(AppConstants.authTokenKey);
