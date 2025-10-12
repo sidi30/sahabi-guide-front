@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/utils/app_logger.dart';
 import '../../core/utils/constants.dart';
+import '../../core/utils/token_validator.dart';
 import 'storage_service.dart';
 
 /// États d'authentification
@@ -179,9 +180,20 @@ class AuthService {
       final tokenToValidate = token ?? _currentToken;
       if (tokenToValidate == null) return false;
 
+      // Vérifier l'expiration locale d'abord
+      if (TokenValidator.isTokenExpired(tokenToValidate)) {
+        AppLogger.warning('Token expiré localement');
+        await logout();
+        return false;
+      }
+
       final response = await _dioClient.post(
         '/api/auth/passport/validate',
-        data: {'token': tokenToValidate},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $tokenToValidate',
+          },
+        ),
       );
 
       if (response.statusCode == 200) {
