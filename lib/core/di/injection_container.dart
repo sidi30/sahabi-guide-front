@@ -21,6 +21,7 @@ import '../../features/auth/data/repositories/passport_auth_repository_impl.dart
 import '../../features/auth/domain/usecases/passport_auth_usecases.dart';
 
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
+import '../../features/rituals/data/datasources/rituals_remote_data_source.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
@@ -166,6 +167,11 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<RitualsLocalDataSource>(
     () => RitualsLocalDataSourceImpl(),
   );
+  
+  sl.registerLazySingleton<RitualsRemoteDataSource>(
+    () => RitualsRemoteDataSource(sl(), sl()),
+  );
+  
   sl.registerLazySingleton<RitualsRepository>(
     () => RitualsRepositoryImpl(
       localDataSource: sl(),

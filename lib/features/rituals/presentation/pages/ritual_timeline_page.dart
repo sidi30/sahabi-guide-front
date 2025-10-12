@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../../../shared/models/ritual_model.dart';
+import '../providers/rituals_state_manager.dart';
+import '../widgets/ritual_timeline_item.dart';
+import '../widgets/ritual_progress_indicator.dart';
 
 class RitualTimelinePage extends StatefulWidget {
   const RitualTimelinePage({super.key});
@@ -9,48 +13,21 @@ class RitualTimelinePage extends StatefulWidget {
 }
 
 class _RitualTimelinePageState extends State<RitualTimelinePage> {
-  final List<Map<String, dynamic>> rituals = [
-    {
-      'title': 'Tawaf',
-      'subtitle': 'Circumambulation of the Kaaba',
-      'isCompleted': false,
-      'isActive': true,
-      'hasAudio': true,
-      'hasVideo': true,
-    },
-    {
-      'title': 'Sa\'i',
-      'subtitle': 'Walking between Safa and Marwa',
-      'isCompleted': true,
-      'isActive': false,
-      'hasAudio': false,
-      'hasVideo': false,
-    },
-    {
-      'title': 'Mina',
-      'subtitle': 'Stay in Mina',
-      'isCompleted': true,
-      'isActive': false,
-      'hasAudio': false,
-      'hasVideo': false,
-    },
-    {
-      'title': 'Arafat',
-      'subtitle': 'Day of Arafat',
-      'isCompleted': true,
-      'isActive': false,
-      'hasAudio': false,
-      'hasVideo': false,
-    },
-    {
-      'title': 'Muzdalifah',
-      'subtitle': 'Night in Muzdalifah',
-      'isCompleted': true,
-      'isActive': false,
-      'hasAudio': false,
-      'hasVideo': false,
-    },
-  ];
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RitualsStateManager>().loadRituals();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +38,10 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Hajj Rituals',
+          'Rituels du Hadj',
           style: TextStyle(
             color: Color(0xFF1D3557),
             fontSize: 20,
@@ -72,259 +49,243 @@ class _RitualTimelinePageState extends State<RitualTimelinePage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          Consumer<RitualsStateManager>(
+            builder: (context, stateManager, child) {
+              return IconButton(
+                icon: const Icon(Icons.refresh, color: Color(0xFF1D3557)),
+                onPressed: () => stateManager.loadRituals(),
+              );
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            ...rituals.asMap().entries.map((entry) {
-              int index = entry.key;
-              Map<String, dynamic> ritual = entry.value;
-              bool isLast = index == rituals.length - 1;
-
-              return _buildTimelineItem(ritual, isLast);
-            }),
-
-            const SizedBox(height: 100), // Space for bottom nav
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNavBar(context, 2),
-    );
-  }
-
-  Widget _buildTimelineItem(Map<String, dynamic> ritual, bool isLast) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Timeline indicator
-        Column(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: ritual['isActive']
-                    ? const Color(0xFF4FC3F7)
-                    : ritual['isCompleted']
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFE5E7EB),
-                shape: BoxShape.circle,
+      body: Consumer<RitualsStateManager>(
+        builder: (context, stateManager, child) {
+          if (stateManager.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4FC3F7)),
               ),
-              child: Icon(
-                ritual['isActive']
-                    ? Icons.access_time
-                    : ritual['isCompleted']
-                        ? Icons.check
-                        : Icons.circle,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-            if (!isLast)
-              Container(
-                width: 2,
-                height: 60,
-                color: ritual['isCompleted']
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFE5E7EB),
-              ),
-          ],
-        ),
+            );
+          }
 
-        const SizedBox(width: 16),
-
-        // Content
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and subtitle
-                Text(
-                  ritual['title'],
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1D3557),
+          if (stateManager.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  ritual['subtitle'],
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-
-                // Action buttons for active ritual
-                if (ritual['isActive']) ...[
                   const SizedBox(height: 16),
-
-                  // Audio Guide Button
-                  if (ritual['hasAudio'])
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.headphones, size: 20),
-                        label: const Text('Audio Guide (Hausa)'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE3F2FD),
-                          foregroundColor: const Color(0xFF4FC3F7),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Video Demonstration Button
-                  if (ritual['hasVideo'])
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.play_circle_outline, size: 20),
-                        label: const Text('Video Demonstration'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE3F2FD),
-                          foregroundColor: const Color(0xFF4FC3F7),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Mark as completed button
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        ritual['isCompleted'] = true;
-                        ritual['isActive'] = false;
-
-                        // Activate next ritual if exists
-                        int currentIndex = rituals.indexOf(ritual);
-                        if (currentIndex < rituals.length - 1) {
-                          rituals[currentIndex + 1]['isActive'] = true;
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.check_circle_outline, size: 20),
-                    label: const Text('Mark as completed'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF3F4F6),
-                      foregroundColor: const Color(0xFF1D3557),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
+                  Text(
+                    'Erreur de chargement',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    stateManager.error!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => stateManager.loadRituals(),
+                    child: const Text('Réessayer'),
                   ),
                 ],
-              ],
-            ),
-          ),
-        ),
-      ],
+              ),
+            );
+          }
+
+          return Column(
+            children: [
+              // Progress indicator
+              RitualProgressIndicator(
+                progress: stateManager.overallProgress,
+                completedCount: stateManager.completedRituals.length,
+                totalCount: stateManager.rituals.length,
+              ),
+
+              // Current active ritual card
+              if (stateManager.currentActiveRitual != null)
+                _buildActiveRitualCard(stateManager.currentActiveRitual!),
+
+              // Timeline
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: stateManager.rituals.length,
+                  itemBuilder: (context, index) {
+                    final ritual = stateManager.rituals[index];
+                    final isLast = index == stateManager.rituals.length - 1;
+                    
+                    return RitualTimelineItem(
+                      ritual: ritual,
+                      isLast: isLast,
+                      onStartRitual: () => stateManager.startRitual(ritual.id),
+                      onCompleteRitual: () => stateManager.markRitualAsCompleted(ritual.id),
+                      onPlayAudio: () => _playRitualAudio(ritual),
+                      onWatchVideo: () => _watchRitualVideo(ritual),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildBottomNavBar(BuildContext context, int currentIndex) {
+  Widget _buildActiveRitualCard(RitualModel ritual) {
     return Container(
-      height: 80,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF4FC3F7), Color(0xFF29B6F6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: const Color(0xFF4FC3F7).withOpacity(0.3),
             blurRadius: 10,
-            offset: const Offset(0, -2),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildNavItem(
-            icon: Icons.home,
-            label: 'Home',
-            isActive: currentIndex == 0,
-            onTap: () => context.go('/menu'),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.access_time,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Rituel actuel',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      ritual.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'EN COURS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-          _buildNavItem(
-            icon: Icons.map,
-            label: 'Map',
-            isActive: currentIndex == 1,
-            onTap: () => context.go('/map'),
+          const SizedBox(height: 16),
+          Text(
+            ritual.description,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
-          _buildNavItem(
-            icon: Icons.timeline,
-            label: 'Rituals',
-            isActive: currentIndex == 2,
-            onTap: () => context.go('/hajj-timeline'),
-          ),
-          _buildNavItem(
-            icon: Icons.person,
-            label: 'Profile',
-            isActive: currentIndex == 3,
-            onTap: () => context.go('/profile'),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.read<RitualsStateManager>().markRitualAsCompleted(ritual.id),
+                  icon: const Icon(Icons.check_circle_outline, size: 20),
+                  label: const Text('Marquer terminé'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF4FC3F7),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              if (ritual.audioPaths.isNotEmpty)
+                ElevatedButton.icon(
+                  onPressed: () => _playRitualAudio(ritual),
+                  icon: const Icon(Icons.headphones, size: 20),
+                  label: const Text('Audio'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  ),
+                ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF4FC3F7) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+  void _playRitualAudio(RitualModel ritual) {
+    // Implementation for playing ritual audio
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Lecture audio pour: ${ritual.name}'),
+        backgroundColor: const Color(0xFF4FC3F7),
+      ),
+    );
+  }
+
+  void _watchRitualVideo(RitualModel ritual) {
+    // Implementation for watching ritual video
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Ouverture vidéo pour: ${ritual.name}'),
+        backgroundColor: const Color(0xFF4FC3F7),
       ),
     );
   }

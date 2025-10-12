@@ -1,15 +1,54 @@
+import 'package:flutter/material.dart';
+
+enum RitualType {
+  hajj,
+  umrah,
+  daily,
+  special,
+}
+
+enum RitualStatus {
+  pending,
+  active,
+  completed,
+  overdue,
+}
 
 class RitualModel {
   final String id;
   final String name;
   final int order;
   final String description;
+  final RitualType type;
+  final RitualStatus status;
+  final DateTime? scheduledTime;
+  final DateTime? completedAt;
+  final Duration? estimatedDuration;
+  final List<String> audioPaths;
+  final String? videoPath;
+  final Map<String, String> translations;
+  final List<String> tags;
+  final bool isActive;
+  final String? nextRitualId;
+  final String? previousRitualId;
 
   const RitualModel({
     required this.id,
     required this.name,
     required this.order,
     required this.description,
+    this.type = RitualType.hajj,
+    this.status = RitualStatus.pending,
+    this.scheduledTime,
+    this.completedAt,
+    this.estimatedDuration,
+    this.audioPaths = const [],
+    this.videoPath,
+    this.translations = const {},
+    this.tags = const [],
+    this.isActive = false,
+    this.nextRitualId,
+    this.previousRitualId,
   });
 
   factory RitualModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +57,24 @@ class RitualModel {
       name: json['name'] as String,
       order: json['order'] as int,
       description: json['description'] as String,
+      type: _parseRitualType(json['type']),
+      status: _parseRitualStatus(json['status']),
+      scheduledTime: json['scheduledTime'] != null 
+          ? DateTime.parse(json['scheduledTime']) 
+          : null,
+      completedAt: json['completedAt'] != null 
+          ? DateTime.parse(json['completedAt']) 
+          : null,
+      estimatedDuration: json['estimatedDuration'] != null 
+          ? Duration(minutes: json['estimatedDuration']) 
+          : null,
+      audioPaths: List<String>.from(json['audioPaths'] ?? []),
+      videoPath: json['videoPath'],
+      translations: Map<String, String>.from(json['translations'] ?? {}),
+      tags: List<String>.from(json['tags'] ?? []),
+      isActive: json['isActive'] ?? false,
+      nextRitualId: json['nextRitualId'],
+      previousRitualId: json['previousRitualId'],
     );
   }
 
@@ -27,6 +84,18 @@ class RitualModel {
       'name': name,
       'order': order,
       'description': description,
+      'type': type.name,
+      'status': status.name,
+      'scheduledTime': scheduledTime?.toIso8601String(),
+      'completedAt': completedAt?.toIso8601String(),
+      'estimatedDuration': estimatedDuration?.inMinutes,
+      'audioPaths': audioPaths,
+      'videoPath': videoPath,
+      'translations': translations,
+      'tags': tags,
+      'isActive': isActive,
+      'nextRitualId': nextRitualId,
+      'previousRitualId': previousRitualId,
     };
   }
 
@@ -35,18 +104,110 @@ class RitualModel {
     String? name,
     int? order,
     String? description,
+    RitualType? type,
+    RitualStatus? status,
+    DateTime? scheduledTime,
+    DateTime? completedAt,
+    Duration? estimatedDuration,
+    List<String>? audioPaths,
+    String? videoPath,
+    Map<String, String>? translations,
+    List<String>? tags,
+    bool? isActive,
+    String? nextRitualId,
+    String? previousRitualId,
   }) {
     return RitualModel(
       id: id ?? this.id,
       name: name ?? this.name,
       order: order ?? this.order,
       description: description ?? this.description,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      scheduledTime: scheduledTime ?? this.scheduledTime,
+      completedAt: completedAt ?? this.completedAt,
+      estimatedDuration: estimatedDuration ?? this.estimatedDuration,
+      audioPaths: audioPaths ?? this.audioPaths,
+      videoPath: videoPath ?? this.videoPath,
+      translations: translations ?? this.translations,
+      tags: tags ?? this.tags,
+      isActive: isActive ?? this.isActive,
+      nextRitualId: nextRitualId ?? this.nextRitualId,
+      previousRitualId: previousRitualId ?? this.previousRitualId,
     );
+  }
+
+  // Helper methods
+  bool get isCompleted => status == RitualStatus.completed;
+  bool get isPending => status == RitualStatus.pending;
+  bool get isOverdue => status == RitualStatus.overdue;
+  
+  String getTranslation(String language) {
+    return translations[language] ?? name;
+  }
+
+  String? getAudioPath(String language) {
+    return audioPaths.isNotEmpty ? audioPaths.first : null;
+  }
+
+  Color getStatusColor() {
+    switch (status) {
+      case RitualStatus.completed:
+        return Colors.green;
+      case RitualStatus.active:
+        return Colors.blue;
+      case RitualStatus.overdue:
+        return Colors.red;
+      case RitualStatus.pending:
+        return Colors.grey;
+    }
+  }
+
+  IconData getStatusIcon() {
+    switch (status) {
+      case RitualStatus.completed:
+        return Icons.check_circle;
+      case RitualStatus.active:
+        return Icons.access_time;
+      case RitualStatus.overdue:
+        return Icons.warning;
+      case RitualStatus.pending:
+        return Icons.circle_outlined;
+    }
+  }
+
+  static RitualType _parseRitualType(String? type) {
+    switch (type?.toLowerCase()) {
+      case 'hajj':
+        return RitualType.hajj;
+      case 'umrah':
+        return RitualType.umrah;
+      case 'daily':
+        return RitualType.daily;
+      case 'special':
+        return RitualType.special;
+      default:
+        return RitualType.hajj;
+    }
+  }
+
+  static RitualStatus _parseRitualStatus(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return RitualStatus.completed;
+      case 'active':
+        return RitualStatus.active;
+      case 'overdue':
+        return RitualStatus.overdue;
+      case 'pending':
+      default:
+        return RitualStatus.pending;
+    }
   }
 
   @override
   String toString() {
-    return 'RitualModel(id: $id, name: $name, order: $order, description: $description)';
+    return 'RitualModel(id: $id, name: $name, order: $order, status: $status)';
   }
 
   @override
@@ -56,11 +217,11 @@ class RitualModel {
         other.id == id &&
         other.name == name &&
         other.order == order &&
-        other.description == description;
+        other.status == status;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ name.hashCode ^ order.hashCode ^ description.hashCode;
+    return id.hashCode ^ name.hashCode ^ order.hashCode ^ status.hashCode;
   }
 }
