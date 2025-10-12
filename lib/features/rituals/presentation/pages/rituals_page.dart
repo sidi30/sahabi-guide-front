@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/constants/app_colors.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
+import '../../../../features/settings/presentation/providers/settings_provider.dart';
+import '../widgets/ritual_timeline_item.dart';
+import '../services/ritual_service.dart';
 
 final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
   final useCase = sl<GetRitualsUseCase>();
@@ -33,7 +34,8 @@ class RitualsPage extends ConsumerStatefulWidget {
 class _RitualsPageState extends ConsumerState<RitualsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
+  late RitualService _ritualService;
+  
   @override
   void initState() {
     super.initState();
@@ -42,11 +44,14 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       vsync: this,
       initialIndex: widget.showDuasOnly ? 1 : 0,
     );
+    _ritualService = RitualService();
+    _ritualService.initialize();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _ritualService.dispose();
     super.dispose();
   }
 
@@ -87,7 +92,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     final ritualsAsync = ref.watch(ritualsProvider);
 
     return ritualsAsync.when(
-      data: (rituals) => _buildRitualsList(rituals, 'Aucun rituel trouvé'),
+      data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => _buildErrorWidget(error),
     );
@@ -97,13 +102,13 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     final duasAsync = ref.watch(duasProvider);
 
     return duasAsync.when(
-      data: (duas) => _buildRitualsList(duas, 'Aucune dua trouvée'),
+      data: (duas) => _buildTimelineView(duas, 'Aucune dua trouvée'),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => _buildErrorWidget(error),
     );
   }
 
-  Widget _buildRitualsList(List<RitualModel> rituals, String emptyMessage) {
+  Widget _buildTimelineView(List<RitualModel> rituals, String emptyMessage) {
     if (rituals.isEmpty) {
       return Center(
         child: Column(
@@ -126,143 +131,61 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: rituals.length,
-      itemBuilder: (context, index) {
-        final ritual = rituals[index];
-        return _buildRitualCard(ritual);
-      },
+    // Trier les rituels par ordre chronologique
+    final sortedRituals = List<RitualModel>.from(rituals)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    return Container(
+      color: const Color(0xFFF8F9FA),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: sortedRituals.length,
+        itemBuilder: (context, index) {
+          final ritual = sortedRituals[index];
+          final isLast = index == sortedRituals.length - 1;
+          final settings = ref.watch(settingsProvider);
+          final audioLanguage = settings.audioLanguage.name.toLowerCase();
+          
+          return RitualTimelineItem(
+            ritual: ritual,
+            isLast: isLast,
+            audioLanguage: audioLanguage,
+            onMarkAsCompleted: () => _markAsCompleted(ritual),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildRitualCard(RitualModel ritual) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => context.go('/rituals/detail/${ritual.id}'),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Container(
-                  //   width: 48,
-                  //   height: 48,
-                  //   decoration: BoxDecoration(
-                  //     color:
-                  //         _getRitualColor(ritual.type).withValues(alpha: 0.1),
-                  //     borderRadius: BorderRadius.circular(24),
-                  //   ),
-                  //   child: Icon(
-                  //     _getRitualIcon(ritual.type),
-                  //     color: _getRitualColor(ritual.type),
-                  //     size: 24,
-                  //   ),
-                  // ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ritual.name,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          ritual.description,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                //   if (ritual.scheduledTime != null)
-                //     Column(
-                //       crossAxisAlignment: CrossAxisAlignment.end,
-                //       children: [
-                //         Text(
-                //           '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
-                //           style:
-                //               Theme.of(context).textTheme.titleMedium?.copyWith(
-                //                     fontWeight: FontWeight.bold,
-                //                     color: _getRitualColor(ritual.type),
-                //                   ),
-                //         ),
-                //         Text(
-                //           _getFrequencyText(ritual.frequency),
-                //           style:
-                //               Theme.of(context).textTheme.bodySmall?.copyWith(
-                //                     color: AppColors.textSecondary,
-                //                   ),
-                //         ),
-                //       ],
-                //     ),
-                // ],
-             // ),
-        //       if (ritual.duration != null) ...[
-        //         const SizedBox(height: 12),
-        //         Row(
-        //           children: [
-        //             const Icon(
-        //               Icons.timer_outlined,
-        //               size: 16,
-        //               color: AppColors.textSecondary,
-        //             ),
-        //             const SizedBox(width: 4),
-        //             Text(
-        //               _formatDuration(ritual.duration!),
-        //               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        //                     color: AppColors.textSecondary,
-        //                   ),
-        //             ),
-        //           ],
-        //         ),
-        //       ],
-        //       if (ritual.tags.isNotEmpty) ...[
-        //         const SizedBox(height: 12),
-        //         Wrap(
-        //           spacing: 8,
-        //           runSpacing: 4,
-        //           children: ritual.tags.map((tag) {
-        //             return Container(
-        //               padding: const EdgeInsets.symmetric(
-        //                   horizontal: 8, vertical: 4),
-        //               decoration: BoxDecoration(
-        //                 color: AppTheme.secondaryColor.withValues(alpha: 0.1),
-        //                 borderRadius: BorderRadius.circular(12),
-        //               ),
-        //               child: Text(
-        //                 tag,
-        //                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        //                       color: AppTheme.secondaryColor,
-        //                       fontWeight: FontWeight.w500,
-        //                     ),
-        //               ),
-        //             );
-        //           }).toList(),
-        //         ),
-        //       ],
-        //     ],
-        //   ),
-                ]
-              ),
-            ],
+
+  Future<void> _markAsCompleted(RitualModel ritual) async {
+    try {
+      await _ritualService.markAsCompleted(ritual);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ ${ritual.name} marqué comme accompli'),
+            backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 2),
           ),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar(e.toString());
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: const Color(0xFFEF4444),
+          duration: const Duration(seconds: 3),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildErrorWidget(Object error) {
@@ -292,64 +215,5 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
         ],
       ),
     );
-  }
-
-  // Color _getRitualColor(RitualType type) {
-  //   switch (type) {
-  //     case RitualType.prayer:
-  //       return AppTheme.primaryColor;
-  //     case RitualType.dua:
-  //       return AppTheme.secondaryColor;
-  //     case RitualType.dhikr:
-  //       return AppTheme.accentColor;
-  //     case RitualType.reading:
-  //       return Colors.purple;
-  //     case RitualType.charity:
-  //       return Colors.green;
-  //     case RitualType.fasting:
-  //       return Colors.orange;
-  //   }
-  // }
-
-  // IconData _getRitualIcon(RitualType type) {
-  //   switch (type) {
-  //     case RitualType.prayer:
-  //       return Icons.schedule;
-  //     case RitualType.dua:
-  //       return Icons.book;
-  //     case RitualType.dhikr:
-  //       return Icons.favorite;
-  //     case RitualType.reading:
-  //       return Icons.menu_book;
-  //     case RitualType.charity:
-  //       return Icons.volunteer_activism;
-  //     case RitualType.fasting:
-  //       return Icons.no_meals;
-  //   }
-  // }
-
-  // String _getFrequencyText(RitualFrequency frequency) {
-  //   switch (frequency) {
-  //     case RitualFrequency.daily:
-  //       return 'Quotidien';
-  //     case RitualFrequency.weekly:
-  //       return 'Hebdomadaire';
-  //     case RitualFrequency.monthly:
-  //       return 'Mensuel';
-  //     case RitualFrequency.yearly:
-  //       return 'Annuel';
-  //     case RitualFrequency.occasional:
-  //       return 'Occasionnel';
-  //   }
-  // }
-
-  String _formatDuration(Duration duration) {
-    if (duration.inHours > 0) {
-      return '${duration.inHours}h ${duration.inMinutes.remainder(60)}min';
-    } else if (duration.inMinutes > 0) {
-      return '${duration.inMinutes}min';
-    } else {
-      return '${duration.inSeconds}s';
-    }
   }
 }

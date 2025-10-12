@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import '../../shared/models/dua_model.dart';
 
 enum AudioState {
@@ -99,7 +99,8 @@ class AudioService extends ChangeNotifier {
       _currentDua = dua;
       _currentLanguage = selectedLanguage;
 
-      await _audioPlayer.play(AssetSource(audioPath));
+      await _audioPlayer.setAsset(audioPath);
+      await _audioPlayer.play();
       
       // Update play count
       _currentDua = dua.copyWith(
@@ -126,7 +127,7 @@ class AudioService extends ChangeNotifier {
 
   Future<void> resumeAudio() async {
     try {
-      await _audioPlayer.resume();
+      await _audioPlayer.play();
     } catch (e) {
       _state = AudioState.error;
       _errorMessage = 'Erreur lors de la reprise: ${e.toString()}';
