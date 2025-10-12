@@ -55,10 +55,16 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.showDuasOnly ? 'Douas' : 'Rituels'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
         bottom: widget.showDuasOnly
             ? null
             : TabBar(
                 controller: _tabController,
+                labelColor: AppColors.white,
+                unselectedLabelColor: AppColors.white.withValues(alpha: 0.7),
+                indicatorColor: AppColors.white,
+                indicatorWeight: 3,
                 tabs: const [
                   Tab(text: 'Rituels', icon: Icon(Icons.schedule)),
                   Tab(text: 'Douas', icon: Icon(Icons.book)),

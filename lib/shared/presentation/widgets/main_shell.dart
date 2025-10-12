@@ -200,7 +200,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary.withValues(alpha: 0.1)
+                              ? AppColors.primary
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -211,7 +211,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                               isSelected ? item.selectedIcon : item.icon,
                               size: 22,
                               color: isSelected
-                                  ? AppColors.primary
+                                  ? AppColors.white
                                   : AppColors.textLight,
                             ),
                             const SizedBox(height: 4),
@@ -223,7 +223,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                                     ? FontWeight.w600
                                     : FontWeight.normal,
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? AppColors.white
                                     : AppColors.textLight,
                               ),
                             ),

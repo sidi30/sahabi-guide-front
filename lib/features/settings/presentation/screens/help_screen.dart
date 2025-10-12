@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../shared/constants/app_colors.dart';
+import 'contact_screen.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -57,7 +58,11 @@ class _HelpScreenState extends State<HelpScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Naviguer vers la page de contact
-          Navigator.pushNamed(context, '/settings/contact');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ContactScreen(),
+            ),
+          );
         },
         icon: const Icon(Icons.contact_support),
         label: const Text('Nous Contacter'),

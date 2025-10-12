@@ -506,7 +506,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 context.go('/passport-login');
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.white,
+            ),
             child: const Text('Se déconnecter'),
           ),
         ],
