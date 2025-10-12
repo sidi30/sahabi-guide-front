@@ -19,12 +19,19 @@ class RitualsRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/rituals/enriched',
+        '/api/v1/rituals',
         options: options,
       );
 
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(response.data);
+        final data = response.data;
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+        if (data is Map && data['content'] is List) {
+          return List<Map<String, dynamic>>.from(data['content']);
+        }
+        throw Exception('Unexpected response shape for rituals: ${data.runtimeType}');
       } else {
         throw Exception('Failed to fetch rituals');
       }
