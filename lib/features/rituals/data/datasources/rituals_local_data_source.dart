@@ -1,13 +1,14 @@
 import 'dart:convert';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/models/dua_model.dart';
 import '../../../../core/cache/cache_service.dart';
 
 abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals();
   Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion});
   Future<void> markAsCompleted(String ritualId);
-  Future<List<RitualModel>> getDuas();
-  Future<void> saveDuas(List<RitualModel> duas);
+  Future<List<DuaModel>> getDuas();
+  Future<void> saveDuas(List<DuaModel> duas);
   Future<void> clearCache();
 }
 
@@ -53,7 +54,7 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   }
 
   @override
-  Future<List<RitualModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas() async {
     try {
       final cached = await _cacheService.get<List<dynamic>>(_duasKey);
       
@@ -62,7 +63,7 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
       }
 
       final duas = cached.data
-          .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
+          .map((json) => DuaModel.fromJson(json as Map<String, dynamic>))
           .toList();
       
       return duas;
@@ -72,7 +73,7 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   }
 
   @override
-  Future<void> saveDuas(List<RitualModel> duas) async {
+  Future<void> saveDuas(List<DuaModel> duas) async {
     try {
       final duasJson = duas.map((d) => d.toJson()).toList();
       await _cacheService.set(

@@ -32,6 +32,11 @@ class AudioService extends ChangeNotifier {
   bool get isPlaying => _state == AudioState.playing;
   bool get isPaused => _state == AudioState.paused;
   bool get isLoading => _state == AudioState.loading;
+  
+  // Expose streams for direct access
+  Stream<Duration> get positionStream => _audioPlayer.positionStream;
+  Stream<Duration?> get durationStream => _audioPlayer.durationStream;
+  Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
 
   // Stream subscriptions
   StreamSubscription<Duration>? _positionSubscription;
@@ -163,6 +168,20 @@ class AudioService extends ChangeNotifier {
       _state = AudioState.error;
       _errorMessage = 'Erreur lors du positionnement: ${e.toString()}';
       notifyListeners();
+    }
+  }
+
+  // Alias for seekTo
+  Future<void> seek(Duration position) async {
+    await seekTo(position);
+  }
+
+  // Play method for generic audio playback
+  Future<void> play([String? audioPath]) async {
+    if (audioPath != null) {
+      await playFromAssets(audioPath);
+    } else {
+      await resume();
     }
   }
 

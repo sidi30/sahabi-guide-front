@@ -23,6 +23,7 @@ import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
 import 'features/rituals/presentation/pages/ritual_detail_page.dart';
 import 'features/rituals/presentation/pages/rituals_page.dart';
+import 'features/rituals/presentation/pages/duas_modern_page.dart';
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
@@ -197,7 +198,7 @@ class MyApp extends ConsumerWidget {
           ),
           GoRoute(
             path: AppRoutes.duas,
-            builder: (context, state) => const RitualsPage(showDuasOnly: true),
+            builder: (context, state) => const DuasModernPage(),
           ),
 
           // Ritual detail page

@@ -1,4 +1,5 @@
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/models/dua_model.dart';
 import '../repositories/rituals_repository.dart';
 
 class GetRitualsUseCase {
@@ -10,7 +11,7 @@ class GetRitualsUseCase {
     return await repository.getRituals();
   }
 
-  Future<List<RitualModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas() async {
     return await repository.getDuas();
   }
 

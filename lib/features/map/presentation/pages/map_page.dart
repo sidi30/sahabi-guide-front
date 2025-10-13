@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../shared/constants/app_colors.dart';
 import '../../data/models/makkah_location_model.dart';
 import '../../data/datasources/makkah_locations_data_source.dart';
 
@@ -158,25 +157,31 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
 
-          // Floating Action Buttons - Positioned individually for better control
+          // Bottom Action Buttons
           Positioned(
-            bottom: 100,
+            bottom: 120,
+            left: 20,
             right: 20,
-            child: _buildFloatingActionButton(
-              'Urgence',
-              Icons.warning_rounded,
-              AppColors.error,
-              () => _showEmergencyDialog(context),
-            ),
-          ),
-          Positioned(
-            bottom: 100,
-            right: 100,
-            child: _buildFloatingActionButton(
-              'Guide',
-              Icons.phone_rounded,
-              AppColors.accent,
-              () => _callGuide(context),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    'Emergency\nSignal',
+                    Icons.warning,
+                    Colors.red,
+                    () => _showEmergencyDialog(context),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionButton(
+                    'Call Guide',
+                    Icons.phone,
+                    const Color(0xFF4FC3F7),
+                    () => _callGuide(context),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -417,8 +422,8 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  Widget _buildFloatingActionButton(
-    String label,
+  Widget _buildActionButton(
+    String title,
     IconData icon,
     Color color,
     VoidCallback onPressed,
@@ -426,33 +431,27 @@ class _MapPageState extends State<MapPage> {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        width: 70,
-        height: 70,
+        height: 80,
         decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: Colors.white,
+              color: color,
               size: 28,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 8),
             Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -466,36 +465,33 @@ class _MapPageState extends State<MapPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            Icon(Icons.warning_rounded, color: AppColors.error),
-            const SizedBox(width: 8),
-            const Text('Signal d\'Urgence'),
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Emergency Signal'),
           ],
         ),
         content: const Text(
-          'Ceci enverra un signal d\'urgence à votre guide et aux contacts d\'urgence. Continuer ?',
+          'This will send an emergency signal to your guide and emergency contacts. Continue?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Signal d\'urgence envoyé !'),
-                  backgroundColor: AppColors.error,
+                const SnackBar(
+                  content: Text('Emergency signal sent!'),
+                  backgroundColor: Colors.red,
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.white,
-            ),
-            child: const Text('Envoyer'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Send Signal'),
           ),
         ],
       ),
@@ -504,9 +500,9 @@ class _MapPageState extends State<MapPage> {
 
   void _callGuide(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Appel de votre guide...'),
-        backgroundColor: AppColors.accent,
+      const SnackBar(
+        content: Text('Calling your guide...'),
+        backgroundColor: Color(0xFF4FC3F7),
       ),
     );
   }

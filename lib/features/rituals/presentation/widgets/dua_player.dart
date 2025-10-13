@@ -115,7 +115,6 @@ class _DuaPlayerState extends State<DuaPlayer> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           widget.dua.title,

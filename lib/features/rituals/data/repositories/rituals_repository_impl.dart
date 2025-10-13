@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/models/dua_model.dart';
 import '../../domain/repositories/rituals_repository.dart';
 import '../datasources/rituals_local_data_source.dart';
 import '../datasources/rituals_remote_data_source.dart';
@@ -82,9 +83,9 @@ class RitualsRepositoryImpl implements RitualsRepository {
 
   // get duas
   @override
-  Future<List<RitualModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas() async {
     // Strategy similaire: Offline-first
-    List<RitualModel> cachedDuas = [];
+    List<DuaModel> cachedDuas = [];
     
     try {
       cachedDuas = await localDataSource.getDuas();
@@ -96,7 +97,7 @@ class RitualsRepositoryImpl implements RitualsRepository {
     if (remoteDataSource != null) {
       try {
         final remoteData = await remoteDataSource!.getDuas();
-        final duas = remoteData.map((data) => RitualModel.fromJson(data)).toList();
+        final duas = remoteData.map((data) => DuaModel.fromJson(data)).toList();
         
         // Save to cache
         await localDataSource.saveDuas(duas);
