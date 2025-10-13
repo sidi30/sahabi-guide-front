@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -49,7 +49,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
-            backgroundColor: AppTheme.errorColor,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -72,7 +72,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: const Icon(
@@ -90,7 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   'Connexion',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -100,7 +100,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 Text(
                   'Connectez-vous à votre compte',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -199,7 +199,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryColor.withValues(alpha: 0.1),
+                    color: AppColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(

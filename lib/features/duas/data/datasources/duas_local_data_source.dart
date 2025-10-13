@@ -74,8 +74,8 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
     final lowerQuery = query.toLowerCase();
 
     return allDuas.where((dua) {
-      return dua.tag.toLowerCase().contains(lowerQuery) ||
-          dua.text.toLowerCase().contains(lowerQuery) ||
+      return dua.tags.any((tag) => tag.toLowerCase().contains(lowerQuery)) ||
+          dua.arabicText.toLowerCase().contains(lowerQuery) ||
           dua.translation.toLowerCase().contains(lowerQuery);
     }).toList();
   }

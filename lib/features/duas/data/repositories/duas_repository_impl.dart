@@ -71,9 +71,9 @@ class DuasRepositoryImpl implements DuasRepository {
 
       // Filter duas based on the search query
       final filteredDuas = allDuas.where((dua) {
-        final textMatch = dua.text.toLowerCase().contains(query.toLowerCase());
+        final textMatch = dua.arabicText.toLowerCase().contains(query.toLowerCase());
         final translationMatch = dua.translation.toLowerCase().contains(query.toLowerCase());
-        final tagMatch = dua.tag.toLowerCase().contains(query.toLowerCase());
+        final tagMatch = dua.tags.any((tag) => tag.toLowerCase().contains(query.toLowerCase()));
 
         return textMatch || translationMatch || tagMatch;
       }).toList();

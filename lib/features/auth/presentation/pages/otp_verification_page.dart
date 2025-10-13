@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/services/auth_service.dart';
 
@@ -143,13 +143,13 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.sms_outlined,
                     size: 50,
-                    color: AppTheme.primaryColor,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -161,7 +161,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                 'Entrez le code de vérification',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: AppColors.textPrimary,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -172,7 +172,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
               Text(
                 'Un code à 6 chiffres a été envoyé au numéro de téléphone associé à votre passeport',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textSecondary,
+                      color: AppColors.textSecondary,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -213,7 +213,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: AppTheme.primaryColor,
+                            color: AppColors.primary,
                             width: 2,
                           ),
                         ),

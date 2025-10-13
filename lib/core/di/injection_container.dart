@@ -48,6 +48,12 @@ import '../../features/map/domain/repository/pilgrim_position_repository.dart';
 import '../../features/map/domain/usecases/get_latest_pilgrim_position_usecase.dart';
 import '../../features/map/data/services/poi_service.dart';
 
+// Alerts Feature
+import '../../features/alerts/data/services/alerts_service.dart';
+
+// Emergency Contacts Feature
+import '../../features/emergency_contacts/data/services/emergency_contacts_service.dart';
+
 import '../../features/alerts/data/datasources/alerts_remote_data_source.dart';
 import '../../features/alerts/data/repositories/alerts_repository_impl.dart';
 import '../../features/alerts/domain/repositories/alerts_repository.dart';
@@ -222,9 +228,13 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => PoiService(dioClient: sl(), secureStorage: sl()));
 
   // Alerts Feature
+  sl.registerLazySingleton(() => AlertsService(dioClient: sl(), secureStorage: sl()));
   sl.registerLazySingleton<AlertsRemoteDataSource>(
     () => AlertsRemoteDataSource(sl(), sl()),
   );
+
+  // Emergency Contacts Feature
+  sl.registerLazySingleton(() => EmergencyContactsService(dioClient: sl(), secureStorage: sl()));
 
   sl.registerLazySingleton<AlertsRepository>(
     () => AlertsRepositoryImpl(

@@ -20,6 +20,8 @@ import 'features/auth/presentation/providers/passport_auth_provider.dart';
 import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
+import 'features/alerts/presentation/pages/alerts_page.dart';
+import 'features/emergency_contacts/presentation/pages/emergency_contacts_page.dart';
 import 'features/map/presentation/pages/map_page.dart' show MapPage;
 import 'features/rituals/presentation/pages/ritual_detail_page.dart';
 import 'features/rituals/presentation/pages/rituals_page.dart';
@@ -81,6 +83,8 @@ class AppRoutes {
   static const String ritualDetail = '/rituals/detail/:id';
   static const String health = '/health';
   static const String connectivity = '/connectivity';
+  static const String alerts = '/alerts';
+  static const String emergencyContacts = '/emergency-contacts';
 }
 
 Future<void> main() async {
@@ -218,6 +222,14 @@ class MyApp extends ConsumerWidget {
           GoRoute(
             path: AppRoutes.connectivity,
             builder: (context, state) => const ConnectivityEsimPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.alerts,
+            builder: (context, state) => const AlertsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.emergencyContacts,
+            builder: (context, state) => const EmergencyContactsPage(),
           ),
 
           // Map Screen - PROTÉGÉE

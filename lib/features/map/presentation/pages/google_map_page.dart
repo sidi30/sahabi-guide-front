@@ -21,7 +21,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     dioClient: GetIt.I<DioClient>(),
     secureStorage: GetIt.I<FlutterSecureStorage>(),
   );
-  
+
   // Map state
   Set<Marker> _markers = {};
   List<PoiModel> _filteredPois = [];
@@ -29,9 +29,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   bool _isLoading = true;
   String? _error;
   Position? _currentPosition;
-  
+
   // Map configuration
-  static const LatLng _defaultLocation = LatLng(21.4225, 39.8262); // Masjid al-Haram
+  static const LatLng _defaultLocation =
+      LatLng(21.4225, 39.8262); // Masjid al-Haram
   static const double _defaultZoom = 12.0;
 
   @override
@@ -74,7 +75,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       setState(() {
         _currentPosition = position;
       });
@@ -120,8 +121,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       markers.add(
         Marker(
           markerId: const MarkerId('current_location'),
-          position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          icon: await BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          position:
+              LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          icon: await BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueBlue),
           infoWindow: const InfoWindow(
             title: 'Ma position',
             snippet: 'Vous êtes ici',
@@ -133,7 +136,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     // Add POI markers
     for (final poi in _filteredPois) {
       final BitmapDescriptor icon = await _getMarkerIcon(poi.type);
-      
+
       markers.add(
         Marker(
           markerId: MarkerId(poi.id),
@@ -162,11 +165,14 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       case PoiType.hospital:
         return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
       case PoiType.hotel:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
+        return BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueOrange);
       case PoiType.restaurant:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow);
+        return BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueYellow);
       case PoiType.hajjSite:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet);
+        return BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueViolet);
       case PoiType.transport:
       case PoiType.airport:
         return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure);
@@ -177,15 +183,15 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-    
+
     // Apply custom map style if needed
     //_mapController?.setMapStyle(_mapStyle);
-    
+
     // Move to current location or default
     final LatLng target = _currentPosition != null
         ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
         : _defaultLocation;
-    
+
     _mapController?.animateCamera(
       CameraUpdate.newLatLngZoom(target, _defaultZoom),
     );
@@ -229,9 +235,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Header with icon and title
           Row(
             children: [
@@ -272,9 +278,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Description
           if (poi.description != null && poi.description!.isNotEmpty) ...[
             Text(
@@ -287,7 +293,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             ),
             const SizedBox(height: 16),
           ],
-          
+
           // Contact info
           if (poi.phone != null) ...[
             Row(
@@ -305,7 +311,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             ),
             const SizedBox(height: 12),
           ],
-          
+
           if (poi.address != null) ...[
             Row(
               children: [
@@ -324,7 +330,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             ),
             const SizedBox(height: 20),
           ],
-          
+
           // Action buttons
           Row(
             children: [
@@ -358,7 +364,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               ),
             ],
           ),
-          
+
           // Bottom padding for safe area
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
@@ -420,7 +426,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: _currentPosition != null
-                  ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+                  ? LatLng(
+                      _currentPosition!.latitude, _currentPosition!.longitude)
                   : _defaultLocation,
               zoom: _defaultZoom,
             ),
@@ -504,11 +511,13 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   const SizedBox(width: 8),
                   _buildFilterChip('mosque', 'Mosquées', Icons.mosque),
                   const SizedBox(width: 8),
-                  _buildFilterChip('hospital', 'Hôpitaux', Icons.local_hospital),
+                  _buildFilterChip(
+                      'hospital', 'Hôpitaux', Icons.local_hospital),
                   const SizedBox(width: 8),
                   _buildFilterChip('hotel', 'Hôtels', Icons.hotel),
                   const SizedBox(width: 8),
-                  _buildFilterChip('restaurant', 'Restaurants', Icons.restaurant),
+                  _buildFilterChip(
+                      'restaurant', 'Restaurants', Icons.restaurant),
                   const SizedBox(width: 8),
                   _buildFilterChip('hajjSite', 'Sites Hajj', Icons.place),
                 ],
@@ -529,7 +538,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                 if (_currentPosition != null) {
                   _mapController?.animateCamera(
                     CameraUpdate.newLatLngZoom(
-                      LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                      LatLng(_currentPosition!.latitude,
+                          _currentPosition!.longitude),
                       16.0,
                     ),
                   );

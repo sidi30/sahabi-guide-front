@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:go_router/go_router.dart';
-import '../../data/models/makkah_location_model.dart';
-import '../../data/datasources/makkah_locations_data_source.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../data/services/poi_service.dart';
+import '../../data/models/poi_model.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -13,498 +13,372 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  final MapController _mapController = MapController();
-  final MakkahLocationsDataSource _locationsDataSource = MakkahLocationsDataSourceImpl();
-  List<MakkahLocationModel> _locations = [];
+  GoogleMapController? _mapController;
+  late final PoiService _poiService;
+  List<PoiModel> _pois = [];
+  Set<Marker> _markers = {};
   String _selectedFilter = 'all';
-  bool _isSatelliteView = false;
-  
-  // Map tile URLs
-  final String _mapUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  final String _satelliteUrl = 'https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+  bool _isLoading = true;
+  String? _error;
+
+  // Position par défaut : La Mecque
+  static const LatLng _meccaCenter = LatLng(21.4225, 39.8262);
+  LatLng? _currentPosition;
 
   @override
   void initState() {
     super.initState();
-    _loadLocations();
+    _poiService = sl<PoiService>();
+    _initializeMap();
   }
 
-  void _loadLocations() {
+  Future<void> _initializeMap() async {
+    try {
+      await _getCurrentLocation();
+      await _loadPois();
+    } catch (e) {
+      setState(() {
+        _error = 'Erreur lors de l\'initialisation: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      print('Erreur de géolocalisation: $e');
+      // Utiliser La Mecque comme position par défaut
+      setState(() {
+        _currentPosition = _meccaCenter;
+      });
+    }
+  }
+
+  Future<void> _loadPois() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final pois = await _poiService.getAllPois();
+      setState(() {
+        _pois = pois;
+        _isLoading = false;
+      });
+
+      _updateMarkers();
+    } catch (e) {
+      setState(() {
+        _error = 'Erreur lors du chargement des POI: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _updateMarkers() {
+    final markers = <Marker>{};
+
+    // Ajouter un marqueur pour La Mecque
+    markers.add(
+      Marker(
+        markerId: const MarkerId('mecca'),
+        position: _meccaCenter,
+        infoWindow: const InfoWindow(
+          title: 'Masjid al-Haram',
+          snippet: 'La Grande Mosquée de La Mecque',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ),
+    );
+
+    // Ajouter les marqueurs des POI
+    for (final poi in _pois) {
+      if (_selectedFilter == 'all' || poi.type.name == _selectedFilter) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(poi.id),
+            position: poi.coordinates,
+            infoWindow: InfoWindow(
+              title: poi.name,
+              snippet: poi.description,
+            ),
+            icon: _getPoiIcon(poi.type),
+            onTap: () => _showPoiDetails(poi),
+          ),
+        );
+      }
+    }
+
     setState(() {
-      _locations = _selectedFilter == 'all'
-          ? _locationsDataSource.getMakkahLocations()
-          : _locationsDataSource.getLocationsByType(_selectedFilter);
+      _markers = markers;
     });
   }
 
-  void _changeFilter(String filter) {
+  BitmapDescriptor _getPoiIcon(PoiType type) {
+    switch (type) {
+      case PoiType.hotel:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+      case PoiType.hospital:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+      case PoiType.mosque:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+      case PoiType.restaurant:
+        return BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueOrange);
+      default:
+        return BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueViolet);
+    }
+  }
+
+  void _filterPois(String filter) {
     setState(() {
       _selectedFilter = filter;
-      _loadLocations();
     });
+    _updateMarkers();
+  }
+
+  void _showPoiDetails(PoiModel poi) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(poi.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Type: ${poi.typeLabel}'),
+            if (poi.description?.isNotEmpty == true) ...[
+              const SizedBox(height: 8),
+              Text(poi.description!),
+            ],
+            if (poi.address?.isNotEmpty == true) ...[
+              const SizedBox(height: 8),
+              Text('Adresse: ${poi.address!}'),
+            ],
+            if (poi.phone?.isNotEmpty == true) ...[
+              const SizedBox(height: 8),
+              Text('Téléphone: ${poi.phone!}'),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _callGuide() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Appel Guide'),
+        content: const Text(
+            'Fonctionnalité d\'appel guide en cours de développement.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEmergencyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Urgence'),
+        content:
+            const Text('Fonctionnalité d\'urgence en cours de développement.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-      //     onPressed: () => context.pop(),
-      //   ),
-      //   title: const Text(
-      //     'Pilgrim\'s Map',
-      //     style: TextStyle(
-      //       color: Color(0xFF1D3557),
-      //       fontSize: 20,
-      //       fontWeight: FontWeight.w600,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      // ),
-      body: Stack(
-        children: [
-          // OpenStreetMap Container
-          FlutterMap(
-            mapController: _mapController,
-            options: const MapOptions(
-              initialCenter: LatLng(21.4225, 39.8262), // Masjid al-Haram coordinates
-              initialZoom: 12.0,
-              minZoom: 10.0,
-              maxZoom: 18.0,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: _isSatelliteView ? _satelliteUrl : _mapUrl,
-                userAgentPackageName: 'com.sahabi.guide',
-              ),
-              MarkerLayer(
-                markers: _locations.map((location) => Marker(
-                  width: 40.0,
-                  height: 40.0,
-                  point: location.coordinates,
-                  child: GestureDetector(
-                    onTap: () => _showLocationInfo(location),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: _getMarkerColor(location.type),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        _getMarkerIcon(location.type),
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                )).toList(),
-              ),
-            ],
-          ),
-
-          // Filter buttons at top
-          Positioned(
-            top: 60,
-            left: 16,
-            right: 16,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildFilterChip('all', 'All'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('holy_site', 'Holy Sites'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('mosque', 'Mosques'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('hospital', 'Hospitals'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('hajj_site', 'Hajj Sites'),
-                ],
-              ),
-            ),
-          ),
-
-          // Zoom controls
-          Positioned(
-            right: 16,
-            bottom: 200,
-            child: Column(
-              children: [
-                // Map type toggle button
-                _buildMapTypeButton(),
-                const SizedBox(height: 8),
-                _buildZoomButton(Icons.add, () {
-                  _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
-                }),
-                const SizedBox(height: 8),
-                _buildZoomButton(Icons.remove, () {
-                  _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
-                }),
-              ],
-            ),
-          ),
-
-          // Bottom Action Buttons
-          Positioned(
-            bottom: 120,
-            left: 20,
-            right: 20,
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    'Emergency\nSignal',
-                    Icons.warning,
-                    Colors.red,
-                    () => _showEmergencyDialog(context),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildActionButton(
-                    'Call Guide',
-                    Icons.phone,
-                    const Color(0xFF4FC3F7),
-                    () => _callGuide(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      //bottomNavigationBar: _buildBottomNavBar(context, 1),
-    );
-  }
-
-  Widget _buildFilterChip(String value, String label) {
-    final isSelected = _selectedFilter == value;
-    return GestureDetector(
-      onTap: () => _changeFilter(value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2A9D8F) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF2A9D8F) : Colors.grey.shade300,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey.shade700,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Color _getMarkerColor(String type) {
-    switch (type) {
-      case 'mosque':
-      case 'holy_site':
-        return const Color(0xFF2A9D8F);
-      case 'hospital':
-        return Colors.red;
-      case 'hajj_site':
-        return const Color(0xFF457B9D);
-      case 'hotel':
-        return const Color(0xFFE63946);
-      case 'transport':
-        return const Color(0xFFF77F00);
-      case 'airport':
-        return const Color(0xFF6F4E37);
-      case 'mountain':
-      case 'cave':
-        return const Color(0xFF8D5524);
-      default:
-        return const Color(0xFF1D3557);
-    }
-  }
-
-  IconData _getMarkerIcon(String type) {
-    switch (type) {
-      case 'mosque':
-      case 'holy_site':
-        return Icons.mosque;
-      case 'hospital':
-        return Icons.local_hospital;
-      case 'hajj_site':
-        return Icons.place;
-      case 'hotel':
-        return Icons.hotel;
-      case 'transport':
-        return Icons.train;
-      case 'airport':
-        return Icons.flight;
-      case 'mountain':
-        return Icons.landscape;
-      case 'cave':
-        return Icons.terrain;
-      default:
-        return Icons.location_on;
-    }
-  }
-
-  void _showLocationInfo(MakkahLocationModel location) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: _getMarkerColor(location.type),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _getMarkerIcon(location.type),
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        location.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1D3557),
-                        ),
-                      ),
-                      Text(
-                        location.nameArabic,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              location.description,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      _mapController.move(location.coordinates, 16.0);
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.my_location),
-                    label: const Text('Center on Map'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2A9D8F),
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Close'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade300,
-                      foregroundColor: Colors.grey.shade700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapTypeButton() {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(
-          _isSatelliteView ? Icons.map : Icons.satellite_alt,
-          size: 20,
-        ),
-        onPressed: () {
-          setState(() {
-            _isSatelliteView = !_isSatelliteView;
-          });
-        },
-        padding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  Widget _buildZoomButton(IconData icon, VoidCallback onPressed) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-        padding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  Widget _buildActionButton(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: color,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showEmergencyDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Emergency Signal'),
-          ],
-        ),
-        content: const Text(
-          'This will send an emergency signal to your guide and emergency contacts. Continue?',
-        ),
+      appBar: AppBar(
+        title: const Text('Carte'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
+          IconButton(
+            tooltip: 'Ma position',
+            icon: const Icon(Icons.my_location),
             onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Emergency signal sent!'),
-                  backgroundColor: Colors.red,
-                ),
+              final target = _currentPosition ?? _meccaCenter;
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLngZoom(target, 15.0),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Send Signal'),
           ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadPois,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          // Carte Google Maps
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _currentPosition ?? _meccaCenter,
+              zoom: 15.0,
+            ),
+            onMapCreated: (GoogleMapController controller) {
+              _mapController = controller;
+              final target = _currentPosition ?? _meccaCenter;
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLng(target),
+              );
+            },
+            markers: _markers,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
+            mapType: MapType.normal,
+          ),
+
+          // Filtres POI
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterChip('all', 'Tous'),
+                    _buildFilterChip('hotel', 'Hôtels'),
+                    _buildFilterChip('hospital', 'Hôpitaux'),
+                    _buildFilterChip('mosque', 'Mosquées'),
+                    _buildFilterChip('restaurant', 'Restaurants'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Boutons d'action
+          Positioned(
+            bottom: 100,
+            right: 16,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  onPressed: _callGuide,
+                  backgroundColor: Colors.blue,
+                  child: const Icon(Icons.person, color: Colors.white),
+                ),
+                const SizedBox(height: 16),
+                FloatingActionButton(
+                  onPressed: _showEmergencyDialog,
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.emergency, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+
+          // Indicateur de chargement
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+
+          // Message d'erreur
+          if (_error != null)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error, color: Colors.red.shade600),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: TextStyle(color: Colors.red.shade600),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _error = null;
+                        });
+                        _loadPois();
+                      },
+                      icon: const Icon(Icons.refresh),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  void _callGuide(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Calling your guide...'),
-        backgroundColor: Color(0xFF4FC3F7),
+  Widget _buildFilterChip(String filter, String label) {
+    final isSelected = _selectedFilter == filter;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: FilterChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (selected) => _filterPois(filter),
+        backgroundColor: Colors.grey.shade100,
+        selectedColor: Colors.blue.shade100,
+        checkmarkColor: Colors.blue.shade700,
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.blue.shade700 : Colors.grey.shade700,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
       ),
     );
   }
-
 }

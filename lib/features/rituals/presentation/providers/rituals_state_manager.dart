@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
-import '../../../../shared/models/ritual_progress_model.dart';
 import '../../../../core/services/audio_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../domain/repositories/rituals_repository.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/theme.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -62,7 +62,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
-            backgroundColor: AppTheme.errorColor,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -91,7 +91,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   'Créer un compte',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                    color: AppColors.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -101,7 +101,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 Text(
                   'Rejoignez la communauté Sahabi Guide',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
