@@ -38,3 +38,4 @@ final authGuardProvider = Provider<bool>((ref) {
   return ref.watch(authNotifierProvider).isAuthenticated;
 });
 
+

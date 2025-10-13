@@ -4,6 +4,8 @@ import '../../../../shared/constants/app_colors.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/models/dua_model.dart';
+import '../../domain/repositories/rituals_repository.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 import '../../../../features/settings/presentation/providers/settings_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
@@ -14,9 +16,10 @@ final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
   return await useCase();
 });
 
-final duasProvider = FutureProvider<List<RitualModel>>((ref) async {
-  final useCase = sl<GetRitualsUseCase>();
-  return await useCase.getDuas();
+// Provider pour les douas - utilise le bon type DuaModel
+final duasProvider = FutureProvider<List<DuaModel>>((ref) async {
+  final repository = sl<RitualsRepository>();
+  return await repository.getDuas();
 });
 
 class RitualsPage extends ConsumerStatefulWidget {
@@ -157,7 +160,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     );
   }
 
-  Widget _buildDuasList(List<RitualModel> duas, String emptyMessage) {
+  Widget _buildDuasList(List<DuaModel> duas, String emptyMessage) {
     if (duas.isEmpty) {
       return Center(
         child: Column(
@@ -208,14 +211,14 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 ),
               ),
               title: Text(
-                dua.name,
+                dua.title,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               subtitle: Text(
-                dua.description,
+                dua.translation,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -223,7 +226,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
               onTap: () {
                 // TODO: Navigate to dua details
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Détails de: ${dua.name}')),
+                  SnackBar(content: Text('Détails de: ${dua.title}')),
                 );
               },
             ),

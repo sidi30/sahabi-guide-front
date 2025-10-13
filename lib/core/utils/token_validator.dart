@@ -89,3 +89,4 @@ class TokenValidator {
     return input + '=' * padding;
   }
 }
+

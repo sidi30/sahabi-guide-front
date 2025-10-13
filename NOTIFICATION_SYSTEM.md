@@ -282,3 +282,4 @@ void _saveSettings() async {
 
 **Créé pour Sahabi Guide** | Version 1.0 | Octobre 2025
 
+

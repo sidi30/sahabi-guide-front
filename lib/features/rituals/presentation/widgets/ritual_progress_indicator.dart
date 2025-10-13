@@ -166,3 +166,4 @@ class RitualProgressIndicator extends StatelessWidget {
     );
   }
 }
+

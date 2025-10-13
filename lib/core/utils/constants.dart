@@ -5,7 +5,9 @@ class AppConstants {
   static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
-  static const String apiBaseUrl = 'http://localhost:8084';
+  // Pour émulateur Android: utiliser 10.0.2.2 au lieu de localhost
+  // Pour téléphone physique: utiliser l'IP locale de votre PC (ex: http://192.168.1.X:8084)
+  static const String apiBaseUrl = 'http://10.0.2.2:8084';
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';
   
