@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -16,14 +17,14 @@ class GoogleMapPage extends StatefulWidget {
 }
 
 class _GoogleMapPageState extends State<GoogleMapPage> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
   final PoiService _poiService = PoiService(
     dioClient: GetIt.I<DioClient>(),
     secureStorage: GetIt.I<FlutterSecureStorage>(),
   );
 
   // Map state
-  Set<Marker> _markers = {};
+  List<Marker> _markers = [];
   List<PoiModel> _filteredPois = [];
   String _selectedFilter = 'all';
   bool _isLoading = true;
@@ -104,7 +105,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         _isLoading = false;
       });
 
-      await _updateMarkers();
+      _updateMarkers();
     } catch (e) {
       setState(() {
         _error = 'Erreur de chargement des POI: $e';
@@ -113,21 +114,20 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     }
   }
 
-  Future<void> _updateMarkers() async {
-    final Set<Marker> markers = {};
+  void _updateMarkers() {
+    final List<Marker> markers = [];
 
     // Add current position marker
     if (_currentPosition != null) {
       markers.add(
         Marker(
-          markerId: const MarkerId('current_location'),
-          position:
-              LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          icon: await BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueBlue),
-          infoWindow: const InfoWindow(
-            title: 'Ma position',
-            snippet: 'Vous êtes ici',
+          point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          width: 40,
+          height: 40,
+          child: const Icon(
+            Icons.my_location,
+            color: Colors.blue,
+            size: 40,
           ),
         ),
       );
@@ -135,19 +135,19 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
     // Add POI markers
     for (final poi in _filteredPois) {
-      final BitmapDescriptor icon = await _getMarkerIcon(poi.type);
-
       markers.add(
         Marker(
-          markerId: MarkerId(poi.id),
-          position: poi.coordinates,
-          icon: icon,
-          infoWindow: InfoWindow(
-            title: poi.name,
-            snippet: poi.description ?? poi.typeLabel,
+          point: poi.coordinates,
+          width: 40,
+          height: 40,
+          child: GestureDetector(
             onTap: () => _showPoiDetails(poi),
+            child: Icon(
+              Icons.location_on,
+              color: _getPoiColor(poi.type),
+              size: 40,
+            ),
           ),
-          onTap: () => _showPoiDetails(poi),
         ),
       );
     }
@@ -155,46 +155,6 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     setState(() {
       _markers = markers;
     });
-  }
-
-  Future<BitmapDescriptor> _getMarkerIcon(PoiType type) async {
-    switch (type) {
-      case PoiType.mosque:
-      case PoiType.holySite:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
-      case PoiType.hospital:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-      case PoiType.hotel:
-        return BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueOrange);
-      case PoiType.restaurant:
-        return BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueYellow);
-      case PoiType.hajjSite:
-        return BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueViolet);
-      case PoiType.transport:
-      case PoiType.airport:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure);
-      default:
-        return BitmapDescriptor.defaultMarker;
-    }
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-
-    // Apply custom map style if needed
-    //_mapController?.setMapStyle(_mapStyle);
-
-    // Move to current location or default
-    final LatLng target = _currentPosition != null
-        ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-        : _defaultLocation;
-
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(target, _defaultZoom),
-    );
   }
 
   void _changeFilter(String filter) {
@@ -337,9 +297,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    _mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(poi.coordinates, 16.0),
-                    );
+                    _mapController.move(poi.coordinates, 16.0);
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.center_focus_strong),
@@ -421,24 +379,26 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Google Map
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _currentPosition != null
-                  ? LatLng(
-                      _currentPosition!.latitude, _currentPosition!.longitude)
+          // Flutter Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentPosition != null
+                  ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
                   : _defaultLocation,
-              zoom: _defaultZoom,
+              initialZoom: _defaultZoom,
+              minZoom: 5.0,
+              maxZoom: 18.0,
             ),
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-            compassEnabled: true,
-            buildingsEnabled: true,
-            mapType: MapType.normal,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.sahabi_guide',
+              ),
+              MarkerLayer(
+                markers: _markers,
+              ),
+            ],
           ),
 
           // Loading overlay
@@ -536,12 +496,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               onPressed: () async {
                 await _getCurrentLocation();
                 if (_currentPosition != null) {
-                  _mapController?.animateCamera(
-                    CameraUpdate.newLatLngZoom(
-                      LatLng(_currentPosition!.latitude,
-                          _currentPosition!.longitude),
-                      16.0,
-                    ),
+                  _mapController.move(
+                    LatLng(_currentPosition!.latitude,
+                        _currentPosition!.longitude),
+                    16.0,
                   );
                 }
               },
@@ -670,8 +628,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       await _poiService.callGuide();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Guide appelé avec succès'),
+          const SnackBar(
+            content: Text('Guide appelé avec succès'),
             backgroundColor: AppColors.accent,
           ),
         );
@@ -746,7 +704,6 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
   @override
   void dispose() {
-    _mapController?.dispose();
     super.dispose();
   }
 }

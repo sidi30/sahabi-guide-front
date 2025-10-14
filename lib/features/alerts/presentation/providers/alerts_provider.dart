@@ -212,3 +212,5 @@ final unreadAlertsCountProvider = Provider<int>((ref) {
   final alertsState = ref.watch(alertsNotifierProvider);
   return alertsState.unreadCount;
 });
+
+

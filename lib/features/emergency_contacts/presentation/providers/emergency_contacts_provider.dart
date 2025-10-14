@@ -166,3 +166,5 @@ final primaryEmergencyContactProvider = Provider<EmergencyContactModel?>((ref) {
   final contactsState = ref.watch(emergencyContactsNotifierProvider);
   return contactsState.primaryContact;
 });
+
+

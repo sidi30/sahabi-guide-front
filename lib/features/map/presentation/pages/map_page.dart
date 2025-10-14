@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../data/services/poi_service.dart';
@@ -13,10 +14,10 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
   late final PoiService _poiService;
   List<PoiModel> _pois = [];
-  Set<Marker> _markers = {};
+  List<Marker> _markers = [];
   String _selectedFilter = 'all';
   bool _isLoading = true;
   String? _error;
@@ -84,18 +85,19 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _updateMarkers() {
-    final markers = <Marker>{};
+    final markers = <Marker>[];
 
     // Ajouter un marqueur pour La Mecque
     markers.add(
       Marker(
-        markerId: const MarkerId('mecca'),
-        position: _meccaCenter,
-        infoWindow: const InfoWindow(
-          title: 'Masjid al-Haram',
-          snippet: 'La Grande Mosquée de La Mecque',
+        point: _meccaCenter,
+        width: 40,
+        height: 40,
+        child: const Icon(
+          Icons.location_on,
+          color: Colors.red,
+          size: 40,
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ),
     );
 
@@ -104,14 +106,17 @@ class _MapPageState extends State<MapPage> {
       if (_selectedFilter == 'all' || poi.type.name == _selectedFilter) {
         markers.add(
           Marker(
-            markerId: MarkerId(poi.id),
-            position: poi.coordinates,
-            infoWindow: InfoWindow(
-              title: poi.name,
-              snippet: poi.description,
+            point: poi.coordinates,
+            width: 40,
+            height: 40,
+            child: GestureDetector(
+              onTap: () => _showPoiDetails(poi),
+              child: Icon(
+                Icons.location_on,
+                color: _getPoiIconColor(poi.type),
+                size: 40,
+              ),
             ),
-            icon: _getPoiIcon(poi.type),
-            onTap: () => _showPoiDetails(poi),
           ),
         );
       }
@@ -122,20 +127,18 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  BitmapDescriptor _getPoiIcon(PoiType type) {
+  Color _getPoiIconColor(PoiType type) {
     switch (type) {
       case PoiType.hotel:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+        return Colors.blue;
       case PoiType.hospital:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+        return Colors.red;
       case PoiType.mosque:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+        return Colors.green;
       case PoiType.restaurant:
-        return BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueOrange);
+        return Colors.orange;
       default:
-        return BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueViolet);
+        return Colors.purple;
     }
   }
 
@@ -229,9 +232,7 @@ class _MapPageState extends State<MapPage> {
             icon: const Icon(Icons.my_location),
             onPressed: () {
               final target = _currentPosition ?? _meccaCenter;
-              _mapController?.animateCamera(
-                CameraUpdate.newLatLngZoom(target, 15.0),
-              );
+              _mapController.move(target, 15.0);
             },
           ),
           IconButton(
@@ -242,24 +243,24 @@ class _MapPageState extends State<MapPage> {
       ),
       body: Stack(
         children: [
-          // Carte Google Maps
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _currentPosition ?? _meccaCenter,
-              zoom: 15.0,
+          // Flutter Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentPosition ?? _meccaCenter,
+              initialZoom: 15.0,
+              minZoom: 5.0,
+              maxZoom: 18.0,
             ),
-            onMapCreated: (GoogleMapController controller) {
-              _mapController = controller;
-              final target = _currentPosition ?? _meccaCenter;
-              _mapController?.animateCamera(
-                CameraUpdate.newLatLng(target),
-              );
-            },
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
-            mapType: MapType.normal,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.sahabi_guide',
+              ),
+              MarkerLayer(
+                markers: _markers,
+              ),
+            ],
           ),
 
           // Filtres POI

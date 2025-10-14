@@ -1,11 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../data/models/poi_model.dart';
 import '../../data/services/poi_service.dart';
+
+enum MapType {
+  normal,
+  satellite,
+  terrain,
+}
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -15,25 +22,22 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  final Completer<GoogleMapController> _mapController = Completer();
+  final MapController _mapController = MapController();
   final PoiService _poiService = sl<PoiService>();
   
   // State variables
   List<PoiModel> _allPois = [];
   List<PoiModel> _filteredPois = [];
-  Set<Marker> _markers = {};
+  List<Marker> _markers = [];
   PoiType? _selectedFilter;
   bool _isLoading = true;
   String? _errorMessage;
   Position? _currentPosition;
   MapType _mapType = MapType.normal;
+  double _currentZoom = 14.0;
 
   // Makkah center coordinates (default)
   static const LatLng _makkahCenter = LatLng(21.4225, 39.8262);
-  static const CameraPosition _initialPosition = CameraPosition(
-    target: _makkahCenter,
-    zoom: 14,
-  );
 
   @override
   void initState() {
@@ -84,11 +88,9 @@ class _MapPageState extends State<MapPage> {
       });
 
       // Centrer la carte sur la position actuelle
-      final controller = await _mapController.future;
-      controller.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(position.latitude, position.longitude),
-        ),
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        _currentZoom,
       );
     } catch (e) {
       setState(() {
@@ -133,18 +135,21 @@ class _MapPageState extends State<MapPage> {
 
   /// Met à jour les marqueurs sur la carte
   void _updateMarkers() {
-    final Set<Marker> markers = {};
+    final List<Marker> markers = [];
 
     for (var poi in _filteredPois) {
       markers.add(
         Marker(
-          markerId: MarkerId(poi.id),
-          position: poi.coordinates,
-          icon: BitmapDescriptor.defaultMarkerWithHue(_getMarkerColor(poi.type)),
-          infoWindow: InfoWindow(
-            title: poi.name,
-            snippet: poi.description ?? poi.typeLabel,
+          point: poi.coordinates,
+          width: 40,
+          height: 40,
+          child: GestureDetector(
             onTap: () => _showPoiDetails(poi),
+            child: Icon(
+              Icons.location_on,
+              color: _getPoiColor(poi.type),
+              size: 40,
+            ),
           ),
         ),
       );
@@ -154,10 +159,21 @@ class _MapPageState extends State<MapPage> {
     if (_currentPosition != null) {
       markers.add(
         Marker(
-          markerId: const MarkerId('current_location'),
-          position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-          infoWindow: const InfoWindow(title: 'Ma position'),
+          point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          width: 40,
+          height: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.3),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue, width: 3),
+            ),
+            child: const Icon(
+              Icons.person,
+              color: Colors.blue,
+              size: 24,
+            ),
+          ),
         ),
       );
     }
@@ -168,25 +184,49 @@ class _MapPageState extends State<MapPage> {
   }
 
   /// Retourne la couleur du marqueur selon le type de POI
-  double _getMarkerColor(PoiType type) {
+  Color _getPoiColor(PoiType type) {
     switch (type) {
       case PoiType.mosque:
       case PoiType.holySite:
-        return BitmapDescriptor.hueGreen;
+        return const Color(0xFF2A9D8F);
       case PoiType.hospital:
-        return BitmapDescriptor.hueRed;
+        return Colors.red;
       case PoiType.hotel:
-        return BitmapDescriptor.hueOrange;
+        return const Color(0xFFE63946);
       case PoiType.restaurant:
-        return BitmapDescriptor.hueYellow;
+        return const Color(0xFFF77F00);
       case PoiType.hajjSite:
-        return BitmapDescriptor.hueBlue;
+      case PoiType.rally:
+        return const Color(0xFF457B9D);
       case PoiType.transport:
-        return BitmapDescriptor.hueCyan;
       case PoiType.airport:
-        return BitmapDescriptor.hueViolet;
+        return const Color(0xFF06AED5);
+      case PoiType.pharmacy:
+        return const Color(0xFF06D5A5);
+      case PoiType.water:
+        return const Color(0xFF1E90FF);
+      case PoiType.consulate:
+        return const Color(0xFF8B4513);
+      case PoiType.shop:
+        return const Color(0xFFFF6347);
       default:
-        return BitmapDescriptor.hueRose;
+        return const Color(0xFF1D3557);
+    }
+  }
+
+  /// Retourne l'URL des tuiles selon le type de carte
+  String _getTileUrl() {
+    switch (_mapType) {
+      case MapType.satellite:
+        // Utiliser les tuiles satellite d'Esri
+        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      case MapType.terrain:
+        // Utiliser les tuiles terrain d'OpenTopoMap
+        return 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+      case MapType.normal:
+      default:
+        // Utiliser OpenStreetMap
+        return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     }
   }
 
@@ -309,9 +349,8 @@ class _MapPageState extends State<MapPage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // TODO: Implémenter navigation vers POI
                           Navigator.pop(context);
-                          _showSnackBar('Navigation vers ${poi.name}');
+                          _mapController.move(poi.coordinates, 16.0);
                         },
                         icon: const Icon(Icons.directions),
                         label: const Text('Itinéraire'),
@@ -350,28 +389,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  Color _getPoiColor(PoiType type) {
-    switch (type) {
-      case PoiType.mosque:
-      case PoiType.holySite:
-        return const Color(0xFF2A9D8F);
-      case PoiType.hospital:
-        return Colors.red;
-      case PoiType.hotel:
-        return const Color(0xFFE63946);
-      case PoiType.restaurant:
-        return const Color(0xFFF77F00);
-      case PoiType.hajjSite:
-        return const Color(0xFF457B9D);
-      case PoiType.transport:
-        return const Color(0xFF06AED5);
-      case PoiType.airport:
-        return const Color(0xFF6F4E37);
-      default:
-        return const Color(0xFF1D3557);
-    }
-  }
-
   IconData _getPoiIcon(PoiType type) {
     switch (type) {
       case PoiType.mosque:
@@ -384,11 +401,20 @@ class _MapPageState extends State<MapPage> {
       case PoiType.restaurant:
         return Icons.restaurant;
       case PoiType.hajjSite:
+      case PoiType.rally:
         return Icons.place;
       case PoiType.transport:
         return Icons.directions_bus;
       case PoiType.airport:
         return Icons.flight;
+      case PoiType.pharmacy:
+        return Icons.local_pharmacy;
+      case PoiType.water:
+        return Icons.water_drop;
+      case PoiType.consulate:
+        return Icons.account_balance;
+      case PoiType.shop:
+        return Icons.shopping_bag;
       default:
         return Icons.location_on;
     }
@@ -409,7 +435,13 @@ class _MapPageState extends State<MapPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Urgence'),
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Urgence'),
+          ],
+        ),
         content: const Text('Voulez-vous vraiment déclencher une alerte d\'urgence ?'),
         actions: [
           TextButton(
@@ -435,6 +467,22 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  void _changeMapType() {
+    setState(() {
+      _mapType = MapType.values[(_mapType.index + 1) % MapType.values.length];
+    });
+  }
+
+  void _zoomIn() {
+    setState(() => _currentZoom = (_currentZoom + 1).clamp(5.0, 18.0));
+    _mapController.move(_mapController.camera.center, _currentZoom);
+  }
+
+  void _zoomOut() {
+    setState(() => _currentZoom = (_currentZoom - 1).clamp(5.0, 18.0));
+    _mapController.move(_mapController.camera.center, _currentZoom);
+  }
+
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -445,24 +493,59 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+  String get _mapTypeLabel {
+    switch (_mapType) {
+      case MapType.satellite:
+        return 'Satellite';
+      case MapType.terrain:
+        return 'Terrain';
+      case MapType.normal:
+      default:
+        return 'Plan';
+    }
+  }
+
+  IconData get _mapTypeIcon {
+    switch (_mapType) {
+      case MapType.satellite:
+        return Icons.satellite_alt;
+      case MapType.terrain:
+        return Icons.terrain;
+      case MapType.normal:
+      default:
+        return Icons.map;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Google Map
-          GoogleMap(
-            mapType: _mapType,
-            initialCameraPosition: _initialPosition,
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            compassEnabled: true,
-            mapToolbarEnabled: false,
-            onMapCreated: (GoogleMapController controller) {
-              _mapController.complete(controller);
-            },
+          // Flutter Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _makkahCenter,
+              initialZoom: _currentZoom,
+              minZoom: 5.0,
+              maxZoom: 18.0,
+              onPositionChanged: (position, hasGesture) {
+                if (hasGesture) {
+                  setState(() => _currentZoom = position.zoom ?? _currentZoom);
+                }
+              },
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: _getTileUrl(),
+                userAgentPackageName: 'com.example.sahabi_guide',
+                subdomains: const ['a', 'b', 'c'],
+              ),
+              MarkerLayer(
+                markers: _markers,
+              ),
+            ],
           ),
 
           // Loading indicator
@@ -506,31 +589,32 @@ class _MapPageState extends State<MapPage> {
             ),
 
           // Filter chips
-          Positioned(
-            top: 60,
-            left: 16,
-            right: 16,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildFilterChip(null, 'Tous', Icons.map),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(PoiType.mosque, 'Mosquées', Icons.mosque),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(PoiType.hospital, 'Hôpitaux', Icons.local_hospital),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(PoiType.hotel, 'Hôtels', Icons.hotel),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(PoiType.restaurant, 'Restaurants', Icons.restaurant),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(PoiType.hajjSite, 'Sites Hajj', Icons.place),
-                ],
+          if (_errorMessage == null)
+            Positioned(
+              top: 60,
+              left: 16,
+              right: 16,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterChip(null, 'Tous', Icons.map),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(PoiType.mosque, 'Mosquées', Icons.mosque),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(PoiType.hospital, 'Hôpitaux', Icons.local_hospital),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(PoiType.hotel, 'Hôtels', Icons.hotel),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(PoiType.restaurant, 'Restaurants', Icons.restaurant),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(PoiType.hajjSite, 'Sites Hajj', Icons.place),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Map controls (zoom, map type, location)
+          // Map controls (type, location, zoom)
           Positioned(
             right: 16,
             bottom: 200,
@@ -539,16 +623,11 @@ class _MapPageState extends State<MapPage> {
                 // Map type toggle
                 FloatingActionButton.small(
                   heroTag: 'mapType',
-                  onPressed: () {
-                    setState(() {
-                      _mapType = _mapType == MapType.normal
-                          ? MapType.satellite
-                          : MapType.normal;
-                    });
-                  },
+                  onPressed: _changeMapType,
                   backgroundColor: Colors.white,
+                  tooltip: _mapTypeLabel,
                   child: Icon(
-                    _mapType == MapType.normal ? Icons.satellite : Icons.map,
+                    _mapTypeIcon,
                     color: AppColors.primary,
                   ),
                 ),
@@ -559,6 +638,7 @@ class _MapPageState extends State<MapPage> {
                   heroTag: 'myLocation',
                   onPressed: _getCurrentLocation,
                   backgroundColor: Colors.white,
+                  tooltip: 'Ma position',
                   child: const Icon(Icons.my_location, color: AppColors.primary),
                 ),
                 const SizedBox(height: 8),
@@ -566,11 +646,9 @@ class _MapPageState extends State<MapPage> {
                 // Zoom in
                 FloatingActionButton.small(
                   heroTag: 'zoomIn',
-                  onPressed: () async {
-                    final controller = await _mapController.future;
-                    controller.animateCamera(CameraUpdate.zoomIn());
-                  },
+                  onPressed: _zoomIn,
                   backgroundColor: Colors.white,
+                  tooltip: 'Zoom +',
                   child: const Icon(Icons.add, color: AppColors.primary),
                 ),
                 const SizedBox(height: 8),
@@ -578,11 +656,9 @@ class _MapPageState extends State<MapPage> {
                 // Zoom out
                 FloatingActionButton.small(
                   heroTag: 'zoomOut',
-                  onPressed: () async {
-                    final controller = await _mapController.future;
-                    controller.animateCamera(CameraUpdate.zoomOut());
-                  },
+                  onPressed: _zoomOut,
                   backgroundColor: Colors.white,
+                  tooltip: 'Zoom -',
                   child: const Icon(Icons.remove, color: AppColors.primary),
                 ),
               ],
@@ -634,6 +710,28 @@ class _MapPageState extends State<MapPage> {
               ],
             ),
           ),
+
+          // Zoom level indicator (debug)
+          if (MediaQuery.of(context).size.width > 600) // Seulement sur tablette/desktop
+            Positioned(
+              bottom: 180,
+              left: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Zoom: ${_currentZoom.toStringAsFixed(1)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -687,4 +785,3 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 }
-

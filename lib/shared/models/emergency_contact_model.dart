@@ -75,3 +75,5 @@ class EmergencyContactModel {
     return '+33 $phone'; // Par défaut français
   }
 }
+
+
