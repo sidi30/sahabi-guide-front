@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:sahabi_guide/shared/constants/app_colors.dart';
 
 class NavigationItem {
@@ -88,24 +89,25 @@ class _MainShellState extends ConsumerState<MainShell> {
     context.go(_navigationItems[index].route);
   }
 
-  String getTitleByIndex(int index) {
+  String getTitleByIndex(BuildContext context, int index) {
+    final t = AppLocalizations.of(context);
     switch (index) {
       case 0:
-        return 'My Hajj';
+        return t.appTitle;
       case 1:
-        return 'My Duas';
+        return t.nav_rituals;
       case 2:
-        return 'Pilgrim\'s Map';
+        return t.nav_map;
       case 3:
-        return 'Video Preparation';
+        return t.nav_videos;
       case 4:
-        return 'Settings';
+        return t.nav_settings;
       case 5:
-        return 'My Health';
+        return t.nav_health;
       case 6:
-        return 'Profile';
+        return t.nav_profile;
       default:
-        return 'Unknown';
+        return t.appTitle;
     }
   }
 
@@ -116,7 +118,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(getTitleByIndex(_selectedIndex)),
+        title: Text(getTitleByIndex(context, _selectedIndex)),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
