@@ -6,6 +6,8 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../domain/repositories/rituals_repository.dart';
+import '../../../duas/data/datasources/duas_remote_data_source.dart';
+import 'package:http/http.dart' as http;
 import '../../domain/usecases/get_rituals_usecase.dart';
 import '../../../../features/settings/presentation/providers/settings_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
@@ -18,8 +20,13 @@ final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
 
 // Provider pour les douas - utilise le bon type DuaModel
 final duasProvider = FutureProvider<List<DuaModel>>((ref) async {
-  final repository = sl<RitualsRepository>();
-  return await repository.getDuas();
+  // Fetch duas directly from backend to avoid cache/auth side-effects
+  final ds = DuasRemoteDataSourceImpl(client: http.Client());
+  final duas = await ds.getDuas();
+  if (duas.isEmpty) {
+    debugPrint('DuasProvider: backend returned empty list');
+  }
+  return duas;
 });
 
 class RitualsPage extends ConsumerStatefulWidget {

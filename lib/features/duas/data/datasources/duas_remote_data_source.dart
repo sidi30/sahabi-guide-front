@@ -30,6 +30,10 @@ class DuasRemoteDataSourceImpl implements DuasRemoteDataSource {
       final uri = Uri.parse('$baseUrl/api/v1/duas')
           .replace(queryParameters: queryParameters);
 
+      // Debug network trace
+      // ignore: avoid_print
+      print('*** GET DUAS *** -> $uri');
+
       final response = await client.get(
         uri,
         headers: {
@@ -37,6 +41,11 @@ class DuasRemoteDataSourceImpl implements DuasRemoteDataSource {
           'Accept': 'application/json',
         },
       );
+
+      // ignore: avoid_print
+      print('*** DUAS STATUS: ${response.statusCode}');
+      // ignore: avoid_print
+      print('*** DUAS BODY: ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}');
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(response.body);
@@ -49,6 +58,8 @@ class DuasRemoteDataSourceImpl implements DuasRemoteDataSource {
         throw ServerException();
       }
     } catch (e) {
+      // ignore: avoid_print
+      print('*** DUAS ERROR: $e');
       throw ServerException();
     }
   }

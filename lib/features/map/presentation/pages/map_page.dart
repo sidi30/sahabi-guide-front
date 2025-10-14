@@ -6,6 +6,27 @@ import '../../../../core/di/injection_container.dart';
 import '../../data/services/poi_service.dart';
 import '../../data/models/poi_model.dart';
 
+// Mapbox configuration with token from --dart-define (fallback to provided token)
+class MapboxConfig {
+  static const String _fallbackToken = 'pk.eyJ1Ijoic2lyMzAiLCJhIjoiY21ncXlvcWltMG81bDJrczRteDVlMXJ2OCJ9.2Rt-_W07GpuPVcQX3tkuUw';
+
+  static const String accessToken = String.fromEnvironment(
+    'MAPBOX_TOKEN',
+    defaultValue: _fallbackToken,
+  );
+
+  static const String styleStreets = 'mapbox/streets-v12';
+  static const String styleSatellite = 'mapbox/satellite-v9';
+  static const String styleSatelliteStreets = 'mapbox/satellite-streets-v12';
+
+  static bool get isConfigured => accessToken.isNotEmpty && accessToken.startsWith('pk.');
+
+  static String styleUrl(String style, {int tileSize = 512, String language = 'fr'}) {
+    final size = tileSize >= 512 ? '512' : '256';
+    return 'https://api.mapbox.com/styles/v1/$style/tiles/$size/{z}/{x}/{y}@2x?language=$language&access_token=$accessToken';
+  }
+}
+
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
@@ -24,7 +45,33 @@ class _MapPageState extends State<MapPage> {
 
   // Position par défaut : La Mecque
   static const LatLng _meccaCenter = LatLng(21.4225, 39.8262);
+  static const LatLng _medinaCenter = LatLng(24.4672, 39.6142);
   LatLng? _currentPosition;
+
+  // Carte: état d'affichage
+  double _currentZoom = 15.0;
+  MapMode _mapMode = MapMode.satellite;
+  HolyCity _selectedCity = HolyCity.mecca;
+
+  String _getTileUrl() {
+    if (MapboxConfig.isConfigured) {
+      switch (_mapMode) {
+        case MapMode.satellite:
+          return MapboxConfig.styleUrl(MapboxConfig.styleSatelliteStreets);
+        case MapMode.normal:
+        default:
+          return MapboxConfig.styleUrl(MapboxConfig.styleStreets);
+      }
+    }
+    // Fallback providers
+    switch (_mapMode) {
+      case MapMode.satellite:
+        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      case MapMode.normal:
+      default:
+        return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+  }
 
   @override
   void initState() {
@@ -35,7 +82,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _initializeMap() async {
     try {
-      await _getCurrentLocation();
+      // Par défaut, rester centré sur la ville sélectionnée (La Mecque)
       await _loadPois();
     } catch (e) {
       setState(() {
@@ -149,6 +196,35 @@ class _MapPageState extends State<MapPage> {
     _updateMarkers();
   }
 
+  // --- Carte: interactions ---
+  void _toggleMapMode() {
+    setState(() {
+      _mapMode = _mapMode == MapMode.normal ? MapMode.satellite : MapMode.normal;
+    });
+  }
+
+  void _zoomIn() {
+    setState(() {
+      _currentZoom = (_currentZoom + 1).clamp(5.0, 18.0);
+    });
+    _mapController.move(_mapController.camera.center, _currentZoom);
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _currentZoom = (_currentZoom - 1).clamp(5.0, 18.0);
+    });
+    _mapController.move(_mapController.camera.center, _currentZoom);
+  }
+
+  void _switchCity(HolyCity city) {
+    setState(() {
+      _selectedCity = city;
+    });
+    final target = city == HolyCity.mecca ? _meccaCenter : _medinaCenter;
+    _mapController.move(target, _currentZoom);
+  }
+
   void _showPoiDetails(PoiModel poi) {
     showDialog(
       context: context,
@@ -231,8 +307,8 @@ class _MapPageState extends State<MapPage> {
             tooltip: 'Ma position',
             icon: const Icon(Icons.my_location),
             onPressed: () {
-              final target = _currentPosition ?? _meccaCenter;
-              _mapController.move(target, 15.0);
+              final target = _currentPosition ?? (_selectedCity == HolyCity.mecca ? _meccaCenter : _medinaCenter);
+              _mapController.move(target, _currentZoom);
             },
           ),
           IconButton(
@@ -247,15 +323,19 @@ class _MapPageState extends State<MapPage> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentPosition ?? _meccaCenter,
-              initialZoom: 15.0,
+              initialCenter: _selectedCity == HolyCity.mecca ? _meccaCenter : _medinaCenter,
+          initialZoom: _currentZoom,
               minZoom: 5.0,
               maxZoom: 18.0,
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: _getTileUrl(),
                 userAgentPackageName: 'com.example.sahabi_guide',
+                tileSize: MapboxConfig.isConfigured ? 512 : 256,
+                additionalOptions: MapboxConfig.isConfigured
+                    ? const {'id': 'mapbox-tiles'}
+                    : const {},
               ),
               MarkerLayer(
                 markers: _markers,
@@ -263,35 +343,91 @@ class _MapPageState extends State<MapPage> {
             ],
           ),
 
-          // Filtres POI
+          // Sélecteur de ville (Mecque / Médine)
           Positioned(
             top: 16,
             left: 16,
             right: 16,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: SingleChildScrollView(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _switchCity(HolyCity.mecca),
+                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _selectedCity == HolyCity.mecca ? Colors.green : Colors.transparent,
+                          borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'La Mecque',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: _selectedCity == HolyCity.mecca ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(width: 1, height: 28, color: Colors.grey.withOpacity(0.3)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _switchCity(HolyCity.medina),
+                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _selectedCity == HolyCity.medina ? Colors.green : Colors.transparent,
+                          borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Médine',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: _selectedCity == HolyCity.medina ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Filtres POI
+          Positioned(
+            top: 72,
+            left: 16,
+            right: 16,
+            child: SizedBox(
+              height: 48,
+              child: ListView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('all', 'Tous'),
-                    _buildFilterChip('hotel', 'Hôtels'),
-                    _buildFilterChip('hospital', 'Hôpitaux'),
-                    _buildFilterChip('mosque', 'Mosquées'),
-                    _buildFilterChip('restaurant', 'Restaurants'),
-                  ],
-                ),
+                children: [
+                  _buildPill('Tous', Icons.layers, 'all'),
+                  _buildPill('Hôpitaux', Icons.local_hospital, 'hospital'),
+                  _buildPill('Mosquées', Icons.mosque, 'mosque'),
+                  _buildPill('Restaurants', Icons.restaurant, 'restaurant'),
+                  _buildPill('Hôtels', Icons.hotel, 'hotel'),
+                ],
               ),
             ),
           ),
@@ -302,6 +438,36 @@ class _MapPageState extends State<MapPage> {
             right: 16,
             child: Column(
               children: [
+                // Changer type de carte
+                FloatingActionButton(
+                  heroTag: 'mapMode',
+                  mini: true,
+                  onPressed: _toggleMapMode,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    _mapMode == MapMode.satellite ? Icons.satellite_alt : Icons.map,
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Zoom +
+                FloatingActionButton(
+                  heroTag: 'zoomIn',
+                  mini: true,
+                  onPressed: _zoomIn,
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.add, color: Colors.black87),
+                ),
+                const SizedBox(height: 10),
+                // Zoom -
+                FloatingActionButton(
+                  heroTag: 'zoomOut',
+                  mini: true,
+                  onPressed: _zoomOut,
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.remove, color: Colors.black87),
+                ),
+                const SizedBox(height: 16),
                 FloatingActionButton(
                   onPressed: _callGuide,
                   backgroundColor: Colors.blue,
@@ -382,4 +548,47 @@ class _MapPageState extends State<MapPage> {
       ),
     );
   }
+
+  Widget _buildPill(String label, IconData icon, String filter) {
+    final isSelected = _selectedFilter == filter;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => _filterPois(filter),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.green : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: isSelected ? Colors.green : Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: isSelected ? Colors.white : Colors.black87),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+enum MapMode { normal, satellite }
+
+enum HolyCity { mecca, medina }
