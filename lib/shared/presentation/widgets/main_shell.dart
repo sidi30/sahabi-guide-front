@@ -70,15 +70,22 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 
   void _updateSelectedIndex() {
-    final currentRoute = GoRouterState.of(context).uri.toString();
-    final index =
-        _navigationItems.indexWhere((item) => item.route == currentRoute);
-    if (index != -1 && index != _selectedIndex) {
-      //ref.read(navigationIndexProvider.notifier).state = index;
-
-      setState(() {
-        _selectedIndex = index;
-      });
+    try {
+      // Use GoRouter.of instead of GoRouterState.of to avoid hot reload issues
+      final router = GoRouter.of(context);
+      final currentRoute = router.routerDelegate.currentConfiguration.uri.toString();
+      
+      final index = _navigationItems.indexWhere((item) => currentRoute.startsWith(item.route));
+      
+      if (index != -1 && index != _selectedIndex) {
+        setState(() {
+          _selectedIndex = index;
+        });
+      }
+    } catch (e) {
+      // Safely handle cases where router state is not yet available
+      // This can happen during hot reload or initial widget build
+      debugPrint('⚠️ Router state not available: $e');
     }
   }
 
@@ -90,7 +97,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 
   String getTitleByIndex(BuildContext context, int index) {
-    final t = AppLocalizations.of(context);
+    final t = AppLocalizations.of(context)!;
     switch (index) {
       case 0:
         return t.appTitle;
@@ -101,10 +108,6 @@ class _MainShellState extends ConsumerState<MainShell> {
       case 3:
         return t.nav_videos;
       case 4:
-        return t.nav_settings;
-      case 5:
-        return t.nav_health;
-      case 6:
         return t.nav_profile;
       default:
         return t.appTitle;
