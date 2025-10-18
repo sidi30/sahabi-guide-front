@@ -76,7 +76,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: const Icon(
-                      Icons.mosque,
+                      Icons.eco_outlined,
                       size: 50,
                       color: Colors.white,
                     ),

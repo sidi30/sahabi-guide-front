@@ -62,7 +62,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.mosque,
+                      Icons.eco_outlined,
                       size: 50,
                       color: AppColors.primary,
                     ),
@@ -216,7 +216,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.mosque,
+                      Icons.eco_outlined,
                       size: 30,
                       color: AppColors.primary,
                     ),
