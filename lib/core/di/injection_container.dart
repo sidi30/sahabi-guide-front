@@ -48,6 +48,10 @@ import '../../features/map/domain/repository/pilgrim_position_repository.dart';
 import '../../features/map/domain/usecases/get_latest_pilgrim_position_usecase.dart';
 import '../../features/map/data/services/poi_service.dart';
 
+// Tracking Feature
+import '../../features/tracking/data/repositories/position_repository.dart';
+import '../../features/tracking/data/services/position_tracking_service.dart';
+
 // Alerts Feature
 import '../../features/alerts/data/services/alerts_service.dart';
 
@@ -226,6 +230,17 @@ Future<void> initializeDependencies() async {
 
   // POI Service
   sl.registerLazySingleton(() => PoiService(dioClient: sl(), secureStorage: sl()));
+
+  // Position Tracking Feature
+  sl.registerLazySingleton(() => PositionRepository(
+    dioClient: sl(),
+    secureStorage: sl(),
+  ));
+
+  sl.registerLazySingleton(() => PositionTrackingService(
+    positionRepository: sl(),
+    locationService: sl(),
+  ));
 
   // Alerts Feature
   sl.registerLazySingleton(() => AlertsService(dioClient: sl(), secureStorage: sl()));

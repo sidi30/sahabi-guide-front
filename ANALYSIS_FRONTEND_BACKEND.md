@@ -172,3 +172,4 @@ lat = coordinates[1].toDouble();
 10. Ajouter un cache offline
 
 
+
