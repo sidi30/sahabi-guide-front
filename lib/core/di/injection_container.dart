@@ -231,16 +231,25 @@ Future<void> initializeDependencies() async {
   // POI Service
   sl.registerLazySingleton(() => PoiService(dioClient: sl(), secureStorage: sl()));
 
-  // Position Tracking Feature
+// Position Tracking Feature
   sl.registerLazySingleton(() => PositionRepository(
-    dioClient: sl(),
-    secureStorage: sl(),
-  ));
+        dioClient: sl(),
+        secureStorage: sl(),
+      ));
 
   sl.registerLazySingleton(() => PositionTrackingService(
-    positionRepository: sl(),
-    locationService: sl(),
-  ));
+        positionRepository: sl(),
+        locationService: sl(),
+      ));
+
+  // Route History Feature
+  sl.registerLazySingleton(() => RouteHistoryRepository(
+        dioClient: sl(),
+        secureStorage: sl(),
+      ));
+
+  // Local Geofencing Service
+  sl.registerLazySingleton(() => LocalGeofencingService());
 
   // Alerts Feature
   sl.registerLazySingleton(() => AlertsService(dioClient: sl(), secureStorage: sl()));
