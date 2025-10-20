@@ -57,8 +57,9 @@ dependencies:
   # UI & Fonts
   google_fonts: ^6.1.0
 
-  # QR Code
+  # QR Code & Sharing
   qr_flutter: ^4.1.0
+  share_plus: ^10.0.3
 
   # Utilities
   uuid: ^4.2.1
