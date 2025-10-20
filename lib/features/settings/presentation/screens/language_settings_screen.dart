@@ -4,7 +4,7 @@ import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/constants/app_locale.dart';
-import '../../../../shared/constants/app_colors.dart';
+// removed duplicate import
 
 class LanguageSettingsScreen extends ConsumerWidget {
   const LanguageSettingsScreen({super.key});

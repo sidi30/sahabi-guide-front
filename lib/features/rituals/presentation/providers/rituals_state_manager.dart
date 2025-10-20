@@ -18,7 +18,8 @@ class RitualsStateManager extends ChangeNotifier {
   // State
   List<RitualModel> _rituals = [];
   List<DuaModel> _duas = [];
-  List<RitualProgressModel> _progress = [];
+  List<Map<String, dynamic>> _progress =
+      []; // Temporary fix - replace with proper progress model
   RitualModel? _currentActiveRitual;
   DuaModel? _currentPlayingDua;
   String _selectedLanguage = 'fr';
@@ -28,7 +29,7 @@ class RitualsStateManager extends ChangeNotifier {
   // Getters
   List<RitualModel> get rituals => _rituals;
   List<DuaModel> get duas => _duas;
-  List<RitualProgressModel> get progress => _progress;
+  List<Map<String, dynamic>> get progress => _progress;
   RitualModel? get currentActiveRitual => _currentActiveRitual;
   DuaModel? get currentPlayingDua => _currentPlayingDua;
   String get selectedLanguage => _selectedLanguage;
@@ -36,19 +37,18 @@ class RitualsStateManager extends ChangeNotifier {
   String? get error => _error;
 
   // Computed properties
-  List<RitualModel> get completedRituals => 
+  List<RitualModel> get completedRituals =>
       _rituals.where((r) => r.status == RitualStatus.completed).toList();
-  
-  List<RitualModel> get pendingRituals => 
+
+  List<RitualModel> get pendingRituals =>
       _rituals.where((r) => r.status == RitualStatus.pending).toList();
-  
-  List<RitualModel> get overdueRituals => 
+
+  List<RitualModel> get overdueRituals =>
       _rituals.where((r) => r.status == RitualStatus.overdue).toList();
 
-  List<DuaModel> get favoriteDuas => 
-      _duas.where((d) => d.isFavorite).toList();
+  List<DuaModel> get favoriteDuas => _duas.where((d) => d.isFavorite).toList();
 
-  List<DuaModel> get duasByType => 
+  List<DuaModel> get duasByType =>
       _duas.where((d) => d.type == DuaType.hajj).toList();
 
   double get overallProgress {
@@ -67,7 +67,7 @@ class RitualsStateManager extends ChangeNotifier {
     _notificationService = sl<NotificationService>();
     _ritualsRepository = sl<RitualsRepository>();
     _getRitualsUseCase = sl<GetRitualsUseCase>();
-    
+
     _audioService.addListener(_onAudioStateChanged);
   }
 
@@ -226,16 +226,17 @@ class RitualsStateManager extends ChangeNotifier {
   // Timeline management
   void _updateRitualStatuses() {
     final now = DateTime.now();
-    
+
     for (int i = 0; i < _rituals.length; i++) {
       final ritual = _rituals[i];
-      
+
       if (ritual.status == RitualStatus.completed) continue;
 
       if (ritual.scheduledTime != null) {
         if (now.isAfter(ritual.scheduledTime!.add(const Duration(hours: 1)))) {
           _rituals[i] = ritual.copyWith(status: RitualStatus.overdue);
-        } else if (now.isAfter(ritual.scheduledTime!) && ritual.status == RitualStatus.pending) {
+        } else if (now.isAfter(ritual.scheduledTime!) &&
+            ritual.status == RitualStatus.pending) {
           _rituals[i] = ritual.copyWith(status: RitualStatus.active);
         }
       }
@@ -265,24 +266,28 @@ class RitualsStateManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _updateRitualProgress(String ritualId, RitualStatus status) async {
+  Future<void> _updateRitualProgress(
+      String ritualId, RitualStatus status) async {
     // Update local progress
-    final progressIndex = _progress.indexWhere((p) => p.ritualId == ritualId);
-    
+    final progressIndex =
+        _progress.indexWhere((p) => p['ritualId'] == ritualId);
+
     if (progressIndex != -1) {
-      _progress[progressIndex] = RitualProgressModel(
-        ritualId: ritualId,
-        status: status,
-        startedAt: status == RitualStatus.active ? DateTime.now() : _progress[progressIndex].startedAt,
-        completedAt: status == RitualStatus.completed ? DateTime.now() : null,
-      );
+      _progress[progressIndex] = {
+        'ritualId': ritualId,
+        'status': status,
+        'startedAt': status == RitualStatus.active
+            ? DateTime.now()
+            : _progress[progressIndex]['startedAt'],
+        'completedAt': status == RitualStatus.completed ? DateTime.now() : null,
+      };
     } else {
-      _progress.add(RitualProgressModel(
-        ritualId: ritualId,
-        status: status,
-        startedAt: status == RitualStatus.active ? DateTime.now() : null,
-        completedAt: status == RitualStatus.completed ? DateTime.now() : null,
-      ));
+      _progress.add({
+        'ritualId': ritualId,
+        'status': status,
+        'startedAt': status == RitualStatus.active ? DateTime.now() : null,
+        'completedAt': status == RitualStatus.completed ? DateTime.now() : null,
+      });
     }
 
     // Sync with API
@@ -290,7 +295,8 @@ class RitualsStateManager extends ChangeNotifier {
   }
 
   // Data source methods - using existing repositories
-  Future<void> _syncProgressWithAPI(String ritualId, RitualStatus status) async {
+  Future<void> _syncProgressWithAPI(
+      String ritualId, RitualStatus status) async {
     // This can be extended to sync with the backend API later
     // For now, we'll keep it local
   }

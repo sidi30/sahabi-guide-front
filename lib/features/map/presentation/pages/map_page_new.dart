@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+// old: remplacé par Google Maps Flutter
+// import 'package:flutter_map/flutter_map.dart';
+// import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';

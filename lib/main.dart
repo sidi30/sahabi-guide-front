@@ -22,7 +22,7 @@ import 'features/health/presentation/pages/health_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
 import 'features/alerts/presentation/pages/alerts_page.dart';
 import 'features/emergency_contacts/presentation/pages/emergency_contacts_page.dart';
-import 'features/map/presentation/pages/map_page.dart' show MapPage;
+import 'features/map/presentation/pages/google_map_page.dart' show GoogleMapPage;
 import 'features/rituals/presentation/pages/ritual_detail_page.dart';
 import 'features/rituals/presentation/pages/rituals_page.dart';
 import 'features/rituals/presentation/pages/duas_modern_page.dart';
@@ -235,7 +235,7 @@ class MyApp extends ConsumerWidget {
           // Map Screen - PROTÉGÉE
           GoRoute(
             path: AppRoutes.map,
-            builder: (context, state) => const MapPage(),
+            builder: (context, state) => const GoogleMapPage(),
           ),
 
           // Videos Screen

@@ -21,6 +21,22 @@ class _HealthPageState extends ConsumerState<HealthPage> {
   final _notesController = TextEditingController();
 
   String? _selectedBloodGroup;
+
+  String? _normalizeBloodType(String? s) {
+    if (s == null) return null;
+    const map = {
+      'A_POSITIVITEIVE': BloodGroup.aPositive, // typo éventuelle
+      'A+': BloodGroup.aPositive,
+      'A-': BloodGroup.aNegative,
+      'O+': BloodGroup.oPositive,
+      'O-': BloodGroup.oNegative,
+      'B+': BloodGroup.bPositive,
+      'B-': BloodGroup.bNegative,
+      'AB+': BloodGroup.abPositive,
+      'AB-': BloodGroup.abNegative,
+    };
+    return map[s] ?? s;
+  }
   final List<String> _allergies = [];
   final List<String> _conditions = [];
   final List<String> _treatments = [];
@@ -78,7 +94,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
   }
 
   void _loadProfileData(HealthProfileModel profile) {
-    _selectedBloodGroup = profile.bloodGroup;
+    _selectedBloodGroup = _normalizeBloodType(profile.bloodGroup);
     _allergies.clear();
     _allergies.addAll(profile.allergies);
     _conditions.clear();
@@ -112,13 +128,13 @@ class _HealthPageState extends ConsumerState<HealthPage> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _selectedBloodGroup,
+              value: _buildCurrentBloodValue(),
               decoration: const InputDecoration(
                 labelText: 'Groupe sanguin',
                 prefixIcon: Icon(Icons.bloodtype),
               ),
               items: BloodGroup.allGroups()
-                  .map((group) => DropdownMenuItem(
+                  .map((group) => DropdownMenuItem<String>(
                         value: BloodGroup.fromFrench(group),
                         child: Text(group),
                       ))
@@ -311,6 +327,13 @@ class _HealthPageState extends ConsumerState<HealthPage> {
         ),
       ),
     );
+  }
+
+  String? _buildCurrentBloodValue() {
+    final values = BloodGroup.allGroups().map(BloodGroup.fromFrench).toSet();
+    final normalized = _normalizeBloodType(_selectedBloodGroup);
+    if (normalized == null) return null;
+    return values.contains(normalized) ? normalized : null;
   }
 
   Widget _buildOverviewCard(BuildContext context) {

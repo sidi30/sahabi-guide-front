@@ -42,8 +42,8 @@ dependencies:
   just_audio: ^0.9.36
 
   # Maps & Location
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.1
+  # flutter_map remplacé par google_maps_flutter
+  google_maps_flutter: ^2.9.0
   geolocator: ^14.0.2
   battery_plus: ^6.0.2
 
@@ -97,6 +97,6 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/audio/
     - assets/data/
-    - assets/icons/
+    # - assets/audio/   # désactivé: dossier manquant
+    # - assets/icons/   # désactivé: dossier manquant

@@ -51,6 +51,7 @@ app.*.map.json
 /old.android/
 
 .claude/
+/node_modules
 
 /macos
 /linux

@@ -229,7 +229,8 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetLatestPilgrimPositionUseCase(sl()));
 
   // POI Service
-  sl.registerLazySingleton(() => PoiService(dioClient: sl(), secureStorage: sl()));
+  sl.registerLazySingleton(
+      () => PoiService(dioClient: sl(), secureStorage: sl()));
 
 // Position Tracking Feature
   sl.registerLazySingleton(() => PositionRepository(
@@ -242,23 +243,25 @@ Future<void> initializeDependencies() async {
         locationService: sl(),
       ));
 
-  // Route History Feature
-  sl.registerLazySingleton(() => RouteHistoryRepository(
-        dioClient: sl(),
-        secureStorage: sl(),
-      ));
+  // Route History Feature - Commented out until implementation is ready
+  // sl.registerLazySingleton(() => RouteHistoryRepository(
+  //       dioClient: sl(),
+  //       secureStorage: sl(),
+  //     ));
 
-  // Local Geofencing Service
-  sl.registerLazySingleton(() => LocalGeofencingService());
+  // Local Geofencing Service - Commented out until implementation is ready
+  // sl.registerLazySingleton(() => LocalGeofencingService());
 
   // Alerts Feature
-  sl.registerLazySingleton(() => AlertsService(dioClient: sl(), secureStorage: sl()));
+  sl.registerLazySingleton(
+      () => AlertsService(dioClient: sl(), secureStorage: sl()));
   sl.registerLazySingleton<AlertsRemoteDataSource>(
     () => AlertsRemoteDataSource(sl(), sl()),
   );
 
   // Emergency Contacts Feature
-  sl.registerLazySingleton(() => EmergencyContactsService(dioClient: sl(), secureStorage: sl()));
+  sl.registerLazySingleton(
+      () => EmergencyContactsService(dioClient: sl(), secureStorage: sl()));
 
   sl.registerLazySingleton<AlertsRepository>(
     () => AlertsRepositoryImpl(
@@ -327,7 +330,8 @@ Future<void> initializeDependencies() async {
 
   // Connectivity Feature
   sl.registerLazySingleton<ConnectivityRemoteDataSource>(
-    () => ConnectivityRemoteDataSourceImpl(dioClient: sl(), secureStorage: sl()),
+    () =>
+        ConnectivityRemoteDataSourceImpl(dioClient: sl(), secureStorage: sl()),
   );
 
   sl.registerLazySingleton<ConnectivityLocalDataSource>(

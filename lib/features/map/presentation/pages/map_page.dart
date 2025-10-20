@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+// old: remplacé par Google Maps Flutter
+// import 'package:flutter_map/flutter_map.dart';
+// import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../data/services/poi_service.dart';
@@ -9,7 +10,8 @@ import '../../data/models/poi_model.dart';
 
 // Mapbox configuration with token from --dart-define (fallback to provided token)
 class MapboxConfig {
-  static const String _fallbackToken = 'pk.eyJ1Ijoic2lyMzAiLCJhIjoiY21ncXlvcWltMG81bDJrczRteDVlMXJ2OCJ9.2Rt-_W07GpuPVcQX3tkuUw';
+  static const String _fallbackToken =
+      'pk.eyJ1Ijoic2lyMzAiLCJhIjoiY21ncXlvcWltMG81bDJrczRteDVlMXJ2OCJ9.2Rt-_W07GpuPVcQX3tkuUw';
 
   static const String accessToken = String.fromEnvironment(
     'MAPBOX_TOKEN',
@@ -20,9 +22,11 @@ class MapboxConfig {
   static const String styleSatellite = 'mapbox/satellite-v9';
   static const String styleSatelliteStreets = 'mapbox/satellite-streets-v12';
 
-  static bool get isConfigured => accessToken.isNotEmpty && accessToken.startsWith('pk.');
+  static bool get isConfigured =>
+      accessToken.isNotEmpty && accessToken.startsWith('pk.');
 
-  static String styleUrl(String style, {int tileSize = 512, String language = 'fr'}) {
+  static String styleUrl(String style,
+      {int tileSize = 512, String language = 'fr'}) {
     final size = tileSize >= 512 ? '512' : '256';
     return 'https://api.mapbox.com/styles/v1/$style/tiles/$size/{z}/{x}/{y}@2x?language=$language&access_token=$accessToken';
   }
@@ -53,7 +57,7 @@ class _MapPageState extends State<MapPage> {
   double _currentZoom = 15.0;
   MapMode _mapMode = MapMode.satellite;
   HolyCity _selectedCity = HolyCity.mecca;
-  
+
   // Suivi automatique de la position
   bool _followUserPosition = true;
   StreamSubscription<Position>? _positionSubscription;
@@ -64,7 +68,6 @@ class _MapPageState extends State<MapPage> {
         case MapMode.satellite:
           return MapboxConfig.styleUrl(MapboxConfig.styleSatelliteStreets);
         case MapMode.normal:
-        default:
           return MapboxConfig.styleUrl(MapboxConfig.styleStreets);
       }
     }
@@ -73,7 +76,6 @@ class _MapPageState extends State<MapPage> {
       case MapMode.satellite:
         return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       case MapMode.normal:
-      default:
         return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     }
   }
@@ -85,7 +87,7 @@ class _MapPageState extends State<MapPage> {
     _initializeMap();
     _startLocationTracking();
   }
-  
+
   @override
   void dispose() {
     _positionSubscription?.cancel();
@@ -109,14 +111,14 @@ class _MapPageState extends State<MapPage> {
       });
     }
   }
-  
+
   /// Démarre le suivi en temps réel de la position
   void _startLocationTracking() {
     final locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 10, // Mise à jour si déplacement > 10m
     );
-    
+
     _positionSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen(
@@ -124,12 +126,12 @@ class _MapPageState extends State<MapPage> {
         setState(() {
           _currentPosition = LatLng(position.latitude, position.longitude);
         });
-        
+
         // Centrer automatiquement si le mode "suivi" est activé
         if (_followUserPosition) {
           _mapController.move(_currentPosition!, _currentZoom);
         }
-        
+
         // Mettre à jour les marqueurs pour afficher la position actuelle
         _updateMarkers();
       },
@@ -138,13 +140,13 @@ class _MapPageState extends State<MapPage> {
       },
     );
   }
-  
+
   /// Active/désactive le suivi automatique
   void _toggleFollowMode() {
     setState(() {
       _followUserPosition = !_followUserPosition;
     });
-    
+
     // Si on réactive le suivi, centrer immédiatement
     if (_followUserPosition && _currentPosition != null) {
       _mapController.move(_currentPosition!, _currentZoom);
@@ -281,7 +283,8 @@ class _MapPageState extends State<MapPage> {
   // --- Carte: interactions ---
   void _toggleMapMode() {
     setState(() {
-      _mapMode = _mapMode == MapMode.normal ? MapMode.satellite : MapMode.normal;
+      _mapMode =
+          _mapMode == MapMode.normal ? MapMode.satellite : MapMode.normal;
     });
   }
 
@@ -389,7 +392,10 @@ class _MapPageState extends State<MapPage> {
             tooltip: 'Ma position',
             icon: const Icon(Icons.my_location),
             onPressed: () {
-              final target = _currentPosition ?? (_selectedCity == HolyCity.mecca ? _meccaCenter : _medinaCenter);
+              final target = _currentPosition ??
+                  (_selectedCity == HolyCity.mecca
+                      ? _meccaCenter
+                      : _medinaCenter);
               _mapController.move(target, _currentZoom);
             },
           ),
@@ -405,8 +411,10 @@ class _MapPageState extends State<MapPage> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _selectedCity == HolyCity.mecca ? _meccaCenter : _medinaCenter,
-          initialZoom: _currentZoom,
+              initialCenter: _selectedCity == HolyCity.mecca
+                  ? _meccaCenter
+                  : _medinaCenter,
+              initialZoom: _currentZoom,
               minZoom: 5.0,
               maxZoom: 18.0,
             ),
@@ -447,42 +455,57 @@ class _MapPageState extends State<MapPage> {
                   Expanded(
                     child: InkWell(
                       onTap: () => _switchCity(HolyCity.mecca),
-                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                      borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(12)),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: _selectedCity == HolyCity.mecca ? Colors.green : Colors.transparent,
-                          borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                          color: _selectedCity == HolyCity.mecca
+                              ? Colors.green
+                              : Colors.transparent,
+                          borderRadius: const BorderRadius.horizontal(
+                              left: Radius.circular(12)),
                         ),
                         child: Center(
                           child: Text(
                             'La Mecque',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _selectedCity == HolyCity.mecca ? Colors.white : Colors.black87,
+                              color: _selectedCity == HolyCity.mecca
+                                  ? Colors.white
+                                  : Colors.black87,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Container(width: 1, height: 28, color: Colors.grey.withOpacity(0.3)),
+                  Container(
+                      width: 1,
+                      height: 28,
+                      color: Colors.grey.withOpacity(0.3)),
                   Expanded(
                     child: InkWell(
                       onTap: () => _switchCity(HolyCity.medina),
-                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                      borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(12)),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: _selectedCity == HolyCity.medina ? Colors.green : Colors.transparent,
-                          borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                          color: _selectedCity == HolyCity.medina
+                              ? Colors.green
+                              : Colors.transparent,
+                          borderRadius: const BorderRadius.horizontal(
+                              right: Radius.circular(12)),
                         ),
                         child: Center(
                           child: Text(
                             'Médine',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _selectedCity == HolyCity.medina ? Colors.white : Colors.black87,
+                              color: _selectedCity == HolyCity.medina
+                                  ? Colors.white
+                                  : Colors.black87,
                             ),
                           ),
                         ),
@@ -527,7 +550,9 @@ class _MapPageState extends State<MapPage> {
                   onPressed: _toggleMapMode,
                   backgroundColor: Colors.white,
                   child: Icon(
-                    _mapMode == MapMode.satellite ? Icons.satellite_alt : Icons.map,
+                    _mapMode == MapMode.satellite
+                        ? Icons.satellite_alt
+                        : Icons.map,
                     color: Colors.green,
                   ),
                 ),
@@ -555,9 +580,12 @@ class _MapPageState extends State<MapPage> {
                   heroTag: 'followMe',
                   mini: true,
                   onPressed: _toggleFollowMode,
-                  backgroundColor: _followUserPosition ? Colors.blue : Colors.white,
+                  backgroundColor:
+                      _followUserPosition ? Colors.blue : Colors.white,
                   child: Icon(
-                    _followUserPosition ? Icons.my_location : Icons.location_searching,
+                    _followUserPosition
+                        ? Icons.my_location
+                        : Icons.location_searching,
                     color: _followUserPosition ? Colors.white : Colors.black87,
                   ),
                 ),
@@ -624,25 +652,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  Widget _buildFilterChip(String filter, String label) {
-    final isSelected = _selectedFilter == filter;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (selected) => _filterPois(filter),
-        backgroundColor: Colors.grey.shade100,
-        selectedColor: Colors.blue.shade100,
-        checkmarkColor: Colors.blue.shade700,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.blue.shade700 : Colors.grey.shade700,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-    );
-  }
-
   Widget _buildPill(String label, IconData icon, String filter) {
     final isSelected = _selectedFilter == filter;
     return Padding(
@@ -655,7 +664,8 @@ class _MapPageState extends State<MapPage> {
           decoration: BoxDecoration(
             color: isSelected ? Colors.green : Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: isSelected ? Colors.green : Colors.grey.shade300),
+            border: Border.all(
+                color: isSelected ? Colors.green : Colors.grey.shade300),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.06),
@@ -666,7 +676,8 @@ class _MapPageState extends State<MapPage> {
           ),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: isSelected ? Colors.white : Colors.black87),
+              Icon(icon,
+                  size: 18, color: isSelected ? Colors.white : Colors.black87),
               const SizedBox(width: 8),
               Text(
                 label,

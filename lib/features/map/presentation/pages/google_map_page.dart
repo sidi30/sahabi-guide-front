@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+// old: supprimé l'usage flutter_map ici aussi
+// import 'package:flutter_map/flutter_map.dart';
+// import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../data/models/poi_model.dart';
@@ -17,14 +19,14 @@ class GoogleMapPage extends StatefulWidget {
 }
 
 class _GoogleMapPageState extends State<GoogleMapPage> {
-  final MapController _mapController = MapController();
+  GoogleMapController? _mapController;
   final PoiService _poiService = PoiService(
     dioClient: GetIt.I<DioClient>(),
     secureStorage: GetIt.I<FlutterSecureStorage>(),
   );
 
   // Map state
-  List<Marker> _markers = [];
+  Set<Marker> _markers = {};
   List<PoiModel> _filteredPois = [];
   String _selectedFilter = 'all';
   bool _isLoading = true;
@@ -32,8 +34,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   Position? _currentPosition;
 
   // Map configuration
-  static const LatLng _defaultLocation =
-      LatLng(21.4225, 39.8262); // Masjid al-Haram
+  static const LatLng _defaultLocation = LatLng(21.4225, 39.8262); // Masjid al-Haram
   static const double _defaultZoom = 12.0;
 
   @override
@@ -115,41 +116,29 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   }
 
   void _updateMarkers() {
-    final List<Marker> markers = [];
+    final Set<Marker> markers = {};
 
     // Add current position marker
     if (_currentPosition != null) {
-      markers.add(
-        Marker(
-          point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          width: 40,
-          height: 40,
-          child: const Icon(
-            Icons.my_location,
-            color: Colors.blue,
-            size: 40,
-          ),
+      markers.add(Marker(
+        markerId: const MarkerId('me'),
+        position: LatLng(
+          _currentPosition!.latitude,
+          _currentPosition!.longitude,
         ),
-      );
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+      ));
     }
 
     // Add POI markers
     for (final poi in _filteredPois) {
-      markers.add(
-        Marker(
-          point: poi.coordinates,
-          width: 40,
-          height: 40,
-          child: GestureDetector(
-            onTap: () => _showPoiDetails(poi),
-            child: Icon(
-              Icons.location_on,
-              color: _getPoiColor(poi.type),
-              size: 40,
-            ),
-          ),
-        ),
-      );
+      markers.add(Marker(
+        markerId: MarkerId('poi_${poi.id}'),
+        position: poi.coordinates,
+        infoWindow: InfoWindow(title: poi.name, snippet: poi.typeLabel),
+        onTap: () => _showPoiDetails(poi),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ));
     }
 
     setState(() {
@@ -379,26 +368,18 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Flutter Map
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentPosition != null
+          // Google Map
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _currentPosition != null
                   ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
                   : _defaultLocation,
-              initialZoom: _defaultZoom,
-              minZoom: 5.0,
-              maxZoom: 18.0,
+              zoom: _defaultZoom,
             ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.sahabi_guide',
-              ),
-              MarkerLayer(
-                markers: _markers,
-              ),
-            ],
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            onMapCreated: (c) => _mapController = c,
+            markers: _markers,
           ),
 
           // Loading overlay
@@ -496,10 +477,14 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               onPressed: () async {
                 await _getCurrentLocation();
                 if (_currentPosition != null) {
-                  _mapController.move(
-                    LatLng(_currentPosition!.latitude,
-                        _currentPosition!.longitude),
-                    16.0,
+                  _mapController?.animateCamera(
+                    CameraUpdate.newLatLngZoom(
+                      LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ),
+                      16.0,
+                    ),
                   );
                 }
               },
