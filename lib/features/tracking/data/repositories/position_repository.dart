@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/pilgrim_position_model.dart';
+import '../models/position_model.dart';
 
 /// Repository pour gérer les positions GPS via l'API
 class PositionRepository {
@@ -15,7 +15,8 @@ class PositionRepository {
         _secureStorage = secureStorage;
 
   /// Envoie une nouvelle position GPS au serveur
-  Future<PilgrimPositionModel> sendPosition({
+  /// Endpoint: POST /api/v1/geo/positions
+  Future<PositionModel> sendPosition({
     required String userId,
     required double lat,
     required double lng,
@@ -26,9 +27,12 @@ class PositionRepository {
     DateTime? timestamp,
   }) async {
     try {
+      final token = await _secureStorage.read(key: 'jwt_token');
+      
       final response = await _dioClient.post(
-        '/api/v1/users/$userId/positions',
+        '/api/v1/geo/positions',
         data: {
+          'userId': userId,
           'lat': lat,
           'lng': lng,
           if (accuracy != null) 'accuracy': accuracy,
@@ -37,26 +41,39 @@ class PositionRepository {
           if (heading != null) 'heading': heading,
           'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
         },
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
       );
 
-      return PilgrimPositionModel.fromMap(response.data);
+      return PositionModel.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
   /// Récupère la dernière position d'un utilisateur
-  Future<PilgrimPositionModel?> getLatestPosition(String userId) async {
+  /// Endpoint: GET /api/v1/geo/users/{userId}/positions/latest
+  Future<PositionModel?> getLatestPosition(String userId) async {
     try {
+      final token = await _secureStorage.read(key: 'jwt_token');
+      
       final response = await _dioClient.get(
-        '/api/v1/users/$userId/position/latest',
+        '/api/v1/geo/users/$userId/positions/latest',
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
       );
 
       if (response.statusCode == 404) {
         return null;
       }
 
-      return PilgrimPositionModel.fromMap(response.data);
+      return PositionModel.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return null;
@@ -66,7 +83,8 @@ class PositionRepository {
   }
 
   /// Récupère l'historique des positions d'un utilisateur
-  Future<List<PilgrimPositionModel>> getPositionHistory({
+  /// Endpoint: GET /api/v1/geo/users/{userId}/positions
+  Future<List<PositionModel>> getPositionHistory({
     required String userId,
     int page = 0,
     int size = 20,
@@ -75,6 +93,8 @@ class PositionRepository {
     DateTime? to,
   }) async {
     try {
+      final token = await _secureStorage.read(key: 'jwt_token');
+      
       final queryParams = <String, dynamic>{
         'page': page,
         'size': size,
@@ -84,52 +104,17 @@ class PositionRepository {
       };
 
       final response = await _dioClient.get(
-        '/api/v1/users/$userId/positions',
+        '/api/v1/geo/users/$userId/positions',
         queryParameters: queryParams,
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
       );
 
       final content = response.data['content'] as List;
-      return content.map((json) => PilgrimPositionModel.fromMap(json)).toList();
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  /// Récupère les N dernières positions d'un utilisateur
-  Future<List<PilgrimPositionModel>> getLastPositions({
-    required String userId,
-    int count = 10,
-  }) async {
-    try {
-      final response = await _dioClient.get(
-        '/api/v1/users/$userId/positions/last',
-        queryParameters: {'count': count},
-      );
-
-      final list = response.data as List;
-      return list.map((json) => PilgrimPositionModel.fromMap(json)).toList();
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  /// Compte le nombre de positions d'un utilisateur
-  Future<int> countPositions(String userId) async {
-    try {
-      final response = await _dioClient.get(
-        '/api/v1/users/$userId/positions/count',
-      );
-
-      return response.data as int;
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  /// Supprime toutes les positions d'un utilisateur
-  Future<void> deleteAllPositions(String userId) async {
-    try {
-      await _dioClient.delete('/api/v1/users/$userId/positions');
+      return content.map((json) => PositionModel.fromJson(json)).toList();
     } on DioException catch (e) {
       throw _handleError(e);
     }
