@@ -286,7 +286,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    _mapController.move(poi.coordinates, 16.0);
+                    _mapController?.animateCamera(
+                      CameraUpdate.newLatLngZoom(poi.coordinates, 16.0),
+                    );
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.center_focus_strong),
