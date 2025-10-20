@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -52,6 +53,10 @@ class _MapPageState extends State<MapPage> {
   double _currentZoom = 15.0;
   MapMode _mapMode = MapMode.satellite;
   HolyCity _selectedCity = HolyCity.mecca;
+  
+  // Suivi automatique de la position
+  bool _followUserPosition = true;
+  StreamSubscription<Position>? _positionSubscription;
 
   String _getTileUrl() {
     if (MapboxConfig.isConfigured) {
@@ -78,17 +83,71 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     _poiService = sl<PoiService>();
     _initializeMap();
+    _startLocationTracking();
+  }
+  
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _initializeMap() async {
     try {
-      // Par défaut, rester centré sur la ville sélectionnée (La Mecque)
+      // Récupérer la position initiale
+      await _getCurrentLocation();
+      // Charger les POIs
       await _loadPois();
+      // Centrer sur la position actuelle si disponible
+      if (_currentPosition != null && _followUserPosition) {
+        _mapController.move(_currentPosition!, _currentZoom);
+      }
     } catch (e) {
       setState(() {
         _error = 'Erreur lors de l\'initialisation: $e';
         _isLoading = false;
       });
+    }
+  }
+  
+  /// Démarre le suivi en temps réel de la position
+  void _startLocationTracking() {
+    final locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10, // Mise à jour si déplacement > 10m
+    );
+    
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen(
+      (Position position) {
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+        });
+        
+        // Centrer automatiquement si le mode "suivi" est activé
+        if (_followUserPosition) {
+          _mapController.move(_currentPosition!, _currentZoom);
+        }
+        
+        // Mettre à jour les marqueurs pour afficher la position actuelle
+        _updateMarkers();
+      },
+      onError: (error) {
+        print('Erreur de suivi position: $error');
+      },
+    );
+  }
+  
+  /// Active/désactive le suivi automatique
+  void _toggleFollowMode() {
+    setState(() {
+      _followUserPosition = !_followUserPosition;
+    });
+    
+    // Si on réactive le suivi, centrer immédiatement
+    if (_followUserPosition && _currentPosition != null) {
+      _mapController.move(_currentPosition!, _currentZoom);
     }
   }
 
@@ -133,6 +192,29 @@ class _MapPageState extends State<MapPage> {
 
   void _updateMarkers() {
     final markers = <Marker>[];
+
+    // Ajouter le marqueur de position actuelle de l'utilisateur (priorité)
+    if (_currentPosition != null) {
+      markers.add(
+        Marker(
+          point: _currentPosition!,
+          width: 60,
+          height: 60,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blue.withOpacity(0.3),
+              border: Border.all(color: Colors.blue, width: 3),
+            ),
+            child: const Icon(
+              Icons.person_pin_circle,
+              color: Colors.blue,
+              size: 40,
+            ),
+          ),
+        ),
+      );
+    }
 
     // Ajouter un marqueur pour La Mecque
     markers.add(
@@ -466,6 +548,18 @@ class _MapPageState extends State<MapPage> {
                   onPressed: _zoomOut,
                   backgroundColor: Colors.white,
                   child: const Icon(Icons.remove, color: Colors.black87),
+                ),
+                const SizedBox(height: 10),
+                // Bouton de suivi automatique
+                FloatingActionButton(
+                  heroTag: 'followMe',
+                  mini: true,
+                  onPressed: _toggleFollowMode,
+                  backgroundColor: _followUserPosition ? Colors.blue : Colors.white,
+                  child: Icon(
+                    _followUserPosition ? Icons.my_location : Icons.location_searching,
+                    color: _followUserPosition ? Colors.white : Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 FloatingActionButton(
