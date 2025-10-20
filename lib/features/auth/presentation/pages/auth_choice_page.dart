@@ -68,7 +68,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.mosque,
+                        Icons.eco_outlined,
                         color: Colors.white,
                         size: 50,
                       ),

@@ -108,7 +108,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         ],
                       ),
                       child: Icon(
-                        Icons.mosque,
+                        Icons.eco_outlined,
                         size: 60,
                         color: Theme.of(context).primaryColor,
                       ),

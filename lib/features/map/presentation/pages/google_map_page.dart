@@ -355,7 +355,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     switch (type) {
       case PoiType.mosque:
       case PoiType.holySite:
-        return Icons.mosque;
+        return Icons.eco_outlined;
       case PoiType.hospital:
         return Icons.local_hospital;
       case PoiType.hotel:
@@ -469,7 +469,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                 children: [
                   _buildFilterChip('all', 'Tous', Icons.all_inclusive),
                   const SizedBox(width: 8),
-                  _buildFilterChip('mosque', 'Mosquées', Icons.mosque),
+                  _buildFilterChip('mosque', 'Mosquées', Icons.eco_outlined),
                   const SizedBox(width: 8),
                   _buildFilterChip(
                       'hospital', 'Hôpitaux', Icons.local_hospital),
