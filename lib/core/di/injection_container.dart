@@ -6,14 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../features/auth/data/datasources/auth_local_data_source.dart';
-import '../../features/auth/data/datasources/auth_remote_data_source.dart';
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/auth/domain/usecases/login_usecase.dart';
-import '../../features/auth/domain/usecases/register_usecase.dart';
-import '../../features/auth/domain/usecases/logout_usecase.dart';
-
 // Passport Auth
 import '../../features/auth/data/datasources/passport_auth_local_data_source.dart';
 import '../../features/auth/data/datasources/passport_auth_remote_data_source.dart';
@@ -134,26 +126,6 @@ Future<void> initializeDependencies() async {
     () => AuthService(sl(), sl()),
   );
 
-  // Auth Feature
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl()),
-  );
-
-  sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(sl()),
-  );
-
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(() => LoginUseCase(sl()));
-  sl.registerLazySingleton(() => RegisterUseCase(sl()));
-  sl.registerLazySingleton(() => LogoutUseCase(sl()));
-
   // Passport Auth Feature
   sl.registerLazySingleton<PassportAuthRemoteDataSource>(
     () => PassportAuthRemoteDataSourceImpl(sl()),
@@ -203,7 +175,6 @@ Future<void> initializeDependencies() async {
     () => HomeRepositoryImpl(
       localDataSource: sl(),
       remoteDataSource: sl(),
-      authRepository: sl(),
     ),
   );
 
@@ -243,15 +214,6 @@ Future<void> initializeDependencies() async {
         locationService: sl(),
       ));
 
-  // Route History Feature - Commented out until implementation is ready
-  // sl.registerLazySingleton(() => RouteHistoryRepository(
-  //       dioClient: sl(),
-  //       secureStorage: sl(),
-  //     ));
-
-  // Local Geofencing Service - Commented out until implementation is ready
-  // sl.registerLazySingleton(() => LocalGeofencingService());
-
   // Alerts Feature
   sl.registerLazySingleton(
       () => AlertsService(dioClient: sl(), secureStorage: sl()));
@@ -284,7 +246,7 @@ Future<void> initializeDependencies() async {
     () => UserSettingsRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
-      authLocalDataSource: sl(),
+      authLocalDataSource: sl<PassportAuthLocalDataSource>(),
     ),
   );
 
@@ -301,7 +263,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<ContactMessageRepository>(
     () => ContactMessageRepositoryImpl(
       remoteDataSource: sl(),
-      authLocalDataSource: sl(),
+      authLocalDataSource: sl<PassportAuthLocalDataSource>(),
     ),
   );
 
@@ -321,7 +283,7 @@ Future<void> initializeDependencies() async {
     () => HealthProfileRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
-      authLocalDataSource: sl(),
+      authLocalDataSource: sl<PassportAuthLocalDataSource>(),
     ),
   );
 

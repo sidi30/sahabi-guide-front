@@ -3,17 +3,14 @@ import '../../../../shared/models/user_model.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../datasources/home_local_data_source.dart';
 import '../datasources/home_remote_data_source.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   final HomeLocalDataSource localDataSource;
   final HomeRemoteDataSource? remoteDataSource;
-  final AuthRepository authRepository;
 
   HomeRepositoryImpl({
     required this.localDataSource,
     this.remoteDataSource,
-    required this.authRepository,
   });
 
   @override
@@ -23,7 +20,8 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<UserModel?> getCurrentUser() async {
-    return await authRepository.getCurrentUser();
+    // TODO: Implement using PassportAuthLocalDataSource or AuthService
+    return null;
   }
 
   @override

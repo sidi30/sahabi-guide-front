@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sahabi_guide/core/di/injection_container.dart';
-import 'package:sahabi_guide/features/tracking/data/services/location_sharing_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import '../../../../core/utils/constants.dart';
 
 /// Page publique pour afficher la position partagée d'un pèlerin
 /// Accessible via /public/geo/track/{token}
@@ -52,7 +51,7 @@ class _PublicTrackingPageState extends State<PublicTrackingPage> {
     try {
       // Appeler endpoint public
       final response = await http.get(
-        Uri.parse('http://localhost:8080/public/geo/track/${widget.token}'),
+        Uri.parse('${AppConstants.apiBaseUrl}/public/geo/track/${widget.token}'),
       );
 
       if (response.statusCode == 200) {

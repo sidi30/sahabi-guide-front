@@ -17,7 +17,6 @@ import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
 import 'features/auth/presentation/providers/passport_auth_provider.dart';
-import 'features/connectivity/presentation/pages/connectivity_page.dart' show ConnectivityPage;
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
 import 'features/alerts/presentation/pages/alerts_page.dart';
