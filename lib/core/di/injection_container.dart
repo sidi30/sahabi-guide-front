@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sahabi_guide/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
@@ -13,10 +14,18 @@ import '../../features/auth/data/repositories/passport_auth_repository_impl.dart
 import '../../features/auth/domain/usecases/passport_auth_usecases.dart';
 
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
+import '../../features/rituals/data/datasources/rituals_local_data_source_hive.dart';
 import '../../features/rituals/data/datasources/rituals_remote_data_source.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
+import '../../features/rituals/data/repositories/rituals_repository_impl_with_sync.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
+
+// Hive Models and Adapters
+import '../../shared/models/ritual_model.dart';
+import '../../shared/models/dua_model.dart';
+import '../../shared/models/ritual_model_adapter.dart';
+import '../../shared/models/dua_model_adapter.dart';
 
 import '../../features/home/data/datasources/home_local_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
@@ -85,10 +94,22 @@ import '../services/notification_service.dart';
 
 import '../network/dio_client.dart';
 import '../cache/cache_service.dart';
+import '../cache/hive_cache_service.dart';
+import '../network/connectivity_service.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  // Initialiser Hive
+  await Hive.initFlutter();
+  
+  // Enregistrer les adapters Hive
+  Hive.registerAdapter(RitualTypeAdapter());
+  Hive.registerAdapter(RitualStatusAdapter());
+  Hive.registerAdapter(RitualModelAdapter());
+  Hive.registerAdapter(DuaTypeAdapter());
+  Hive.registerAdapter(DuaModelAdapter());
+
   // External dependencies
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
@@ -103,6 +124,16 @@ Future<void> initializeDependencies() async {
   // Core
   sl.registerLazySingleton(() => DioClient(sl()));
   sl.registerLazySingleton(() => CacheService(sl<SharedPreferences>()));
+  
+  // Hive Cache Service
+  final hiveCacheService = HiveCacheService();
+  await hiveCacheService.initialize();
+  sl.registerLazySingleton(() => hiveCacheService);
+  
+  // Connectivity Service
+  final connectivityService = ConnectivityService(sl<Connectivity>());
+  await connectivityService.initialize();
+  sl.registerLazySingleton(() => connectivityService);
 
   // Services
   sl.registerLazySingleton<StorageService>(
@@ -150,18 +181,21 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => CheckAuthStatusUseCase(sl()));
 
   // Rituals Feature
+  // Utiliser la nouvelle implémentation avec Hive
   sl.registerLazySingleton<RitualsLocalDataSource>(
-    () => RitualsLocalDataSourceImpl(sl<CacheService>()),
+    () => RitualsLocalDataSourceHive(sl<HiveCacheService>()),
   );
 
   sl.registerLazySingleton<RitualsRemoteDataSource>(
     () => RitualsRemoteDataSource(sl(), sl()),
   );
 
+  // Utiliser le repository avec synchronisation automatique
   sl.registerLazySingleton<RitualsRepository>(
-    () => RitualsRepositoryImpl(
+    () => RitualsRepositoryImplWithSync(
       localDataSource: sl(),
       remoteDataSource: sl(),
+      connectivityService: sl(),
     ),
   );
 
