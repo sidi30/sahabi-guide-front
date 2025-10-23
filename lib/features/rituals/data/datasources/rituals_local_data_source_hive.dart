@@ -1,18 +1,7 @@
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/cache/hive_cache_service.dart';
-
-/// Interface pour la source de données locale des rituels
-abstract class RitualsLocalDataSource {
-  Future<List<RitualModel>> getRituals();
-  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion});
-  Future<void> markAsCompleted(String ritualId);
-  Future<List<DuaModel>> getDuas();
-  Future<void> saveDuas(List<DuaModel> duas);
-  Future<void> clearCache();
-  Future<RitualModel?> getRitualById(String id);
-  Future<bool> ritualsNeedUpdate(int? serverContentVersion);
-}
+import 'rituals_local_data_source.dart';
 
 /// Implémentation de RitualsLocalDataSource utilisant Hive
 class RitualsLocalDataSourceHive implements RitualsLocalDataSource {

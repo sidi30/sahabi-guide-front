@@ -1,8 +1,6 @@
 import 'package:hive/hive.dart';
 import 'dua_model.dart';
 
-part 'dua_model_adapter.g.dart';
-
 // TypeAdapter pour DuaType
 class DuaTypeAdapter extends TypeAdapter<DuaType> {
   @override

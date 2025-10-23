@@ -6,6 +6,8 @@ import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.da
 import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
+import 'package:sahabi_guide/features/assistant/presentation/pages/assistant_chat_page.dart';
+import 'package:sahabi_guide/features/assistant/assistant_initializer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
@@ -84,6 +86,7 @@ class AppRoutes {
   static const String connectivity = '/connectivity';
   static const String alerts = '/alerts';
   static const String emergencyContacts = '/emergency-contacts';
+  static const String assistant = '/assistant';
 }
 
 Future<void> main() async {
@@ -91,6 +94,9 @@ Future<void> main() async {
 
   // Initialize dependencies
   await initializeDependencies();
+
+  // Initialize Assistant Module (Hive, notifications)
+  await AssistantInitializer.initialize();
 
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
@@ -241,6 +247,12 @@ class MyApp extends ConsumerWidget {
           GoRoute(
             path: AppRoutes.videos,
             builder: (context, state) => const VideoPage(),
+          ),
+
+          // Assistant Screen
+          GoRoute(
+            path: AppRoutes.assistant,
+            builder: (context, state) => const AssistantChatPage(),
           ),
 
           // Profile Screen - PROTÉGÉE

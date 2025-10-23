@@ -4,7 +4,7 @@ import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/network/connectivity_service.dart';
 import '../../domain/repositories/rituals_repository.dart';
-import '../datasources/rituals_local_data_source_hive.dart';
+import '../datasources/rituals_local_data_source.dart';
 import '../datasources/rituals_remote_data_source.dart';
 
 /// Implémentation du repository avec synchronisation automatique

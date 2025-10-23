@@ -10,6 +10,8 @@ abstract class RitualsLocalDataSource {
   Future<List<DuaModel>> getDuas();
   Future<void> saveDuas(List<DuaModel> duas);
   Future<void> clearCache();
+  Future<RitualModel?> getRitualById(String id);
+  Future<bool> ritualsNeedUpdate(int? serverContentVersion);
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
@@ -132,5 +134,33 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   @override
   Future<void> clearCache() async {
     await _cacheService.clearAll();
+  }
+
+  @override
+  Future<RitualModel?> getRitualById(String id) async {
+    try {
+      final rituals = await getRituals();
+      return rituals.firstWhere(
+        (ritual) => ritual.id == id,
+        orElse: () => throw Exception('Ritual not found'),
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> ritualsNeedUpdate(int? serverContentVersion) async {
+    if (serverContentVersion == null) return false;
+    
+    try {
+      final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
+      if (cached == null) return true;
+      
+      final cachedVersion = cached.contentVersion ?? 0;
+      return serverContentVersion > cachedVersion;
+    } catch (e) {
+      return true;
+    }
   }
 }

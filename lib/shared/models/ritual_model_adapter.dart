@@ -1,8 +1,6 @@
 import 'package:hive/hive.dart';
 import 'ritual_model.dart';
 
-part 'ritual_model_adapter.g.dart';
-
 // TypeAdapter pour RitualType
 class RitualTypeAdapter extends TypeAdapter<RitualType> {
   @override

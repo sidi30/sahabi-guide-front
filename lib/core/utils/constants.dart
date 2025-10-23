@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class AppConstants {
   // App Info
   static const String appName = 'Sahabi Guide';
@@ -7,7 +9,13 @@ class AppConstants {
   // API Constants
   // Pour émulateur Android: utiliser 10.0.2.2 au lieu de localhost
   // Pour téléphone physique: utiliser l'IP locale de votre PC (ex: http://192.168.1.X:8084)
-  static const String apiBaseUrl = 'http://10.0.2.2:8084';
+  // Pour Web: utiliser localhost
+  static const String _apiBaseUrlAndroid = 'http://10.0.2.2:8084';
+  static const String _apiBaseUrlWeb = 'http://localhost:8084';
+  
+  /// Retourne l'URL de l'API selon la plateforme
+  static String get apiBaseUrl => kIsWeb ? _apiBaseUrlWeb : _apiBaseUrlAndroid;
+  
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';
   
