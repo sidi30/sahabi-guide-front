@@ -95,7 +95,7 @@ class ChatMessageModel {
       'id': id,
       'content': content,
       'isBot': isBot,
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': timestamp.toUtc().toIso8601String(),
       'stepId': stepId,
       'stepCode': stepCode,
       'quickReplies': quickReplies,

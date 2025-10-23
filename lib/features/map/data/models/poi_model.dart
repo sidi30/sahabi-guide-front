@@ -154,11 +154,18 @@ class PoiModel {
         return PoiType.rally;
       case 'SHOP':
         return PoiType.shop;
+      case 'TRANSPORTATION':  // ✅ Support backend TRANSPORTATION
+        return PoiType.transport;
+      case 'HOLY_SITE':  // ✅ Support backend HOLY_SITE
+        return PoiType.holySite;
+      case 'OTHER':  // ✅ Support backend OTHER
+        return PoiType.other;
       default:
-        // Gérer les types du PoiController
+        // Gérer les types en minuscules pour rétrocompatibilité
         if (typeLower == 'holy_site') return PoiType.holySite;
         if (typeLower == 'hajj_site') return PoiType.hajjSite;
         if (typeLower == 'transport') return PoiType.transport;
+        if (typeLower == 'transportation') return PoiType.transport;
         if (typeLower == 'airport') return PoiType.airport;
         return PoiType.other;
     }
@@ -200,15 +207,32 @@ class PoiModel {
   /// Convertit le type au format backend (majuscules)
   String get typeBackend {
     switch (type) {
+      case PoiType.hotel:
+        return 'HOTEL';
+      case PoiType.hospital:
+        return 'HOSPITAL';
+      case PoiType.mosque:
+        return 'MOSQUE';
+      case PoiType.restaurant:
+        return 'RESTAURANT';
+      case PoiType.pharmacy:
+        return 'PHARMACY';
+      case PoiType.water:
+        return 'WATER';
+      case PoiType.consulate:
+        return 'CONSULATE';
+      case PoiType.rally:
+        return 'RALLY';
+      case PoiType.shop:
+        return 'SHOP';
       case PoiType.holySite:
-        return 'MOSQUE'; // Les sites sacrés sont des mosquées
       case PoiType.hajjSite:
-        return 'RALLY'; // Les sites hajj sont des points de rassemblement
+        return 'HOLY_SITE';  // ✅ Mapper vers type backend réel
       case PoiType.transport:
       case PoiType.airport:
+        return 'TRANSPORTATION';  // ✅ Mapper vers type backend réel
+      case PoiType.other:
         return 'OTHER';
-      default:
-        return type.name.toUpperCase();
     }
   }
 }

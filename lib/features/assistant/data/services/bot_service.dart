@@ -48,10 +48,13 @@ class BotService {
       }
 
       // Charge les données locales
-      final steps = await localDataSource.getSteps();
-      if (steps.isEmpty) {
-        // Première utilisation, télécharge les étapes
+      // 🔧 PATCH : Force le téléchargement pour éviter les UUIDs obsolètes
+      try {
         await syncService.downloadSteps();
+        logger.d('Steps synced from server');
+      } catch (e) {
+        logger.w('Cannot sync steps, using local cache: $e');
+        // Utilise le cache local seulement en cas d'échec réseau
       }
 
       // Démarre ou reprend la session
@@ -253,8 +256,13 @@ class BotService {
 
       // Utilise les règles de navigation si disponibles
       if (_currentStep!.navigationRules != null) {
-        nextStepCode = _currentStep!.navigationRules![answer.toUpperCase()] ??
-            _currentStep!.navigationRules!['default'];
+        // Normalise la réponse : enlève accents, ponctuation, et met en majuscules
+        final normalizedAnswer = _normalizeAnswer(answer);
+        logger.d('Looking for navigation rule with: "$normalizedAnswer"');
+        logger.d('Available rules: ${_currentStep!.navigationRules!.keys}');
+        
+        nextStepCode = _currentStep!.navigationRules![normalizedAnswer] ??
+            _currentStep!.navigationRules!['DEFAULT'];
       }
 
       // Sinon utilise nextStepCode
@@ -338,6 +346,36 @@ class BotService {
           ? 0 
           : (allProgress.length / allSteps.length * 100).round(),
     };
+  }
+
+  /// Normalise une réponse pour la correspondance avec les clés de navigation
+  /// Enlève les accents, la ponctuation, et convertit en majuscules
+  String _normalizeAnswer(String answer) {
+    // Convertir en majuscules
+    String normalized = answer.toUpperCase();
+    
+    // Enlever les accents courants en français
+    normalized = normalized
+        .replaceAll('É', 'E')
+        .replaceAll('È', 'E')
+        .replaceAll('Ê', 'E')
+        .replaceAll('Ë', 'E')
+        .replaceAll('À', 'A')
+        .replaceAll('Â', 'A')
+        .replaceAll('Ù', 'U')
+        .replaceAll('Û', 'U')
+        .replaceAll('Ô', 'O')
+        .replaceAll('Î', 'I')
+        .replaceAll('Ï', 'I')
+        .replaceAll('Ç', 'C');
+    
+    // Enlever les apostrophes et les guillemets
+    normalized = normalized.replaceAll("'", ' ').replaceAll('"', ' ');
+    
+    // Normaliser les espaces multiples
+    normalized = normalized.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    return normalized;
   }
 
   /// Nettoie et libère les ressources

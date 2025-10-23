@@ -66,8 +66,8 @@ class UserProgressModel {
       'stepId': stepId,
       'stepCode': stepCode,
       'answer': answer,
-      'answeredAt': answeredAt.toIso8601String(),
-      'syncedAt': syncedAt?.toIso8601String(),
+      'answeredAt': answeredAt.toUtc().toIso8601String(),
+      'syncedAt': syncedAt?.toUtc().toIso8601String(),
       'isOffline': isOffline,
       'deviceId': deviceId,
     };

@@ -46,9 +46,9 @@ class SessionModel {
       'userId': userId,
       'currentStep': currentStep?.toJson(),
       'status': status,
-      'startedAt': startedAt.toIso8601String(),
-      'lastInteractionAt': lastInteractionAt?.toIso8601String(),
-      'completedAt': completedAt?.toIso8601String(),
+      'startedAt': startedAt.toUtc().toIso8601String(),
+      'lastInteractionAt': lastInteractionAt?.toUtc().toIso8601String(),
+      'completedAt': completedAt?.toUtc().toIso8601String(),
       'totalAnswers': totalAnswers,
     };
   }
