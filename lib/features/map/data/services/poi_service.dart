@@ -9,7 +9,7 @@ class PoiService {
   final FlutterSecureStorage _secureStorage;
 
   // Toggle pour utiliser l'API réelle ou les données de test
-  static const bool _useRealApi = false; // Mettre à true quand la BDD est prête
+  static const bool _useRealApi = true; // ✅ Activé - API backend disponible
 
   PoiService({
     required DioClient dioClient,

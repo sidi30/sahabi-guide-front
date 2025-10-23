@@ -105,7 +105,7 @@ class AssistantRemoteDataSource {
         data: {
           'stepId': stepId,
           'answer': answer,
-          'answeredAt': (answeredAt ?? DateTime.now()).toIso8601String(),
+          'answeredAt': (answeredAt ?? DateTime.now()).toUtc().toIso8601String(),
           'isOffline': isOffline,
           'deviceId': deviceId,
         },

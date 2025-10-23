@@ -55,6 +55,10 @@ class _AssistantChatPageState extends ConsumerState<AssistantChatPage>
             tooltip: 'Statistiques',
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: _buildProgressBar(),
+        ),
       ),
       body: chatState.when(
         data: (state) => _buildChatInterface(state),
@@ -88,6 +92,8 @@ class _AssistantChatPageState extends ConsumerState<AssistantChatPage>
 
     return Column(
       children: [
+        // Badge de progression
+        _buildProgressBadge(),
         // Messages
         Expanded(
           child: state.messages.isEmpty
@@ -377,6 +383,88 @@ class _AssistantChatPageState extends ConsumerState<AssistantChatPage>
           ),
         ],
       ),
+    );
+  }
+
+  /// Barre de progression dans l'AppBar
+  Widget _buildProgressBar() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ref.read(botServiceProvider).getProgressStats(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const LinearProgressIndicator(value: 0);
+        }
+        
+        final stats = snapshot.data!;
+        final progress = stats['progressPercentage'] as int? ?? 0;
+        
+        return LinearProgressIndicator(
+          value: progress / 100,
+          backgroundColor: Colors.grey[300],
+          valueColor: AlwaysStoppedAnimation<Color>(
+            progress >= 100 ? Colors.green : Colors.blue,
+          ),
+          minHeight: 4,
+        );
+      },
+    );
+  }
+
+  /// Badge de progression en haut du chat
+  Widget _buildProgressBadge() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ref.read(botServiceProvider).getProgressStats(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+        
+        final stats = snapshot.data!;
+        final completed = stats['completedSteps'] as int? ?? 0;
+        final total = stats['totalSteps'] as int? ?? 0;
+        final progress = stats['progressPercentage'] as int? ?? 0;
+        
+        if (total == 0) return const SizedBox.shrink();
+        
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: progress >= 100 
+                ? Colors.green[50] 
+                : Colors.blue[50],
+            border: Border(
+              bottom: BorderSide(
+                color: progress >= 100 
+                    ? Colors.green[200]! 
+                    : Colors.blue[200]!,
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                progress >= 100 ? Icons.check_circle : Icons.analytics,
+                size: 16,
+                color: progress >= 100 ? Colors.green[700] : Colors.blue[700],
+              ),
+              const SizedBox(width: 8),
+              Text(
+                progress >= 100
+                    ? '🎉 Félicitations ! Toutes les étapes terminées'
+                    : '$completed / $total étapes complétées ($progress%)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: progress >= 100 ? Colors.green[700] : Colors.blue[700],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
