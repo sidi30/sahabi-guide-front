@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 import '../../../../core/di/injection_container.dart';
+import '../../data/models/user_settings_model.dart';
+import '../../domain/usecases/update_notification_settings_usecase.dart';
 
 // Modèle de données
 class NotificationSettings {
@@ -94,6 +97,7 @@ class NotificationSettings {
 // Notifier
 class NotificationsSettingsNotifier extends StateNotifier<AsyncValue<NotificationSettings>> {
   static const String _storageKey = 'notification_settings';
+  Timer? _debounceTimer;
 
   NotificationsSettingsNotifier() : super(const AsyncValue.loading()) {
     _loadSettings();
@@ -135,9 +139,41 @@ class NotificationsSettingsNotifier extends StateNotifier<AsyncValue<Notificatio
       }
       
       state = AsyncValue.data(settings);
+
+      // Déclencher la synchronisation backend avec un léger debounce
+      _scheduleBackendSync(settings);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
+  }
+
+  void _scheduleBackendSync(NotificationSettings settings) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        final usecase = sl<UpdateNotificationSettingsUseCase>();
+        final payload = _mapToUserSettingsModel(settings);
+        await usecase(payload);
+      } catch (e) {
+        // On reste silencieux côté UI; l'état local est conservé et on réessaiera
+      }
+    });
+  }
+
+  UserSettingsModel _mapToUserSettingsModel(NotificationSettings s) {
+    return UserSettingsModel(
+      allNotificationsEnabled: s.allEnabled,
+      pushNotificationsEnabled: s.pushEnabled,
+      soundEnabled: s.soundEnabled,
+      vibrationEnabled: s.vibrationEnabled,
+      emergencyAlerts: s.emergencyAlerts,
+      prayerReminders: s.prayerReminders,
+      ritualReminders: s.ritualReminders,
+      groupMessages: s.groupMessages,
+      healthAlerts: s.healthAlerts,
+      appUpdates: s.appUpdates,
+      doNotDisturb: s.doNotDisturb,
+    );
   }
 
   Future<void> toggleAllNotifications(bool value) async {
