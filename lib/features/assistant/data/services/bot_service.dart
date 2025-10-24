@@ -146,6 +146,13 @@ class BotService {
         return ['Oui', 'Non'];
       case 'MULTIPLE_CHOICE':
         return step.answerOptions ?? [];
+      case 'TEXT':
+        // Étapes explicatives: proposer un bouton "Suivant"
+        return ['Suivant'];
+      case 'DATE':
+      case 'TIME':
+        // Étapes de sélection simple: proposer un avancement basique
+        return ['Suivant'];
       default:
         return [];
     }
