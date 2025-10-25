@@ -81,6 +81,12 @@ dev_dependencies:
   mockito: ^5.4.4
   build_runner: ^2.4.7
   hive_generator: ^2.0.1
+  
+  # Générateur d'icônes
+  flutter_launcher_icons: ^0.13.1
+  
+  # Générateur de splash screen
+  flutter_native_splash: ^2.4.1
 
 flutter:
   generate: true
@@ -106,3 +112,76 @@ flutter:
     - assets/video/
     # - assets/audio/   # désactivé: dossier manquant
     # - assets/icons/   # désactivé: dossier manquant
+
+# ============================================
+# CONFIGURATION DES ICÔNES
+# ============================================
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/sahabi logo.png"
+  
+  # Configuration Android
+  adaptive_icon_background: "#1D3557"
+  adaptive_icon_foreground: "assets/images/sahabi logo.png"
+  
+  # Configuration iOS
+  remove_alpha_ios: true
+  
+  # Configuration Web (optionnel)
+  web:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+    background_color: "#1D3557"
+    theme_color: "#1D3557"
+  
+  # Configuration Windows (optionnel)
+  windows:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+    icon_size: 48
+  
+  # Configuration macOS (optionnel)
+  macos:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+
+# ============================================
+# CONFIGURATION DU SPLASH SCREEN
+# ============================================
+flutter_native_splash:
+  # Couleur de fond
+  color: "#1D3557"
+  
+  # Image (logo centré)
+  image: assets/images/sahabi logo.png
+  
+  # Image pour mode sombre (optionnel)
+  color_dark: "#0A1929"
+  image_dark: assets/images/sahabi logo.png
+  
+  # Configuration Android
+  android: true
+  android_12:
+    image: assets/images/sahabi logo.png
+    icon_background_color: "#1D3557"
+    image_dark: assets/images/sahabi logo.png
+    icon_background_color_dark: "#0A1929"
+  
+  # Configuration iOS
+  ios: true
+  
+  # Configuration Web (optionnel)
+  web: true
+  
+  # Remplissage de l'image (centre par défaut)
+  android_gravity: center
+  ios_content_mode: center
+  web_image_mode: center
+  
+  # Configuration de taille
+  fullscreen: true
+  
+  # Branding (optionnel - texte sous le logo)
+  # android_branding: assets/images/branding.png
+  # ios_branding: assets/images/branding.png
