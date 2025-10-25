@@ -31,6 +31,7 @@ import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
 import 'shared/presentation/pages/splash_page.dart';
+import 'shared/presentation/pages/splash_wrapper.dart';
 import 'shared/presentation/widgets/main_shell.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';
@@ -149,10 +150,10 @@ class MyApp extends ConsumerWidget {
         return null;
       },
       routes: [
-      // Splash Screen
+      // Splash Screen (avec vidéo au premier lancement)
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashPage(),
+        builder: (context, state) => const SplashWrapper(),
       ),
 
       // Auth Choice Screen (page principale après splash)

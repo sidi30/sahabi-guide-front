@@ -1,7 +1,7 @@
 {
   "@@locale": "fr",
   
-  "appTitle": "Guide Sahabi",
+  "appTitle": "Sahabi Guide",
   "@appTitle": {
     "description": "Titre de l'application"
   },
@@ -163,5 +163,74 @@
   "error_server": "Erreur serveur",
   "error_authentication": "Erreur d'authentification",
   "error_not_found": "Ressource non trouvée",
-  "error_unknown": "Erreur inconnue"
+  "error_unknown": "Erreur inconnue",
+
+  "splash_loading": "Chargement en cours...",
+  "splash_skip": "Passer",
+  "splash_welcome": "Bienvenue dans Sahabi Guide",
+  
+  "assistant_title": "Assistant Sahabi",
+  "assistant_greeting": "Bonjour ! Je suis votre assistant Sahabi. Comment puis-je vous aider ?",
+  "assistant_input_placeholder": "Posez votre question...",
+  "assistant_send": "Envoyer",
+  "assistant_thinking": "Je réfléchis...",
+  
+  "map_title": "Carte",
+  "map_my_position": "Ma position",
+  "map_group_position": "Position du groupe",
+  "map_poi": "Points d'intérêt",
+  "map_zoom_in": "Zoomer",
+  "map_zoom_out": "Dézoomer",
+  "map_center": "Centrer",
+  
+  "rituals_title": "Rituels du Hajj",
+  "rituals_in_progress": "En cours",
+  "rituals_completed": "Terminés",
+  "rituals_pending": "À venir",
+  "rituals_mark_complete": "Marquer comme terminé",
+  "rituals_details": "Détails du rituel",
+  
+  "videos_title": "Vidéos",
+  "videos_educational": "Éducatives",
+  "videos_tutorials": "Tutoriels",
+  "videos_play": "Lire",
+  "videos_pause": "Pause",
+  
+  "accessibility_logo": "Logo Sahabi Guide",
+  "accessibility_bot_avatar": "Avatar de l'assistant",
+  "accessibility_user_avatar": "Avatar de l'utilisateur",
+  "accessibility_close_button": "Bouton fermer",
+  "accessibility_back_button": "Bouton retour",
+  "accessibility_menu_button": "Bouton menu",
+  "accessibility_settings_button": "Bouton paramètres",
+  "accessibility_navigation_home": "Aller à l'accueil",
+  "accessibility_navigation_rituals": "Aller aux rituels",
+  "accessibility_navigation_map": "Aller à la carte",
+  "accessibility_navigation_videos": "Aller aux vidéos",
+  "accessibility_navigation_profile": "Aller au profil",
+  "accessibility_open_assistant": "Ouvrir l'assistant",
+  "accessibility_loading": "Chargement en cours",
+  "accessibility_image_loading": "Image en cours de chargement",
+  "accessibility_video_player": "Lecteur vidéo",
+  "accessibility_qr_code": "Code QR",
+  "accessibility_notification_toggle": "Activer/désactiver les notifications",
+  
+  "group_title": "Mon Groupe",
+  "group_members": "Membres",
+  "group_guide": "Guide",
+  "group_status": "Statut",
+  "group_location": "Localisation",
+  
+  "emergency_title": "Urgence",
+  "emergency_call": "Appeler",
+  "emergency_sos": "SOS",
+  "emergency_medical": "Urgence médicale",
+  "emergency_security": "Sécurité",
+  
+  "connectivity_title": "Connectivité",
+  "connectivity_status": "Statut",
+  "connectivity_connected": "Connecté",
+  "connectivity_disconnected": "Déconnecté",
+  "connectivity_esim": "eSIM",
+  "connectivity_plans": "Forfaits"
 }

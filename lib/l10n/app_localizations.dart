@@ -996,6 +996,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown error'**
   String get error_unknown;
+
+  /// No description provided for @splash_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get splash_loading;
+
+  /// No description provided for @splash_skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get splash_skip;
+
+  /// No description provided for @splash_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Sahabi Guide'**
+  String get splash_welcome;
+
+  /// No description provided for @assistant_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahabi Assistant'**
+  String get assistant_title;
+
+  /// No description provided for @assistant_greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! I\'m your Sahabi assistant. How can I help you?'**
+  String get assistant_greeting;
+
+  /// No description provided for @assistant_input_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your question...'**
+  String get assistant_input_placeholder;
+
+  /// No description provided for @assistant_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get assistant_send;
+
+  /// No description provided for @assistant_thinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking...'**
+  String get assistant_thinking;
+
+  /// No description provided for @map_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map_title;
+
+  /// No description provided for @map_my_position.
+  ///
+  /// In en, this message translates to:
+  /// **'My position'**
+  String get map_my_position;
+
+  /// No description provided for @map_group_position.
+  ///
+  /// In en, this message translates to:
+  /// **'Group position'**
+  String get map_group_position;
+
+  /// No description provided for @map_poi.
+  ///
+  /// In en, this message translates to:
+  /// **'Points of interest'**
+  String get map_poi;
+
+  /// No description provided for @map_zoom_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get map_zoom_in;
+
+  /// No description provided for @map_zoom_out.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get map_zoom_out;
+
+  /// No description provided for @map_center.
+  ///
+  /// In en, this message translates to:
+  /// **'Center'**
+  String get map_center;
+
+  /// No description provided for @rituals_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hajj Rituals'**
+  String get rituals_title;
+
+  /// No description provided for @rituals_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get rituals_in_progress;
+
+  /// No description provided for @rituals_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get rituals_completed;
+
+  /// No description provided for @rituals_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get rituals_pending;
+
+  /// No description provided for @rituals_mark_complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as complete'**
+  String get rituals_mark_complete;
+
+  /// No description provided for @rituals_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual details'**
+  String get rituals_details;
+
+  /// No description provided for @videos_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get videos_title;
+
+  /// No description provided for @videos_educational.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational'**
+  String get videos_educational;
+
+  /// No description provided for @videos_tutorials.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorials'**
+  String get videos_tutorials;
+
+  /// No description provided for @videos_play.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get videos_play;
+
+  /// No description provided for @videos_pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get videos_pause;
+
+  /// No description provided for @accessibility_logo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahabi Guide logo'**
+  String get accessibility_logo;
+
+  /// No description provided for @accessibility_bot_avatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant avatar'**
+  String get accessibility_bot_avatar;
+
+  /// No description provided for @accessibility_user_avatar.
+  ///
+  /// In en, this message translates to:
+  /// **'User avatar'**
+  String get accessibility_user_avatar;
+
+  /// No description provided for @accessibility_close_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close button'**
+  String get accessibility_close_button;
+
+  /// No description provided for @accessibility_back_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Back button'**
+  String get accessibility_back_button;
+
+  /// No description provided for @accessibility_menu_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu button'**
+  String get accessibility_menu_button;
+
+  /// No description provided for @accessibility_settings_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings button'**
+  String get accessibility_settings_button;
+
+  /// No description provided for @accessibility_navigation_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to home'**
+  String get accessibility_navigation_home;
+
+  /// No description provided for @accessibility_navigation_rituals.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to rituals'**
+  String get accessibility_navigation_rituals;
+
+  /// No description provided for @accessibility_navigation_map.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to map'**
+  String get accessibility_navigation_map;
+
+  /// No description provided for @accessibility_navigation_videos.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to videos'**
+  String get accessibility_navigation_videos;
+
+  /// No description provided for @accessibility_navigation_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to profile'**
+  String get accessibility_navigation_profile;
+
+  /// No description provided for @accessibility_open_assistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Open assistant'**
+  String get accessibility_open_assistant;
+
+  /// No description provided for @accessibility_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get accessibility_loading;
+
+  /// No description provided for @accessibility_image_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Image loading'**
+  String get accessibility_image_loading;
+
+  /// No description provided for @accessibility_video_player.
+  ///
+  /// In en, this message translates to:
+  /// **'Video player'**
+  String get accessibility_video_player;
+
+  /// No description provided for @accessibility_qr_code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code'**
+  String get accessibility_qr_code;
+
+  /// No description provided for @accessibility_notification_toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle notifications'**
+  String get accessibility_notification_toggle;
+
+  /// No description provided for @group_title.
+  ///
+  /// In en, this message translates to:
+  /// **'My Group'**
+  String get group_title;
+
+  /// No description provided for @group_members.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get group_members;
+
+  /// No description provided for @group_guide.
+  ///
+  /// In en, this message translates to:
+  /// **'Guide'**
+  String get group_guide;
+
+  /// No description provided for @group_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get group_status;
+
+  /// No description provided for @group_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get group_location;
+
+  /// No description provided for @emergency_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get emergency_title;
+
+  /// No description provided for @emergency_call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get emergency_call;
+
+  /// No description provided for @emergency_sos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get emergency_sos;
+
+  /// No description provided for @emergency_medical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical emergency'**
+  String get emergency_medical;
+
+  /// No description provided for @emergency_security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get emergency_security;
+
+  /// No description provided for @connectivity_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Connectivity'**
+  String get connectivity_title;
+
+  /// No description provided for @connectivity_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get connectivity_status;
+
+  /// No description provided for @connectivity_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connectivity_connected;
+
+  /// No description provided for @connectivity_disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get connectivity_disconnected;
+
+  /// No description provided for @connectivity_esim.
+  ///
+  /// In en, this message translates to:
+  /// **'eSIM'**
+  String get connectivity_esim;
+
+  /// No description provided for @connectivity_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get connectivity_plans;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

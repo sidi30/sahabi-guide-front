@@ -457,4 +457,184 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get error_unknown => 'خطأ غير معروف';
+
+  @override
+  String get splash_loading => 'جاري التحميل...';
+
+  @override
+  String get splash_skip => 'تخطي';
+
+  @override
+  String get splash_welcome => 'مرحباً بك في دليل الصحابة';
+
+  @override
+  String get assistant_title => 'مساعد الصحابة';
+
+  @override
+  String get assistant_greeting => 'مرحباً! أنا مساعد الصحابة. كيف يمكنني مساعدتك؟';
+
+  @override
+  String get assistant_input_placeholder => 'اطرح سؤالك...';
+
+  @override
+  String get assistant_send => 'إرسال';
+
+  @override
+  String get assistant_thinking => 'أفكر...';
+
+  @override
+  String get map_title => 'الخريطة';
+
+  @override
+  String get map_my_position => 'موقعي';
+
+  @override
+  String get map_group_position => 'موقع المجموعة';
+
+  @override
+  String get map_poi => 'نقاط الاهتمام';
+
+  @override
+  String get map_zoom_in => 'تكبير';
+
+  @override
+  String get map_zoom_out => 'تصغير';
+
+  @override
+  String get map_center => 'توسيط';
+
+  @override
+  String get rituals_title => 'مناسك الحج';
+
+  @override
+  String get rituals_in_progress => 'قيد التنفيذ';
+
+  @override
+  String get rituals_completed => 'مكتملة';
+
+  @override
+  String get rituals_pending => 'قادمة';
+
+  @override
+  String get rituals_mark_complete => 'وضع علامة مكتمل';
+
+  @override
+  String get rituals_details => 'تفاصيل المنسك';
+
+  @override
+  String get videos_title => 'الفيديوهات';
+
+  @override
+  String get videos_educational => 'تعليمية';
+
+  @override
+  String get videos_tutorials => 'دروس تعليمية';
+
+  @override
+  String get videos_play => 'تشغيل';
+
+  @override
+  String get videos_pause => 'إيقاف مؤقت';
+
+  @override
+  String get accessibility_logo => 'شعار دليل الصحابة';
+
+  @override
+  String get accessibility_bot_avatar => 'صورة المساعد';
+
+  @override
+  String get accessibility_user_avatar => 'صورة المستخدم';
+
+  @override
+  String get accessibility_close_button => 'زر الإغلاق';
+
+  @override
+  String get accessibility_back_button => 'زر الرجوع';
+
+  @override
+  String get accessibility_menu_button => 'زر القائمة';
+
+  @override
+  String get accessibility_settings_button => 'زر الإعدادات';
+
+  @override
+  String get accessibility_navigation_home => 'الذهاب إلى الرئيسية';
+
+  @override
+  String get accessibility_navigation_rituals => 'الذهاب إلى المناسك';
+
+  @override
+  String get accessibility_navigation_map => 'الذهاب إلى الخريطة';
+
+  @override
+  String get accessibility_navigation_videos => 'الذهاب إلى الفيديوهات';
+
+  @override
+  String get accessibility_navigation_profile => 'الذهاب إلى الملف الشخصي';
+
+  @override
+  String get accessibility_open_assistant => 'فتح المساعد';
+
+  @override
+  String get accessibility_loading => 'جاري التحميل';
+
+  @override
+  String get accessibility_image_loading => 'جاري تحميل الصورة';
+
+  @override
+  String get accessibility_video_player => 'مشغل الفيديو';
+
+  @override
+  String get accessibility_qr_code => 'رمز الاستجابة السريعة';
+
+  @override
+  String get accessibility_notification_toggle => 'تبديل الإشعارات';
+
+  @override
+  String get group_title => 'مجموعتي';
+
+  @override
+  String get group_members => 'الأعضاء';
+
+  @override
+  String get group_guide => 'المرشد';
+
+  @override
+  String get group_status => 'الحالة';
+
+  @override
+  String get group_location => 'الموقع';
+
+  @override
+  String get emergency_title => 'طوارئ';
+
+  @override
+  String get emergency_call => 'اتصال';
+
+  @override
+  String get emergency_sos => 'نداء استغاثة';
+
+  @override
+  String get emergency_medical => 'طوارئ طبية';
+
+  @override
+  String get emergency_security => 'أمن';
+
+  @override
+  String get connectivity_title => 'الاتصال';
+
+  @override
+  String get connectivity_status => 'الحالة';
+
+  @override
+  String get connectivity_connected => 'متصل';
+
+  @override
+  String get connectivity_disconnected => 'غير متصل';
+
+  @override
+  String get connectivity_esim => 'الشريحة الإلكترونية';
+
+  @override
+  String get connectivity_plans => 'الباقات';
 }

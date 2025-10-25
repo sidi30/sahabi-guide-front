@@ -92,7 +92,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // App Logo
+                    // App Logo Sahabi
                     Container(
                       width: 120,
                       height: 120,
@@ -107,10 +107,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.eco_outlined,
-                        size: 60,
-                        color: Theme.of(context).primaryColor,
+                      padding: const EdgeInsets.all(16),
+                      child: Image.asset(
+                        'assets/images/sahabi logo.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.mosque,
+                            size: 60,
+                            color: Theme.of(context).primaryColor,
+                          );
+                        },
                       ),
                     ),
 

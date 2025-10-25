@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../shared/constants/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AuthChoicePage extends ConsumerStatefulWidget {
   const AuthChoicePage({super.key});
@@ -60,33 +61,43 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               Center(
                 child: Column(
                   children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.eco_outlined,
-                        color: Colors.white,
-                        size: 50,
+                    Semantics(
+                      label: AppLocalizations.of(context)!.accessibility_logo,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Image.asset(
+                          'assets/images/sahabi logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.mosque,
+                              color: AppColors.primary,
+                              size: 50,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Sahabi Guide',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.appTitle,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2D5F5D),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Votre guide pour un pèlerinage béni et harmonieux.',
+                    Text(
+                      AppLocalizations.of(context)!.splash_welcome,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
                       ),

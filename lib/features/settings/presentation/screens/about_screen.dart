@@ -58,13 +58,20 @@ class _AboutScreenState extends State<AboutScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.eco_outlined,
-                      size: 50,
-                      color: AppColors.primary,
+                    padding: const EdgeInsets.all(16),
+                    child: Image.asset(
+                      'assets/images/sahabi logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.mosque,
+                          size: 50,
+                          color: AppColors.primary,
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -212,13 +219,20 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.eco_outlined,
-                      size: 30,
-                      color: AppColors.primary,
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      'assets/images/sahabi logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.mosque,
+                          size: 30,
+                          color: AppColors.primary,
+                        );
+                      },
                     ),
                   ),
                 );

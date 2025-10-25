@@ -41,6 +41,10 @@ dependencies:
   # Audio Player
   just_audio: ^0.9.36
 
+  # Video Player (pour splash screen animé)
+  video_player: ^2.8.0
+  chewie: ^1.7.0
+
   # Maps & Location
   # flutter_map remplacé par google_maps_flutter
   google_maps_flutter: ^2.9.0
@@ -99,5 +103,6 @@ flutter:
   assets:
     - assets/images/
     - assets/data/
+    - assets/video/
     # - assets/audio/   # désactivé: dossier manquant
     # - assets/icons/   # désactivé: dossier manquant

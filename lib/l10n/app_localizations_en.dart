@@ -457,4 +457,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error_unknown => 'Unknown error';
+
+  @override
+  String get splash_loading => 'Loading...';
+
+  @override
+  String get splash_skip => 'Skip';
+
+  @override
+  String get splash_welcome => 'Welcome to Sahabi Guide';
+
+  @override
+  String get assistant_title => 'Sahabi Assistant';
+
+  @override
+  String get assistant_greeting => 'Hello! I\'m your Sahabi assistant. How can I help you?';
+
+  @override
+  String get assistant_input_placeholder => 'Ask your question...';
+
+  @override
+  String get assistant_send => 'Send';
+
+  @override
+  String get assistant_thinking => 'Thinking...';
+
+  @override
+  String get map_title => 'Map';
+
+  @override
+  String get map_my_position => 'My position';
+
+  @override
+  String get map_group_position => 'Group position';
+
+  @override
+  String get map_poi => 'Points of interest';
+
+  @override
+  String get map_zoom_in => 'Zoom in';
+
+  @override
+  String get map_zoom_out => 'Zoom out';
+
+  @override
+  String get map_center => 'Center';
+
+  @override
+  String get rituals_title => 'Hajj Rituals';
+
+  @override
+  String get rituals_in_progress => 'In progress';
+
+  @override
+  String get rituals_completed => 'Completed';
+
+  @override
+  String get rituals_pending => 'Pending';
+
+  @override
+  String get rituals_mark_complete => 'Mark as complete';
+
+  @override
+  String get rituals_details => 'Ritual details';
+
+  @override
+  String get videos_title => 'Videos';
+
+  @override
+  String get videos_educational => 'Educational';
+
+  @override
+  String get videos_tutorials => 'Tutorials';
+
+  @override
+  String get videos_play => 'Play';
+
+  @override
+  String get videos_pause => 'Pause';
+
+  @override
+  String get accessibility_logo => 'Sahabi Guide logo';
+
+  @override
+  String get accessibility_bot_avatar => 'Assistant avatar';
+
+  @override
+  String get accessibility_user_avatar => 'User avatar';
+
+  @override
+  String get accessibility_close_button => 'Close button';
+
+  @override
+  String get accessibility_back_button => 'Back button';
+
+  @override
+  String get accessibility_menu_button => 'Menu button';
+
+  @override
+  String get accessibility_settings_button => 'Settings button';
+
+  @override
+  String get accessibility_navigation_home => 'Go to home';
+
+  @override
+  String get accessibility_navigation_rituals => 'Go to rituals';
+
+  @override
+  String get accessibility_navigation_map => 'Go to map';
+
+  @override
+  String get accessibility_navigation_videos => 'Go to videos';
+
+  @override
+  String get accessibility_navigation_profile => 'Go to profile';
+
+  @override
+  String get accessibility_open_assistant => 'Open assistant';
+
+  @override
+  String get accessibility_loading => 'Loading';
+
+  @override
+  String get accessibility_image_loading => 'Image loading';
+
+  @override
+  String get accessibility_video_player => 'Video player';
+
+  @override
+  String get accessibility_qr_code => 'QR code';
+
+  @override
+  String get accessibility_notification_toggle => 'Toggle notifications';
+
+  @override
+  String get group_title => 'My Group';
+
+  @override
+  String get group_members => 'Members';
+
+  @override
+  String get group_guide => 'Guide';
+
+  @override
+  String get group_status => 'Status';
+
+  @override
+  String get group_location => 'Location';
+
+  @override
+  String get emergency_title => 'Emergency';
+
+  @override
+  String get emergency_call => 'Call';
+
+  @override
+  String get emergency_sos => 'SOS';
+
+  @override
+  String get emergency_medical => 'Medical emergency';
+
+  @override
+  String get emergency_security => 'Security';
+
+  @override
+  String get connectivity_title => 'Connectivity';
+
+  @override
+  String get connectivity_status => 'Status';
+
+  @override
+  String get connectivity_connected => 'Connected';
+
+  @override
+  String get connectivity_disconnected => 'Disconnected';
+
+  @override
+  String get connectivity_esim => 'eSIM';
+
+  @override
+  String get connectivity_plans => 'Plans';
 }

@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Guide Sahabi';
+  String get appTitle => 'Sahabi Guide';
 
   @override
   String get common_save => 'Enregistrer';
@@ -457,4 +457,184 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get error_unknown => 'Erreur inconnue';
+
+  @override
+  String get splash_loading => 'Chargement en cours...';
+
+  @override
+  String get splash_skip => 'Passer';
+
+  @override
+  String get splash_welcome => 'Bienvenue dans Sahabi Guide';
+
+  @override
+  String get assistant_title => 'Assistant Sahabi';
+
+  @override
+  String get assistant_greeting => 'Bonjour ! Je suis votre assistant Sahabi. Comment puis-je vous aider ?';
+
+  @override
+  String get assistant_input_placeholder => 'Posez votre question...';
+
+  @override
+  String get assistant_send => 'Envoyer';
+
+  @override
+  String get assistant_thinking => 'Je réfléchis...';
+
+  @override
+  String get map_title => 'Carte';
+
+  @override
+  String get map_my_position => 'Ma position';
+
+  @override
+  String get map_group_position => 'Position du groupe';
+
+  @override
+  String get map_poi => 'Points d\'intérêt';
+
+  @override
+  String get map_zoom_in => 'Zoomer';
+
+  @override
+  String get map_zoom_out => 'Dézoomer';
+
+  @override
+  String get map_center => 'Centrer';
+
+  @override
+  String get rituals_title => 'Rituels du Hajj';
+
+  @override
+  String get rituals_in_progress => 'En cours';
+
+  @override
+  String get rituals_completed => 'Terminés';
+
+  @override
+  String get rituals_pending => 'À venir';
+
+  @override
+  String get rituals_mark_complete => 'Marquer comme terminé';
+
+  @override
+  String get rituals_details => 'Détails du rituel';
+
+  @override
+  String get videos_title => 'Vidéos';
+
+  @override
+  String get videos_educational => 'Éducatives';
+
+  @override
+  String get videos_tutorials => 'Tutoriels';
+
+  @override
+  String get videos_play => 'Lire';
+
+  @override
+  String get videos_pause => 'Pause';
+
+  @override
+  String get accessibility_logo => 'Logo Sahabi Guide';
+
+  @override
+  String get accessibility_bot_avatar => 'Avatar de l\'assistant';
+
+  @override
+  String get accessibility_user_avatar => 'Avatar de l\'utilisateur';
+
+  @override
+  String get accessibility_close_button => 'Bouton fermer';
+
+  @override
+  String get accessibility_back_button => 'Bouton retour';
+
+  @override
+  String get accessibility_menu_button => 'Bouton menu';
+
+  @override
+  String get accessibility_settings_button => 'Bouton paramètres';
+
+  @override
+  String get accessibility_navigation_home => 'Aller à l\'accueil';
+
+  @override
+  String get accessibility_navigation_rituals => 'Aller aux rituels';
+
+  @override
+  String get accessibility_navigation_map => 'Aller à la carte';
+
+  @override
+  String get accessibility_navigation_videos => 'Aller aux vidéos';
+
+  @override
+  String get accessibility_navigation_profile => 'Aller au profil';
+
+  @override
+  String get accessibility_open_assistant => 'Ouvrir l\'assistant';
+
+  @override
+  String get accessibility_loading => 'Chargement en cours';
+
+  @override
+  String get accessibility_image_loading => 'Image en cours de chargement';
+
+  @override
+  String get accessibility_video_player => 'Lecteur vidéo';
+
+  @override
+  String get accessibility_qr_code => 'Code QR';
+
+  @override
+  String get accessibility_notification_toggle => 'Activer/désactiver les notifications';
+
+  @override
+  String get group_title => 'Mon Groupe';
+
+  @override
+  String get group_members => 'Membres';
+
+  @override
+  String get group_guide => 'Guide';
+
+  @override
+  String get group_status => 'Statut';
+
+  @override
+  String get group_location => 'Localisation';
+
+  @override
+  String get emergency_title => 'Urgence';
+
+  @override
+  String get emergency_call => 'Appeler';
+
+  @override
+  String get emergency_sos => 'SOS';
+
+  @override
+  String get emergency_medical => 'Urgence médicale';
+
+  @override
+  String get emergency_security => 'Sécurité';
+
+  @override
+  String get connectivity_title => 'Connectivité';
+
+  @override
+  String get connectivity_status => 'Statut';
+
+  @override
+  String get connectivity_connected => 'Connecté';
+
+  @override
+  String get connectivity_disconnected => 'Déconnecté';
+
+  @override
+  String get connectivity_esim => 'eSIM';
+
+  @override
+  String get connectivity_plans => 'Forfaits';
 }

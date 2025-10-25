@@ -122,11 +122,38 @@ class _MainShellState extends ConsumerState<MainShell> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(getTitleByIndex(context, _selectedIndex)),
+        // Logo Sahabi + Titre
+        title: Row(
+          children: [
+            // Logo Sahabi (discret et professionnel)
+            Semantics(
+              label: AppLocalizations.of(context)!.accessibility_logo,
+              child: Image.asset(
+                'assets/images/sahabi logo.png',
+                height: 32,
+                width: 32,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback si l'image ne charge pas
+                  return const Icon(Icons.mosque, size: 24);
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Titre
+            Expanded(
+              child: Text(getTitleByIndex(context, _selectedIndex)),
+            ),
+          ],
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.go('/settings'),
+          Semantics(
+            label: AppLocalizations.of(context)!.accessibility_settings_button,
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.go('/settings'),
+            ),
           ),
           const SizedBox(width: 8),
         ],

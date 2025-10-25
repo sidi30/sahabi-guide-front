@@ -74,19 +74,26 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
               children: [
                 const SizedBox(height: 48),
 
-                // Logo
+                // Logo Sahabi
                 Center(
                   child: Container(
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
                     ),
-                    child: const Icon(
-                      Icons.eco_outlined,
-                      size: 50,
-                      color: Colors.white,
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset(
+                      'assets/images/sahabi logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.mosque,
+                          size: 50,
+                          color: AppColors.primary,
+                        );
+                      },
                     ),
                   ),
                 ),

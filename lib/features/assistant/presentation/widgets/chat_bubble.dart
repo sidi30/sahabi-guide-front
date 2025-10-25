@@ -58,11 +58,28 @@ class ChatBubble extends StatelessWidget {
             : Theme.of(context).colorScheme.secondary,
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        isBot ? Icons.smart_toy : Icons.person,
-        color: Colors.white,
-        size: 20,
-      ),
+      child: isBot
+          ? ClipOval(
+              child: Image.asset(
+                'assets/images/bot.jpeg',
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback si l'image ne charge pas
+                  return const Icon(
+                    Icons.smart_toy,
+                    color: Colors.white,
+                    size: 20,
+                  );
+                },
+              ),
+            )
+          : const Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 20,
+            ),
     );
   }
 

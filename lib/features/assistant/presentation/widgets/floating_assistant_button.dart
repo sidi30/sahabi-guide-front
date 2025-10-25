@@ -111,10 +111,21 @@ class _FloatingAssistantButtonState extends ConsumerState<FloatingAssistantButto
               backgroundColor: const Color(0xFF1D3557),
               elevation: 4,
               heroTag: 'assistant_button',
-              child: const Icon(
-                Icons.smart_toy, // Icône bot seulement
-                color: Colors.white,
-                size: 28,
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/bot.jpeg',
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback si l'image ne charge pas
+                    return const Icon(
+                      Icons.smart_toy,
+                      color: Colors.white,
+                      size: 28,
+                    );
+                  },
+                ),
               ),
             ),
           ),
