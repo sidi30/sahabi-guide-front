@@ -37,7 +37,7 @@ class PilgrimProfilePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -88,9 +88,9 @@ class PilgrimProfilePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Name
                   const Text(
                     'Moussa Ali',
@@ -100,9 +100,9 @@ class PilgrimProfilePage extends StatelessWidget {
                       color: Color(0xFF1D3557),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Passport and Guide Info
                   Text(
                     'Passport: NGN123456789',
@@ -122,9 +122,9 @@ class PilgrimProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Group Information
             _buildInfoSection(
               'Group Information',
@@ -141,9 +141,9 @@ class PilgrimProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Emergency Contacts
             _buildInfoSection(
               'Emergency Contacts',
@@ -165,9 +165,9 @@ class PilgrimProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Emergency QR Code
             Container(
               padding: const EdgeInsets.all(24),
@@ -176,7 +176,7 @@ class PilgrimProfilePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -193,9 +193,7 @@ class PilgrimProfilePage extends StatelessWidget {
                       color: Color(0xFF1D3557),
                     ),
                   ),
-                  
                   const SizedBox(height: 16),
-                  
                   Center(
                     child: Container(
                       width: 200,
@@ -233,7 +231,7 @@ class PilgrimProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 100), // Space for bottom nav
           ],
         ),
@@ -250,7 +248,7 @@ class PilgrimProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -283,7 +281,7 @@ class PilgrimProfilePage extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF4FC3F7).withOpacity(0.1),
+              color: const Color(0xFF4FC3F7).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -328,7 +326,7 @@ class PilgrimProfilePage extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

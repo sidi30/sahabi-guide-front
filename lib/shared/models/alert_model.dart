@@ -1,261 +1,230 @@
-import 'dart:convert';
-
 class AlertModel {
   final String id;
-  final String agencyId;
-  final String pilgrimId;
-  final String type;
-  final String status;
+  final String? agencyId;
+  final String? userId;
+  final AlertType type;
+  final AlertStatus status;
+  final String title;
+  final String message;
+  final AlertPriority priority;
   final Map<String, dynamic>? payload;
   final DateTime createdAt;
   final DateTime? resolvedAt;
+  final DateTime? readAt;
 
   AlertModel({
     required this.id,
-    required this.agencyId,
-    required this.pilgrimId,
+    this.agencyId,
+    this.userId,
     required this.type,
     required this.status,
+    required this.title,
+    required this.message,
+    required this.priority,
     this.payload,
     required this.createdAt,
     this.resolvedAt,
+    this.readAt,
   });
 
-  AlertModel copyWith({
-    String? id,
-    String? agencyId,
-    String? pilgrimId,
-    String? type,
-    String? status,
-    Map<String, dynamic>? payload,
-    DateTime? createdAt,
-    DateTime? resolvedAt,
-  }) {
+  factory AlertModel.fromJson(Map<String, dynamic> json) {
     return AlertModel(
-      id: id ?? this.id,
-      agencyId: agencyId ?? this.agencyId,
-      pilgrimId: pilgrimId ?? this.pilgrimId,
-      type: type ?? this.type,
-      status: status ?? this.status,
-      payload: payload ?? this.payload,
-      createdAt: createdAt ?? this.createdAt,
-      resolvedAt: resolvedAt ?? this.resolvedAt,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'agencyId': agencyId,
-      'pilgrimId': pilgrimId,
-      'type': type,
-      'status': status,
-      'payload': payload,
-      'createdAt': createdAt.toIso8601String(),
-      'resolvedAt': resolvedAt?.toIso8601String(),
-    };
-  }
-
-  factory AlertModel.fromMap(Map<String, dynamic> map) {
-    return AlertModel(
-      id: map['id'] ?? '',
-      agencyId: map['agencyId'] ?? '',
-      pilgrimId: map['pilgrimId'] ?? '',
-      type: map['type'] ?? '',
-      status: map['status'] ?? '',
-      payload: map['payload'],
-      createdAt: DateTime.parse(map['createdAt']),
-      resolvedAt: map['resolvedAt'] != null 
-          ? DateTime.parse(map['resolvedAt']) 
+      id: json['id'] ?? '',
+      agencyId: json['agencyId'],
+      userId: json['pilgrimId'], // Note: API utilise 'pilgrimId'
+      type: AlertType.fromString(json['type'] ?? 'OTHER'),
+      status: AlertStatus.fromString(json['status'] ?? 'ACTIVE'),
+      title: json['title'] ?? '',
+      message: json['message'] ?? '',
+      priority: AlertPriority.fromString(json['priority'] ?? 'MEDIUM'),
+      payload: json['payload'],
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      resolvedAt: json['resolvedAt'] != null 
+          ? DateTime.tryParse(json['resolvedAt']) 
+          : null,
+      readAt: json['readAt'] != null 
+          ? DateTime.tryParse(json['readAt']) 
           : null,
     );
   }
 
-  String toJson() => json.encode(toMap());
-
-  factory AlertModel.fromJson(String source) => 
-      AlertModel.fromMap(json.decode(source));
-
-  @override
-  String toString() {
-    return 'AlertModel(id: $id, agencyId: $agencyId, pilgrimId: $pilgrimId, type: $type, status: $status, payload: $payload, createdAt: $createdAt, resolvedAt: $resolvedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-  
-    return other is AlertModel && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-class PositionModel {
-  final String id;
-  final String pilgrimId;
-  final double lat;
-  final double lng;
-  final double? accuracy;
-  final int? battery;
-  final DateTime timestamp;
-
-  PositionModel({
-    required this.id,
-    required this.pilgrimId,
-    required this.lat,
-    required this.lng,
-    this.accuracy,
-    this.battery,
-    required this.timestamp,
-  });
-
-  PositionModel copyWith({
-    String? id,
-    String? pilgrimId,
-    double? lat,
-    double? lng,
-    double? accuracy,
-    int? battery,
-    DateTime? timestamp,
-  }) {
-    return PositionModel(
-      id: id ?? this.id,
-      pilgrimId: pilgrimId ?? this.pilgrimId,
-      lat: lat ?? this.lat,
-      lng: lng ?? this.lng,
-      accuracy: accuracy ?? this.accuracy,
-      battery: battery ?? this.battery,
-      timestamp: timestamp ?? this.timestamp,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'pilgrimId': pilgrimId,
-      'lat': lat,
-      'lng': lng,
-      'accuracy': accuracy,
-      'battery': battery,
-      'timestamp': timestamp.toIso8601String(),
+      'agencyId': agencyId,
+      'pilgrimId': userId,
+      'type': type.name,
+      'status': status.name,
+      'title': title,
+      'message': message,
+      'priority': priority.name,
+      'payload': payload,
+      'createdAt': createdAt.toIso8601String(),
+      'resolvedAt': resolvedAt?.toIso8601String(),
+      'readAt': readAt?.toIso8601String(),
     };
   }
 
-  factory PositionModel.fromMap(Map<String, dynamic> map) {
-    return PositionModel(
-      id: map['id'] ?? '',
-      pilgrimId: map['pilgrimId'] ?? '',
-      lat: map['lat']?.toDouble() ?? 0.0,
-      lng: map['lng']?.toDouble() ?? 0.0,
-      accuracy: map['accuracy']?.toDouble(),
-      battery: map['battery'],
-      timestamp: DateTime.parse(map['timestamp']),
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory PositionModel.fromJson(String source) => 
-      PositionModel.fromMap(json.decode(source));
-
-  @override
-  String toString() {
-    return 'PositionModel(id: $id, pilgrimId: $pilgrimId, lat: $lat, lng: $lng, accuracy: $accuracy, battery: $battery, timestamp: $timestamp)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-  
-    return other is PositionModel && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-class HealthProfileModel {
-  final String id;
-  final String pilgrimId;
-  final String? bloodGroup;
-  final List<String> allergies;
-  final List<String> conditions;
-  final List<String> treatments;
-  final String? notes;
-
-  HealthProfileModel({
-    required this.id,
-    required this.pilgrimId,
-    this.bloodGroup,
-    this.allergies = const [],
-    this.conditions = const [],
-    this.treatments = const [],
-    this.notes,
-  });
-
-  HealthProfileModel copyWith({
+  AlertModel copyWith({
     String? id,
-    String? pilgrimId,
-    String? bloodGroup,
-    List<String>? allergies,
-    List<String>? conditions,
-    List<String>? treatments,
-    String? notes,
+    String? agencyId,
+    String? userId,
+    AlertType? type,
+    AlertStatus? status,
+    String? title,
+    String? message,
+    AlertPriority? priority,
+    Map<String, dynamic>? payload,
+    DateTime? createdAt,
+    DateTime? resolvedAt,
+    DateTime? readAt,
   }) {
-    return HealthProfileModel(
+    return AlertModel(
       id: id ?? this.id,
-      pilgrimId: pilgrimId ?? this.pilgrimId,
-      bloodGroup: bloodGroup ?? this.bloodGroup,
-      allergies: allergies ?? this.allergies,
-      conditions: conditions ?? this.conditions,
-      treatments: treatments ?? this.treatments,
-      notes: notes ?? this.notes,
+      agencyId: agencyId ?? this.agencyId,
+      userId: userId ?? this.userId,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      priority: priority ?? this.priority,
+      payload: payload ?? this.payload,
+      createdAt: createdAt ?? this.createdAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      readAt: readAt ?? this.readAt,
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'pilgrimId': pilgrimId,
-      'bloodGroup': bloodGroup,
-      'allergies': allergies,
-      'conditions': conditions,
-      'treatments': treatments,
-      'notes': notes,
-    };
-  }
-
-  factory HealthProfileModel.fromMap(Map<String, dynamic> map) {
-    return HealthProfileModel(
-      id: map['id'] ?? '',
-      pilgrimId: map['pilgrimId'] ?? '',
-      bloodGroup: map['bloodGroup'],
-      allergies: List<String>.from(map['allergies'] ?? []),
-      conditions: List<String>.from(map['conditions'] ?? []),
-      treatments: List<String>.from(map['treatments'] ?? []),
-      notes: map['notes'],
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory HealthProfileModel.fromJson(String source) => 
-      HealthProfileModel.fromMap(json.decode(source));
-
-  @override
-  String toString() {
-    return 'HealthProfileModel(id: $id, pilgrimId: $pilgrimId, bloodGroup: $bloodGroup, allergies: $allergies, conditions: $conditions, treatments: $treatments, notes: $notes)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-  
-    return other is HealthProfileModel && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
+  bool get isRead => readAt != null;
+  bool get isResolved => status == AlertStatus.resolved;
+  bool get isActive => status == AlertStatus.active;
 }
+
+enum AlertType {
+  weather,
+  health,
+  schedule,
+  emergency,
+  security,
+  other;
+
+  static AlertType fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'WEATHER':
+        return AlertType.weather;
+      case 'HEALTH':
+        return AlertType.health;
+      case 'SCHEDULE':
+        return AlertType.schedule;
+      case 'EMERGENCY':
+        return AlertType.emergency;
+      case 'SECURITY':
+        return AlertType.security;
+      default:
+        return AlertType.other;
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case AlertType.weather:
+        return 'Météo';
+      case AlertType.health:
+        return 'Santé';
+      case AlertType.schedule:
+        return 'Horaire';
+      case AlertType.emergency:
+        return 'Urgence';
+      case AlertType.security:
+        return 'Sécurité';
+      case AlertType.other:
+        return 'Autre';
+    }
+  }
+
+  String get name {
+    return toString().split('.').last.toUpperCase();
+  }
+}
+
+enum AlertStatus {
+  active,
+  read,
+  resolved,
+  cancelled;
+
+  static AlertStatus fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'ACTIVE':
+        return AlertStatus.active;
+      case 'READ':
+        return AlertStatus.read;
+      case 'RESOLVED':
+        return AlertStatus.resolved;
+      case 'CANCELLED':
+        return AlertStatus.cancelled;
+      default:
+        return AlertStatus.active;
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case AlertStatus.active:
+        return 'Active';
+      case AlertStatus.read:
+        return 'Lue';
+      case AlertStatus.resolved:
+        return 'Résolue';
+      case AlertStatus.cancelled:
+        return 'Annulée';
+    }
+  }
+
+  String get name {
+    return toString().split('.').last.toUpperCase();
+  }
+}
+
+enum AlertPriority {
+  low,
+  medium,
+  high,
+  critical;
+
+  static AlertPriority fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'LOW':
+        return AlertPriority.low;
+      case 'MEDIUM':
+        return AlertPriority.medium;
+      case 'HIGH':
+        return AlertPriority.high;
+      case 'CRITICAL':
+        return AlertPriority.critical;
+      default:
+        return AlertPriority.medium;
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case AlertPriority.low:
+        return 'Faible';
+      case AlertPriority.medium:
+        return 'Moyenne';
+      case AlertPriority.high:
+        return 'Élevée';
+      case AlertPriority.critical:
+        return 'Critique';
+    }
+  }
+
+  String get name {
+    return toString().split('.').last.toUpperCase();
+  }
+}
+
+
+
+

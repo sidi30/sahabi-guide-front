@@ -58,17 +58,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
     if (!mounted) return;
 
     final storageService = sl<StorageService>();
-    
-    // Check if onboarding is completed
-    final isOnboardingCompleted = storageService.getBool(AppConstants.onboardingKey) ?? false;
-    
+
     // Check if user is logged in
-    final authToken = await storageService.getSecurely(AppConstants.authTokenKey);
-    
-    if (!isOnboardingCompleted) {
-      context.go(AppConstants.onboardingRoute);
-    } else if (authToken == null) {
-      context.go(AppConstants.loginRoute);
+    final authToken =
+        await storageService.getSecurely(AppConstants.authTokenKey);
+
+    // ✅ Redirection directe vers auth-choice (pas d'onboarding)
+    if (authToken == null) {
+      context.go('/auth-choice');
     } else {
       context.go(AppConstants.homeRoute);
     }
@@ -83,7 +80,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryColor,
+      backgroundColor: Theme.of(context).primaryColor,
       body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
@@ -95,7 +92,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // App Logo
+                    // App Logo Sahabi
                     Container(
                       width: 120,
                       height: 120,
@@ -104,42 +101,50 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.mosque,
-                        size: 60,
-                        color: AppTheme.primaryColor,
+                      padding: const EdgeInsets.all(16),
+                      child: Image.asset(
+                        'assets/images/sahabi logo.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.mosque,
+                            size: 60,
+                            color: Theme.of(context).primaryColor,
+                          );
+                        },
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // App Name
                     Text(
                       AppConstants.appName,
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.displayMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // App Tagline
                     Text(
                       'Votre compagnon spirituel',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.8),
-                      ),
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
                     ),
-                    
+
                     const SizedBox(height: 48),
-                    
+
                     // Loading Indicator
                     const SizedBox(
                       width: 40,

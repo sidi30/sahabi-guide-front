@@ -1,55 +1,36 @@
+import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/alert_model.dart';
+import '../../../../shared/services/storage_service.dart';
+import '../../../../core/types/types.dart';
 
-abstract class AlertsRemoteDataSource {
-  Future<List<AlertModel>> getAlerts({String? status, String? pilgrimId});
-  Future<List<AlertModel>> getPilgrimAlerts(String pilgrimId);
-  Future<AlertModel> createAlert(AlertModel alert);
-}
+class AlertsRemoteDataSource {
+  final DioClient _dioClient;
+  final StorageService _storageService;
 
-class AlertsRemoteDataSourceImpl implements AlertsRemoteDataSource {
-  final DioClient dioClient;
+  AlertsRemoteDataSource(this._dioClient, this._storageService);
 
-  AlertsRemoteDataSourceImpl(this.dioClient);
-
-  @override
-  Future<List<AlertModel>> getAlerts({String? status, String? pilgrimId}) async {
+  Future<List<MapKV>> getUserAlerts(String userId) async {
     try {
-      final response = await dioClient.get(
-        '/api/v1/alerts',
-        queryParameters: {
-          if (status != null) 'status': status,
-          if (pilgrimId != null) 'pilgrimId': pilgrimId,
-        },
+      // Get auth token if available
+      final token = await _storageService.getSecurely('auth_token');
+
+      final options = Options();
+      if (token != null) {
+        options.headers = {'Authorization': 'Bearer $token'};
+      }
+
+      final response = await _dioClient.get(
+        '/api/v1/auth/users/$userId/alerts',
+        options: options,
       );
-      final List<dynamic> data = response.data;
-      return data.map((json) => AlertModel.fromMap(json)).toList();
-    } catch (e) {
-      throw Exception('Erreur lors de la récupération des alertes: $e');
-    }
-  }
 
-  @override
-  Future<List<AlertModel>> getPilgrimAlerts(String pilgrimId) async {
-    try {
-      final response = await dioClient.get('/api/v1/pilgrims/$pilgrimId/alerts');
-      final List<dynamic> data = response.data;
-      return data.map((json) => AlertModel.fromMap(json)).toList();
+      if (response.statusCode == 200) {
+        return List<MapKV>.from(response.data);
+      } else {
+        throw Exception('Failed to fetch user alerts');
+      }
     } catch (e) {
-      throw Exception('Erreur lors de la récupération des alertes du pèlerin: $e');
-    }
-  }
-
-  @override
-  Future<AlertModel> createAlert(AlertModel alert) async {
-    try {
-      final response = await dioClient.post(
-        '/api/v1/alerts',
-        data: alert.toJson(),
-      );
-      return AlertModel.fromMap(response.data);
-    } catch (e) {
-      throw Exception('Erreur lors de la création de l\'alerte: $e');
+      throw Exception('Error fetching user alerts: $e');
     }
   }
 }

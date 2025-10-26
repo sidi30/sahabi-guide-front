@@ -1,17 +1,30 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class AppConstants {
   // App Info
-  static const String appName = 'Hajj Companion';
+  static const String appName = 'Sahabi Guide';
   static const String appVersion = '1.0.0';
-  static const String appDescription = 'Your guide for a blessed and seamless pilgrimage';
+  static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
-  static const String apiBaseUrl = 'https://sahabi-care-api-production.up.railway.app';
-  static const String localApiBaseUrl = 'http://localhost:8080';
+  // Pour émulateur Android: utiliser 10.0.2.2 au lieu de localhost
+  // Pour téléphone physique: utiliser l'IP locale de votre PC (ex: http://192.168.1.X:8084)
+  // Pour Web: utiliser localhost
+  static const String _apiBaseUrlAndroid = 'http://10.0.2.2:8084';
+  static const String _apiBaseUrlWeb = 'http://localhost:8084';
+  
+  /// Retourne l'URL de l'API selon la plateforme
+  static String get apiBaseUrl => kIsWeb ? _apiBaseUrlWeb : _apiBaseUrlAndroid;
+  
   static const int apiTimeout = 30000;
+  static const String apiHealthPath = '/health';
   
   // Storage Keys
   static const String authTokenKey = 'auth_token';
+  static const String userIdKey = 'user_id';
+  static const String passportNoKey = 'passport_no';
   static const String userProfileKey = 'user_profile';
+  static const String medicalProfileKey = 'medical_profile';
   static const String languageKey = 'selected_language';
   static const String themeKey = 'theme_mode';
   static const String onboardingKey = 'onboarding_completed';

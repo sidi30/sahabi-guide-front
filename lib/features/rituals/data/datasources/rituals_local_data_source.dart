@@ -1,119 +1,166 @@
+import 'dart:convert';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/models/dua_model.dart';
+import '../../../../core/cache/cache_service.dart';
 
 abstract class RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals();
+  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion});
+  Future<void> markAsCompleted(String ritualId);
   Future<List<DuaModel>> getDuas();
+  Future<void> saveDuas(List<DuaModel> duas);
+  Future<void> clearCache();
   Future<RitualModel?> getRitualById(String id);
-  Future<void> markRitualAsCompleted(String id);
-  Future<void> updateRitual(RitualModel ritual);
+  Future<bool> ritualsNeedUpdate(int? serverContentVersion);
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
+  static const String _ritualsKey = 'rituals_list';
+  static const String _duasKey = 'duas_list';
+  
+  final CacheService _cacheService;
+
+  RitualsLocalDataSourceImpl(this._cacheService);
+
   @override
   Future<List<RitualModel>> getRituals() async {
-    // Mock data for rituals - will be replaced by real data from API
-    final now = DateTime.now();
-    return [
-      RitualModel(
-        id: '1',
-        code: 'FAJR',
-        title: 'Prière du Fajr',
-        order: 1,
-        description: 'Prière de l\'aube, première prière de la journée',
-        mediaRefs: ['audio/fajr.mp3'],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '2',
-        code: 'DHUHR',
-        title: 'Prière du Dhuhr',
-        order: 2,
-        description: 'Prière de midi',
-        mediaRefs: ['audio/dhuhr.mp3'],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '3',
-        code: 'ASR',
-        title: 'Prière de l\'Asr',
-        order: 3,
-        description: 'Prière de l\'après-midi',
-        mediaRefs: ['audio/asr.mp3'],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '4',
-        code: 'MAGHRIB',
-        title: 'Prière du Maghrib',
-        order: 4,
-        description: 'Prière du coucher du soleil',
-        mediaRefs: ['audio/maghrib.mp3'],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      RitualModel(
-        id: '5',
-        code: 'ISHA',
-        title: 'Prière de l\'Isha',
-        order: 5,
-        description: 'Prière de la nuit',
-        mediaRefs: ['audio/isha.mp3'],
-        createdAt: now,
-        updatedAt: now,
-      ),
-    ];
+    try {
+      final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
+      
+      if (cached == null) {
+        return []; // Retourner liste vide si pas de cache
+      }
+
+      final rituals = cached.data
+          .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      
+      return rituals;
+    } catch (e) {
+      throw Exception('Failed to load cached rituals: $e');
+    }
+  }
+
+  @override
+  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion}) async {
+    try {
+      final ritualsJson = rituals.map((r) => r.toJson()).toList();
+      await _cacheService.set(
+        key: _ritualsKey,
+        data: ritualsJson,
+        contentVersion: contentVersion,
+      );
+    } catch (e) {
+      throw Exception('Failed to save rituals to cache: $e');
+    }
   }
 
   @override
   Future<List<DuaModel>> getDuas() async {
-    final now = DateTime.now();
-    return [
-      DuaModel(
-        id: 'dua1',
-        title: 'Dua du matin',
-        text: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',
-        audioUrl: 'assets/audio/duas/morning_dua.mp3',
-        tags: ['matin', 'réveil'],
-      ),
-      DuaModel(
-        id: 'dua2',
-        title: 'Dua avant le repas',
-        text: 'بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ',
-        audioUrl: 'assets/audio/duas/before_meal_dua.mp3',
-        tags: ['repas', 'nourriture'],
-      ),
-      DuaModel(
-        id: 'dua3',
-        title: 'Dua après le repas',
-        text: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',
-        audioUrl: 'assets/audio/duas/after_meal_dua.mp3',
-        tags: ['repas', 'remerciement'],
-      ),
-    ];
+    try {
+      final cached = await _cacheService.get<List<dynamic>>(_duasKey);
+      
+      if (cached == null) {
+        return []; // Retourner liste vide si pas de cache
+      }
+
+      final duas = cached.data
+          .map((json) => DuaModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      
+      return duas;
+    } catch (e) {
+      throw Exception('Failed to load cached duas: $e');
+    }
+  }
+
+  @override
+  Future<void> saveDuas(List<DuaModel> duas) async {
+    try {
+      final duasJson = duas.map((d) => d.toJson()).toList();
+      await _cacheService.set(
+        key: _duasKey,
+        data: duasJson,
+      );
+    } catch (e) {
+      throw Exception('Failed to save duas to cache: $e');
+    }
+  }
+
+
+  // @override
+  // Future<List<RitualModel>> getTodayRituals() async {
+  //   final allRituals = await getRituals();
+  //   final now = DateTime.now();
+    
+  //   return allRituals.where((ritual) {
+  //     // Filter daily rituals and weekly rituals for today
+  //     if (ritual.frequency == RitualFrequency.daily) {
+  //       return true;
+  //     }
+  //     if (ritual.frequency == RitualFrequency.weekly && 
+  //         ritual.title.toLowerCase().contains('friday') && 
+  //         now.weekday == DateTime.friday) {
+  //       return true;
+  //     }
+  //     return false;
+  //   }).toList()..sort((a, b) => b.priority.compareTo(a.priority));
+  // }
+
+  @override
+  Future<void> markAsCompleted(String ritualId) async {
+    try {
+      // Charger les rituels actuels
+      final rituals = await getRituals();
+      
+      // Mettre à jour le statut
+      final updatedRituals = rituals.map((ritual) {
+        if (ritual.id == ritualId) {
+          return ritual.copyWith(
+            status: RitualStatus.completed,
+            completedAt: DateTime.now(),
+          );
+        }
+        return ritual;
+      }).toList();
+      
+      // Sauvegarder les rituels mis à jour
+      await saveRituals(updatedRituals);
+    } catch (e) {
+      throw Exception('Failed to mark ritual as completed: $e');
+    }
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _cacheService.clearAll();
   }
 
   @override
   Future<RitualModel?> getRitualById(String id) async {
-    final rituals = await getRituals();
     try {
-      return rituals.firstWhere((ritual) => ritual.id == id);
+      final rituals = await getRituals();
+      return rituals.firstWhere(
+        (ritual) => ritual.id == id,
+        orElse: () => throw Exception('Ritual not found'),
+      );
     } catch (e) {
       return null;
     }
   }
 
   @override
-  Future<void> markRitualAsCompleted(String id) async {
-    // In a real app, this would update the local database
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
-
-  @override
-  Future<void> updateRitual(RitualModel ritual) async {
-    // In a real app, this would update the local database
-    await Future.delayed(const Duration(milliseconds: 500));
+  Future<bool> ritualsNeedUpdate(int? serverContentVersion) async {
+    if (serverContentVersion == null) return false;
+    
+    try {
+      final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
+      if (cached == null) return true;
+      
+      final cachedVersion = cached.contentVersion ?? 0;
+      return serverContentVersion > cachedVersion;
+    } catch (e) {
+      return true;
+    }
   }
 }

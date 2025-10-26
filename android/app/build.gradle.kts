@@ -6,22 +6,22 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sahabi_guide"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.sahabi_guide.sahabi_guide"
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Enable core library desugaring
+        isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
+    kotlinOptions { jvmTarget = JavaVersion.VERSION_11.toString() }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.sahabi_guide"
+        // Application ID for Sahabi Guide
+        applicationId = "com.sahabi_guide.sahabi_guide"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -39,6 +39,9 @@ android {
     }
 }
 
-flutter {
-    source = "../.."
+flutter { source = "../.." }
+
+dependencies {
+    // Core library desugaring for Java 8+ APIs
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }

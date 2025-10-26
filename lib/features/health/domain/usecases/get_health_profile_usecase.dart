@@ -1,22 +1,12 @@
-import '../../../../shared/models/alert_model.dart';
-import '../repositories/health_repository.dart';
+import '../../data/models/health_profile_model.dart';
+import '../repositories/health_profile_repository.dart';
 
 class GetHealthProfileUseCase {
-  final HealthRepository repository;
+  final HealthProfileRepository repository;
 
   GetHealthProfileUseCase(this.repository);
 
-  Future<HealthProfileModel> call(String pilgrimId) async {
-    return await repository.getHealthProfile(pilgrimId);
-  }
-}
-
-class UpdateHealthProfileUseCase {
-  final HealthRepository repository;
-
-  UpdateHealthProfileUseCase(this.repository);
-
-  Future<HealthProfileModel> call(String pilgrimId, HealthProfileModel profile) async {
-    return await repository.updateHealthProfile(pilgrimId, profile);
+  Future<HealthProfileModel> call() async {
+    return await repository.getHealthProfile();
   }
 }

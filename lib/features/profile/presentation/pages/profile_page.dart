@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../shared/models/user_model.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../auth/domain/usecases/logout_usecase.dart';
+import '../../../auth/data/models/passport_auth_models.dart';
+import '../../../auth/domain/usecases/passport_auth_usecases.dart';
+import '../../../auth/presentation/providers/passport_auth_provider.dart';
+import '../../../settings/presentation/screens/notifications_settings_screen.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
+import '../../../settings/presentation/screens/privacy_screen.dart';
+import '../../../settings/presentation/screens/help_screen.dart';
+import '../../../settings/presentation/screens/contact_screen.dart';
+import '../../../settings/presentation/screens/about_screen.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 
-final userProfileProvider = FutureProvider<UserModel?>((ref) async {
-  final authRepository = sl<AuthRepository>();
-  return await authRepository.getCurrentUser();
+// Provider pour récupérer le profil du pèlerin
+final pilgrimProfileProvider = FutureProvider<PilgrimProfile?>((ref) async {
+  final getPilgrimProfileUseCase = sl<GetPilgrimProfileUseCase>();
+  try {
+    return await getPilgrimProfileUseCase();
+  } catch (e) {
+    print('Erreur récupération profil: $e');
+    return null;
+  }
 });
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -23,23 +36,27 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    final userAsync = ref.watch(userProfileProvider);
+    final profileAsync = ref.watch(pilgrimProfileProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              // TODO: Navigate to edit profile
-            },
-          ),
-        ],
+        title: const Text('Mon Profil'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
-      body: userAsync.when(
-        data: (user) => _buildProfileContent(context, user),
-        loading: () => const Center(child: CircularProgressIndicator()),
+      body: profileAsync.when(
+        data: (profile) => _buildProfileContent(context, profile, authState),
+        loading: () => const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Chargement du profil...'),
+            ],
+          ),
+        ),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -49,7 +66,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(userProfileProvider),
+                onPressed: () => ref.refresh(pilgrimProfileProvider),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -59,10 +76,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildProfileContent(BuildContext context, UserModel? user) {
-    if (user == null) {
-      return const Center(
-        child: Text('Utilisateur non trouvé'),
+  Widget _buildProfileContent(BuildContext context, PilgrimProfile? profile, AuthState authState) {
+    // Si pas de profil, afficher un message
+    if (profile == null && !authState.isAuthenticated) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.person_off, size: 80, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('Non connecté'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.go('/passport-login'),
+              child: const Text('Se connecter'),
+            ),
+          ],
+        ),
       );
     }
 
@@ -72,95 +102,91 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         children: [
           // Profile Header
           Card(
+            elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   // Profile Picture
-                  Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: user.profileImageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(50),
-                                child: Image.network(
-                                  user.profileImageUrl!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: AppTheme.primaryColor,
-                              ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primary,
+                        width: 3,
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppTheme.secondaryColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      size: 50,
+                      color: AppColors.primary,
+                    ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // User Name
                   Text(
-                    user.fullName,
+                    profile?.fullName ?? 'Nom non disponible',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                    textAlign: TextAlign.center,
                   ),
-                  
-                  const SizedBox(height: 4),
-                  
-                  // Email
-                  Text(
-                    user.email,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  
+
                   const SizedBox(height: 8),
-                  
-                  // Verification Status
+
+                  // Passport Number
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.badge,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Passeport: ${profile?.passportNo ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Account Status
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: user.isVerified ? Colors.green : Colors.orange,
+                      color: (profile?.enabled ?? false) ? Colors.green : Colors.red,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          user.isVerified ? Icons.verified : Icons.pending,
+                          (profile?.enabled ?? false) ? Icons.check_circle : Icons.block,
                           size: 16,
                           color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          user.isVerified ? 'Vérifié' : 'En attente',
+                          (profile?.enabled ?? false) ? 'Compte Actif' : 'Compte Désactivé',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -181,15 +207,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           _buildSectionCard(
             'Informations Personnelles',
             [
-              _buildInfoRow('Prénom', user.firstName),
-              _buildInfoRow('Nom', user.lastName),
-              _buildInfoRow('Email', user.email),
-              if (user.phoneNumber != null)
-                _buildInfoRow('Téléphone', user.phoneNumber!),
-              if (user.dateOfBirth != null)
-                _buildInfoRow('Date de naissance', _formatDate(user.dateOfBirth!)),
-              if (user.address != null)
-                _buildInfoRow('Adresse', user.address!),
+              _buildInfoRow('Nom complet', profile?.fullName ?? 'Non renseigné'),
+              _buildInfoRow('Prénom', profile?.firstName ?? 'Non renseigné'),
+              _buildInfoRow('Nom', profile?.lastName ?? 'Non renseigné'),
+              _buildInfoRow('Passeport', profile?.passportNo ?? 'Non renseigné'),
+              if (profile?.phone != null)
+                _buildInfoRow('Téléphone', profile!.phone!),
+              if (profile?.email != null && profile!.email!.isNotEmpty)
+                _buildInfoRow('Email', profile.email!),
+              if (profile?.role != null)
+                _buildInfoRow('Rôle', profile!.role!),
             ],
           ),
 
@@ -202,18 +229,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
                   Icons.qr_code,
-                  color: AppTheme.primaryColor,
+                  color: AppColors.primary,
                 ),
               ),
               title: const Text('Mon QR Code'),
-              subtitle: const Text('Partager mes informations de contact'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () => _showQRCode(context, user),
+              subtitle: const Text('Partager mes informations'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => _showQRCode(context, profile),
             ),
           ),
 
@@ -228,31 +255,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Gérer les notifications',
                 Icons.notifications_outlined,
                 () {
-                  // TODO: Navigate to notifications settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsSettingsScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
-                'Langue',
-                'Français',
-                Icons.language,
-                () {
-                  // TODO: Navigate to language settings
-                },
-              ),
-              _buildSettingsTile(
-                'Thème',
-                'Automatique',
+                'Langue & Thème',
+                'Personnaliser l\'interface',
                 Icons.palette_outlined,
                 () {
-                  // TODO: Navigate to theme settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
                 'Confidentialité',
-                'Paramètres de confidentialité',
+                'Protection de vos données',
                 Icons.privacy_tip_outlined,
                 () {
-                  // TODO: Navigate to privacy settings
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyScreen(),
+                    ),
+                  );
                 },
               ),
             ],
@@ -262,22 +293,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
           // Support Section
           _buildSectionCard(
-            'Support',
+            'Support & Aide',
             [
               _buildSettingsTile(
-                'Aide',
-                'Centre d\'aide et FAQ',
+                'Aide & FAQ',
+                'Trouvez des réponses rapidement',
                 Icons.help_outline,
                 () {
-                  // TODO: Navigate to help
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HelpScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
                 'Nous contacter',
-                'Envoyer un message',
+                'Besoin d\'assistance ?',
                 Icons.contact_support_outlined,
                 () {
-                  // TODO: Navigate to contact
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ContactScreen(),
+                    ),
+                  );
                 },
               ),
               _buildSettingsTile(
@@ -285,7 +324,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Version ${AppConstants.appVersion}',
                 Icons.info_outline,
                 () {
-                  // TODO: Show about dialog
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ),
+                  );
                 },
               ),
             ],
@@ -298,13 +341,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout, color: AppTheme.accentColor),
+              icon: const Icon(Icons.logout, color: AppColors.accent),
               label: const Text(
                 'Se déconnecter',
-                style: TextStyle(color: AppTheme.accentColor),
+                style: TextStyle(color: AppColors.accent),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.accentColor),
+                side: const BorderSide(color: AppColors.accent),
               ),
             ),
           ),
@@ -325,8 +368,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             ...children,
@@ -347,9 +390,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
           Expanded(
@@ -370,7 +413,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     VoidCallback onTap,
   ) {
     return ListTile(
-      leading: Icon(icon, color: AppTheme.primaryColor),
+      leading: Icon(icon, color: AppColors.primary),
       title: Text(title),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -379,11 +422,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  void _showQRCode(BuildContext context, UserModel user) {
+  void _showQRCode(BuildContext context, PilgrimProfile? profile) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mon QR Code'),
+        title: const Text('Mon QR Code d\'Urgence'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -391,23 +434,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border: Border.all(color: AppColors.primary, width: 2),
                 borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
               ),
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code, size: 80, color: Colors.grey),
+                    Icon(Icons.qr_code, size: 80, color: AppColors.primary),
                     SizedBox(height: 8),
-                    Text('QR Code Profil', style: TextStyle(color: Colors.grey)),
+                    Text(
+                      'QR Code Profil',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Partagez ce QR code pour permettre aux autres de vous ajouter rapidement.',
+              'Ce QR code contient vos informations d\'urgence (nom, passeport, contacts).',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -420,9 +470,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // TODO: Share QR code
+              // TODO: Implémenter le partage du QR code
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Fonctionnalité à venir')),
+              );
               Navigator.of(context).pop();
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+            ),
             child: const Text('Partager'),
           ),
         ],
@@ -444,21 +500,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              final logoutUseCase = sl<LogoutUseCase>();
-              await logoutUseCase();
+              final authNotifier = ref.read(authNotifierProvider.notifier);
+              await authNotifier.logout();
               if (context.mounted) {
-                context.go(AppConstants.loginRoute);
+                context.go('/passport-login');
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.white,
+            ),
             child: const Text('Se déconnecter'),
           ),
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

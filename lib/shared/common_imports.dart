@@ -1,5 +1,5 @@
-import 'package:logger/web.dart';
-
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 export 'package:flutter/material.dart';
 export 'package:flutter/services.dart';
@@ -12,8 +12,7 @@ export 'package:flutter/foundation.dart';
 export 'package:cached_network_image/cached_network_image.dart';
 
 // Constants and Theme
-import 'common_imports.dart';
-import 'constants/class App.dart';
+import 'constants/app_sizes.dart';
 import 'constants/app_colors.dart';
 
 // Utilities

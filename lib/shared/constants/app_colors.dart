@@ -1,139 +1,234 @@
 import 'package:flutter/material.dart';
 
+/// Couleurs unifiées pour l'application Sahabi Guide
+/// Optimisées pour le Hajj et les utilisateurs de 35-70 ans
 class AppColors {
-  // Colors
-  static const Color primaryColor = Color(0xFF1D3557);
-  static const Color secondaryColor = Color(0xFF2A9D8F);
-  static const Color accentColor = Color(0xFFE63946);
-  static const Color backgroundColor = Color(0xFFF1FAEE);
-  static const Color surfaceColor = Colors.white;
-  static const Color errorColor = Color(0xFFE63946);
+  // ===== COULEURS PRINCIPALES =====
 
-  // Dark Theme Colors
-  static const Color darkBackgroundColor = Color(0xFF121212);
-  static const Color darkSurfaceColor = Color(0xFF1E1E1E);
+  /// Vert sacré - Couleur principale inspirée de l'Islam
+  static const Color primary = Color(0xFF2E7D32);
+  static const Color primaryLight = Color(0xFF4CAF50);
+  static const Color primaryDark = Color(0xFF1B5E20);
 
-  // Primary Colors
-  static const Color primary = Color(0xFF1D3557);
-  static const Color primaryLight = Color(0x4D1D3557); // 30% opacity
-  static const Color primaryDark = Color(0xFF14213D);
+  /// Doré sacré - Inspiré de la Kaaba
+  static const Color secondary = Color(0xFFF57C00);
+  static const Color secondaryLight = Color(0xFFFF9800);
+  static const Color secondaryDark = Color(0xFFE65100);
 
-  // Secondary Colors
-  static const Color secondary = Color(0xFF2A9D8F);
-  static const Color secondaryLight = Color(0x4D2A9D8F); // 30% opacity
+  /// Or (gold) utilitaire pour badges/étiquettes
+  /// Note: Colors.gold n'existe pas dans Flutter; utilisez AppColors.gold
+  static const Color gold = Color(0xFFFFD700);
 
-  // Accent Colors
-  static const Color accent = Color(0xFFE63946);
-  static const Color accentLight = Color(0x4DE63946); // 30% opacity
+  /// Bleu apaisant - Inspiré du ciel de La Mecque
+  static const Color accent = Color(0xFF1976D2);
+  static const Color accentLight = Color(0xFF42A5F5);
+  static const Color accentDark = Color(0xFF0D47A1);
 
-  // Background & Surface Colors
-  static const Color background = Color(0xFFF8F9FA);
-  static const Color surface = Colors.white;
+  // ===== COULEURS DE FOND =====
+
+  /// Fond principal - Blanc cassé doux pour réduire la fatigue oculaire
+  static const Color background = Color(0xFFFAFAFA);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceVariant = Color(0xFFF5F5F5);
+
+  /// Fond sombre pour le mode nuit
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkSurfaceVariant = Color(0xFF2D2D2D);
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFF1D3557);
-  static const Color textSecondary = Color(0xFF457B9D);
-  static const Color textLight = Color(0xFF6C757D);
-  static const Color textOnPrimary = Colors.white;
-  static const Color textOnSecondary = Colors.white;
-  static const Color textOnAccent = Colors.white;
+  // ===== COULEURS DE TEXTE =====
 
-  // Status Colors
-  static const Color success = Color(0xFF2E7D32);
-  static const Color warning = Color(0xFFFFA000);
-  static const Color error = Color(0xFFE63946);
-  static const Color info = Color(0xFF0288D1);
+  /// Texte principal - Gris foncé pour une excellente lisibilité
+  static const Color textPrimary = Color(0xFF212121);
+  static const Color textSecondary = Color(0xFF757575);
+  static const Color textLight = Color(0xFF9E9E9E);
+  static const Color textOnPrimary = Color(0xFFFFFFFF);
+  static const Color textOnSecondary = Color(0xFFFFFFFF);
+  static const Color textOnAccent = Color(0xFFFFFFFF);
 
-  // Common Colors
-  static const Color white = Colors.white;
-  static const Color black = Colors.black;
+  /// Texte pour mode sombre
+  static const Color darkTextPrimary = Color(0xFFE0E0E0);
+  static const Color darkTextSecondary = Color(0xFFB0B0B0);
+  static const Color darkTextLight = Color(0xFF808080);
+
+  // ===== COULEURS D'ÉTAT =====
+
+  /// Succès - Vert apaisant
+  static const Color success = Color(0xFF4CAF50);
+  static const Color successLight = Color(0xFF81C784);
+  static const Color successDark = Color(0xFF388E3C);
+
+  /// Erreur - Rouge doux mais visible
+  static const Color error = Color(0xFFD32F2F);
+  static const Color errorLight = Color(0xFFEF5350);
+  static const Color errorDark = Color(0xFFC62828);
+
+  /// Attention - Orange chaleureux
+  static const Color warning = Color(0xFFFF9800);
+  static const Color warningLight = Color(0xFFFFB74D);
+  static const Color warningDark = Color(0xFFF57C00);
+
+  /// Information - Bleu apaisant
+  static const Color info = Color(0xFF2196F3);
+  static const Color infoLight = Color(0xFF64B5F6);
+  static const Color infoDark = Color(0xFF1976D2);
+
+  // ===== COULEURS NEUTRES =====
+
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
   static const Color transparent = Colors.transparent;
-  static const Color grey = Color(0xFF9E9E9E);
-  static const Color lightGrey = Color(0xFFE0E0E0);
-  static const Color darkGrey = Color(0xFF424242);
 
-  // Additional UI Colors
-  static const Color divider = Color(0xFFE0E0E0);
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color shadow = Color(0x1A000000);
-  static const Color overlay = Color(0x66000000);
+  /// Gris optimisés pour la lisibilité
+  static const Color grey50 = Color(0xFFFAFAFA);
+  static const Color grey100 = Color(0xFFF5F5F5);
+  static const Color grey200 = Color(0xFFEEEEEE);
+  static const Color grey300 = Color(0xFFE0E0E0);
+  static const Color grey400 = Color(0xFFBDBDBD);
+  static const Color grey500 = Color(0xFF9E9E9E);
+  static const Color grey600 = Color(0xFF757575);
+  static const Color grey700 = Color(0xFF616161);
+  static const Color grey800 = Color(0xFF424242);
+  static const Color grey900 = Color(0xFF212121);
 
-  // Ritual Type Colors
+  // ===== COULEURS SPÉCIFIQUES AU HAJJ =====
+
+  /// Couleurs pour les différents types de rituels
   static const Color prayer = primary;
   static const Color dua = secondary;
   static const Color dhikr = accent;
-  static const Color reading = Color(0xFF7B1FA2); // Purple
-  static const Color charity = Color(0xFF2E7D32); // Green
-  static const Color fasting = Color(0xFFFF6D00); // Orange
+  static const Color reading = Color(0xFF7B1FA2); // Violet sacré
+  static const Color charity = success;
+  static const Color fasting = warning;
+  static const Color tawaf = Color(0xFF795548); // Brun terreux
 
-  // Gradient Colors
-  static const List<Color> primaryGradient = [
-    Color(0xFF1D3557),
-    Color(0xFF457B9D),
-  ];
+  // ===== COULEURS D'INTERFACE =====
 
-  static const List<Color> secondaryGradient = [
-    Color(0xFF2A9D8F),
-    Color(0xFF83C5BE),
-  ];
+  /// Bordures et séparateurs
+  static const Color border = Color(0xFFE0E0E0);
+  static const Color borderLight = Color(0xFFF0F0F0);
+  static const Color borderDark = Color(0xFFBDBDBD);
+  static const Color divider = Color(0xFFE0E0E0);
 
-  static const List<Color> accentGradient = [
-    Color(0xFFE63946),
-    Color(0xFFFF9A8B),
-  ];
+  /// Ombres et élévations
+  static const Color shadow = Color(0x1A000000);
+  static const Color shadowLight = Color(0x0A000000);
+  static const Color shadowDark = Color(0x33000000);
 
-  // Card Colors
-  static const Color cardBackground = Colors.white;
-  static const Color cardShadow = Color(0x1A000000);
+  /// Overlays et modales
+  static const Color overlay = Color(0x66000000);
+  static const Color overlayLight = Color(0x33000000);
 
-  // Button Colors
+  // ===== COULEURS DE BOUTONS =====
+
   static const Color buttonPrimary = primary;
   static const Color buttonSecondary = secondary;
   static const Color buttonAccent = accent;
   static const Color buttonDisabled = Color(0xFFE0E0E0);
-  static const Color buttonText = Colors.white;
+  static const Color buttonText = white;
+  static const Color buttonTextDisabled = Color(0xFF9E9E9E);
 
-  // Input Fields
-  static const Color inputBackground = Colors.white;
-  static const Color inputBorder = Color(0xFFE0E0E0);
+  // ===== COULEURS DE CHAMPS DE SAISIE =====
+
+  static const Color inputBackground = white;
+  static const Color inputBorder = border;
   static const Color inputFocusedBorder = primary;
   static const Color inputErrorBorder = error;
-  static const Color inputHint = Color(0xFF9E9E9E);
+  static const Color inputHint = textLight;
+  static const Color inputDisabled = grey100;
 
-  // Icons
+  // ===== COULEURS D'ICÔNES =====
+
   static const Color iconPrimary = primary;
   static const Color iconSecondary = secondary;
   static const Color iconAccent = accent;
-  static const Color iconInactive = Color(0xFF9E9E9E);
+  static const Color iconInactive = grey500;
+  static const Color iconDisabled = grey400;
 
-  // Tab Bar
-  static const Color tabBarBackground = Colors.white;
+  // ===== COULEURS DE NAVIGATION =====
+
+  /// Barre de navigation inférieure
+  static const Color bottomNavBackground = white;
+  static const Color bottomNavSelected = primary;
+  static const Color bottomNavUnselected = grey600;
+  static const Color bottomNavIndicator = primary;
+
+  /// Barre d'application
+  static const Color appBarBackground = primary;
+  static const Color appBarText = white;
+  static const Color appBarIcon = white;
+
+  /// Onglets
+  static const Color tabBarBackground = white;
   static const Color tabBarSelected = primary;
-  static const Color tabBarUnselected = Color(0xFF757575);
+  static const Color tabBarUnselected = grey600;
   static const Color tabBarIndicator = primary;
 
-  // App Bar
-  static const Color appBarBackground = Colors.white;
-  static const Color appBarText = primary;
-  static const Color appBarIcon = primary;
+  // ===== DÉGRADÉS SACRÉS =====
 
-  // Bottom Navigation Bar
-  static const Color bottomNavBackground = Colors.white;
-  static const Color bottomNavSelected = primary;
-  static const Color bottomNavUnselected = Color(0xFF757575);
+  /// Dégradé principal (vert sacré)
+  static const List<Color> primaryGradient = [
+    Color(0xFF2E7D32),
+    Color(0xFF4CAF50),
+  ];
 
-  // Status Bar
-  static const Color statusBarLight = Colors.transparent;
-  static const Color statusBarDark = Colors.black;
+  /// Dégradé secondaire (doré sacré)
+  static const List<Color> secondaryGradient = [
+    Color(0xFFF57C00),
+    Color(0xFFFF9800),
+  ];
 
-  // For dark theme
-  static const Color darkTextPrimary = Colors.white;
-  static const Color darkTextSecondary = Color(0xFFB0BEC5);
-  static const Color darkTextLight = Color(0xFF9E9E9E);
-  static const Color darkCardBackground = Color(0xFF1E1E1E);
-  static const Color darkDivider = Color(0xFF424242);
-  static const Color darkInputBackground = Color(0xFF2D2D2D);
-  static const Color darkInputBorder = Color(0xFF424242);
+  /// Dégradé accent (bleu apaisant)
+  static const List<Color> accentGradient = [
+    Color(0xFF1976D2),
+    Color(0xFF42A5F5),
+  ];
+
+  /// Dégradé Hajj (vert vers doré)
+  static const List<Color> hajjGradient = [
+    Color(0xFF2E7D32),
+    Color(0xFFF57C00),
+  ];
+
+  // ===== COULEURS DE CARTES =====
+
+  static const Color cardBackground = white;
+  static const Color cardShadow = shadow;
+  static const Color cardBorder = borderLight;
+
+  // ===== COULEURS DE STATUT BAR =====
+
+  static const Color statusBarLight = primary;
+  static const Color statusBarDark = primaryDark;
+
+  // ===== COULEURS D'ACCESSIBILITÉ =====
+
+  /// Couleurs avec contraste élevé pour l'accessibilité
+  static const Color highContrastText = Color(0xFF000000);
+  static const Color highContrastBackground = Color(0xFFFFFFFF);
+  static const Color highContrastBorder = Color(0xFF000000);
+
+  // ===== MÉTHODES UTILITAIRES =====
+
+  /// Obtenir une couleur avec opacité
+  static Color withOpacity(Color color, double opacity) {
+    return color.withOpacity(opacity);
+  }
+
+  /// Obtenir une couleur plus claire
+  static Color lighten(Color color, [double amount = 0.1]) {
+    assert(amount >= 0 && amount <= 1);
+    final hsl = HSLColor.fromColor(color);
+    final hslLight =
+        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+    return hslLight.toColor();
+  }
+
+  /// Obtenir une couleur plus foncée
+  static Color darken(Color color, [double amount = 0.1]) {
+    assert(amount >= 0 && amount <= 1);
+    final hsl = HSLColor.fromColor(color);
+    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+    return hslDark.toColor();
+  }
 }

@@ -1,8 +1,10 @@
-import '../../../../core/utils/constants.dart';
+import '../../../../main.dart';
 
 abstract class HomeLocalDataSource {
   Future<List<Map<String, dynamic>>> getHomeMenuItems();
   Future<Map<String, dynamic>> getDashboardData();
+  Future<List<Map<String, dynamic>>> getPrayerTimes();
+  Future<Map<String, dynamic>> getUserStats();
 }
 
 class HomeLocalDataSourceImpl implements HomeLocalDataSource {
@@ -16,7 +18,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Prières et pratiques quotidiennes',
         'icon': 'schedule',
         'color': '#1D3557',
-        'route': AppConstants.ritualsRoute,
+        'route': AppRoutes.rituals,
       },
       {
         'id': 'duas',
@@ -24,7 +26,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Invocations et supplications',
         'icon': 'book',
         'color': '#2A9D8F',
-        'route': '/duas',
+        'route': AppRoutes.duas,
       },
       {
         'id': 'map',
@@ -32,7 +34,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Mosquées et lieux saints',
         'icon': 'location_on',
         'color': '#E63946',
-        'route': AppConstants.mapRoute,
+        'route': AppRoutes.map,
       },
       {
         'id': 'health',
@@ -40,7 +42,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Profil médical et bien-être',
         'icon': 'health_and_safety',
         'color': '#F77F00',
-        'route': AppConstants.healthRoute,
+        'route': AppRoutes.health,
       },
       {
         'id': 'profile',
@@ -48,7 +50,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Informations personnelles',
         'icon': 'person',
         'color': '#6F2DBD',
-        'route': AppConstants.profileRoute,
+        'route': AppRoutes.profile,
       },
       {
         'id': 'connectivity',
@@ -56,7 +58,15 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'subtitle': 'Connexion et synchronisation',
         'icon': 'wifi',
         'color': '#457B9D',
-        'route': AppConstants.connectivityRoute,
+        'route': AppRoutes.connectivity,
+      },
+      {
+        'id': 'assistant',
+        'title': '🤖 Assistant',
+        'subtitle': 'Guide personnel du Hajj',
+        'icon': 'smart_toy',
+        'color': '#06D6A0',
+        'route': AppRoutes.assistant,
       },
     ];
   }
@@ -107,6 +117,30 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
           'completed': true,
         },
       ],
+    };
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPrayerTimes() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return [
+      {'name': 'Fajr', 'time': '05:30'},
+      {'name': 'Dhuhr', 'time': '12:30'},
+      {'name': 'Asr', 'time': '15:45'},
+      {'name': 'Maghrib', 'time': '18:20'},
+      {'name': 'Isha', 'time': '19:45'},
+    ];
+  }
+
+  @override
+  Future<Map<String, dynamic>> getUserStats() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return {
+      'prayersCompleted': 3,
+      'totalPrayers': 5,
+      'duasRead': 7,
+      'dhikrCount': 156,
+      'streakDays': 4,
     };
   }
 }

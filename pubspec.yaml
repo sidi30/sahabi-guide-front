@@ -1,11 +1,11 @@
 name: sahabi_guide
 description: A comprehensive Islamic companion app for rituals, duas, and spiritual guidance.
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.10.0"
 
 dependencies:
@@ -16,46 +16,63 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.4.9
-  
+
   # Navigation
   go_router: ^12.1.3
-  
+
   # HTTP Client
   dio: ^5.4.0
-  
+
   # Dependency Injection
   get_it: ^7.6.4
-  
+
+  # Local Storage
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Network
+  connectivity_plus: ^6.1.5
+
   # Local Notifications
-  flutter_local_notifications: ^16.3.2
-  
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+
   # Audio Player
   just_audio: ^0.9.36
-  
+
+  # Video Player (pour splash screen animé)
+  video_player: ^2.8.0
+  chewie: ^1.7.0
+
   # Maps & Location
-  google_maps_flutter: ^2.5.0
-  geolocator: ^10.1.0
-  
+  # flutter_map remplacé par google_maps_flutter
+  google_maps_flutter: ^2.9.0
+  geolocator: ^14.0.2
+  battery_plus: ^6.0.2
+
   # Localization
   intl: ^0.20.2
-  
+  flutter_localized_locales: ^2.0.5
+
   # Secure Storage
   flutter_secure_storage: ^9.0.0
-  
+
   # UI & Fonts
   google_fonts: ^6.1.0
-  
-  # QR Code
+
+  # QR Code & Sharing
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
-  
+  share_plus: ^10.0.3
+
   # Utilities
   uuid: ^4.2.1
-  shared_preferences: ^2.2.2
   path_provider: ^2.1.1
   permission_handler: ^11.1.0
-  logger: ^2.6.1
+  logger: ^2.0.2+1
   cached_network_image: ^3.4.1
+  package_info_plus: ^8.0.0
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
@@ -63,12 +80,108 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   mockito: ^5.4.4
   build_runner: ^2.4.7
+  hive_generator: ^2.0.1
+  
+  # Générateur d'icônes
+  flutter_launcher_icons: ^0.13.1
+  
+  # Générateur de splash screen
+  flutter_native_splash: ^2.4.1
 
 flutter:
+  generate: true
+
+  # Add the following information
+  # to generate the required files for localization
+  # The files will be generated in the .dart_tool/flutter_gen/gen_l10n directory
+  # when you run `flutter gen-l10n`
+  #
+  # To regenerate the files, run `flutter gen-l10n`
+  #
+  # For more information, see:
+  # https://flutter.dev/go/i18n-user-guide
+  #
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
   uses-material-design: true
-  
+
   assets:
     - assets/images/
-    - assets/audio/
     - assets/data/
-    - assets/icons/
+    - assets/video/
+    # - assets/audio/   # désactivé: dossier manquant
+    # - assets/icons/   # désactivé: dossier manquant
+
+# ============================================
+# CONFIGURATION DES ICÔNES
+# ============================================
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/sahabi logo.png"
+  
+  # Configuration Android
+  adaptive_icon_background: "#1D3557"
+  adaptive_icon_foreground: "assets/images/sahabi logo.png"
+  
+  # Configuration iOS
+  remove_alpha_ios: true
+  
+  # Configuration Web (optionnel)
+  web:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+    background_color: "#1D3557"
+    theme_color: "#1D3557"
+  
+  # Configuration Windows (optionnel)
+  windows:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+    icon_size: 48
+  
+  # Configuration macOS (optionnel)
+  macos:
+    generate: true
+    image_path: "assets/images/sahabi logo.png"
+
+# ============================================
+# CONFIGURATION DU SPLASH SCREEN
+# ============================================
+flutter_native_splash:
+  # Couleur de fond
+  color: "#1D3557"
+  
+  # Image (logo centré)
+  image: assets/images/sahabi logo.png
+  
+  # Image pour mode sombre (optionnel)
+  color_dark: "#0A1929"
+  image_dark: assets/images/sahabi logo.png
+  
+  # Configuration Android
+  android: true
+  android_12:
+    image: assets/images/sahabi logo.png
+    icon_background_color: "#1D3557"
+    image_dark: assets/images/sahabi logo.png
+    icon_background_color_dark: "#0A1929"
+  
+  # Configuration iOS
+  ios: true
+  
+  # Configuration Web (optionnel)
+  web: true
+  
+  # Remplissage de l'image (centre par défaut)
+  android_gravity: center
+  ios_content_mode: center
+  web_image_mode: center
+  
+  # Configuration de taille
+  fullscreen: true
+  
+  # Branding (optionnel - texte sous le logo)
+  # android_branding: assets/images/branding.png
+  # ios_branding: assets/images/branding.png

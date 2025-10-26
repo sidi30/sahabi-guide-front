@@ -1,49 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>Sahabi Guide</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>sahabi_guide</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-</dict>
+	<dict>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Sahabi Guide</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>sahabi_guide</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<true/>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - LOCALISATION                   -->
+		<!-- ============================================ -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Sahabi Guide a besoin de votre localisation pour vous guider pendant votre pèlerinage et vous afficher sur la carte interactive.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Sahabi Guide nécessite l'accès continu à votre localisation pour partager votre position en temps réel avec votre groupe et assurer votre sécurité.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>Sahabi Guide utilise votre localisation en arrière-plan pour suivre votre position même quand l'application n'est pas active, garantissant ainsi votre sécurité.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - CAMÉRA & PHOTOS                -->
+		<!-- ============================================ -->
+		<key>NSCameraUsageDescription</key>
+		<string>Sahabi Guide a besoin d'accéder à votre caméra pour scanner les QR codes médicaux et prendre des photos de profil.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Sahabi Guide a besoin d'accéder à vos photos pour choisir une photo de profil ou sauvegarder des documents importants.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Sahabi Guide souhaite sauvegarder vos QR codes et documents dans votre galerie photo.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - NOTIFICATIONS                  -->
+		<!-- ============================================ -->
+		<key>NSUserNotificationsUsageDescription</key>
+		<string>Sahabi Guide envoie des notifications pour les rappels de prière, les alertes d'urgence et les messages de votre groupe.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - CONTACTS                       -->
+		<!-- ============================================ -->
+		<key>NSContactsUsageDescription</key>
+		<string>Sahabi Guide a besoin d'accéder à vos contacts pour vous permettre de sélectionner facilement votre contact d'urgence.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - CALENDRIER                     -->
+		<!-- ============================================ -->
+		<key>NSCalendarsUsageDescription</key>
+		<string>Sahabi Guide peut ajouter les horaires de prière et les rituels du Hajj à votre calendrier.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - MICROPHONE (optionnel)         -->
+		<!-- ============================================ -->
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Sahabi Guide peut utiliser votre microphone pour les appels d'urgence et l'assistance vocale.</string>
+		<!-- ============================================ -->
+		<!-- PERMISSIONS - MOTION & FITNESS               -->
+		<!-- ============================================ -->
+		<key>NSMotionUsageDescription</key>
+		<string>Sahabi Guide utilise les données de mouvement pour suivre votre activité pendant le pèlerinage.</string>
+		<!-- ============================================ -->
+		<!-- BACKGROUND MODES                             -->
+		<!-- ============================================ -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+			<string>fetch</string>
+			<string>remote-notification</string>
+			<string>processing</string>
+		</array>
+		<!-- ============================================ -->
+		<!-- CONFIGURATION SUPPLÉMENTAIRE                 -->
+		<!-- ============================================ -->
+		<!-- Support du mode sombre -->
+		<key>UIUserInterfaceStyle</key>
+		<string>Automatic</string>
+		<!-- Langues supportées -->
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>fr</string>
+			<string>en</string>
+			<string>ar</string>
+		</array>
+		<!-- Autoriser les connections HTTP pour le développement -->
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<false/>
+			<key>NSAllowsLocalNetworking</key>
+			<true/>
+		</dict>
+		<!-- Support des fichiers iCloud (optionnel) -->
+		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<true/>
+		<key>UIFileSharingEnabled</key>
+		<true/>
+		<key>UIStatusBarHidden</key>
+		<true/>
+		<key>UIViewControllerBasedStatusBarAppearance</key>
+		<false/>
+	</dict>
 </plist>

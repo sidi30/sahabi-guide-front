@@ -1,87 +1,274 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sahabi_guide/features/splash/presentation/splash_page.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
+import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
+    show VideoPage;
+import 'package:sahabi_guide/features/assistant/presentation/pages/assistant_chat_page.dart';
+import 'package:sahabi_guide/features/assistant/assistant_initializer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'core/di/injection_container.dart';
+import 'core/router/auth_guard.dart';
+import 'core/providers/language_provider.dart';
+import 'core/services/language_service.dart';
+import 'core/utils/app_logger.dart';
+import 'features/auth/presentation/pages/auth_choice_page.dart';
+import 'features/auth/presentation/pages/passport_login_page.dart';
+import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
+import 'features/auth/presentation/providers/passport_auth_provider.dart';
+import 'features/health/presentation/pages/health_page.dart';
+import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
+import 'features/alerts/presentation/pages/alerts_page.dart';
+import 'features/emergency_contacts/presentation/pages/emergency_contacts_page.dart';
+import 'features/map/presentation/pages/google_map_page.dart' show GoogleMapPage;
+import 'features/rituals/presentation/pages/ritual_detail_page.dart';
+import 'features/rituals/presentation/pages/rituals_page.dart';
+import 'features/rituals/presentation/pages/duas_modern_page.dart';
+import 'shared/constants/app_colors.dart';
+import 'features/settings/presentation/providers/settings_provider.dart';
+import 'features/settings/presentation/screens/settings_screen.dart';
+import 'shared/presentation/pages/splash_page.dart';
+import 'shared/presentation/pages/splash_wrapper.dart';
+import 'shared/presentation/widgets/main_shell.dart';
+import 'features/home/presentation/pages/home_page.dart';
+import 'l10n/app_localizations.dart';
 
-// Routes de l'application
-class AppRoutes {
-  static const String splash = '/';
-  static const String onboarding = '/onboarding';
-  static const String menu = '/menu';
-  static const String timeline = '/timeline';
-  static const String duas = '/duas';
-  // Les autres routes non implémentées sont commentées
-  // static const String map = '/map';
-  // static const String videos = '/videos';
-  // static const String health = '/health';
-  // static const String profile = '/profile';
-}
+// Simple placeholder widget for unimplemented screens
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize dependencies
-  await setupDependencies();
-  
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const PlaceholderScreen({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    final router = GoRouter(
-      initialLocation: AppRoutes.splash,
-      routes: [
-        // Écran de démarrage
-        GoRoute(
-          path: AppRoutes.splash,
-          builder: (context, state) => const SplashPage(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text(
+          '$title - Page en construction',
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
-        
-        GoRoute(
-          path: AppRoutes.onboarding,
-          builder: (context, state) => const OnboardingScreen(),
-        ),
+      ),
+    );
+  }
+}
 
-        // Menu principal
-        GoRoute(
-          path: AppRoutes.menu,
-          builder: (context, state) => const MenuScreen(),
-        ),
+// Application Routes
+class AppRoutes {
+  // Initial routes
+  static const String splash = '/';
+  // ❌ onboarding supprimé - redirection directe vers auth-choice
+
+  // Authentication routes
+  static const String authChoice = '/auth-choice';
+  static const String passportLogin = '/passport-login';
+  static const String passportOtp = '/passport-otp';
+  static const String testPassportLogin = '/test-passport-login';
+
+  // Main shell routes
+  static const String home = '/home';
+  static const String rituals = '/rituals';
+  static const String map = '/map';
+  static const String videos = '/videos';
+  static const String profile = '/profile';
+  static const String pilgrimProfile = '/pilgrim-profile';
+  static const String settings = '/settings';
+
+  // Nested routes
+  static const String timeline = '/rituals/timeline';
+  static const String duas = '/rituals/duas';
+  static const String ritualDetail = '/rituals/detail/:id';
+  static const String health = '/health';
+  static const String connectivity = '/connectivity';
+  static const String alerts = '/alerts';
+  static const String emergencyContacts = '/emergency-contacts';
+  static const String assistant = '/assistant';
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize dependencies
+  await initializeDependencies();
+
+  // Initialize Assistant Module (Hive, notifications)
+  await AssistantInitializer.initialize();
+
+  // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+
+  // Create settings notifier and load initial settings
+  final settingsNotifier = SettingsNotifier(prefs: prefs);
+  await settingsNotifier.loadSettings();
+
+  // Create language service
+  final languageService = LanguageService(prefs);
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        settingsProvider.overrideWith((ref) => settingsNotifier),
+        languageServiceProvider.overrideWithValue(languageService),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
+  // Build router with auth guard support
+  GoRouter _buildRouter(WidgetRef ref) {
+    return GoRouter(
+      navigatorKey: navigatorKey,
+      initialLocation: AppRoutes.splash,
+      redirect: (context, state) {
+        // Vérifier l'état d'authentification
+        final isAuthenticated = ref.read(authNotifierProvider).isAuthenticated;
+        final currentLocation = state.matchedLocation;
         
-        // Écran de la chronologie
-        GoRoute(
-          path: AppRoutes.timeline,
-          builder: (context, state) => TimelineScreen(),
-        ),
+        // ✅ Si déjà authentifié et sur splash ou auth-choice, rediriger vers home
+        if (isAuthenticated && (currentLocation == '/' || currentLocation == '/auth-choice')) {
+          AppLogger.info('🔄 Utilisateur authentifié détecté, redirection vers /home');
+          return '/home';
+        }
         
-        // Écran des douas
-        GoRoute(
-          path: AppRoutes.duas,
-          builder: (context, state) => DuasScreen(),
-        ),
+        // Si l'utilisateur essaie d'accéder à une page protégée sans être authentifié
+        if (!isAuthenticated && AuthGuard.isProtectedRoute(currentLocation)) {
+          return '/passport-login';
+        }
         
-        // Les routes non implémentées sont commentées pour l'instant
-        /*
-        GoRoute(
-          path: AppRoutes.map,
-          builder: (context, state) => _buildPlaceholderScreen('Map & Location'),
-        ),
-        GoRoute(
-          path: AppRoutes.videos,
-          builder: (context, state) => _buildPlaceholderScreen('Video Preparation'),
-        ),
-        GoRoute(
-          path: AppRoutes.health,
-          builder: (context, state) => _buildPlaceholderScreen('My Health'),
-        ),
-        GoRoute(
-          path: AppRoutes.profile,
-          builder: (context, state) => _buildPlaceholderScreen('Profile & Emergency'),
-        ),
-        */
+        // Pas de redirection nécessaire
+        return null;
+      },
+      routes: [
+      // Splash Screen (avec vidéo au premier lancement)
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashWrapper(),
+      ),
+
+      // Auth Choice Screen (page principale après splash)
+      GoRoute(
+        path: AppRoutes.authChoice,
+        builder: (context, state) => const AuthChoicePage(),
+      ),
+
+      // Authentication routes
+      GoRoute(
+        path: AppRoutes.passportLogin,
+        builder: (context, state) => const PassportLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.testPassportLogin,
+        builder: (context, state) => const PassportLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.passportOtp,
+        builder: (context, state) {
+          final passportNo = state.extra as String? ?? '';
+          return PassportOtpVerificationPage(passportNo: passportNo);
+        },
+      ),
+
+      // Pilgrim Profile Screen (outside shell) - PROTÉGÉ
+      GoRoute(
+        path: AppRoutes.pilgrimProfile,
+        builder: (context, state) => const PilgrimProfilePage(),
+      ),
+
+      // Main Shell with Bottom Navigation - Wraps all main screens including home
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          // Home Screen - Now wrapped in MainShell
+          GoRoute(
+            path: AppRoutes.home,
+            builder: (context, state) => const HomePage(),
+          ),
+
+          // Rituals Section
+          GoRoute(
+            path: AppRoutes.rituals,
+            redirect: (context, state) => AppRoutes.timeline,
+          ),
+
+          // Data-backed timeline and duas
+          GoRoute(
+            path: AppRoutes.timeline,
+            builder: (context, state) => const RitualsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.duas,
+            builder: (context, state) => const DuasModernPage(),
+          ),
+
+          // Ritual detail page
+          GoRoute(
+            path: AppRoutes.ritualDetail,
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return RitualDetailPage(ritualId: id);
+            },
+          ),
+
+          // Other sections - PROTÉGÉES
+          GoRoute(
+            path: AppRoutes.health,
+            builder: (context, state) => const HealthPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.connectivity,
+            builder: (context, state) => const ConnectivityEsimPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.alerts,
+            builder: (context, state) => const AlertsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.emergencyContacts,
+            builder: (context, state) => const EmergencyContactsPage(),
+          ),
+
+          // Map Screen - PROTÉGÉE
+          GoRoute(
+            path: AppRoutes.map,
+            builder: (context, state) => const GoogleMapPage(),
+          ),
+
+          // Videos Screen
+          GoRoute(
+            path: AppRoutes.videos,
+            builder: (context, state) => const VideoPage(),
+          ),
+
+          // Assistant Screen
+          GoRoute(
+            path: AppRoutes.assistant,
+            builder: (context, state) => const AssistantChatPage(),
+          ),
+
+          // Profile Screen - PROTÉGÉE
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfilePage(),
+          ),
+
+          // Settings Screen
+          GoRoute(
+            path: AppRoutes.settings,
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
+      ),
       ],
       errorBuilder: (context, state) => Scaffold(
         body: Center(
@@ -89,732 +276,141 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
 
-    return MaterialApp.router(
-      title: 'Hajj Companion',
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF1D3557),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: const Color(0xFF2A9D8F),
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.surface,
+        error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.textPrimary,
+        brightness: Brightness.light,
+      ),
+      scaffoldBackgroundColor: AppColors.background,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.appBarBackground,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: AppColors.appBarText,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          iconTheme: IconThemeData(
-            color: Color(0xFF1D3557),
-          ),
+        iconTheme: IconThemeData(
+          color: AppColors.appBarIcon,
         ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.bottomNavBackground,
+        selectedItemColor: AppColors.bottomNavSelected,
+        unselectedItemColor: AppColors.bottomNavUnselected,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
       ),
     );
   }
-}
 
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.darkSurface,
+        error: AppColors.error,
+        onPrimary: AppColors.textOnPrimary,
+        onSecondary: AppColors.textOnSecondary,
+        onSurface: Colors.white,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.darkSurface,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.darkSurface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+    );
+  }
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch for theme and language changes
+    final settings = ref.watch(settingsProvider);
+    final currentThemeMode = settings.themeMode;
+    final locale = ref.watch(languageProvider);
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  String selectedRole = '';
-  String selectedLanguage = '';
+    // Use a Builder to ensure the theme updates without rebuilding the entire app
+    return Builder(
+      builder: (context) {
+        // Convert AppThemeMode to ThemeMode
+        final themeMode = switch (currentThemeMode) {
+          AppThemeMode.dark => ThemeMode.dark,
+          AppThemeMode.light => ThemeMode.light,
+          AppThemeMode.system =>
+            Theme.of(context).platform == TargetPlatform.iOS
+                //  || Theme.of(context).platform == TargetPlatform.macOS
+                ? ThemeMode.system
+                : ThemeMode.light,
+        };
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 20),
-
-                        // Logo
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF2A9D8F),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.eco_outlined,
-                            color: Colors.white,
-                            size: 36,
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        const Text(
-                          'Hajj Companion',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1D3557),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        const Text(
-                          'Your guide for a blessed and seamless pilgrimage.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey,
-                            height: 1.4,
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'I am a...',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1D3557),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        _buildRoleButton(
-                          icon: Icons.person,
-                          title: 'Pilgrim',
-                          isSelected: selectedRole == 'pilgrim',
-                          onTap: () => setState(() => selectedRole = 'pilgrim'),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        _buildRoleButton(
-                          icon: Icons.people,
-                          title: 'Guide',
-                          isSelected: selectedRole == 'guide',
-                          onTap: () => setState(() => selectedRole = 'guide'),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Language',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1D3557),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildLanguageButton(
-                                icon: Icons.volume_up,
-                                title: 'Hausa',
-                                isSelected: selectedLanguage == 'hausa',
-                                onTap: () => setState(() => selectedLanguage = 'hausa'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildLanguageButton(
-                                icon: Icons.volume_up,
-                                title: 'Djerma',
-                                isSelected: selectedLanguage == 'djerma',
-                                onTap: () => setState(() => selectedLanguage = 'djerma'),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const Spacer(),
-
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20, bottom: 20),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: selectedRole.isNotEmpty && selectedLanguage.isNotEmpty
-                                  ? () => context.push(AppRoutes.menu)
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4FC3F7),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Start',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: MaterialApp.router(
+            key: ValueKey(locale.languageCode), // Force rebuild avec animation
+            title: 'Sahabi Guide',
+            debugShowCheckedModeBanner: false,
+            locale: locale,
+            themeMode: themeMode,
+            theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: _buildRouter(ref),
+          // Ensure the app updates when locale changes + support RTL
+          builder: (context, child) {
+            return Directionality(
+              textDirection: LanguageService.getTextDirection(locale),
+              child: Localizations.override(
+                context: context,
+                locale: locale,
+                child: child!,
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleButton({
-    required IconData icon,
-    required String title,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 56,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE3F2FD) : const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(12),
-          border: isSelected
-              ? Border.all(color: const Color(0xFF4FC3F7), width: 2)
-              : null,
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF4FC3F7) : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? const Color(0xFF1D3557) : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageButton({
-    required IconData icon,
-    required String title,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE3F2FD) : const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(12),
-          border: isSelected
-              ? Border.all(color: const Color(0xFF4FC3F7), width: 2)
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF4FC3F7) : Colors.grey,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? const Color(0xFF1D3557) : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Hajj Guide',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: [
-            _buildMenuCard(
-              icon: Icons.luggage,
-              title: 'My Hajj',
-              color: const Color(0xFF4FC3F7),
-              onTap: () => context.push(AppRoutes.timeline),
-            ),
-            _buildMenuCard(
-              icon: Icons.favorite_border,
-              title: 'My Duas',
-              color: const Color(0xFF4FC3F7),
-              onTap: () => context.push(AppRoutes.duas),
-            ),
-            _buildMenuCard(
-              icon: Icons.map_outlined,
-              title: 'Map & Location',
-              color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de la carte
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                );
-              },
-            ),
-            _buildMenuCard(
-              icon: Icons.play_circle_outline,
-              title: 'Video\nPreparation',
-              color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran des vidéos
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                );
-              },
-            ),
-            _buildMenuCard(
-              icon: Icons.favorite,
-              title: 'My Health',
-              color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de santé
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                );
-              },
-            ),
-            _buildMenuCard(
-              icon: Icons.account_circle_outlined,
-              title: 'Profile &\nEmergency',
-              color: const Color(0xFF4FC3F7),
-              onTap: () {
-                // TODO: Implémenter l'écran de profil
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuCard({
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1D3557),
-                height: 1.2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class TimelineScreen extends StatelessWidget {
-  const TimelineScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'My Hajj Timeline',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildTimelineItem('Ihram', 'Enter the sacred state', true),
-          _buildTimelineItem(
-              'Tawaf al-Qudum', 'Arrival circumambulation', true),
-          _buildTimelineItem('Sa\'i', 'Walking between hills', false),
-          _buildTimelineItem('Day of Tarwiyah', 'Proceed to Mina', false),
-          _buildTimelineItem('Day of Arafah', 'Stand at Mount Arafah', false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimelineItem(String title, String description, bool completed) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: completed ? const Color(0xFF2A9D8F) : Colors.grey[300],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              completed ? Icons.check : Icons.schedule,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1D3557),
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class DuasScreen extends StatefulWidget {
-  const DuasScreen({super.key});
-
-  @override
-  State<DuasScreen> createState() => _DuasScreenState();
-}
-
-class _DuasScreenState extends State<DuasScreen> {
-  bool isPlayingArafah = false;
-  bool isPlayingMina = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'My Duas',
-          style: TextStyle(
-            color: Color(0xFF1D3557),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildDuasSection(
-              title: 'Day of Arafah',
-              subtitle: 'Special prayers for the most blessed day',
-              isPlaying: isPlayingArafah,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingArafah = !isPlayingArafah;
-                  if (isPlayingArafah) isPlayingMina = false;
-                });
-              },
-              color: const Color(0xFF4FC3F7),
-            ),
-            const SizedBox(height: 20),
-            _buildDuasSection(
-              title: 'Mina',
-              subtitle: 'Prayers during the days of Mina',
-              isPlaying: isPlayingMina,
-              onPlayPause: () {
-                setState(() {
-                  isPlayingMina = !isPlayingMina;
-                  if (isPlayingMina) isPlayingArafah = false;
-                });
-              },
-              color: const Color(0xFF2A9D8F),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDuasSection({
-    required String title,
-    required String subtitle,
-    required bool isPlaying,
-    required VoidCallback onPlayPause,
-    required Color color,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.favorite_border,
-                  color: color,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1D3557),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: onPlayPause,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'In the name of Allah, the Most Gracious, the Most Merciful',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          if (isPlaying) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: 0.3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
+// Fin du fichier main.dart
+// ✅ Toutes les pages ont été déplacées vers leurs propres fichiers
+// ✅ auth_choice_page.dart est la seule page d'accueil

@@ -1,63 +1,131 @@
+import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/services/storage_service.dart';
 
-abstract class RitualsRemoteDataSource {
-  Future<List<RitualModel>> getRituals();
-  Future<List<DuaModel>> getDuas({String? tag});
-  Future<List<RitualProgressModel>> getRitualProgress(String pilgrimId);
-  Future<void> updateRitualProgress(String pilgrimId, String ritualId, RitualStatus status);
-}
+class RitualsRemoteDataSource {
+  final DioClient _dioClient;
+  final StorageService _storageService;
 
-class RitualsRemoteDataSourceImpl implements RitualsRemoteDataSource {
-  final DioClient dioClient;
+  RitualsRemoteDataSource(this._dioClient, this._storageService);
 
-  RitualsRemoteDataSourceImpl(this.dioClient);
-
-  @override
-  Future<List<RitualModel>> getRituals() async {
+  Future<List<Map<String, dynamic>>> getRituals() async {
     try {
-      final response = await dioClient.get('/api/v1/rituals');
-      final List<dynamic> data = response.data;
-      return data.map((json) => RitualModel.fromMap(json)).toList();
+      // Get auth token if available
+      final token = await _storageService.getSecurely('auth_token');
+
+      final options = Options();
+      if (token != null) {
+        options.headers = {'Authorization': 'Bearer $token'};
+      }
+
+      final response = await _dioClient.get(
+        '/api/v1/rituals',
+        options: options,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+        if (data is Map && data['content'] is List) {
+          return List<Map<String, dynamic>>.from(data['content']);
+        }
+        throw Exception('Unexpected response shape for rituals: ${data.runtimeType}');
+      } else {
+        throw Exception('Failed to fetch rituals');
+      }
     } catch (e) {
-      throw Exception('Erreur lors de la récupération des rituels: $e');
+      throw Exception('Error fetching rituals: $e');
     }
   }
 
-  @override
-  Future<List<DuaModel>> getDuas({String? tag}) async {
+  Future<List<Map<String, dynamic>>> getDuas({String? tag}) async {
     try {
-      final response = await dioClient.get(
+      // Get auth token if available
+      final token = await _storageService.getSecurely('auth_token');
+
+      final options = Options();
+      if (token != null) {
+        options.headers = {'Authorization': 'Bearer $token'};
+      }
+
+      // Build query parameters
+      Map<String, dynamic>? queryParameters;
+      if (tag != null && tag.isNotEmpty) {
+        queryParameters = {'tag': tag};
+      }
+
+      final response = await _dioClient.get(
         '/api/v1/duas',
-        queryParameters: tag != null ? {'tag': tag} : null,
+        queryParameters: queryParameters,
+        options: options,
       );
-      final List<dynamic> data = response.data;
-      return data.map((json) => DuaModel.fromMap(json)).toList();
+
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(response.data);
+      } else {
+        throw Exception('Failed to fetch duas');
+      }
     } catch (e) {
-      throw Exception('Erreur lors de la récupération des duas: $e');
+      throw Exception('Error fetching duas: $e');
     }
   }
 
-  @override
-  Future<List<RitualProgressModel>> getRitualProgress(String pilgrimId) async {
+  Future<List<Map<String, dynamic>>> getRitualProgress(String userId) async {
     try {
-      final response = await dioClient.get('/api/v1/pilgrims/$pilgrimId/rituals/progress');
-      final List<dynamic> data = response.data;
-      return data.map((json) => RitualProgressModel.fromMap(json)).toList();
+      // Get auth token if available
+      final token = await _storageService.getSecurely('auth_token');
+
+      final options = Options();
+      if (token != null) {
+        options.headers = {'Authorization': 'Bearer $token'};
+      }
+
+      final response = await _dioClient.get(
+        '/api/v1/users/$userId/rituals/progress',
+        options: options,
+      );
+
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(response.data);
+      } else {
+        throw Exception('Failed to fetch ritual progress');
+      }
     } catch (e) {
-      throw Exception('Erreur lors de la récupération du progrès: $e');
+      throw Exception('Error fetching ritual progress: $e');
     }
   }
 
-  @override
-  Future<void> updateRitualProgress(String pilgrimId, String ritualId, RitualStatus status) async {
+  Future<Map<String, dynamic>> updateRitualProgress(
+    String userId,
+    String ritualId,
+    String status,
+  ) async {
     try {
-      await dioClient.put(
-        '/api/v1/pilgrims/$pilgrimId/rituals/$ritualId',
-        data: {'status': status.name},
+      // Get auth token if available
+      final token = await _storageService.getSecurely('auth_token');
+
+      final options = Options();
+      if (token != null) {
+        options.headers = {'Authorization': 'Bearer $token'};
+      }
+
+      final data = {'status': status};
+
+      final response = await _dioClient.dio.patch(
+        '/api/v1/users/$userId/rituals/$ritualId',
+        data: data,
+        options: options,
       );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw Exception('Failed to update ritual progress');
+      }
     } catch (e) {
-      throw Exception('Erreur lors de la mise à jour du progrès: $e');
+      throw Exception('Error updating ritual progress: $e');
     }
   }
 }

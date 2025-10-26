@@ -1,0 +1,162 @@
+# ============================================
+# Configuration iOS - Sahabi Guide
+# ============================================
+# Ce fichier centralise la configuration iOS
+
+# ============================================
+# INFORMATIONS DE BASE
+# ============================================
+app_name: "Sahabi Guide"
+bundle_id: "com.sahabiguide.app"
+version: "1.0.0"
+build_number: "1"
+
+# ============================================
+# DÉPLOIEMENT
+# ============================================
+deployment:
+  ios_version_min: "15.0"
+  team_id: ""  # À remplir avec votre Team ID Apple Developer
+  
+# ============================================
+# LANGUES SUPPORTÉES
+# ============================================
+locales:
+  - fr
+  - en
+  - ar
+
+# ============================================
+# CAPABILITIES (à activer dans Xcode)
+# ============================================
+capabilities:
+  push_notifications: true
+  background_modes:
+    - location
+    - fetch
+    - remote-notification
+    - processing
+  associated_domains: false  # Optionnel
+  app_groups: false  # Optionnel (pour widgets)
+  icloud: false  # Optionnel
+  healthkit: false  # Optionnel
+
+# ============================================
+# PERMISSIONS REQUISES
+# ============================================
+permissions:
+  location:
+    always: true
+    when_in_use: true
+    description_fr: "Sahabi Guide a besoin de votre localisation pour vous guider pendant votre pèlerinage"
+    description_en: "Sahabi Guide needs your location to guide you during your pilgrimage"
+    description_ar: "يحتاج دليل الصحابة إلى موقعك لإرشادك أثناء الحج"
+  
+  camera:
+    enabled: true
+    description_fr: "Pour scanner les QR codes et prendre des photos"
+    description_en: "To scan QR codes and take photos"
+    description_ar: "لمسح رموز QR والتقاط الصور"
+  
+  photo_library:
+    enabled: true
+    add_only: true
+    description_fr: "Pour sauvegarder vos documents"
+    description_en: "To save your documents"
+    description_ar: "لحفظ مستنداتك"
+  
+  notifications:
+    enabled: true
+    description_fr: "Pour les rappels de prière et les alertes"
+    description_en: "For prayer reminders and alerts"
+    description_ar: "لتذكيرات الصلاة والتنبيهات"
+  
+  contacts:
+    enabled: true
+    description_fr: "Pour sélectionner votre contact d'urgence"
+    description_en: "To select your emergency contact"
+    description_ar: "لاختيار جهة الاتصال في حالات الطوارئ"
+  
+  calendar:
+    enabled: true
+    description_fr: "Pour ajouter les horaires de prière"
+    description_en: "To add prayer times"
+    description_ar: "لإضافة مواقيت الصلاة"
+  
+  microphone:
+    enabled: false  # Optionnel
+    description_fr: "Pour l'assistance vocale"
+    description_en: "For voice assistance"
+    description_ar: "للمساعدة الصوتية"
+  
+  motion:
+    enabled: true
+    description_fr: "Pour suivre votre activité"
+    description_en: "To track your activity"
+    description_ar: "لتتبع نشاطك"
+
+# ============================================
+# APP STORE
+# ============================================
+app_store:
+  primary_category: "Travel"
+  secondary_category: "Lifestyle"
+  keywords: "hajj, omra, pelerinage, islam, mecca, medina, guide, rituals, prayer times, muslim"
+  
+  support_url: "https://sahabiguide.com/support"
+  marketing_url: "https://sahabiguide.com"
+  privacy_policy_url: "https://sahabiguide.com/privacy"
+  
+  age_rating: "4+"
+  price: "Free"
+  
+  # Screenshots requis
+  screenshots:
+    iphone_6_5: "1242x2688"  # iPhone 11 Pro Max, 12 Pro Max, etc.
+    iphone_6_7: "1290x2796"  # iPhone 14 Pro Max, 15 Pro Max
+    ipad_12_9: "2048x2732"   # iPad Pro 12.9"
+
+# ============================================
+# CONFIGURATION TECHNIQUE
+# ============================================
+technical:
+  bitcode: false  # Deprecated par Apple
+  symbols: true  # Upload symbols pour crash reporting
+  strip_swift_symbols: false
+  
+  # Optimizations
+  optimization_level: "-Os"  # Size optimization
+  
+  # Architecture
+  architectures:
+    - arm64
+    - arm64e
+
+# ============================================
+# NOTES DE VERSION
+# ============================================
+release_notes:
+  fr: |
+    Version initiale de Sahabi Guide
+    - Géolocalisation en temps réel
+    - Guide des rituels du Hajj
+    - Profil médical d'urgence
+    - Assistant conversationnel
+    - Support multilingue (FR/EN/AR)
+  
+  en: |
+    Initial release of Sahabi Guide
+    - Real-time geolocation
+    - Hajj rituals guide
+    - Emergency medical profile
+    - Conversational assistant
+    - Multilingual support (FR/EN/AR)
+  
+  ar: |
+    الإصدار الأول من دليل الصحابة
+    - تحديد الموقع الجغرافي في الوقت الفعلي
+    - دليل مناسك الحج
+    - الملف الطبي للطوارئ
+    - مساعد محادثة
+    - دعم متعدد اللغات (FR/EN/AR)
+

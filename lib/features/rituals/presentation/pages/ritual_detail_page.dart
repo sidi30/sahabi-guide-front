@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/constants/app_colors.dart';
 
 import '../../../../core/theme/theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
-import '../../../../shared/services/audio_service.dart';
+import '../../../../core/services/audio_service.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 
-final ritualDetailProvider = FutureProvider.family<RitualModel?, String>((ref, id) async {
+final ritualDetailProvider =
+    FutureProvider.family<RitualModel?, String>((ref, id) async {
   final useCase = sl<GetRitualsUseCase>();
   return await useCase.getRitualById(id);
 });
@@ -50,7 +52,7 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur audio: $e'),
-          backgroundColor: AppTheme.errorColor,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -91,7 +93,8 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(ritualDetailProvider(widget.ritualId)),
+                onPressed: () =>
+                    ref.refresh(ritualDetailProvider(widget.ritualId)),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -116,38 +119,45 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: _getRitualColor(ritual.type).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Icon(
-                          _getRitualIcon(ritual.type),
-                          color: _getRitualColor(ritual.type),
-                          size: 30,
-                        ),
-                      ),
+                      // Container(
+                      //   width: 60,
+                      //   height: 60,
+                      //   decoration: BoxDecoration(
+                      //     color: _getRitualColor(ritual.type)
+                      //         .withValues(alpha: 0.1),
+                      //     borderRadius: BorderRadius.circular(30),
+                      //   ),
+                      //   child: Icon(
+                      //     _getRitualIcon(ritual.type),
+                      //     color: _getRitualColor(ritual.type),
+                      //     size: 30,
+                      //   ),
+                      // ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              ritual.title,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              ritual.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              _getRitualTypeText(ritual.type),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: _getRitualColor(ritual.type),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            // Text(
+                            //   _getRitualTypeText(ritual.type),
+                            //   style: Theme.of(context)
+                            //       .textTheme
+                            //       .bodyMedium
+                            //       ?.copyWith(
+                            //         color: _getRitualColor(ritual.type),
+                            //         fontWeight: FontWeight.w500,
+                            //       ),
+                            // ),
                           ],
                         ),
                       ),
@@ -166,155 +176,159 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
           const SizedBox(height: 16),
 
           // Arabic Text (if available)
-          if (ritual.arabicText != null) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Texte arabe',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        ritual.arabicText!,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontFamily: 'Arabic',
-                          height: 2.0,
-                        ),
-                        textAlign: TextAlign.right,
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+          // if (ritual.arabicText != null) ...[
+          //   Card(
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(20),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             'Texte arabe',
+          //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //           ),
+          //           const SizedBox(height: 12),
+          //           Container(
+          //             width: double.infinity,
+          //             padding: const EdgeInsets.all(16),
+          //             decoration: BoxDecoration(
+          //               color: AppTheme.backgroundColor,
+          //               borderRadius: BorderRadius.circular(12),
+          //             ),
+          //             child: Text(
+          //               ritual.arabicText!,
+          //               style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          //                     fontFamily: 'Arabic',
+          //                     height: 2.0,
+          //                   ),
+          //               textAlign: TextAlign.right,
+          //               textDirection: TextDirection.rtl,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          //   const SizedBox(height: 16),
+          // ],
 
-          // Transliteration (if available)
-          if (ritual.transliteration != null) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Translittération',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        ritual.transliteration!,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+          // // Transliteration (if available)
+          // if (ritual.transliteration != null) ...[
+          //   Card(
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(20),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             'Translittération',
+          //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //           ),
+          //           const SizedBox(height: 12),
+          //           Container(
+          //             width: double.infinity,
+          //             padding: const EdgeInsets.all(16),
+          //             decoration: BoxDecoration(
+          //               color: AppTheme.backgroundColor,
+          //               borderRadius: BorderRadius.circular(12),
+          //             ),
+          //             child: Text(
+          //               ritual.transliteration!,
+          //               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          //                     fontStyle: FontStyle.italic,
+          //                     height: 1.5,
+          //                   ),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          //   const SizedBox(height: 16),
+          // ],
 
-          // Translation (if available)
-          if (ritual.translation != null) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Traduction',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        ritual.translation!,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+          // // Translation (if available)
+          // if (ritual.translation != null) ...[
+          //   Card(
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(20),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             'Traduction',
+          //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //           ),
+          //           const SizedBox(height: 12),
+          //           Container(
+          //             width: double.infinity,
+          //             padding: const EdgeInsets.all(16),
+          //             decoration: BoxDecoration(
+          //               color: AppTheme.backgroundColor,
+          //               borderRadius: BorderRadius.circular(12),
+          //             ),
+          //             child: Text(
+          //               ritual.translation!,
+          //               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          //                     height: 1.5,
+          //                   ),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          //   const SizedBox(height: 16),
+          // ],
 
-          // Audio Player (if available)
-          if (ritual.audioPath != null) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Audio',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () => _toggleAudio(ritual.audioPath),
-                          icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                          label: Text(_isPlaying ? 'Pause' : 'Écouter'),
-                        ),
-                        const SizedBox(width: 16),
-                        if (ritual.duration != null)
-                          Text(
-                            _formatDuration(ritual.duration!),
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+          // // Audio Player (if available)
+          // if (ritual.audioPath != null) ...[
+          //   Card(
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(20),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             'Audio',
+          //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //           ),
+          //           const SizedBox(height: 12),
+          //           Row(
+          //             children: [
+          //               ElevatedButton.icon(
+          //                 onPressed: () => _toggleAudio(ritual.audioPath),
+          //                 icon:
+          //                     Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+          //                 label: Text(_isPlaying ? 'Pause' : 'Écouter'),
+          //               ),
+          //               const SizedBox(width: 16),
+          //               if (ritual.duration != null)
+          //                 Text(
+          //                   _formatDuration(ritual.duration!),
+          //                   style: Theme.of(context)
+          //                       .textTheme
+          //                       .bodyMedium
+          //                       ?.copyWith(
+          //                         color: AppColors.textSecondary,
+          //                       ),
+          //                 ),
+          //             ],
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          //   const SizedBox(height: 16),
+          // ],
 
           // Details Card
           Card(
@@ -326,19 +340,20 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                   Text(
                     'Détails',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Fréquence', _getFrequencyText(ritual.frequency)),
-                  if (ritual.scheduledTime != null)
-                    _buildDetailRow(
-                      'Heure prévue',
-                      '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
-                    ),
-                  if (ritual.duration != null)
-                    _buildDetailRow('Durée', _formatDuration(ritual.duration!)),
-                  _buildDetailRow('Priorité', '${ritual.priority}/5'),
+                  // _buildDetailRow(
+                  //     'Fréquence', _getFrequencyText(ritual.frequency)),
+                  // if (ritual.scheduledTime != null)
+                  //   _buildDetailRow(
+                  //     'Heure prévue',
+                  //     '${ritual.scheduledTime!.hour.toString().padLeft(2, '0')}:${ritual.scheduledTime!.minute.toString().padLeft(2, '0')}',
+                  //   ),
+                  // if (ritual.duration != null)
+                  //   _buildDetailRow('Durée', _formatDuration(ritual.duration!)),
+                  // _buildDetailRow('Priorité', '${ritual.priority}/5'),
                 ],
               ),
             ),
@@ -377,85 +392,85 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.textSecondary,
-            ),
+                  color: AppColors.textSecondary,
+                ),
           ),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Color _getRitualColor(RitualType type) {
-    switch (type) {
-      case RitualType.prayer:
-        return AppTheme.primaryColor;
-      case RitualType.dua:
-        return AppTheme.secondaryColor;
-      case RitualType.dhikr:
-        return AppTheme.accentColor;
-      case RitualType.reading:
-        return Colors.purple;
-      case RitualType.charity:
-        return Colors.green;
-      case RitualType.fasting:
-        return Colors.orange;
-    }
-  }
+  // Color _getRitualColor(RitualType type) {
+  //   switch (type) {
+  //     case RitualType.prayer:
+  //       return AppTheme.primaryColor;
+  //     case RitualType.dua:
+  //       return AppTheme.secondaryColor;
+  //     case RitualType.dhikr:
+  //       return AppTheme.accentColor;
+  //     case RitualType.reading:
+  //       return Colors.purple;
+  //     case RitualType.charity:
+  //       return Colors.green;
+  //     case RitualType.fasting:
+  //       return Colors.orange;
+  //   }
+  // }
 
-  IconData _getRitualIcon(RitualType type) {
-    switch (type) {
-      case RitualType.prayer:
-        return Icons.schedule;
-      case RitualType.dua:
-        return Icons.book;
-      case RitualType.dhikr:
-        return Icons.favorite;
-      case RitualType.reading:
-        return Icons.menu_book;
-      case RitualType.charity:
-        return Icons.volunteer_activism;
-      case RitualType.fasting:
-        return Icons.no_meals;
-    }
-  }
+  // IconData _getRitualIcon(RitualType type) {
+  //   switch (type) {
+  //     case RitualType.prayer:
+  //       return Icons.schedule;
+  //     case RitualType.dua:
+  //       return Icons.book;
+  //     case RitualType.dhikr:
+  //       return Icons.favorite;
+  //     case RitualType.reading:
+  //       return Icons.menu_book;
+  //     case RitualType.charity:
+  //       return Icons.volunteer_activism;
+  //     case RitualType.fasting:
+  //       return Icons.no_meals;
+  //   }
+  // }
 
-  String _getRitualTypeText(RitualType type) {
-    switch (type) {
-      case RitualType.prayer:
-        return 'Prière';
-      case RitualType.dua:
-        return 'Dua';
-      case RitualType.dhikr:
-        return 'Dhikr';
-      case RitualType.reading:
-        return 'Lecture';
-      case RitualType.charity:
-        return 'Charité';
-      case RitualType.fasting:
-        return 'Jeûne';
-    }
-  }
+  // String _getRitualTypeText(RitualType type) {
+  //   switch (type) {
+  //     case RitualType.prayer:
+  //       return 'Prière';
+  //     case RitualType.dua:
+  //       return 'Dua';
+  //     case RitualType.dhikr:
+  //       return 'Dhikr';
+  //     case RitualType.reading:
+  //       return 'Lecture';
+  //     case RitualType.charity:
+  //       return 'Charité';
+  //     case RitualType.fasting:
+  //       return 'Jeûne';
+  //   }
+  // }
 
-  String _getFrequencyText(RitualFrequency frequency) {
-    switch (frequency) {
-      case RitualFrequency.daily:
-        return 'Quotidien';
-      case RitualFrequency.weekly:
-        return 'Hebdomadaire';
-      case RitualFrequency.monthly:
-        return 'Mensuel';
-      case RitualFrequency.yearly:
-        return 'Annuel';
-      case RitualFrequency.occasional:
-        return 'Occasionnel';
-    }
-  }
+  // String _getFrequencyText(RitualFrequency frequency) {
+  //   switch (frequency) {
+  //     case RitualFrequency.daily:
+  //       return 'Quotidien';
+  //     case RitualFrequency.weekly:
+  //       return 'Hebdomadaire';
+  //     case RitualFrequency.monthly:
+  //       return 'Mensuel';
+  //     case RitualFrequency.yearly:
+  //       return 'Annuel';
+  //     case RitualFrequency.occasional:
+  //       return 'Occasionnel';
+  //   }
+  // }
 
   String _formatDuration(Duration duration) {
     if (duration.inHours > 0) {

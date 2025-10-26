@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/theme.dart';
+import '../../shared/constants/app_colors.dart';
 
 class AppErrorWidget extends StatelessWidget {
   final String message;
@@ -26,7 +26,7 @@ class AppErrorWidget extends StatelessWidget {
             Icon(
               icon ?? Icons.error_outline,
               size: 64,
-              color: AppTheme.errorColor,
+              color: AppColors.error,
             ),
             const SizedBox(height: 16),
             Text(
@@ -40,7 +40,7 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
+                color: AppColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
