@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import 'package:sahabi_guide/shared/constants/app_colors.dart';
-import '../../../features/assistant/presentation/widgets/floating_assistant_button.dart';
+import '../../../features/bot/presentation/widgets/floating_bot_button.dart';
 
 class NavigationItem {
   final IconData icon;
@@ -268,21 +268,21 @@ class _MainShellState extends ConsumerState<MainShell> {
                 ),
               ),
             ),
-      // Bouton flottant de l'assistant (masqué sur la page assistant elle-même)
-      floatingActionButton: _shouldShowAssistantButton()
-          ? const FloatingAssistantButton()
+      // Bouton flottant du bot (masqué sur la page bot elle-même)
+      floatingActionButton: _shouldShowBotButton()
+          ? const FloatingBotButton()
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  /// Détermine si le bouton assistant doit être affiché
-  bool _shouldShowAssistantButton() {
+  /// Détermine si le bouton bot doit être affiché
+  bool _shouldShowBotButton() {
     try {
       final router = GoRouter.of(context);
       final currentRoute = router.routerDelegate.currentConfiguration.uri.toString();
-      // Masquer le bouton sur la page assistant elle-même
-      return !currentRoute.contains('/assistant');
+      // Masquer le bouton sur la page bot elle-même
+      return !currentRoute.contains('/bot');
     } catch (e) {
       // En cas d'erreur, afficher le bouton par défaut
       return true;

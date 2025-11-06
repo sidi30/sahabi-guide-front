@@ -317,3 +317,8 @@ Suivez cette checklist étape par étape pour préparer et soumettre l'app à l'
 
 **Bonne chance avec votre soumission à l'App Store ! 🍎✨**
 
+
+
+
+
+

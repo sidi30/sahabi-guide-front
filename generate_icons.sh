@@ -137,3 +137,8 @@ echo ""
 echo "📝 Note : Les icônes sont visibles après une réinstallation complète de l'app"
 echo ""
 
+
+
+
+
+
