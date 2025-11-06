@@ -61,12 +61,12 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'route': AppRoutes.connectivity,
       },
       {
-        'id': 'assistant',
-        'title': '🤖 Assistant',
+        'id': 'bot',
+        'title': '🤖 Assistant Hajj',
         'subtitle': 'Guide personnel du Hajj',
         'icon': 'smart_toy',
         'color': '#06D6A0',
-        'route': AppRoutes.assistant,
+        'route': AppRoutes.bot,
       },
     ];
   }

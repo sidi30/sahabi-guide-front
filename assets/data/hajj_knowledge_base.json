@@ -1,0 +1,355 @@
+{
+  "hajj_steps": [
+    {
+      "id": "ihram",
+      "order": 1,
+      "name": "Ihram",
+      "name_ar": "الإحرام",
+      "question": "Avez-vous effectué votre Ihram ?",
+      "question_ar": "هل أحرمت؟",
+      "description": "L'Ihram est l'état de sacralisation que vous devez atteindre avant d'entrer dans les lieux saints.",
+      "quick_replies": ["Oui", "Non", "Besoin d'aide"],
+      "next_step_yes": "tawaf_arrival",
+      "next_step_no": "ihram",
+      "related_ritual_id": "ihram",
+      "location_context": {
+        "miqat": true,
+        "required_before": ["tawaf", "sai"]
+      }
+    },
+    {
+      "id": "tawaf_arrival",
+      "order": 2,
+      "name": "Tawaf d'Arrivée",
+      "name_ar": "طواف القدوم",
+      "question": "Avez-vous effectué le Tawaf d'arrivée (7 tours autour de la Kaaba) ?",
+      "question_ar": "هل قمت بطواف القدوم؟",
+      "description": "Le Tawaf consiste à faire 7 tours autour de la Kaaba en sens antihoraire, en commençant depuis la Pierre Noire.",
+      "quick_replies": ["Oui", "Non", "En cours"],
+      "next_step_yes": "sai",
+      "next_step_no": "tawaf_arrival",
+      "related_ritual_id": "tawaf",
+      "location_context": {
+        "masjid_al_haram": true
+      }
+    },
+    {
+      "id": "sai",
+      "order": 3,
+      "name": "Sa'i",
+      "name_ar": "السعي",
+      "question": "Avez-vous effectué le Sa'i entre Safa et Marwa (7 allers-retours) ?",
+      "question_ar": "هل قمت بالسعي بين الصفا والمروة؟",
+      "description": "Le Sa'i consiste à parcourir 7 fois la distance entre les collines de Safa et Marwa.",
+      "quick_replies": ["Oui", "Non", "En cours"],
+      "next_step_yes": "mina_day8",
+      "next_step_no": "sai",
+      "related_ritual_id": "sai"
+    },
+    {
+      "id": "mina_day8",
+      "order": 4,
+      "name": "Mina - 8 Dhul Hijjah",
+      "name_ar": "منى - يوم التروية",
+      "question": "Êtes-vous arrivé à Mina pour passer la nuit du 8 Dhul Hijjah ?",
+      "question_ar": "هل وصلت إلى منى لقضاء ليلة الثامن من ذي الحجة؟",
+      "description": "Le 8 Dhul Hijjah (Jour de Tarwiyah), vous devez vous rendre à Mina et y passer la nuit en prières.",
+      "quick_replies": ["Oui", "Non", "En route"],
+      "next_step_yes": "arafat",
+      "next_step_no": "mina_day8",
+      "related_ritual_id": "mina",
+      "location_context": {
+        "mina": true,
+        "date": "8_dhul_hijjah"
+      }
+    },
+    {
+      "id": "arafat",
+      "order": 5,
+      "name": "Arafat - 9 Dhul Hijjah",
+      "name_ar": "عرفة - يوم عرفة",
+      "question": "Êtes-vous à Arafat pour le jour le plus important du Hajj ?",
+      "question_ar": "هل أنت في عرفة ليوم الحج الأكبر؟",
+      "description": "⚠️ JOUR CRUCIAL : Le 9 Dhul Hijjah, vous DEVEZ être présent à Arafat entre le Dhuhr et le coucher du soleil. C'est le pilier principal du Hajj.",
+      "quick_replies": ["Oui, je suis à Arafat", "Non", "En route"],
+      "next_step_yes": "muzdalifah",
+      "next_step_no": "arafat",
+      "related_ritual_id": "arafat",
+      "is_critical": true,
+      "urgent_reminder": "⚠️ IMPORTANT : Ne quittez pas Arafat avant le coucher du soleil !",
+      "location_context": {
+        "arafat": true,
+        "date": "9_dhul_hijjah",
+        "time_window": "dhuhr_to_maghrib"
+      }
+    },
+    {
+      "id": "muzdalifah",
+      "order": 6,
+      "name": "Muzdalifah",
+      "name_ar": "المزدلفة",
+      "question": "Êtes-vous arrivé à Muzdalifah pour passer la nuit ?",
+      "question_ar": "هل وصلت إلى المزدلفة لقضاء الليلة؟",
+      "description": "Après le coucher du soleil à Arafat, rendez-vous à Muzdalifah. Priez Maghrib et Isha combinées, et collectez 49 cailloux pour le Ramy.",
+      "quick_replies": ["Oui", "Non", "En route"],
+      "next_step_yes": "ramy_jamarat_day10",
+      "next_step_no": "muzdalifah",
+      "related_ritual_id": "muzdalifah",
+      "location_context": {
+        "muzdalifah": true
+      }
+    },
+    {
+      "id": "ramy_jamarat_day10",
+      "order": 7,
+      "name": "Ramy - Jamarat al-Aqaba (10 Dhul Hijjah)",
+      "name_ar": "رمي جمرة العقبة - يوم النحر",
+      "question": "Avez-vous lapidé la grande Jamarat (Aqaba) avec 7 cailloux ?",
+      "question_ar": "هل رميت جمرة العقبة الكبرى بسبع حصيات؟",
+      "description": "Le 10 Dhul Hijjah (Aid al-Adha), lapidez uniquement Jamarat al-Aqaba avec 7 cailloux.",
+      "quick_replies": ["Oui", "Non"],
+      "next_step_yes": "sacrifice",
+      "next_step_no": "ramy_jamarat_day10",
+      "related_ritual_id": "ramy",
+      "is_critical": true
+    },
+    {
+      "id": "sacrifice",
+      "order": 8,
+      "name": "Sacrifice (Hady)",
+      "name_ar": "الهدي - الأضحية",
+      "question": "Avez-vous effectué le sacrifice (ou délégué) ?",
+      "question_ar": "هل قمت بالأضحية أو وكلت من ينوب عنك؟",
+      "description": "Effectuez le sacrifice d'un mouton/chèvre ou partagez un chameau/vache. Vous pouvez déléguer cette tâche.",
+      "quick_replies": ["Oui", "Délégué", "Non"],
+      "next_step_yes": "haircut",
+      "next_step_no": "sacrifice",
+      "related_ritual_id": "sacrifice"
+    },
+    {
+      "id": "haircut",
+      "order": 9,
+      "name": "Rasage/Coupe des Cheveux",
+      "name_ar": "الحلق أو التقصير",
+      "question": "Avez-vous rasé ou coupé vos cheveux ?",
+      "question_ar": "هل حلقت أو قصرت شعرك؟",
+      "description": "Rasez complètement vos cheveux (recommandé) ou coupez-les légèrement.",
+      "quick_replies": ["Oui, rasé", "Oui, coupé", "Non"],
+      "next_step_yes": "tawaf_ifadah",
+      "next_step_no": "haircut"
+    },
+    {
+      "id": "tawaf_ifadah",
+      "order": 10,
+      "name": "Tawaf al-Ifadah",
+      "name_ar": "طواف الإفاضة",
+      "question": "Avez-vous effectué le Tawaf al-Ifadah (7 tours) ?",
+      "question_ar": "هل قمت بطواف الإفاضة؟",
+      "description": "C'est le Tawaf obligatoire du Hajj. 7 tours autour de la Kaaba, suivi du Sa'i si pas encore fait.",
+      "quick_replies": ["Oui", "Non"],
+      "next_step_yes": "mina_days_tashriq",
+      "next_step_no": "tawaf_ifadah",
+      "related_ritual_id": "tawaf_ifadah",
+      "is_critical": true
+    },
+    {
+      "id": "mina_days_tashriq",
+      "order": 11,
+      "name": "Mina - Jours de Tashriq (11-13 Dhul Hijjah)",
+      "name_ar": "منى - أيام التشريق",
+      "question": "Êtes-vous retourné à Mina pour les jours de Tashriq ?",
+      "question_ar": "هل عدت إلى منى لأيام التشريق؟",
+      "description": "Passez les nuits du 11, 12 et optionnellement 13 Dhul Hijjah à Mina. Lapidez les 3 Jamarat chaque jour après le Dhuhr.",
+      "quick_replies": ["Oui", "Non"],
+      "next_step_yes": "ramy_days_11_13",
+      "next_step_no": "mina_days_tashriq",
+      "related_ritual_id": "mina"
+    },
+    {
+      "id": "ramy_days_11_13",
+      "order": 12,
+      "name": "Ramy - Jours 11-13",
+      "name_ar": "رمي الجمرات - أيام التشريق",
+      "question": "Avez-vous lapidé les 3 Jamarat (21 cailloux par jour) ?",
+      "question_ar": "هل رميت الجمرات الثلاث بـ 21 حصاة كل يوم؟",
+      "description": "Chaque jour (11, 12, 13), lapidez les 3 Jamarat : Sughra (7), Wusta (7), Aqaba (7). Total: 21 cailloux/jour.",
+      "quick_replies": ["Oui, jour 11", "Oui, jour 12", "Oui, jour 13", "Non"],
+      "next_step_yes": "tawaf_wida",
+      "next_step_no": "ramy_days_11_13",
+      "is_critical": true
+    },
+    {
+      "id": "tawaf_wida",
+      "order": 13,
+      "name": "Tawaf al-Wida (Adieu)",
+      "name_ar": "طواف الوداع",
+      "question": "Avez-vous effectué le Tawaf d'adieu avant de quitter La Mecque ?",
+      "question_ar": "هل قمت بطواف الوداع قبل مغادرة مكة؟",
+      "description": "Le dernier rituel : 7 tours d'adieu autour de la Kaaba avant de partir de La Mecque.",
+      "quick_replies": ["Oui", "Non"],
+      "next_step_yes": "hajj_completed",
+      "next_step_no": "tawaf_wida",
+      "is_critical": true
+    },
+    {
+      "id": "hajj_completed",
+      "order": 14,
+      "name": "Hajj Terminé !",
+      "name_ar": "الحج مبرور",
+      "question": "🎉 Félicitations ! Vous avez terminé votre Hajj. Hajj Mabrour !",
+      "question_ar": "🎉 مبروك! لقد أتممت حجك. حج مبرور!",
+      "description": "Qu'Allah accepte votre Hajj et vos bonnes actions. Hajj Mabrour wa Sa'y Mashkour !",
+      "quick_replies": ["Alhamdulillah", "Recommencer"],
+      "is_final": true
+    }
+  ],
+
+  "faqs": [
+    {
+      "id": "faq_ihram_1",
+      "question": "Qu'est-ce que l'Ihram ?",
+      "question_ar": "ما هو الإحرام؟",
+      "answer": "L'Ihram est l'état de sacralisation que le pèlerin doit atteindre avant d'entrer dans les lieux saints. Il comprend :\n\n1. Vêtements spécifiques (2 draps blancs pour les hommes)\n2. Intention (Niyyah) d'accomplir le Hajj\n3. Talbiyah : 'Labbayk Allahumma labbayk...'\n4. Interdictions : parfums, couper ongles/cheveux, relations intimes, chasse...",
+      "keywords": ["ihram", "sacralisation", "vêtements", "miqat"],
+      "related_steps": ["ihram"]
+    },
+    {
+      "id": "faq_tawaf_1",
+      "question": "Comment effectuer le Tawaf correctement ?",
+      "question_ar": "كيف أقوم بالطواف بشكل صحيح؟",
+      "answer": "Le Tawaf consiste à faire 7 tours autour de la Kaaba :\n\n1. Commencez depuis la Pierre Noire (Hajar al-Aswad)\n2. Tournez en sens antihoraire\n3. Les hommes découvrent l'épaule droite (Idtiba)\n4. Multipliez les invocations\n5. Touchez/embrassez la Pierre Noire si possible (sinon pointez du doigt)\n6. Après 7 tours, priez 2 raka'at derrière Maqam Ibrahim",
+      "keywords": ["tawaf", "kaaba", "tours", "pierre noire"],
+      "related_steps": ["tawaf_arrival", "tawaf_ifadah", "tawaf_wida"]
+    },
+    {
+      "id": "faq_arafat_1",
+      "question": "Pourquoi le jour d'Arafat est-il si important ?",
+      "question_ar": "لماذا يوم عرفة مهم جداً؟",
+      "answer": "Le Prophète ﷺ a dit : 'Le Hajj, c'est Arafat' (rapporté par Tirmidhi).\n\n⚠️ Points clés :\n- OBLIGATOIRE d'être présent à Arafat le 9 Dhul Hijjah\n- Entre le Dhuhr et le coucher du soleil\n- Si vous ratez Arafat, votre Hajj n'est pas valide\n- Multipliez les invocations : c'est le meilleur jour de l'année\n- Ne partez PAS avant le coucher du soleil",
+      "keywords": ["arafat", "9 dhul hijjah", "pilier", "obligatoire"],
+      "related_steps": ["arafat"],
+      "is_critical": true
+    },
+    {
+      "id": "faq_ramy_1",
+      "question": "Comment lapider les Jamarat ?",
+      "question_ar": "كيف أرمي الجمرات؟",
+      "answer": "Lapidation (Ramy) :\n\n**Jour 10 (Aid) :**\n- Uniquement Jamarat al-Aqaba (la grande)\n- 7 cailloux\n- Après le lever du soleil\n\n**Jours 11-13 (Tashriq) :**\n- Les 3 Jamarat : Sughra, Wusta, Aqaba\n- 7 cailloux chaque (total 21/jour)\n- Après le Dhuhr\n\n**Technique :**\n- Cailloux de la taille d'un pois chiche\n- Lancez-les un par un\n- Dites 'Bismillah, Allahu Akbar' à chaque lancer",
+      "keywords": ["ramy", "jamarat", "cailloux", "lapidation"],
+      "related_steps": ["ramy_jamarat_day10", "ramy_days_11_13"]
+    },
+    {
+      "id": "faq_sai_1",
+      "question": "Qu'est-ce que le Sa'i et comment le faire ?",
+      "question_ar": "ما هو السعي وكيف أقوم به؟",
+      "answer": "Le Sa'i commémore la quête d'eau de Hajar (mère d'Ismaël) :\n\n1. Commence à Safa, termine à Marwa\n2. 7 allers-retours (Safa→Marwa = 1, Marwa→Safa = 2...)\n3. Entre les 2 feux verts, accélérez le pas (hommes)\n4. Invoquez Allah à chaque extrémité\n5. Durée : 45 min - 1h30\n\nFormule recommandée sur Safa/Marwa :\n'Inna as-Safa wal-Marwata min sha'a'iri Allah...'",
+      "keywords": ["sai", "safa", "marwa", "allers-retours"],
+      "related_steps": ["sai"]
+    },
+    {
+      "id": "faq_mina_1",
+      "question": "Que faire à Mina ?",
+      "question_ar": "ماذا أفعل في منى؟",
+      "answer": "Séjour à Mina :\n\n**Jour 8 (Tarwiyah) :**\n- Arrivée à Mina\n- Priez 5 prières (Dhuhr, Asr, Maghrib, Isha, Fajr)\n- Multipliez les invocations\n\n**Jours 11-13 (Tashriq) :**\n- Passez les nuits à Mina (recommandé)\n- Lapidez les Jamarat chaque jour après Dhuhr\n- Priez, invoquez, lisez le Coran\n\n💡 Astuce : Vous pouvez partir après avoir lapidé le jour 12 si vous le souhaitez.",
+      "keywords": ["mina", "tentes", "nuit", "tashriq"],
+      "related_steps": ["mina_day8", "mina_days_tashriq"]
+    },
+    {
+      "id": "faq_muzdalifah_1",
+      "question": "Combien de temps rester à Muzdalifah ?",
+      "question_ar": "كم من الوقت أبقى في مزدلفة؟",
+      "answer": "Muzdalifah (nuit du 9 au 10) :\n\n✅ Recommandé :\n- Arrivée après Maghrib depuis Arafat\n- Priez Maghrib + Isha combinées\n- Passez toute la nuit jusqu'au Fajr\n- Collectez 49 cailloux (ou 70)\n\n⚠️ Minimum obligatoire :\n- Présence entre minuit et Fajr\n- Les personnes faibles peuvent partir après minuit\n\n🪨 Cailloux : Taille d'un pois chiche, propres",
+      "keywords": ["muzdalifah", "nuit", "cailloux", "maghrib"],
+      "related_steps": ["muzdalifah"]
+    },
+    {
+      "id": "faq_sacrifice_1",
+      "question": "Le sacrifice est-il obligatoire ?",
+      "question_ar": "هل الأضحية واجبة؟",
+      "answer": "Le sacrifice (Hady) :\n\n**Obligatoire pour :**\n- Hajj Tamattu' (Omra puis Hajj)\n- Hajj Qiran (Omra + Hajj ensemble)\n\n**Pas obligatoire pour :**\n- Hajj Ifrad (uniquement Hajj)\n\n**Options :**\n1. Mouton/chèvre (1 animal = 1 personne)\n2. Chameau/vache (1 animal = 7 personnes)\n3. Déléguer à une organisation (recommandé)\n\n**Timing :** Jour 10, après la lapidation",
+      "keywords": ["sacrifice", "hady", "mouton", "déléguer"],
+      "related_steps": ["sacrifice"]
+    },
+    {
+      "id": "faq_tawaf_types_1",
+      "question": "Quels sont les différents types de Tawaf ?",
+      "question_ar": "ما هي أنواع الطواف المختلفة؟",
+      "answer": "3 types de Tawaf dans le Hajj :\n\n1️⃣ **Tawaf al-Qudum (Arrivée)**\n- Recommandé (Sunnah)\n- Dès l'arrivée à La Mecque\n- Pas obligatoire\n\n2️⃣ **Tawaf al-Ifadah (Obligation)**\n- OBLIGATOIRE ✅\n- Jour 10, après Ramy + Sacrifice\n- Pilier du Hajj (ne pas rater !)\n\n3️⃣ **Tawaf al-Wida (Adieu)**\n- OBLIGATOIRE ✅\n- Dernier acte avant de quitter La Mecque\n- Femmes menstruées exemptées",
+      "keywords": ["tawaf", "types", "qudum", "ifadah", "wida"],
+      "related_steps": ["tawaf_arrival", "tawaf_ifadah", "tawaf_wida"]
+    },
+    {
+      "id": "faq_duas_important_1",
+      "question": "Quelles invocations sont importantes pendant le Hajj ?",
+      "question_ar": "ما هي الأدعية المهمة خلال الحج؟",
+      "answer": "Invocations clés du Hajj :\n\n**Talbiyah (répétée souvent) :**\nلَبَّيْكَ اللَّهُمَّ لَبَّيْكَ\n'Labbayk Allahumma labbayk...'\n\n**À Arafat :**\nلَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ\n'La ilaha illa Allah wahdahu la sharika lah...'\n\n**Entre Safa et Marwa :**\nإِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ\n\n**Au Ramy :**\nبِسْمِ اللَّهِ اللَّهُ أَكْبَرُ\n'Bismillah, Allahu Akbar'\n\n💡 Consultez la section 'Douas' de l'app !",
+      "keywords": ["duas", "invocations", "talbiyah", "arafat"],
+      "related_steps": ["all"]
+    }
+  ],
+
+  "urgent_reminders": {
+    "arafat": [
+      "⚠️ CRUCIAL : Vous DEVEZ être présent à Arafat entre le Dhuhr et le coucher du soleil du 9 Dhul Hijjah.",
+      "⚠️ Ne quittez PAS Arafat avant le coucher du soleil !",
+      "🕌 Multipliez les invocations : c'est le meilleur jour de l'année pour demander pardon."
+    ],
+    "muzdalifah": [
+      "🪨 N'oubliez pas de collecter 49 cailloux (taille d'un pois chiche).",
+      "🌙 Passez au moins de minuit au Fajr à Muzdalifah."
+    ],
+    "ramy_day10": [
+      "🎯 Lapidez UNIQUEMENT Jamarat al-Aqaba (la grande) avec 7 cailloux le jour 10.",
+      "⏰ Faites-le après le lever du soleil."
+    ],
+    "ramy_days_11_13": [
+      "🎯 Lapidez les 3 Jamarat (21 cailloux au total) chaque jour.",
+      "⏰ Faites-le après le Dhuhr (entre Dhuhr et coucher du soleil)."
+    ],
+    "tawaf_ifadah": [
+      "⚠️ Le Tawaf al-Ifadah est OBLIGATOIRE. Sans lui, votre Hajj n'est pas complet.",
+      "📅 Effectuez-le le jour 10 après le Ramy et le sacrifice."
+    ],
+    "tawaf_wida": [
+      "⚠️ Le Tawaf d'adieu est obligatoire avant de quitter La Mecque.",
+      "📍 Ce doit être votre dernier acte à La Mecque (pas de shopping après !)."
+    ]
+  },
+
+  "location_hints": {
+    "miqat": {
+      "description": "Endroit où vous devez vous mettre en état d'Ihram avant d'entrer à La Mecque",
+      "coordinates": {
+        "dhul_hulayfah": { "lat": 25.3868, "lng": 39.6012, "for": "Médine" },
+        "juhfah": { "lat": 22.6339, "lng": 39.2032, "for": "Égypte, Maghreb" },
+        "qarn_al_manazil": { "lat": 21.8105, "lng": 40.9388, "for": "Najd, Est" },
+        "yalamlam": { "lat": 18.4167, "lng": 41.8833, "for": "Yémen, Inde" }
+      }
+    },
+    "masjid_al_haram": {
+      "lat": 21.4225, 
+      "lng": 39.8262,
+      "radius_km": 1,
+      "description": "Grande Mosquée de La Mecque (Tawaf, Kaaba)"
+    },
+    "mina": {
+      "lat": 21.4203,
+      "lng": 39.8875,
+      "radius_km": 3,
+      "description": "Tentes de Mina (jours 8, 10-13)"
+    },
+    "arafat": {
+      "lat": 21.3551,
+      "lng": 39.9843,
+      "radius_km": 5,
+      "description": "Plaine d'Arafat (jour 9 - CRUCIAL)"
+    },
+    "muzdalifah": {
+      "lat": 21.3892,
+      "lng": 39.9198,
+      "radius_km": 2,
+      "description": "Muzdalifah (nuit 9→10, cailloux)"
+    }
+  }
+}
+
