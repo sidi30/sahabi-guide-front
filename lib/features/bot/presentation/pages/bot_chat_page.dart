@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bot_provider.dart';
 import '../widgets/bot_message_bubble.dart';
 import '../widgets/quick_reply_chip.dart';
+import '../widgets/gps_debug_panel.dart';
+import 'bot_settings_page.dart';
 
 /// Page principale du chat bot Hajj
 class BotChatPage extends ConsumerStatefulWidget {
@@ -31,6 +33,42 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(botChatProvider);
+
+    // Affiche l'erreur si présente
+    if (state.error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Assistant Hajj')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  'Erreur d\'initialisation',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  state.error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(botChatProvider.notifier).initialize();
+                  },
+                  child: const Text('Réessayer'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: _buildAppBar(),
@@ -84,6 +122,12 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         ],
       ),
       actions: [
+        const GpsDebugButton(),
+        IconButton(
+          icon: const Icon(Icons.settings_rounded),
+          onPressed: _openSettings,
+          tooltip: 'Paramètres',
+        ),
         IconButton(
           icon: const Icon(Icons.refresh_rounded),
           onPressed: _showRestartDialog,
@@ -394,6 +438,15 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     ref.read(botChatProvider.notifier).askQuestion(text);
   }
 
+  void _openSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BotSettingsPage(),
+      ),
+    );
+  }
+
   Future<void> _showRestartDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -430,15 +483,48 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('📊 Statistiques'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStatRow('Étape actuelle', stats['current_step']),
-            _buildStatRow('Étape', '${stats['current_order']} / ${stats['total_steps']}'),
-            _buildStatRow('Progression', '${stats['progress_percentage']}%'),
-            _buildStatRow('Messages', '${stats['messages_count']}'),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '📈 Progression',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              _buildStatRow('Étape actuelle', stats['current_step']),
+              _buildStatRow('Étape', '${stats['current_order']} / ${stats['total_steps']}'),
+              _buildStatRow('Progression', '${stats['progress_percentage']}%'),
+              _buildStatRow('Messages', '${stats['messages_count']}'),
+              
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              
+              const Text(
+                '📍 Localisation GPS',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              _buildStatRow(
+                'Lieu actuel',
+                stats['current_location'] ?? 'Non détecté',
+              ),
+              _buildStatRow(
+                'Dans lieu saint',
+                stats['is_in_holy_place'] == true ? 'Oui ✅' : 'Non',
+              ),
+              _buildStatRow(
+                'Duas suggérées',
+                '${stats['suggested_duas_count'] ?? 0}',
+              ),
+              _buildStatRow(
+                'Rappels urgents',
+                '${stats['urgent_reminders_count'] ?? 0}',
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

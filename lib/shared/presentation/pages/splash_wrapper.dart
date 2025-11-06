@@ -4,8 +4,7 @@ import 'splash_video_screen.dart';
 import 'splash_page.dart';
 
 /// Wrapper qui décide d'afficher la vidéo d'intro ou le splash normal
-/// - Au premier lancement : vidéo d'intro
-/// - Lancements suivants : splash normal
+/// OPTIMISÉ : Affichage instantané du splash, vidéo optionnelle
 class SplashWrapper extends StatefulWidget {
   const SplashWrapper({super.key});
 
@@ -14,52 +13,53 @@ class SplashWrapper extends StatefulWidget {
 }
 
 class _SplashWrapperState extends State<SplashWrapper> {
-  bool? _shouldShowVideo;
+  bool _shouldShowVideo = false;
 
   @override
   void initState() {
     super.initState();
-    _checkFirstLaunch();
+    // Vérifier en arrière-plan (non bloquant)
+    _checkFirstLaunchAsync();
   }
 
-  Future<void> _checkFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasSeenVideo = prefs.getBool('intro_video_shown') ?? false;
-    
-    setState(() {
-      // Montrer la vidéo seulement si pas encore vue
-      _shouldShowVideo = !hasSeenVideo;
-    });
+  Future<void> _checkFirstLaunchAsync() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenVideo = prefs.getBool('intro_video_shown') ?? false;
+      
+      // Montrer la vidéo seulement au TOUT PREMIER lancement
+      // Les lancements suivants vont directement au splash page
+      if (!hasSeenVideo && mounted) {
+        setState(() {
+          _shouldShowVideo = true;
+        });
+      }
+    } catch (e) {
+      // En cas d'erreur, ne pas bloquer, continuer sans vidéo
+      debugPrint('Erreur vérification vidéo intro: $e');
+    }
   }
 
   void _onVideoComplete() {
-    setState(() {
-      _shouldShowVideo = false;
-    });
+    if (mounted) {
+      setState(() {
+        _shouldShowVideo = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Attendre que la vérification soit terminée
-    if (_shouldShowVideo == null) {
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-      );
-    }
-
-    // Afficher la vidéo ou le splash normal
-    if (_shouldShowVideo!) {
+    // OPTIMISATION : Afficher immédiatement le splash, 
+    // pas de loading inutile
+    if (_shouldShowVideo) {
       return SplashVideoScreen(
         onComplete: _onVideoComplete,
       );
-    } else {
-      return const SplashPage();
     }
+    
+    // Par défaut : splash page rapide
+    return const SplashPage();
   }
 }
 

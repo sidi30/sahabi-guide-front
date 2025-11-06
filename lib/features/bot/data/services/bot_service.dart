@@ -2,13 +2,21 @@ import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
 import '../models/bot_message_model.dart';
 import '../models/hajj_step_model.dart';
-import '../models/faq_model.dart';
+import '../models/ritual_context_model.dart';
 import 'knowledge_base_service.dart';
+import 'context_service.dart';
+import 'notification_service.dart';
+import 'storage_service.dart';
+import 'llm_service.dart';
 
 /// Service principal du bot Hajj
 /// Gère la conversation, la navigation entre étapes, les réponses
 class BotService {
   final KnowledgeBaseService knowledgeBase;
+  final ContextService contextService;
+  final NotificationService? notificationService;
+  final StorageService? storageService;
+  final LLMService? llmService;
   final Logger logger;
   final Uuid uuid = const Uuid();
 
@@ -16,9 +24,14 @@ class BotService {
   HajjStepModel? _currentStep;
   final List<BotMessageModel> _messageHistory = [];
   bool _conversationStarted = false;
+  RitualContextModel? _lastContext;
 
   BotService({
     required this.knowledgeBase,
+    required this.contextService,
+    this.notificationService,
+    this.storageService,
+    this.llmService,
     required this.logger,
   });
 
@@ -30,8 +43,18 @@ class BotService {
       // Initialise la base de connaissances
       await knowledgeBase.initialize();
       
-      // Charge la première étape
-      _currentStep = knowledgeBase.getFirstStep();
+      // Initialise les services optionnels
+      await notificationService?.initialize();
+      await storageService?.initialize();
+      await llmService?.initialize();
+      
+      // Tente de restaurer l'état de la conversation
+      if (storageService != null) {
+        await _restoreConversationState();
+      }
+      
+      // Charge la première étape si pas de restauration
+      _currentStep ??= knowledgeBase.getFirstStep();
       
       if (_currentStep == null) {
         throw Exception('No first step found in knowledge base');
@@ -43,6 +66,32 @@ class BotService {
       rethrow;
     }
   }
+  
+  /// Restaure l'état de la conversation depuis le storage
+  Future<void> _restoreConversationState() async {
+    try {
+      final savedState = await storageService?.loadConversationState();
+      final savedMessages = await storageService?.loadMessages() ?? [];
+      
+      if (savedState != null && savedMessages.isNotEmpty) {
+        logger.d('Restoring conversation state...');
+        
+        _conversationStarted = savedState['conversationStarted'] as bool? ?? false;
+        
+        final stepId = savedState['currentStepId'] as String?;
+        if (stepId != null) {
+          _currentStep = knowledgeBase.getStepById(stepId);
+        }
+        
+        _messageHistory.clear();
+        _messageHistory.addAll(savedMessages);
+        
+        logger.i('✅ Conversation restored (${savedMessages.length} messages)');
+      }
+    } catch (e) {
+      logger.w('Could not restore conversation state: $e');
+    }
+  }
 
   /// Démarre la conversation
   Future<BotMessageModel> startConversation({String locale = 'fr'}) async {
@@ -52,20 +101,37 @@ class BotService {
 
     _conversationStarted = true;
     
-    // Message de bienvenue
+    // Récupère le contexte GPS
+    _lastContext = await contextService.getCurrentContext();
+    
+    // Message de bienvenue contextuel
+    String welcomeContent = '🕋 As-salamu alaykum ! Je suis votre assistant personnel pour le Hajj.\n\n';
+    
+    // Ajoute info de localisation si disponible
+    if (_lastContext?.isInHolyPlace == true) {
+      welcomeContent += '📍 Je vois que vous êtes à ${_lastContext!.currentLocation} !\n\n';
+    }
+    
+    welcomeContent += 'Je vais vous guider étape par étape à travers tous les rituels. '
+                      'Répondez simplement aux questions et je vous accompagnerai ! 🤲';
+    
     final welcomeMessage = BotMessageModel.bot(
       id: uuid.v4(),
-      content: '🕋 As-salamu alaykum ! Je suis votre assistant personnel pour le Hajj.\n\n'
-               'Je vais vous guider étape par étape à travers tous les rituels. '
-               'Répondez simplement aux questions et je vous accompagnerai ! 🤲',
+      content: welcomeContent,
       contentAr: 'السلام عليكم! أنا مساعدك الشخصي للحج.',
     );
     
     _messageHistory.add(welcomeMessage);
+    await _saveMessage(welcomeMessage);
+    
+    // Planifie les notifications contextuelles si disponibles
+    if (notificationService != null && _lastContext?.isInHolyPlace == true) {
+      await notificationService!.scheduleContextualNotifications();
+    }
     
     // Génère le premier message de question
     await Future.delayed(const Duration(milliseconds: 500));
-    final firstQuestion = await _generateQuestionMessage(locale: locale);
+    await _generateQuestionMessage(locale: locale);
     
     return welcomeMessage;
   }
@@ -78,12 +144,25 @@ class BotService {
       throw StateError('No current step');
     }
 
+    // Met à jour le contexte GPS
+    _lastContext = await contextService.getCurrentContext();
+
     String content = _currentStep!.getLocalizedQuestion(locale);
     
-    // Ajoute les rappels urgents si présents
+    // Ajoute les rappels urgents du contexte GPS si présents
+    if (_lastContext != null && _lastContext!.urgentReminders.isNotEmpty) {
+      content += '\n\n⚠️ RAPPELS URGENTS :\n${_lastContext!.urgentReminders.join('\n')}';
+    }
+    
+    // Ajoute les rappels urgents de la base de connaissances
     final urgentReminders = knowledgeBase.getUrgentReminders(_currentStep!.id);
     if (urgentReminders.isNotEmpty) {
       content += '\n\n${urgentReminders.join('\n')}';
+    }
+    
+    // Ajoute les duas suggérées si présentes
+    if (_lastContext != null && _lastContext!.suggestedDuas.isNotEmpty) {
+      content += '\n\n🤲 DUAS RECOMMANDÉES :\n${_lastContext!.suggestedDuas.take(3).join('\n')}';
     }
     
     // Ajoute la description
@@ -99,7 +178,32 @@ class BotService {
     );
     
     _messageHistory.add(message);
+    await _saveMessage(message);
+    await _saveConversationState();
+    
     return message;
+  }
+  
+  /// Sauvegarde un message
+  Future<void> _saveMessage(BotMessageModel message) async {
+    try {
+      await storageService?.saveMessage(message);
+    } catch (e) {
+      logger.w('Could not save message: $e');
+    }
+  }
+  
+  /// Sauvegarde l'état de la conversation
+  Future<void> _saveConversationState() async {
+    try {
+      await storageService?.saveConversationState(
+        currentStepId: _currentStep?.id,
+        currentOrder: _currentStep?.order ?? 0,
+        conversationStarted: _conversationStarted,
+      );
+    } catch (e) {
+      logger.w('Could not save conversation state: $e');
+    }
   }
 
   /// Traite une réponse utilisateur
@@ -117,6 +221,7 @@ class BotService {
       content: answer,
     );
     _messageHistory.add(userMessage);
+    await _saveMessage(userMessage);
 
     // Si "Besoin d'aide", cherche dans les FAQs
     if (_isHelpRequest(answer)) {
@@ -138,6 +243,11 @@ class BotService {
     
     // Passe à l'étape suivante
     _currentStep = nextStep;
+    
+    // Planifie les notifications si le contexte a changé
+    if (notificationService != null) {
+      await notificationService!.scheduleContextualNotifications();
+    }
     
     // Génère le message de la nouvelle étape
     return await _generateQuestionMessage(locale: locale);
@@ -175,12 +285,38 @@ class BotService {
     
     if (faq != null) {
       content = '❓ ${faq.question}\n\n${faq.answer}';
+      
+      // Enrichissement optionnel avec LLM
+      if (llmService != null && await llmService!.isAvailable()) {
+        logger.d('Enriching FAQ response with LLM...');
+        final enrichedContent = await llmService!.enrichResponse(
+          originalResponse: content,
+          userQuestion: query,
+          context: _lastContext?.currentLocation,
+        );
+        
+        if (enrichedContent != null && enrichedContent != content) {
+          content = enrichedContent;
+          content += '\n\n💡 Réponse enrichie par IA';
+        }
+      }
     } else {
-      content = '🤔 Je n\'ai pas trouvé de réponse exacte à votre question.\n\n'
-                'Vous pouvez :\n'
-                '- Reformuler votre question\n'
-                '- Consulter la section "Rituels"\n'
-                '- Poser une question plus générale';
+      // Si pas de FAQ trouvée, essaye le LLM directement
+      if (llmService != null && await llmService!.isAvailable()) {
+        logger.d('Generating response with LLM...');
+        final llmResponse = await llmService!.generateResponse(
+          question: query,
+          context: _lastContext?.currentLocation,
+        );
+        
+        if (llmResponse != null) {
+          content = '🤖 $llmResponse\n\n💡 Réponse générée par IA';
+        } else {
+          content = _getDefaultNoAnswerMessage();
+        }
+      } else {
+        content = _getDefaultNoAnswerMessage();
+      }
     }
     
     final message = BotMessageModel.bot(
@@ -190,7 +326,17 @@ class BotService {
     );
     
     _messageHistory.add(message);
+    await _saveMessage(message);
     return message;
+  }
+  
+  /// Message par défaut quand aucune réponse n'est trouvée
+  String _getDefaultNoAnswerMessage() {
+    return '🤔 Je n\'ai pas trouvé de réponse exacte à votre question.\n\n'
+           'Vous pouvez :\n'
+           '- Reformuler votre question\n'
+           '- Consulter la section "Rituels"\n'
+           '- Poser une question plus générale';
   }
 
   /// Gère la fin de la conversation
@@ -272,6 +418,17 @@ class BotService {
     return ((currentOrder / totalSteps) * 100).round();
   }
 
+  /// Récupère le contexte actuel
+  RitualContextModel? getCurrentContext() {
+    return _lastContext;
+  }
+
+  /// Met à jour le contexte manuellement
+  Future<RitualContextModel> refreshContext() async {
+    _lastContext = await contextService.getCurrentContext();
+    return _lastContext!;
+  }
+
   /// Statistiques
   Map<String, dynamic> getStats() {
     final allSteps = knowledgeBase.getAllSteps();
@@ -283,6 +440,10 @@ class BotService {
       'progress_percentage': getProgressPercentage(),
       'messages_count': _messageHistory.length,
       'conversation_started': _conversationStarted,
+      'current_location': _lastContext?.currentLocation,
+      'is_in_holy_place': _lastContext?.isInHolyPlace ?? false,
+      'suggested_duas_count': _lastContext?.suggestedDuas.length ?? 0,
+      'urgent_reminders_count': _lastContext?.urgentReminders.length ?? 0,
     };
   }
 

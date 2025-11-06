@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/theme.dart';
 import '../../../core/utils/constants.dart';
 import '../../../shared/services/storage_service.dart';
 import '../../../core/di/injection_container.dart';
@@ -28,8 +27,9 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 
   void _initializeAnimations() {
+    // OPTIMISÉ : Animation plus rapide (800ms au lieu de 1500ms)
     _animationController = AnimationController(
-      duration: AppConstants.longAnimation,
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -38,22 +38,23 @@ class _SplashPageState extends ConsumerState<SplashPage>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeIn,
+      curve: Curves.easeInOut,  // Plus rapide
     ));
 
     _scaleAnimation = Tween<double>(
-      begin: 0.5,
+      begin: 0.8,  // Moins d'effet (plus rapide)
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Curves.elasticOut,
+      curve: Curves.easeOut,  // Plus direct
     ));
 
     _animationController.forward();
   }
 
   Future<void> _navigateToNextScreen() async {
-    await Future.delayed(const Duration(seconds: 3));
+    // OPTIMISÉ : 1.2s au lieu de 3s
+    await Future.delayed(const Duration(milliseconds: 1200));
 
     if (!mounted) return;
 
@@ -92,7 +93,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // App Logo Sahabi
+                    // App Logo - OPTIMISÉ avec icône simple
                     Container(
                       width: 120,
                       height: 120,
@@ -107,17 +108,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(16),
-                      child: Image.asset(
-                        'assets/images/sahabi logo.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.mosque,
-                            size: 60,
-                            color: Theme.of(context).primaryColor,
-                          );
-                        },
+                      child: Icon(
+                        Icons.mosque_outlined,
+                        size: 64,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
 

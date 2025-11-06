@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
 import 'package:sahabi_guide/features/bot/presentation/pages/bot_chat_page.dart';
+import 'package:sahabi_guide/features/bot/presentation/pages/bot_debug_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
@@ -87,24 +89,26 @@ class AppRoutes {
   static const String alerts = '/alerts';
   static const String emergencyContacts = '/emergency-contacts';
   static const String bot = '/bot';
+  static const String botDebug = '/bot-debug';
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize dependencies
-  await initializeDependencies();
+  // OPTIMISATION : Initialisations minimales au démarrage
+  // Le reste se chargera en arrière-plan
+  
+  // 1. Hive (nécessaire pour StorageService)
+  await Hive.initFlutter();
 
-  // Initialize SharedPreferences
+  // 2. SharedPreferences (très rapide)
   final prefs = await SharedPreferences.getInstance();
 
-  // Create settings notifier and load initial settings
+  // 3. Services légers
   final settingsNotifier = SettingsNotifier(prefs: prefs);
-  await settingsNotifier.loadSettings();
-
-  // Create language service
   final languageService = LanguageService(prefs);
 
+  // Lancer l'app IMMÉDIATEMENT
   runApp(
     ProviderScope(
       overrides: [
@@ -114,6 +118,27 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+
+  // CHARGEMENT EN ARRIÈRE-PLAN (non bloquant)
+  // Les dépendances lourdes se chargent pendant que le splash s'affiche
+  _initializeHeavyDependenciesAsync(settingsNotifier);
+}
+
+/// Initialise les dépendances lourdes en arrière-plan
+/// Ne bloque PAS le démarrage de l'app
+Future<void> _initializeHeavyDependenciesAsync(SettingsNotifier settingsNotifier) async {
+  try {
+    // Charger les dépendances (API clients, etc.)
+    await initializeDependencies();
+    
+    // Charger les settings (peut prendre du temps)
+    await settingsNotifier.loadSettings();
+    
+    debugPrint('✅ Dépendances lourdes chargées en arrière-plan');
+  } catch (e) {
+    debugPrint('⚠️ Erreur chargement dépendances : $e');
+    // L'app continue de fonctionner même si certaines dépendances échouent
+  }
 }
 
 class MyApp extends ConsumerWidget {
@@ -250,6 +275,12 @@ class MyApp extends ConsumerWidget {
           GoRoute(
             path: AppRoutes.bot,
             builder: (context, state) => const BotChatPage(),
+          ),
+          
+          // Bot Debug Screen (pour diagnostics)
+          GoRoute(
+            path: AppRoutes.botDebug,
+            builder: (context, state) => const BotDebugPage(),
           ),
 
           // Profile Screen - PROTÉGÉE

@@ -1,11 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:dio/dio.dart';
 import '../../data/models/bot_message_model.dart';
 import '../../data/services/bot_service.dart';
 import '../../data/services/knowledge_base_service.dart';
+import '../../data/services/context_service.dart';
+import '../../data/services/notification_service.dart';
+import '../../data/services/storage_service.dart';
+import '../../data/services/llm_service.dart';
 
 /// Provider pour le logger
 final loggerProvider = Provider<Logger>((ref) => Logger());
+
+/// Provider pour Dio
+final dioProvider = Provider<Dio>((ref) => Dio());
 
 /// Provider pour KnowledgeBaseService
 final knowledgeBaseServiceProvider = Provider<KnowledgeBaseService>((ref) {
@@ -13,13 +21,55 @@ final knowledgeBaseServiceProvider = Provider<KnowledgeBaseService>((ref) {
   return KnowledgeBaseService(logger: logger);
 });
 
+/// Provider pour ContextService
+final contextServiceProvider = Provider<ContextService>((ref) {
+  final logger = ref.watch(loggerProvider);
+  return ContextService(logger: logger);
+});
+
+/// Provider pour NotificationService
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  final contextService = ref.watch(contextServiceProvider);
+  final logger = ref.watch(loggerProvider);
+  return NotificationService(
+    contextService: contextService,
+    logger: logger,
+  );
+});
+
+/// Provider pour StorageService
+final storageServiceProvider = Provider<StorageService>((ref) {
+  final logger = ref.watch(loggerProvider);
+  return StorageService(logger: logger);
+});
+
+/// Provider pour LLMService
+final llmServiceProvider = Provider<LLMService>((ref) {
+  final dio = ref.watch(dioProvider);
+  final storageService = ref.watch(storageServiceProvider);
+  final logger = ref.watch(loggerProvider);
+  return LLMService(
+    dio: dio,
+    storageService: storageService,
+    logger: logger,
+  );
+});
+
 /// Provider pour BotService
 final botServiceProvider = Provider<BotService>((ref) {
   final knowledgeBase = ref.watch(knowledgeBaseServiceProvider);
+  final contextService = ref.watch(contextServiceProvider);
+  final notificationService = ref.watch(notificationServiceProvider);
+  final storageService = ref.watch(storageServiceProvider);
+  final llmService = ref.watch(llmServiceProvider);
   final logger = ref.watch(loggerProvider);
   
   return BotService(
     knowledgeBase: knowledgeBase,
+    contextService: contextService,
+    notificationService: notificationService,
+    storageService: storageService,
+    llmService: llmService,
     logger: logger,
   );
 });
@@ -104,7 +154,7 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
     try {
       state = state.copyWith(isTyping: true);
       
-      final welcomeMessage = await botService.startConversation(locale: locale);
+      await botService.startConversation(locale: locale);
       
       // Simule un délai pour l'effet de frappe
       await Future.delayed(const Duration(milliseconds: 800));
