@@ -3,12 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../../../shared/widgets/notification_snackbar.dart';
-import '../../data/exceptions/auth_exceptions.dart';
 
 final passportLoginProvider = StateNotifierProvider<PassportLoginNotifier, PassportLoginState>((ref) {
   return PassportLoginNotifier(sl<AuthService>());
@@ -175,7 +173,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.info_outline,
                             color: AppColors.primary,
                             size: 20,

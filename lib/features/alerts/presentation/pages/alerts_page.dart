@@ -280,7 +280,7 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getAlertTypeColor(alert.type).withOpacity(0.2),
+                        color: _getAlertTypeColor(alert.type).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -421,9 +421,9 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         priority.displayName,
@@ -508,6 +508,9 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
     );
   }
 }
+
+
+
 
 
 

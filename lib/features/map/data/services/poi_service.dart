@@ -151,7 +151,7 @@ class PoiService {
       AppLogger.info('📞 Appel du guide...');
       final token = await _secureStorage.read(key: 'auth_token');
       
-      final endpoint = _useRealApi 
+      const endpoint = _useRealApi 
           ? '/api/v1/guide/call' 
           : '/api/v1/poi/guide/call';
       
@@ -180,7 +180,7 @@ class PoiService {
       final token = await _secureStorage.read(key: 'auth_token');
       
       // TODO: Vérifier le bon endpoint d'urgence dans le backend
-      final endpoint = '/api/v1/alerts/emergency';
+      const endpoint = '/api/v1/alerts/emergency';
       
       final response = await _dioClient.post(
         endpoint,

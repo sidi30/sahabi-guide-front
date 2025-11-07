@@ -150,14 +150,14 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                  colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -198,7 +198,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                   Text(
                     state.primaryContact!.displayRelation,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 14,
                     ),
                   ),
@@ -209,7 +209,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                         child: Text(
                           state.primaryContact!.formattedPhone,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 16,
                           ),
                         ),
@@ -421,6 +421,9 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     );
   }
 }
+
+
+
 
 
 

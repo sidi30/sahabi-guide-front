@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../shared/constants/app_colors.dart';
 
@@ -57,7 +56,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Container(
                     width: 100,
                     height: 100,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -218,7 +217,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                   applicationIcon: Container(
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),

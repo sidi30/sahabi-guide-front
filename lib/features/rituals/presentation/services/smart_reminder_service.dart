@@ -226,7 +226,7 @@ class SmartReminderService {
       icon: 'ic_notification',
     );
 
-    final iosDetails = const DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,

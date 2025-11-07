@@ -16,14 +16,11 @@ import '../../features/auth/domain/usecases/passport_auth_usecases.dart';
 import '../../features/rituals/data/datasources/rituals_local_data_source.dart';
 import '../../features/rituals/data/datasources/rituals_local_data_source_hive.dart';
 import '../../features/rituals/data/datasources/rituals_remote_data_source.dart';
-import '../../features/rituals/data/repositories/rituals_repository_impl.dart';
 import '../../features/rituals/data/repositories/rituals_repository_impl_with_sync.dart';
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
 
 // Hive Models and Adapters
-import '../../shared/models/ritual_model.dart';
-import '../../shared/models/dua_model.dart';
 import '../../shared/models/ritual_model_adapter.dart';
 import '../../shared/models/dua_model_adapter.dart';
 

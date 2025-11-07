@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/theme.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../data/models/contact_message_model.dart';
 import '../providers/contact_message_provider.dart';
@@ -110,7 +109,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.access_time, color: AppColors.primary, size: 32),
+                  const Icon(Icons.access_time, color: AppColors.primary, size: 32),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(

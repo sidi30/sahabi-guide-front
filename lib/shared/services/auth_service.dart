@@ -6,7 +6,6 @@ import '../../core/utils/app_logger.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/token_validator.dart';
 import 'storage_service.dart';
-import '../../features/auth/data/exceptions/auth_exceptions.dart';
 
 /// États d'authentification
 enum AuthState {
@@ -408,14 +407,14 @@ class AuthService {
       return _currentUser!['id'].toString();
     }
 
-    return await _storage.get(AppConstants.userIdKey);
+    return _storage.get(AppConstants.userIdKey);
   }
 
   /// Charge le profil utilisateur depuis le storage ou l'API
   Future<void> _loadUserProfile() async {
     try {
       // D'abord essayer de charger depuis le storage
-      final cachedProfile = await _storage.get(AppConstants.userProfileKey);
+      final cachedProfile = _storage.get(AppConstants.userProfileKey);
 
       if (cachedProfile != null) {
         _currentUser = json.decode(cachedProfile);

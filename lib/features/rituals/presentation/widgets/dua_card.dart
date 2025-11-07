@@ -42,7 +42,7 @@ class DuaCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: dua.getTypeColor().withOpacity(0.1),
+                      color: dua.getTypeColor().withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -84,10 +84,10 @@ class DuaCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.05),
+                  color: Colors.green.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Center(
@@ -163,6 +163,9 @@ class DuaCard extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

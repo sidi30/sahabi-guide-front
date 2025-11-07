@@ -68,7 +68,7 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               color: AppColors.error,
               size: 28,
@@ -123,7 +123,7 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.info_outline,
               color: AppColors.primary,
               size: 28,
@@ -178,7 +178,7 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.help_outline,
               color: AppColors.warning,
               size: 28,

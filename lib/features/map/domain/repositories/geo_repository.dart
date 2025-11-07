@@ -1,4 +1,3 @@
-import '../../../../shared/models/alert_model.dart';
 
 abstract class GeoRepository {
   Future<List<Map<String, dynamic>>> getPois({String? agencyId, String? type});

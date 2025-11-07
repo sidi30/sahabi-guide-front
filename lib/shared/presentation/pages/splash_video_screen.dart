@@ -118,7 +118,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
                   child: TextButton(
                     onPressed: _skipVideo,
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.black.withOpacity(0.6),
+                      backgroundColor: Colors.black.withValues(alpha: 0.6),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 10,
@@ -247,4 +247,5 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
     );
   }
 }
+
 

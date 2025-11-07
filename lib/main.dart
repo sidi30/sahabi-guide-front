@@ -31,7 +31,7 @@ import 'features/rituals/presentation/pages/duas_modern_page.dart';
 import 'shared/constants/app_colors.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
-import 'shared/presentation/pages/splash_page.dart';
+// import 'shared/presentation/pages/splash_page.dart';  // ❌ Non utilisé
 import 'shared/presentation/pages/splash_wrapper.dart';
 import 'shared/presentation/widgets/main_shell.dart';
 import 'features/home/presentation/pages/home_page.dart';

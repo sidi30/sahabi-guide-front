@@ -536,7 +536,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -581,7 +581,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -694,3 +694,4 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     super.dispose();
   }
 }
+

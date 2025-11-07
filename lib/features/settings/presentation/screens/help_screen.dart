@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/theme.dart';
 import '../../../../shared/constants/app_colors.dart';
 import 'contact_screen.dart';
 
@@ -91,7 +90,7 @@ class _HelpScreenState extends State<HelpScreen> {
   List<Widget> _getAllFAQs() {
     return [
       _buildCategoryHeader('Authentification & Compte'),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment me connecter à l\'application ?',
         answer: '''
 Pour vous connecter :
@@ -106,7 +105,7 @@ Pour vous connecter :
 Le code OTP expire après 5 minutes.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Je n\'ai pas reçu le code OTP, que faire ?',
         answer: '''
 Si vous ne recevez pas le code OTP :
@@ -120,7 +119,7 @@ Si vous ne recevez pas le code OTP :
 En cas d'urgence, contactez votre guide directement.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment modifier mes informations personnelles ?',
         answer: '''
 Pour modifier vos informations :
@@ -136,7 +135,7 @@ Note : Le numéro de passeport ne peut pas être modifié. Contactez votre agenc
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Géolocalisation & Carte'),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment activer la géolocalisation ?',
         answer: '''
 Pour activer la géolocalisation :
@@ -149,7 +148,7 @@ Pour activer la géolocalisation :
 La géolocalisation est essentielle pour votre sécurité.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Pourquoi ma position n\'est pas précise ?',
         answer: '''
 Si votre position n'est pas précise :
@@ -166,7 +165,7 @@ Dans les bâtiments, la précision GPS peut être réduite.
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Rituels & Prières'),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment suivre mes rituels du Hajj ?',
         answer: '''
 Pour suivre vos rituels :
@@ -180,7 +179,7 @@ Pour suivre vos rituels :
 Les rituels sont organisés chronologiquement pour vous guider.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment écouter les duas (invocations) ?',
         answer: '''
 Pour écouter les duas :
@@ -197,7 +196,7 @@ Les duas sont disponibles en plusieurs langues.
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Groupe & Communication'),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment communiquer avec mon groupe ?',
         answer: '''
 Pour communiquer avec votre groupe :
@@ -213,7 +212,7 @@ Les alertes d'urgence sont envoyées automatiquement à tout le groupe.
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Santé & Urgences'),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment enregistrer mes informations médicales ?',
         answer: '''
 Pour enregistrer vos informations médicales :
@@ -227,7 +226,7 @@ Pour enregistrer vos informations médicales :
 Ces informations sont cruciales en cas d'urgence médicale.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Que faire en cas d\'urgence ?',
         answer: '''
 En cas d'urgence :
@@ -246,7 +245,7 @@ Votre guide et groupe seront automatiquement notifiés.
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Technique'),
-      _FAQItem(
+      const _FAQItem(
         question: 'L\'application ne fonctionne pas, que faire ?',
         answer: '''
 Si l'application ne fonctionne pas :
@@ -261,7 +260,7 @@ Si l'application ne fonctionne pas :
 Vos données sont sauvegardées et ne seront pas perdues.
 ''',
       ),
-      _FAQItem(
+      const _FAQItem(
         question: 'Comment économiser la batterie ?',
         answer: '''
 Pour économiser la batterie :

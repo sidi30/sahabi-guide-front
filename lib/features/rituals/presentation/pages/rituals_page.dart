@@ -5,7 +5,6 @@ import '../../../../shared/constants/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
-import '../../domain/repositories/rituals_repository.dart';
 import '../../../duas/data/datasources/duas_remote_data_source.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 import '../../../../features/settings/presentation/providers/settings_provider.dart';

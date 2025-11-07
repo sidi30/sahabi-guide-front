@@ -8,7 +8,7 @@ import '../../shared/models/dua_model.dart';
 class NotificationService extends ChangeNotifier {
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
-  List<ScheduledNotification> _scheduledNotifications = [];
+  final List<ScheduledNotification> _scheduledNotifications = [];
 
   bool get isInitialized => _isInitialized;
 
@@ -252,10 +252,6 @@ class NotificationService extends ChangeNotifier {
         ?.requestNotificationsPermission();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 class ScheduledNotification {

@@ -43,7 +43,7 @@ dependencies:
 
   # Video Player (pour splash screen animé)
   video_player: ^2.8.0
-  chewie: ^1.7.0
+  # chewie: ^1.7.0  # ❌ SUPPRIMÉ - Non utilisé
 
   # Maps & Location
   # flutter_map remplacé par google_maps_flutter
@@ -62,18 +62,19 @@ dependencies:
   google_fonts: ^6.1.0
 
   # QR Code & Sharing
-  qr_flutter: ^4.1.0
-  share_plus: ^10.0.3
+  # qr_flutter: ^4.1.0     # ❌ SUPPRIMÉ - Non utilisé
+  # share_plus: ^10.0.3    # ❌ SUPPRIMÉ - Non utilisé
 
   # Utilities
   uuid: ^4.2.1
   path_provider: ^2.1.1
   permission_handler: ^11.1.0
   logger: ^2.0.2+1
-  cached_network_image: ^3.4.1
+  # cached_network_image: ^3.4.1  # ❌ SUPPRIMÉ - Non utilisé
   package_info_plus: ^8.0.0
   url_launcher: ^6.2.5
 
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

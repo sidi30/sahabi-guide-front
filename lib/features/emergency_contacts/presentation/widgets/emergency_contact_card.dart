@@ -34,13 +34,13 @@ class EmergencyContactCard extends StatelessWidget {
             children: [
               // Avatar
               CircleAvatar(
-                backgroundColor: AppColors.primary.withOpacity(0.2),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                 radius: 24,
                 child: Text(
                   contact.name.isNotEmpty
                       ? contact.name.substring(0, 1).toUpperCase()
                       : '?',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -71,7 +71,7 @@ class EmergencyContactCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.2),
+                              color: Colors.orange.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Colors.orange),
                             ),
@@ -112,7 +112,7 @@ class EmergencyContactCard extends StatelessWidget {
                   // Bouton d'appel
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
@@ -168,3 +168,4 @@ class EmergencyContactCard extends StatelessWidget {
     );
   }
 }
+

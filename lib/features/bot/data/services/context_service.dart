@@ -9,7 +9,7 @@ class ContextService {
   
   // Lieux saints avec coordonnées précises
   static final List<HolyPlace> _holyPlaces = [
-    HolyPlace(
+    const HolyPlace(
       id: 'masjid_al_haram',
       name: 'Masjid al-Haram',
       nameAr: 'المسجد الحرام',
@@ -18,7 +18,7 @@ class ContextService {
       radiusKm: 1.0,
       relatedRituals: ['ihram', 'tawaf', 'sai', 'tawaf_arrival', 'tawaf_ifadah', 'tawaf_wida'],
     ),
-    HolyPlace(
+    const HolyPlace(
       id: 'mina',
       name: 'Mina',
       nameAr: 'منى',
@@ -27,7 +27,7 @@ class ContextService {
       radiusKm: 3.0,
       relatedRituals: ['mina', 'mina_day8', 'mina_days_tashriq', 'ramy'],
     ),
-    HolyPlace(
+    const HolyPlace(
       id: 'arafat',
       name: 'Arafat',
       nameAr: 'عرفة',
@@ -36,7 +36,7 @@ class ContextService {
       radiusKm: 5.0,
       relatedRituals: ['arafat'],
     ),
-    HolyPlace(
+    const HolyPlace(
       id: 'muzdalifah',
       name: 'Muzdalifah',
       nameAr: 'المزدلفة',
@@ -45,7 +45,7 @@ class ContextService {
       radiusKm: 2.0,
       relatedRituals: ['muzdalifah'],
     ),
-    HolyPlace(
+    const HolyPlace(
       id: 'makkah',
       name: 'La Mecque',
       nameAr: 'مكة المكرمة',

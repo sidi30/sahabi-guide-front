@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/theme.dart';
 import '../../../../shared/constants/app_colors.dart';
 
 class PrivacyScreen extends StatelessWidget {

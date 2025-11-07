@@ -30,13 +30,13 @@ class QuickReplyChip extends StatelessWidget {
         backgroundColor: isEnabled ? Colors.white : Colors.grey[200],
         side: BorderSide(
           color: isEnabled
-              ? const Color(0xFF1D3557).withOpacity(0.3)
+              ? const Color(0xFF1D3557).withValues(alpha: 0.3)
               : Colors.grey[400]!,
           width: 1.5,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         elevation: isEnabled ? 2 : 0,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
       ),
     );
   }
@@ -67,7 +67,7 @@ class QuickReplyList extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -104,4 +104,5 @@ class QuickReplyList extends StatelessWidget {
     );
   }
 }
+
 

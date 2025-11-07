@@ -241,10 +241,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: progress >= 100 ? Colors.green[50] : const Color(0xFF06D6A0).withOpacity(0.1),
+        color: progress >= 100 ? Colors.green[50] : const Color(0xFF06D6A0).withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: progress >= 100 ? Colors.green[200]! : const Color(0xFF06D6A0).withOpacity(0.3),
+            color: progress >= 100 ? Colors.green[200]! : const Color(0xFF06D6A0).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -282,7 +282,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF1D3557).withOpacity(0.1),
+              color: const Color(0xFF1D3557).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -393,7 +393,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

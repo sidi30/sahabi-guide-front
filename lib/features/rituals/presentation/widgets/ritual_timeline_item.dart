@@ -109,7 +109,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: indicatorColor.withOpacity(0.3),
+                color: indicatorColor.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -145,7 +145,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -249,7 +249,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
           icon: const Icon(Icons.check_circle, size: 20),
           label: const Text('✅ Rituel accompli'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+            backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
             foregroundColor: const Color(0xFF10B981),
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -269,7 +269,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
           icon: const Icon(Icons.warning, size: 20),
           label: const Text('❌ Rituel manqué'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey.withOpacity(0.1),
+            backgroundColor: Colors.grey.withValues(alpha: 0.1),
             foregroundColor: Colors.grey,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -301,8 +301,8 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: isActive 
-              ? const Color(0xFF4FC3F7).withOpacity(0.1)
-              : const Color(0xFF6B7280).withOpacity(0.1),
+              ? const Color(0xFF4FC3F7).withValues(alpha: 0.1)
+              : const Color(0xFF6B7280).withValues(alpha: 0.1),
           foregroundColor: isActive 
               ? const Color(0xFF4FC3F7)
               : const Color(0xFF6B7280),

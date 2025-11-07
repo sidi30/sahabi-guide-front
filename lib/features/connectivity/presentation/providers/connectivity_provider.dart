@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../data/models/connectivity_plan_model.dart';
 import '../../data/models/connectivity_subscription_model.dart';
-import '../../data/models/connectivity_topup_model.dart';
 import '../../domain/usecases/get_connectivity_plans_usecase.dart';
 import '../../domain/usecases/get_user_subscriptions_usecase.dart';
 import '../../domain/usecases/subscribe_to_plan_usecase.dart';
@@ -162,6 +161,8 @@ final connectivityNotifierProvider =
     topupSubscriptionUseCase: ref.watch(topupSubscriptionUseCaseProvider),
   );
 });
+
+
 
 
 

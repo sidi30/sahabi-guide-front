@@ -34,18 +34,18 @@ class LanguageSettingsScreen extends ConsumerWidget {
                 color: AppColors.primary.withValues(alpha: 0.3),
               ),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.info_outline,
                   color: AppColors.primary,
                   size: 24,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Choisissez la langue de l\'interface\nChoose interface language\nاختر لغة الواجهة',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 13,
                       height: 1.4,

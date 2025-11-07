@@ -57,7 +57,7 @@ class _FloatingBotButtonState extends ConsumerState<FloatingBotButton>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1D3557).withOpacity(0.3),
+                  color: const Color(0xFF1D3557).withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                   offset: const Offset(0, 4),
@@ -130,7 +130,7 @@ class _CompactFloatingBotButtonState extends ConsumerState<CompactFloatingBotBut
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF06D6A0).withOpacity(0.4),
+                color: const Color(0xFF06D6A0).withValues(alpha: 0.4),
                 blurRadius: 10 + (8 * _controller.value),
                 spreadRadius: 1 + (2 * _controller.value),
               ),
@@ -152,4 +152,5 @@ class _CompactFloatingBotButtonState extends ConsumerState<CompactFloatingBotBut
     );
   }
 }
+
 

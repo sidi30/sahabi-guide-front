@@ -184,7 +184,7 @@ class LLMService {
     String? context,
   ) async {
     try {
-      final systemPrompt = '''Tu es un assistant expert du Hajj. 
+      const systemPrompt = '''Tu es un assistant expert du Hajj. 
 Enrichis et améliore les réponses existantes avec plus de détails, de context islamique et de sagesse.
 Réponds en français de manière claire et concise (maximum 200 mots).''';
 
@@ -334,7 +334,7 @@ Base-toi sur les sources islamiques authentiques.''';
   /// Génération avec OpenAI
   Future<String?> _generateWithOpenAI(String prompt) async {
     try {
-      final systemPrompt = '''Tu es un assistant expert du Hajj avec une connaissance approfondie 
+      const systemPrompt = '''Tu es un assistant expert du Hajj avec une connaissance approfondie 
 de l'islam et des rituels. Réponds aux questions avec précision, clarté et bienveillance.
 Base-toi sur les sources islamiques authentiques (Coran, Sunnah).''';
 

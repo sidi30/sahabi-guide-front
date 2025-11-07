@@ -1,4 +1,3 @@
-import '../../../../shared/models/alert_model.dart';
 import '../repositories/geo_repository.dart';
 
 class GetPoisUseCase {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../shared/models/alert_model.dart';
 
@@ -43,7 +42,7 @@ class AlertCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: _getTypeColor(alert.type).withOpacity(0.2),
+                      color: _getTypeColor(alert.type).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(
@@ -158,9 +157,9 @@ class AlertCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         priority.displayName,
@@ -180,7 +179,7 @@ class AlertCard extends StatelessWidget {
     required Color color,
   }) {
     return Material(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
       child: InkWell(
         onTap: onPressed,
@@ -269,6 +268,9 @@ class AlertCard extends StatelessWidget {
     }
   }
 }
+
+
+
 
 
 

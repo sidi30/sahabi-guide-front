@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/constants/app_colors.dart';
-import '../../../../core/theme/theme.dart';
 import '../providers/notifications_provider.dart';
 
 class NotificationsSettingsScreen extends ConsumerWidget {
@@ -50,7 +49,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.primary, size: 32),
+                const Icon(Icons.info_outline, color: AppColors.primary, size: 32),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(

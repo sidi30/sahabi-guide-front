@@ -77,7 +77,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       // TODO: Get current user ID from token or storage
-      final userId = 'current-user-id'; // Temporary - should be retrieved from auth
+      const userId = 'current-user-id'; // Temporary - should be retrieved from auth
       final response = await _dioClient.get(
         '/api/v1/auth/users/$userId/stats',
         options: options,

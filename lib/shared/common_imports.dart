@@ -9,7 +9,8 @@ export 'package:flutter/foundation.dart';
 // ... getx, river.., providers
 
 // Network and API
-export 'package:cached_network_image/cached_network_image.dart';
+// ❌ SUPPRIMÉ - Package non utilisé
+// export 'package:cached_network_image/cached_network_image.dart';
 
 // Constants and Theme
 import 'constants/app_sizes.dart';
@@ -18,6 +19,9 @@ import 'constants/app_colors.dart';
 // Utilities
 
 // Common Widgets
+
+// ✅ Logger singleton (optimisé pour éviter créations multiples)
+final Logger _logger = Logger();
 
 // Extensions
 extension ContextExtension on BuildContext {
@@ -38,8 +42,8 @@ extension ContextExtension on BuildContext {
   double get defaultSpacing => AppSizes.s16;
   EdgeInsets get defaultPadding => const EdgeInsets.all(AppSizes.s16);
 
-  // Logger
-  Logger get logger => Logger();
+  // Logger (singleton optimisé)
+  Logger get logger => _logger;
 
   // Navigation helpers
   void pop<T>([T? result]) => Navigator.of(this).pop(result);

@@ -212,7 +212,7 @@ class AppColors {
 
   /// Obtenir une couleur avec opacité
   static Color withOpacity(Color color, double opacity) {
-    return color.withOpacity(opacity);
+    return color.withValues(alpha: opacity);
   }
 
   /// Obtenir une couleur plus claire
@@ -232,3 +232,4 @@ class AppColors {
     return hslDark.toColor();
   }
 }
+

@@ -103,7 +103,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -189,7 +189,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             color: const Color(0xFFF0F9FF),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF4FC3F7).withOpacity(0.3),
+              color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -255,7 +255,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -268,7 +268,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             color: const Color(0xFFFFF7ED),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFF59E0B).withOpacity(0.3),
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -303,7 +303,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF59E0B).withOpacity(0.1),
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -328,7 +328,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -381,8 +381,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: isEnabled 
-            ? color.withOpacity(0.1) 
-            : Colors.grey.withOpacity(0.1),
+            ? color.withValues(alpha: 0.1) 
+            : Colors.grey.withValues(alpha: 0.1),
         foregroundColor: isEnabled ? color : Colors.grey,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -418,12 +418,12 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: isCompleted 
-              ? const Color(0xFF10B981).withOpacity(0.1)
+              ? const Color(0xFF10B981).withValues(alpha: 0.1)
               : isOverdue
-                  ? Colors.grey.withOpacity(0.1)
+                  ? Colors.grey.withValues(alpha: 0.1)
                   : _canMarkAsCompleted
-                      ? const Color(0xFF10B981).withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1),
+                      ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
           foregroundColor: isCompleted 
               ? const Color(0xFF10B981)
               : isOverdue
@@ -519,3 +519,4 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     }
   }
 }
+

@@ -150,9 +150,9 @@ class GpsDebugButton extends StatelessWidget {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) => Dialog(
+          builder: (context) => const Dialog(
             backgroundColor: Colors.transparent,
-            child: const GpsDebugPanel(),
+            child: GpsDebugPanel(),
           ),
         );
       },

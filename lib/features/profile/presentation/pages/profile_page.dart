@@ -12,7 +12,6 @@ import '../../../settings/presentation/screens/privacy_screen.dart';
 import '../../../settings/presentation/screens/help_screen.dart';
 import '../../../settings/presentation/screens/contact_screen.dart';
 import '../../../settings/presentation/screens/about_screen.dart';
-import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/constants.dart';
 
 // Provider pour récupérer le profil du pèlerin
