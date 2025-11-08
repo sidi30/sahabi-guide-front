@@ -7,7 +7,8 @@ class DioClient {
   DioClient(Dio dio) {
     _dio = dio;
     _dio.options = BaseOptions(
-      baseUrl: AppConstants.apiBaseUrl,
+      // Utiliser EnvConfig pour obtenir l'URL de l'API selon l'environnement
+      baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: AppConstants.apiBaseUrl),
       connectTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
       receiveTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
       sendTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
