@@ -6,7 +6,7 @@ export default function Animations() {
   return (
     <section className="py-16 bg-gradient-to-b from-white to-primary-50 overflow-hidden relative">
       <div className="container mx-auto px-4">
-        <div className="flex justify-center items-center space-x-8 md:space-x-16">
+        <div className="flex justify-center items-center space-x-4 sm:space-x-8 md:space-x-16 flex-wrap gap-y-4">
           {icons.map((icon, index) => (
             <motion.div
               key={index}
@@ -21,7 +21,7 @@ export default function Animations() {
                 y: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut" },
                 rotate: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut" }
               }}
-              className="text-5xl md:text-6xl opacity-60 hover:opacity-100 transition-opacity"
+              className="text-4xl sm:text-5xl md:text-6xl opacity-60 hover:opacity-100 transition-opacity"
             >
               {icon}
             </motion.div>

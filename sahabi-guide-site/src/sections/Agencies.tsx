@@ -27,14 +27,14 @@ export default function Agencies() {
   ]
 
   return (
-    <section id="agences" className="py-20 bg-gray-50">
+    <section id="agences" className="py-12 md:py-16 lg:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Dashboard pour Agences"
           subtitle="Gérez vos groupes de pèlerins avec efficacité et professionnalisme"
         />
         
-        <div className="mt-16 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="mt-8 md:mt-12 lg:mt-16 grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Dashboard Mockups */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}

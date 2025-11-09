@@ -8,7 +8,7 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section id="faq" className="py-20 bg-white">
+    <section id="faq" className="py-12 md:py-16 lg:py-20 bg-white">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Questions fréquentes"
@@ -20,7 +20,7 @@ export default function FAQ() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-16 max-w-3xl mx-auto space-y-4"
+          className="mt-8 md:mt-12 lg:mt-16 max-w-3xl mx-auto space-y-3 md:space-y-4"
         >
           {faqs.map((faq, index) => (
             <motion.div
@@ -29,13 +29,13 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white border border-gray-200 rounded-lg md:rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-6 text-left"
+                className="w-full flex items-center justify-between p-4 md:p-6 text-left"
               >
-                <span className="text-lg font-semibold text-gray-900 pr-8">
+                <span className="text-base md:text-lg font-semibold text-gray-900 pr-4 md:pr-8">
                   {faq.question}
                 </span>
                 <motion.div

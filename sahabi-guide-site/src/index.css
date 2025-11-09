@@ -3,11 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-white text-gray-900 font-sans antialiased;
+  * {
+    box-sizing: border-box;
   }
+  
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+  
+  body {
+    @apply bg-white text-gray-900 font-sans antialiased;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Empêcher le débordement horizontal sur mobile */
+  #root {
+    overflow-x: hidden;
+    width: 100%;
   }
 }
 

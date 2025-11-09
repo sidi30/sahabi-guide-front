@@ -28,14 +28,14 @@ export default function Bracelet() {
   ]
 
   return (
-    <section id="bracelet" className="py-20 bg-white">
+    <section id="bracelet" className="py-12 md:py-16 lg:py-20 bg-white">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Bracelet connecté SahabiBand"
           subtitle="Votre sécurité et celle de vos proches, au poignet"
         />
         
-        <div className="mt-16 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="mt-8 md:mt-12 lg:mt-16 grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Visual */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

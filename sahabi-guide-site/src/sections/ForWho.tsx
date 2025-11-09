@@ -4,14 +4,14 @@ import { personas } from '../data/personas'
 
 export default function ForWho() {
   return (
-    <section id="pour-qui" className="py-20 bg-gray-50">
+    <section id="pour-qui" className="py-12 md:py-16 lg:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Pour qui ?"
           subtitle="SahabiGuide s'adresse à tous les acteurs du pèlerinage"
         />
         
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="mt-8 md:mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {personas.map((persona, index) => (
             <Card
               key={persona.title}

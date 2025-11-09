@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Mail, MapPin } from 'lucide-react'
+import logoImage from '../assets/sahabi logo.png'
 
 export default function Footer() {
   const quickLinks = [
@@ -19,10 +20,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Logo & Description */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
+            <Link to="/" className="flex items-center space-x-3 mb-4">
+              <img 
+                src={logoImage} 
+                alt="SahabiGuide Logo" 
+                className="h-10 w-auto object-contain"
+              />
               <span className="text-xl font-bold font-display">
                 SahabiGuide
               </span>

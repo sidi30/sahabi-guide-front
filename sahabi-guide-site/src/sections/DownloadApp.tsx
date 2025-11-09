@@ -2,15 +2,24 @@ import { motion } from 'framer-motion'
 import { Download, Smartphone } from 'lucide-react'
 import SectionTitle from '../components/SectionTitle'
 import CTAButton from '../components/CTAButton'
+import logoVideo from '../assets/logo-anime.mp4'
 
 export default function DownloadApp() {
   return (
-    <section id="telechargement" className="py-20 bg-gradient-to-br from-primary-600 to-primary-800 text-white relative overflow-hidden">
-      {/* Background Pattern */}
+    <section id="telechargement" className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-primary-600 to-primary-800 text-white relative overflow-hidden">
+      {/* Background Video Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gold-400 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src={logoVideo} type="video/mp4" />
+        </video>
       </div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-600/90 to-primary-800/90"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         <SectionTitle
@@ -23,9 +32,9 @@ export default function DownloadApp() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-16 max-w-4xl mx-auto"
+          className="mt-8 md:mt-12 lg:mt-16 max-w-4xl mx-auto"
         >
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
             {/* Download Buttons */}
             <div className="space-y-6">
               <motion.div

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Download } from 'lucide-react'
 import CTAButton from './CTAButton'
+import logoImage from '../assets/sahabi logo.png'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -19,14 +20,16 @@ export default function Header() {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-md z-50">
-      <div className="container mx-auto px-4">
+    <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-md z-50 w-full">
+      <div className="container mx-auto px-4 max-w-full">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
-            </div>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src={logoImage} 
+              alt="SahabiGuide Logo" 
+              className="h-12 w-auto object-contain"
+            />
             <span className="text-xl font-bold text-gray-900 font-display">
               SahabiGuide
             </span>

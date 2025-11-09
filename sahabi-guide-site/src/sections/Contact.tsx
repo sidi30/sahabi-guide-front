@@ -30,14 +30,14 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-primary-50">
+    <section id="contact" className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-primary-50">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Contactez-nous"
           subtitle="Une question ? Un projet ? Parlons-en ensemble"
         />
         
-        <div className="mt-16 grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="mt-8 md:mt-12 lg:mt-16 grid lg:grid-cols-2 gap-8 md:gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}

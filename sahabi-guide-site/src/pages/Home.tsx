@@ -1,5 +1,6 @@
 import Hero from '../sections/Hero'
 import Why from '../sections/Why'
+import MascottePresentation from '../sections/MascottePresentation'
 import ForWho from '../sections/ForWho'
 import Features from '../sections/Features'
 import AssistantAI from '../sections/AssistantAI'
@@ -16,6 +17,7 @@ export default function Home() {
     <>
       <Hero />
       <Why />
+      <MascottePresentation />
       <ForWho />
       <Features />
       <AssistantAI />

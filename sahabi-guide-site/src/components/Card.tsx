@@ -18,15 +18,15 @@ export default function Card({ title, description, icon: Icon, iconColor = 'text
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className={`bg-white rounded-xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 border border-gray-100 ${className}`}
+      className={`bg-white rounded-lg md:rounded-xl p-4 md:p-6 shadow-md hover:shadow-xl md:hover:shadow-2xl transition-shadow duration-300 border border-gray-100 ${className}`}
     >
       {Icon && (
-        <div className={`${iconColor} mb-4`}>
-          <Icon className="w-12 h-12" />
+        <div className={`${iconColor} mb-3 md:mb-4`}>
+          <Icon className="w-10 h-10 md:w-12 md:h-12" />
         </div>
       )}
-      <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
-      <p className="text-gray-600 leading-relaxed">{description}</p>
+      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 md:mb-3">{title}</h3>
+      <p className="text-sm md:text-base text-gray-600 leading-relaxed">{description}</p>
     </motion.div>
   )
 }

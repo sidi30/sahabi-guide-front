@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Bot, MessageCircle, Bell, Users } from 'lucide-react'
 import SectionTitle from '../components/SectionTitle'
+import mediaVideo from '../assets/media2.mp4'
 
 export default function AssistantAI() {
   const messages = [
@@ -11,29 +12,29 @@ export default function AssistantAI() {
   ]
 
   return (
-    <section id="assistant" className="py-20 bg-gradient-to-br from-primary-50 to-white">
+    <section id="assistant" className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-primary-50 to-white">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Assistant IA Sahabi"
           subtitle="Votre compagnon intelligent disponible 24h/24"
         />
         
-        <div className="mt-16 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="mt-8 md:mt-12 lg:mt-16 grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Features List */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="flex items-start space-x-4"
+              className="flex items-start space-x-3 md:space-x-4"
             >
-              <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-6 h-6 text-primary-600" />
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Réponses en langue locale</h3>
-                <p className="text-gray-600">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">Réponses en langue locale</h3>
+                <p className="text-sm md:text-base text-gray-600">
                   Posez vos questions en français, haoussa, zarma ou arabe. L'assistant comprend et répond dans votre langue.
                 </p>
               </div>
@@ -102,7 +103,20 @@ export default function AssistantAI() {
             transition={{ duration: 0.5 }}
             className="relative"
           >
-            <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200">
+            {/* Vidéo de démonstration en arrière-plan */}
+            <div className="absolute inset-0 rounded-2xl overflow-hidden opacity-20">
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-full object-cover"
+              >
+                <source src={mediaVideo} type="video/mp4" />
+              </video>
+            </div>
+            
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-gray-200 relative z-10">
               <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-200">
                 <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
                   <Bot className="w-6 h-6 text-white" />
