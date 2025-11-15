@@ -1,0 +1,270 @@
+-- ============================================
+-- SEED ASSISTANT - 24 Étapes Conversationnelles
+-- ============================================
+-- Copiez-collez ce script dans pgAdmin, DBeaver, ou tout autre outil SQL
+-- Base de données : sahabi_guide
+-- ============================================
+
+-- Suppression des données existantes (sécurité)
+DELETE FROM conversation_sessions;
+DELETE FROM user_conversation_progress;
+DELETE FROM conversation_steps;
+
+-- ============================================
+-- INSERTION DES 24 ÉTAPES
+-- ============================================
+
+INSERT INTO conversation_steps (step_code, step_order, question, question_en, question_ar, answer_type, answer_options_json, navigation_rules_json, next_step_code, is_critical, reminder_after_hours) VALUES
+
+-- 1. Introduction
+('HAJJ_INTRO', 1, 
+ 'Salam Alaykoum ! 👋 Je suis votre assistant personnel pour le Hajj. Es-tu prêt à commencer ton apprentissage ?',
+ 'Salam Alaykoum! I am your personal Hajj assistant. Are you ready to start your learning?',
+ 'السلام عليكم! أنا مساعدك الشخصي للحج. هل أنت مستعد لبدء التعلم؟',
+ 'YES_NO', 
+ NULL,
+ '{"OUI": "HAJJ_PREPARATION", "NON": "HAJJ_MOTIVATION"}'::jsonb,
+ 'HAJJ_PREPARATION', true, 24),
+
+-- 2. Préparation
+('HAJJ_PREPARATION', 2,
+ 'As-tu déjà commencé à te préparer spirituellement pour le Hajj ?',
+ 'Have you already started preparing spiritually for Hajj?',
+ 'هل بدأت بالفعل في الاستعداد الروحي للحج؟',
+ 'YES_NO',
+ '["Oui", "Non"]'::jsonb,
+ '{"Oui": "IHRAM_KNOWLEDGE", "Non": "SPIRITUAL_PREP_TIPS"}'::jsonb,
+ 'IHRAM_KNOWLEDGE', true, 48),
+
+-- 3. Motivation
+('HAJJ_MOTIVATION', 3,
+ 'Qu''est-ce qui te retient de commencer ton apprentissage maintenant ?',
+ 'What is holding you back from starting your learning now?',
+ 'ما الذي يمنعك من بدء التعلم الآن؟',
+ 'TEXT',
+ NULL,
+ '{"default": "HAJJ_PREPARATION"}'::jsonb,
+ 'HAJJ_PREPARATION', false, 12),
+
+-- 4. Connaissance Ihram
+('IHRAM_KNOWLEDGE', 4,
+ 'Connais-tu les obligations de l''Ihram (état de sacralisation) ?',
+ 'Do you know the obligations of Ihram (state of consecration)?',
+ 'هل تعرف واجبات الإحرام (حالة التقديس)؟',
+ 'MULTIPLE_CHOICE',
+ '["Oui, je connais bien", "J''en ai une idée", "Non, pas du tout"]'::jsonb,
+ '{"Oui, je connais bien": "TAWAF_INTRO", "J''en ai une idée": "IHRAM_DETAILS", "Non, pas du tout": "IHRAM_BASICS"}'::jsonb,
+ 'TAWAF_INTRO', true, 24),
+
+-- 5. Conseils de préparation spirituelle
+('SPIRITUAL_PREP_TIPS', 5,
+ 'Je te recommande de commencer par la prière et la lecture du Coran. Es-tu d''accord pour débuter ?',
+ 'I recommend starting with prayer and reading the Quran. Do you agree to start?',
+ 'أوصي بالبدء بالصلاة وقراءة القرآن. هل توافق على البدء؟',
+ 'YES_NO',
+ '["Oui, allons-y", "Donne-moi plus d''infos"]'::jsonb,
+ '{"Oui, allons-y": "IHRAM_KNOWLEDGE", "Donne-moi plus d''infos": "SPIRITUAL_RESOURCES"}'::jsonb,
+ 'IHRAM_KNOWLEDGE', false, 12),
+
+-- 6. Bases de l'Ihram
+('IHRAM_BASICS', 6,
+ 'L''Ihram est l''état de pureté rituelle. Veux-tu en apprendre les règles ?',
+ 'Ihram is the state of ritual purity. Do you want to learn its rules?',
+ 'الإحرام هو حالة الطهارة الطقسية. هل تريد أن تتعلم قواعده؟',
+ 'YES_NO',
+ '["Oui", "Plus tard"]'::jsonb,
+ '{"Oui": "IHRAM_DETAILS", "Plus tard": "TAWAF_INTRO"}'::jsonb,
+ 'IHRAM_DETAILS', true, 24),
+
+-- 7. Détails de l'Ihram
+('IHRAM_DETAILS', 7,
+ 'Les principales interdictions en Ihram : se parfumer, se couper les ongles/cheveux, avoir des relations. As-tu compris ?',
+ 'The main prohibitions in Ihram: perfume, cutting nails/hair, relations. Have you understood?',
+ 'المحظورات الرئيسية في الإحرام: العطر، قص الأظافر/الشعر، العلاقات. هل فهمت؟',
+ 'YES_NO',
+ '["Oui, c''est clair", "J''ai des questions"]'::jsonb,
+ '{"Oui, c''est clair": "TAWAF_INTRO", "J''ai des questions": "IHRAM_FAQ"}'::jsonb,
+ 'TAWAF_INTRO', true, 48),
+
+-- 8. FAQ Ihram
+('IHRAM_FAQ', 8,
+ 'Pose-moi ta question sur l''Ihram (ou écris "Continuer" pour passer)',
+ 'Ask me your question about Ihram (or write "Continue" to skip)',
+ 'اسألني سؤالك عن الإحرام (أو اكتب "متابعة" للتخطي)',
+ 'TEXT',
+ NULL,
+ '{"default": "TAWAF_INTRO"}'::jsonb,
+ 'TAWAF_INTRO', false, NULL),
+
+-- 9. Introduction au Tawaf
+('TAWAF_INTRO', 9,
+ '🕋 Le Tawaf est la circumambulation autour de la Kaaba. Connais-tu le nombre de tours ?',
+ 'Tawaf is the circumambulation around the Kaaba. Do you know the number of rounds?',
+ 'الطواف هو الدوران حول الكعبة. هل تعرف عدد الأشواط؟',
+ 'MULTIPLE_CHOICE',
+ '["7 tours", "5 tours", "Je ne sais pas"]'::jsonb,
+ '{"7 tours": "TAWAF_DIRECTION", "5 tours": "TAWAF_CORRECTION", "Je ne sais pas": "TAWAF_EXPLAIN"}'::jsonb,
+ 'TAWAF_DIRECTION', true, 24),
+
+-- 10. Explication Tawaf
+('TAWAF_EXPLAIN', 10,
+ 'Le Tawaf se fait en 7 tours autour de la Kaaba. C''est un pilier du Hajj. Prêt à continuer ?',
+ 'Tawaf is done in 7 rounds around the Kaaba. It is a pillar of Hajj. Ready to continue?',
+ 'يتم الطواف في 7 أشواط حول الكعبة. إنه ركن من أركان الحج. مستعد للمتابعة؟',
+ 'YES_NO',
+ '["Oui", "Non"]'::jsonb,
+ '{"Oui": "TAWAF_DIRECTION", "Non": "TAWAF_DETAILS_LATER"}'::jsonb,
+ 'TAWAF_DIRECTION', false, 12),
+
+-- 11. Correction Tawaf
+('TAWAF_CORRECTION', 11,
+ 'Pas tout à fait ! Le Tawaf est de 7 tours, pas 5. Veux-tu en savoir plus ?',
+ 'Not quite! Tawaf is 7 rounds, not 5. Do you want to know more?',
+ 'ليس تمامًا! الطواف 7 أشواط، وليس 5. هل تريد معرفة المزيد؟',
+ 'YES_NO',
+ '["Oui", "Non, j''ai compris"]'::jsonb,
+ '{"Oui": "TAWAF_EXPLAIN", "Non, j''ai compris": "TAWAF_DIRECTION"}'::jsonb,
+ 'TAWAF_DIRECTION', false, 12),
+
+-- 12. Direction Tawaf
+('TAWAF_DIRECTION', 12,
+ 'Dans quel sens tourne-t-on autour de la Kaaba ?',
+ 'In which direction do we circle around the Kaaba?',
+ 'في أي اتجاه ندور حول الكعبة؟',
+ 'MULTIPLE_CHOICE',
+ '["Sens inverse des aiguilles (antihoraire)", "Sens des aiguilles (horaire)", "Peu importe"]'::jsonb,
+ '{"Sens inverse des aiguilles (antihoraire)": "SAI_INTRO", "Sens des aiguilles (horaire)": "TAWAF_DIRECTION_CORRECTION", "Peu importe": "TAWAF_DIRECTION_CORRECTION"}'::jsonb,
+ 'SAI_INTRO', true, 24),
+
+-- 13. Correction Direction
+('TAWAF_DIRECTION_CORRECTION', 13,
+ 'Correction : on tourne dans le sens inverse des aiguilles d''une montre (antihoraire), en gardant la Kaaba à gauche. Compris ?',
+ 'Correction: we turn counterclockwise, keeping the Kaaba on the left. Understood?',
+ 'تصحيح: ندور عكس اتجاه عقارب الساعة، مع إبقاء الكعبة على اليسار. فهمت؟',
+ 'YES_NO',
+ '["Oui", "Répète s''il te plaît"]'::jsonb,
+ '{"Oui": "SAI_INTRO", "Répète s''il te plaît": "TAWAF_DIRECTION"}'::jsonb,
+ 'SAI_INTRO', false, 12),
+
+-- 14. Introduction Sa'i
+('SAI_INTRO', 14,
+ '🚶‍♂️ Le Sa''i est le parcours entre Safa et Marwa. Connais-tu le nombre d''allers-retours ?',
+ 'Sa''i is the walk between Safa and Marwa. Do you know the number of trips?',
+ 'السعي هو المسار بين الصفا والمروة. هل تعرف عدد الرحلات؟',
+ 'MULTIPLE_CHOICE',
+ '["7 trajets", "5 trajets", "Je ne sais pas"]'::jsonb,
+ '{"7 trajets": "SAI_DETAILS", "5 trajets": "SAI_CORRECTION", "Je ne sais pas": "SAI_EXPLAIN"}'::jsonb,
+ 'SAI_DETAILS', true, 24),
+
+-- 15. Explication Sa'i
+('SAI_EXPLAIN', 15,
+ 'Le Sa''i comporte 7 trajets entre Safa et Marwa, en mémoire de Hajar. Compris ?',
+ 'Sa''i consists of 7 trips between Safa and Marwa, in memory of Hajar. Understood?',
+ 'يتكون السعي من 7 رحلات بين الصفا والمروة، تذكيرًا بهاجر. فهمت؟',
+ 'YES_NO',
+ '["Oui", "Non"]'::jsonb,
+ '{"Oui": "SAI_DETAILS", "Non": "SAI_HISTORY"}'::jsonb,
+ 'SAI_DETAILS', false, 12),
+
+-- 16. Correction Sa'i
+('SAI_CORRECTION', 16,
+ 'Correction : c''est 7 trajets, pas 5 ! Veux-tu connaître l''histoire ?',
+ 'Correction: it''s 7 trips, not 5! Do you want to know the history?',
+ 'تصحيح: إنها 7 رحلات، وليس 5! هل تريد معرفة التاريخ؟',
+ 'YES_NO',
+ '["Oui", "Non, continuons"]'::jsonb,
+ '{"Oui": "SAI_HISTORY", "Non, continuons": "SAI_DETAILS"}'::jsonb,
+ 'SAI_DETAILS', false, 12),
+
+-- 17. Histoire Sa'i
+('SAI_HISTORY', 17,
+ 'Le Sa''i rappelle la course de Hajar entre Safa et Marwa cherchant de l''eau pour Ismaël. Allah fit jaillir Zamzam. Émouvant, n''est-ce pas ?',
+ 'Sa''i recalls Hajar''s run between Safa and Marwa seeking water for Ishmael. Allah made Zamzam spring. Moving, isn''t it?',
+ 'يذكّر السعي بركض هاجر بين الصفا والمروة بحثًا عن الماء لإسماعيل. فجّر الله زمزم. مؤثر، أليس كذلك؟',
+ 'YES_NO',
+ '["Oui, très", "Dis-m''en plus"]'::jsonb,
+ '{"Oui, très": "SAI_DETAILS", "Dis-m''en plus": "SAI_DETAILS"}'::jsonb,
+ 'SAI_DETAILS', false, NULL),
+
+-- 18. Détails Sa'i
+('SAI_DETAILS', 18,
+ 'Pendant le Sa''i, on marche normalement sauf entre les deux lumières vertes où l''on court (hommes). Tu savais ?',
+ 'During Sa''i, we walk normally except between the two green lights where we run (men). Did you know?',
+ 'خلال السعي، نمشي بشكل طبيعي إلا بين الضوءين الأخضرين حيث نركض (الرجال). هل كنت تعلم؟',
+ 'YES_NO',
+ '["Oui", "Non, merci de l''info"]'::jsonb,
+ '{"Oui": "ARAFAT_INTRO", "Non, merci de l''info": "ARAFAT_INTRO"}'::jsonb,
+ 'ARAFAT_INTRO', false, 12),
+
+-- 19. Introduction Arafat
+('ARAFAT_INTRO', 19,
+ '⛰️ Le jour d''Arafat est le jour le plus important du Hajj. Sais-tu ce qu''on y fait principalement ?',
+ 'The Day of Arafat is the most important day of Hajj. Do you know what we mainly do there?',
+ 'يوم عرفة هو أهم يوم في الحج. هل تعرف ماذا نفعل هناك بشكل رئيسي؟',
+ 'MULTIPLE_CHOICE',
+ '["Prier et invoquer", "Faire le Tawaf", "Je ne sais pas"]'::jsonb,
+ '{"Prier et invoquer": "ARAFAT_IMPORTANCE", "Faire le Tawaf": "ARAFAT_CORRECTION", "Je ne sais pas": "ARAFAT_EXPLAIN"}'::jsonb,
+ 'ARAFAT_IMPORTANCE', true, 48),
+
+-- 20. Explication Arafat
+('ARAFAT_EXPLAIN', 20,
+ 'À Arafat, on passe la journée en prières et invocations. Le Prophète ﷺ a dit : "Le Hajj, c''est Arafat". Compris ?',
+ 'At Arafat, we spend the day in prayers and supplications. The Prophet ﷺ said: "Hajj is Arafat". Understood?',
+ 'في عرفة، نقضي اليوم في الصلاة والدعاء. قال النبي ﷺ: "الحج عرفة". فهمت؟',
+ 'YES_NO',
+ '["Oui", "Non"]'::jsonb,
+ '{"Oui": "ARAFAT_IMPORTANCE", "Non": "ARAFAT_DETAILS"}'::jsonb,
+ 'ARAFAT_IMPORTANCE', false, 24),
+
+-- 21. Correction Arafat
+('ARAFAT_CORRECTION', 21,
+ 'Non, le Tawaf n''est pas fait à Arafat. À Arafat, on prie et invoque Allah toute la journée. Compris ?',
+ 'No, Tawaf is not done at Arafat. At Arafat, we pray and invoke Allah all day. Understood?',
+ 'لا، الطواف لا يتم في عرفة. في عرفة، نصلّي وندعو الله طوال اليوم. فهمت؟',
+ 'YES_NO',
+ '["Oui", "Explique mieux"]'::jsonb,
+ '{"Oui": "ARAFAT_IMPORTANCE", "Explique mieux": "ARAFAT_EXPLAIN"}'::jsonb,
+ 'ARAFAT_IMPORTANCE', false, 12),
+
+-- 22. Importance Arafat
+('ARAFAT_IMPORTANCE', 22,
+ 'Sais-tu que manquer Arafat signifie rater le Hajj complet ?',
+ 'Do you know that missing Arafat means missing the complete Hajj?',
+ 'هل تعلم أن تفويت عرفة يعني تفويت الحج الكامل؟',
+ 'YES_NO',
+ '["Oui, je savais", "Non, c''est important !"]'::jsonb,
+ '{"Oui, je savais": "MUZDALIFAH_INTRO", "Non, c''est important !": "MUZDALIFAH_INTRO"}'::jsonb,
+ 'MUZDALIFAH_INTRO', true, 24),
+
+-- 23. Introduction Muzdalifah
+('MUZDALIFAH_INTRO', 23,
+ '🌙 Après Arafat, on passe la nuit à Muzdalifah. On y ramasse aussi quelque chose... Quoi ?',
+ 'After Arafat, we spend the night in Muzdalifah. We also collect something there... What?',
+ 'بعد عرفة، نقضي الليل في مزدلفة. نجمع أيضًا شيئًا هناك... ماذا؟',
+ 'MULTIPLE_CHOICE',
+ '["Des cailloux", "Du sable", "De l''eau"]'::jsonb,
+ '{"Des cailloux": "CONGRATULATIONS", "Du sable": "MUZDALIFAH_CORRECTION", "De l''eau": "MUZDALIFAH_CORRECTION"}'::jsonb,
+ 'CONGRATULATIONS', true, 24),
+
+-- 24. Félicitations
+('CONGRATULATIONS', 24,
+ '🎉 Mabrouk ! Tu as terminé l''apprentissage des bases du Hajj ! Continue à apprendre et qu''Allah accepte ton Hajj. Amine !',
+ 'Congratulations! You have completed learning the basics of Hajj! Keep learning and may Allah accept your Hajj. Ameen!',
+ 'مبروك! لقد أكملت تعلم أساسيات الحج! استمر في التعلم وتقبل الله حجك. آمين!',
+ 'TEXT',
+ NULL,
+ NULL,
+ NULL, false, NULL);
+
+-- ============================================
+-- VÉRIFICATION
+-- ============================================
+
+SELECT COUNT(*) as "Nombre d'étapes" FROM conversation_steps;
+
+-- Résultat attendu : 24
+
+-- ============================================
+-- FIN DU SCRIPT
+-- ============================================
+

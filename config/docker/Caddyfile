@@ -1,0 +1,248 @@
+#######################################################
+# 🌐 CADDYFILE - Configuration Reverse Proxy + SSL
+#######################################################
+# Caddy gère automatiquement les certificats SSL via Let's Encrypt
+# et redirige automatiquement HTTP vers HTTPS
+#######################################################
+
+# Configuration globale
+{
+    # Email pour Let's Encrypt (notifications d'expiration)
+    email {$ACME_EMAIL}
+    
+    # Serveur ACME (Let's Encrypt production par défaut)
+    # Décommenter pour tester avec staging:
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+    
+    # Admin API (optionnel, pour monitoring)
+    admin off
+}
+
+#######################################################
+# 🎨 FRONTEND - Dashboard React
+#######################################################
+{$DOMAIN:sahabi.local} {
+    # Logs
+    log {
+        output file /var/log/caddy/frontend.log
+        level INFO
+    }
+
+    # En-têtes de sécurité
+    header {
+        # HSTS (force HTTPS pendant 1 an)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        
+        # Empêcher l'embedding dans des iframes (sauf même origine)
+        X-Frame-Options "SAMEORIGIN"
+        
+        # XSS Protection
+        X-XSS-Protection "1; mode=block"
+        
+        # Type MIME strict
+        X-Content-Type-Options "nosniff"
+        
+        # Permissions Policy
+        Permissions-Policy "geolocation=(self), microphone=(), camera=()"
+        
+        # Content Security Policy (à ajuster selon vos besoins)
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' {$DOMAIN} wss://{$DOMAIN}"
+        
+        # Suppression des headers serveur
+        -Server
+        -X-Powered-By
+    }
+
+    # Compression
+    encode gzip zstd
+
+    # Reverse proxy vers le frontend (Nginx)
+    reverse_proxy frontend:80 {
+        # Headers pour préserver l'IP client
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+
+    # Gestion des erreurs
+    handle_errors {
+        @502 expression {http.error.status_code} == 502
+        respond @502 "Service temporairement indisponible. Veuillez réessayer dans quelques instants." 502
+    }
+}
+
+#######################################################
+# 🔧 BACKEND API - Spring Boot
+#######################################################
+api.{$DOMAIN:sahabi.local} {
+    log {
+        output file /var/log/caddy/api.log
+        level INFO
+    }
+
+    # En-têtes de sécurité pour API
+    header {
+        # CORS géré par Spring Boot
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        
+        # Sécurité
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        -Server
+        -X-Powered-By
+    }
+
+    # Compression
+    encode gzip zstd
+
+    # Reverse proxy vers le backend
+    reverse_proxy backend:8084 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        
+        # Timeouts pour les requêtes longues
+        transport http {
+            read_timeout 90s
+            write_timeout 90s
+        }
+    }
+
+    # WebSocket support pour notifications temps réel
+    @websocket {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    reverse_proxy @websocket backend:8084
+}
+
+#######################################################
+# 🔐 KEYCLOAK - Authentification
+#######################################################
+auth.{$DOMAIN:sahabi.local} {
+    log {
+        output file /var/log/caddy/auth.log
+        level INFO
+    }
+
+    # En-têtes de sécurité
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        -Server
+        -X-Powered-By
+    }
+
+    # Compression
+    encode gzip zstd
+
+    # Reverse proxy vers Keycloak
+    reverse_proxy keycloak:8080 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        
+        # Headers spécifiques Keycloak
+        header_up X-Forwarded-Port {server_port}
+    }
+}
+
+#######################################################
+# 📊 PGADMIN (Optionnel - Administration DB)
+#######################################################
+db.{$DOMAIN:sahabi.local} {
+    log {
+        output file /var/log/caddy/pgadmin.log
+        level INFO
+    }
+
+    # Authentification basique supplémentaire (optionnel)
+    # basicauth {
+    #     admin $2a$14$YOUR_BCRYPT_HASH_HERE
+    # }
+
+    # En-têtes de sécurité
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        -Server
+    }
+
+    # Compression
+    encode gzip
+
+    # Reverse proxy vers PgAdmin
+    reverse_proxy pgadmin:80 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+}
+
+#######################################################
+# 🔄 CONFIGURATION LOCALE (sans SSL)
+#######################################################
+# Décommentez cette section pour tester en local sans domaine
+# localhost, sahabi.local {
+#     # Frontend
+#     handle / {
+#         reverse_proxy frontend:80
+#     }
+#     
+#     # API
+#     handle /api/* {
+#         reverse_proxy backend:8084
+#     }
+#     
+#     # Keycloak
+#     handle /auth/* {
+#         reverse_proxy keycloak:8080
+#     }
+# }
+
+#######################################################
+# 🌐 CONFIGURATION TAILSCALE (Catch-all)
+#######################################################
+# Cette configuration accepte n'importe quel domaine (Tailscale, etc.)
+:80, :443 {
+    # Frontend par défaut
+    reverse_proxy frontend:80 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+    
+    # API sur /api
+    handle /api/* {
+        reverse_proxy backend:8084 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    
+    # Keycloak sur /auth
+    handle /auth/* {
+        reverse_proxy keycloak:8080 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    
+    # Logs
+    log {
+        output stdout
+        level INFO
+    }
+}
+

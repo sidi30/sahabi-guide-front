@@ -1,0 +1,93 @@
+# 🔐 GitIgnore pour Docker Orchestration - Sahabi Guide
+
+# Fichiers d'environnement sensibles
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Sauvegardes de base de données
+backups/
+*.sql
+*.sql.gz
+*.dump
+
+# Volumes Docker (données persistantes)
+postgres_data/
+backend_logs/
+caddy_data/
+caddy_config/
+tailscale_data/
+pgadmin_data/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Certificats SSL
+*.pem
+*.key
+*.crt
+*.csr
+ssl/
+certs/
+
+# Secrets et clés
+secrets/
+*.secret
+*.key
+tailscale.key
+keycloak-secrets.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings/
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Terraform (si utilisé pour infra)
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# Scripts personnalisés (peuvent contenir des secrets)
+*-local.sh
+*-local.ps1
+
+# Fichiers de test
+test-data/
+test-results/
+coverage/
+

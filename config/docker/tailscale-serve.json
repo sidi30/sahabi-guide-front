@@ -1,0 +1,23 @@
+{
+  "TCP": {
+    "443": {
+      "HTTPS": true
+    }
+  },
+  "Web": {
+    "${TS_CERT_DOMAIN}:443": {
+      "Handlers": {
+        "/": {
+          "Proxy": "http://caddy:80"
+        },
+        "/api/": {
+          "Proxy": "http://caddy:80"
+        },
+        "/auth/": {
+          "Proxy": "http://caddy:80"
+        }
+      }
+    }
+  }
+}
+

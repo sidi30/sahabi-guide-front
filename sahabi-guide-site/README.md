@@ -1,6 +1,22 @@
-# SahabiGuide - Site Web Marketing
+# 🕌 SahabiGuide - Site Web Marketing
 
-Site web marketing moderne et responsive pour SahabiGuide, le compagnon numérique pour le Hadj et la Omra.
+[![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-purple.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8.svg)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer%20Motion-10.16-ff0055.svg)](https://www.framer.com/motion/)
+
+Site web marketing moderne et responsive pour **SahabiGuide**, le compagnon numérique qui accompagne les pèlerins avant, pendant et après le Hadj et la Omra.
+
+## 🎯 À propos du projet
+
+Ce projet est le **site vitrine indépendant** de SahabiGuide, conçu pour :
+- Présenter la solution globale (app mobile, assistant IA, bracelet connecté, dashboard)
+- Convertir les visiteurs en utilisateurs
+- Rassurer les familles et les agences
+- Faciliter les partenariats
+
+> **Note :** Ce repository est indépendant des autres projets SahabiGuide (frontend mobile, dashboard, API).
 
 ## 🚀 Technologies utilisées
 

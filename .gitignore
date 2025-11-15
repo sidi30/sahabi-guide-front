@@ -1,0 +1,165 @@
+# ================================================
+# Sahabi Guide - .gitignore
+# ================================================
+
+# =====================================
+# Environnement & Secrets
+# =====================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*.jks
+secrets/
+credentials/
+
+# =====================================
+# IDE & Éditeurs
+# =====================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# NetBeans
+nbproject/
+
+# =====================================
+# Java / Spring Boot (Backend)
+# =====================================
+# Maven
+sahabi-guide-api/target/
+sahabi-guide-api/pom.xml.tag
+sahabi-guide-api/pom.xml.releaseBackup
+sahabi-guide-api/pom.xml.versionsBackup
+sahabi-guide-api/dependency-reduced-pom.xml
+*.jar
+*.war
+*.ear
+*.class
+
+# Logs
+*.log
+logs/
+sahabi-guide-api/logs/
+
+# =====================================
+# React / TypeScript (Dashboard)
+# =====================================
+# Dependencies
+sahabi-guide-dashboard/node_modules/
+sahabi-guide-dashboard/dist/
+sahabi-guide-dashboard/build/
+sahabi-guide-dashboard/.cache/
+
+# Logs
+sahabi-guide-dashboard/npm-debug.log*
+sahabi-guide-dashboard/yarn-debug.log*
+sahabi-guide-dashboard/yarn-error.log*
+
+# Production
+sahabi-guide-dashboard/.env.production
+
+# =====================================
+# Flutter (Mobile App)
+# =====================================
+sahabi-guide-front/.dart_tool/
+sahabi-guide-front/.flutter-plugins
+sahabi-guide-front/.flutter-plugins-dependencies
+sahabi-guide-front/.packages
+sahabi-guide-front/build/
+sahabi-guide-front/flutter_*.log
+sahabi-guide-front/pubspec.lock
+sahabi-guide-front/ios/Pods/
+sahabi-guide-front/ios/.symlinks/
+sahabi-guide-front/ios/Flutter/Flutter.framework
+sahabi-guide-front/ios/Flutter/Flutter.podspec
+sahabi-guide-front/android/.gradle/
+sahabi-guide-front/android/captures/
+sahabi-guide-front/android/local.properties
+sahabi-guide-front/android/app/debug
+sahabi-guide-front/android/app/profile
+sahabi-guide-front/android/app/release
+sahabi-guide-front/android/key.properties
+
+# =====================================
+# Docker
+# =====================================
+# Volumes
+postgres-data/
+keycloak-data/
+redis-data/
+
+# =====================================
+# Database
+# =====================================
+*.db
+*.sqlite
+*.sqlite3
+
+# =====================================
+# OS
+# =====================================
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# =====================================
+# Temporaires
+# =====================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.old
+
+# =====================================
+# Third-party / External
+# =====================================
+third-party/*/build/
+third-party/*/dist/
+third-party/*/target/
+third-party/*/node_modules/
+
+# =====================================
+# Documentation générée
+# =====================================
+docs/generated/
+*.pdf
+
+# =====================================
+# Tests & Coverage
+# =====================================
+coverage/
+.nyc_output/
+test-results/
+*.lcov
+
+

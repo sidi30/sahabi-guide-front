@@ -1,0 +1,335 @@
+#######################################################
+# 🚀 SAHABI GUIDE - DOCKER COMPOSE COMPLET
+#######################################################
+# Services inclus :
+# - PostgreSQL (base de données)
+# - Keycloak (authentification OAuth2/OIDC)
+# - Backend Spring Boot (API)
+# - Frontend React (Dashboard)
+# - Caddy (reverse proxy avec SSL automatique)
+# - Tailscale (accès Internet sécurisé)
+# - PgAdmin (administration base de données)
+#######################################################
+
+services:
+  #############################
+  # 🗄️ POSTGRESQL
+  #############################
+  postgres:
+    image: postgres:15-alpine
+    container_name: sahabi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sahabi_db}
+      POSTGRES_USER: ${POSTGRES_USER:-sahabi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahabi}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahabi} -d ${POSTGRES_DB:-sahabi_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  #############################
+  # 🔐 KEYCLOAK
+  #############################
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: sahabi-keycloak
+    restart: unless-stopped
+    command: ["start-dev", "--import-realm"]
+    environment:
+      # Admin credentials
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
+      
+      # Database séparée pour Keycloak
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_DB_SCHEMA: public
+      
+      # Hostname configuration
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+      
+      # Proxy settings (pour Caddy)
+      KC_PROXY: edge
+      KC_PROXY_ADDRESS_FORWARDING: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - ./sahabi-guide-api/keycloak/import:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  #############################
+  # 🔧 BACKEND (Spring Boot)
+  #############################
+  backend:
+    build:
+      context: ./sahabi-guide-api
+      dockerfile: Dockerfile
+      args:
+        MAVEN_OPTS: "-Xmx512m"
+    container_name: sahabi-backend
+    restart: unless-stopped
+    environment:
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-dev}
+      
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-sahabi_db}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-sahabi_db}
+      DB_USERNAME: ${POSTGRES_USER:-sahabi}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-sahabi}
+      
+      # OAuth2/OIDC (Keycloak)
+      OIDC_ISSUER_URI: http://keycloak:8080/realms/sahabi
+      APP_SECURITY_ENABLED: ${APP_SECURITY_ENABLED:-true}
+      
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForSahabiGuideApplicationThatIsVerySecureAndLongEnough}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-7776000}
+      JWT_ISSUER: ${JWT_ISSUER:-sahabi-guide}
+      
+      # CORS
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8080,http://localhost:8084,https://${DOMAIN:-sahabi.local},https://api.${DOMAIN:-sahabi.local},https://auth.${DOMAIN:-sahabi.local}
+      
+      # Twilio
+      TWILIO_ENABLED: ${TWILIO_ENABLED:-false}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      
+      # Server port
+      PORT: 8084
+      SERVER_PORT: 8084
+      
+      # Java options
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
+    ports:
+      - "${BACKEND_PORT:-8084}:8084"
+    volumes:
+      - backend_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8084/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
+
+  #############################
+  # 🎨 FRONTEND (React Dashboard)
+  #############################
+  frontend:
+    build:
+      context: ./sahabi-guide-dashboard
+      dockerfile: Dockerfile
+      args:
+        # API Configuration
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8084}
+        VITE_API_BASE_PATH: ${VITE_API_BASE_PATH:-/api/v1}
+        # Keycloak Configuration (OBLIGATOIRE)
+        VITE_ENABLE_KEYCLOAK: ${VITE_ENABLE_KEYCLOAK:-true}
+        VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-http://localhost:8080}
+        VITE_KEYCLOAK_REALM: ${VITE_KEYCLOAK_REALM:-sahabi}
+        VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-sahabi-dashboard}
+    container_name: sahabi-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  #############################
+  # 🌐 CADDY (Reverse Proxy + SSL)
+  #############################
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: sahabi-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./config/docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN:-sahabi.local}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@sahabi.local}
+    depends_on:
+      - frontend
+      - backend
+      - keycloak
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    profiles:
+      - production
+
+  #############################
+  # 🔒 TAILSCALE (Accès Internet sécurisé)
+  #############################
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: sahabi-tailscale
+    restart: unless-stopped
+    hostname: ${TAILSCALE_HOSTNAME:-sahabi-guide}
+    environment:
+      TS_AUTHKEY: ${TAILSCALE_AUTHKEY:-}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_SERVE_CONFIG: /config/serve.json
+      TS_USERSPACE: "true"
+      TS_ACCEPT_DNS: "true"
+      TS_EXTRA_ARGS: ${TAILSCALE_EXTRA_ARGS:-}
+    volumes:
+      - tailscale_data:/var/lib/tailscale
+      - ./config/docker/tailscale-serve.json:/config/serve.json:ro
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    profiles:
+      - production
+
+  #############################
+  # 📊 PGADMIN (Administration DB)
+  #############################
+  pgadmin:
+    image: dpage/pgadmin4:8.12
+    container_name: sahabi-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@sahabi.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./sahabi-guide-api/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sahabi-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    profiles:
+      - tools
+
+#############################
+# 📦 VOLUMES
+#############################
+volumes:
+  postgres_data:
+    name: sahabiguide_postgres_data
+  backend_logs:
+    name: sahabiguide_backend_logs
+  caddy_data:
+    name: sahabiguide_caddy_data
+  caddy_config:
+    name: sahabiguide_caddy_config
+  tailscale_data:
+    name: sahabiguide_tailscale_data
+  pgadmin_data:
+    name: sahabiguide_pgadmin_data
+
+#############################
+# 🌐 NETWORKS
+#############################
+networks:
+  sahabi-network:
+    name: sahabiguide_sahabi-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+

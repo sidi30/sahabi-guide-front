@@ -1,0 +1,158 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║          LISTE DES FICHIERS À DÉPLACER POUR LE DÉPLOIEMENT DOCKER         ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ✅ NIVEAU 1 - OBLIGATOIRE (Sans ces fichiers, rien ne fonctionne)          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+📄 Racine du projet
+├── docker-compose.yml
+
+📁 Backend (sahabi-guide-api/)
+├── sahabi-guide-api/Dockerfile
+├── sahabi-guide-api/pom.xml
+├── sahabi-guide-api/src/ (TOUT le répertoire)
+│   ├── main/
+│   │   ├── java/
+│   │   └── resources/
+│   └── test/
+├── sahabi-guide-api/keycloak/
+│   └── import/
+│       └── sahabi-realm.json
+
+📁 Frontend (sahabi-guide-dashboard/)
+├── sahabi-guide-dashboard/Dockerfile
+├── sahabi-guide-dashboard/nginx.conf
+├── sahabi-guide-dashboard/package.json
+├── sahabi-guide-dashboard/package-lock.json
+├── sahabi-guide-dashboard/tsconfig.json
+├── sahabi-guide-dashboard/tsconfig.app.json
+├── sahabi-guide-dashboard/tsconfig.node.json
+├── sahabi-guide-dashboard/vite.config.ts
+├── sahabi-guide-dashboard/index.html
+├── sahabi-guide-dashboard/postcss.config.js
+├── sahabi-guide-dashboard/tailwind.config.js
+├── sahabi-guide-dashboard/components.json
+├── sahabi-guide-dashboard/eslint.config.js
+└── sahabi-guide-dashboard/src/ (TOUT le répertoire)
+
+📁 PostgreSQL Init
+└── postgres-init/
+    └── 01-init-keycloak-db.sh
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ⚠️  NIVEAU 2 - RECOMMANDÉ (Pour la production)                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+📄 Configuration Production
+├── Caddyfile (reverse proxy SSL)
+├── tailscale-serve.json (accès distant)
+└── .env (variables d'environnement - À CRÉER)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🟢 NIVEAU 3 - OPTIONNEL                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+📁 Outils administration
+├── sahabi-guide-api/pgadmin/servers.json (si vous utilisez PgAdmin)
+├── backup-db.sh (scripts de sauvegarde)
+├── restore-db.sh
+└── logs.sh
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ❌ NE PAS DÉPLACER (Seront régénérés automatiquement)                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+❌ sahabi-guide-api/target/
+❌ sahabi-guide-api/mvnw
+❌ sahabi-guide-api/mvnw.cmd
+❌ sahabi-guide-api/.mvn/
+❌ sahabi-guide-dashboard/node_modules/
+❌ sahabi-guide-dashboard/dist/
+❌ .git/
+❌ *.log
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📝 FICHIER .env À CRÉER                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Créez un fichier .env à la racine avec ce contenu :
+
+# PostgreSQL
+POSTGRES_DB=sahabi_db
+POSTGRES_USER=sahabi
+POSTGRES_PASSWORD=CHANGEZ_MOI_EN_PRODUCTION
+POSTGRES_PORT=5432
+
+# Keycloak
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=CHANGEZ_MOI_EN_PRODUCTION
+KEYCLOAK_HOSTNAME=localhost
+KEYCLOAK_PORT=8080
+
+# Backend
+BACKEND_PORT=8084
+SPRING_PROFILE=prod
+APP_SECURITY_ENABLED=true
+
+# Frontend
+FRONTEND_PORT=3000
+
+# JWT
+JWT_SECRET=CHANGEZ_MOI_PAR_UNE_LONGUE_CHAINE_ALEATOIRE_TRES_SECURISEE
+
+# Production (si applicable)
+DOMAIN=votre-domaine.com
+ACME_EMAIL=votre-email@domaine.com
+TAILSCALE_AUTHKEY=tskey-...
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🚀 COMMANDES DE DÉPLOIEMENT                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. Copier tous les fichiers obligatoires sur le serveur
+2. Créer le fichier .env
+3. Exécuter :
+
+   docker-compose build
+   docker-compose up -d
+
+4. Vérifier :
+
+   docker-compose ps
+   docker-compose logs -f
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📊 TAILLE APPROXIMATIVE DES FICHIERS                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+docker-compose.yml         : ~15 KB
+sahabi-guide-api/          : ~5 MB (sans target/)
+sahabi-guide-dashboard/    : ~1 MB (sans node_modules/)
+postgres-init/             : ~1 KB
+
+Total à transférer : ~6-7 MB (code source uniquement)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 💡 CONSEILS                                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+✓ Utilisez Git pour déployer (git clone ou git pull)
+✓ Excluez node_modules/ et target/ avec .gitignore
+✓ Utilisez des variables d'environnement pour les secrets
+✓ Testez en local avant de déployer en production
+✓ Sauvegardez votre base de données régulièrement
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour plus de détails, consultez : DEPLOIEMENT-DOCKER.md
+

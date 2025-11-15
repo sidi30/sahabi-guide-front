@@ -1,0 +1,78 @@
+# Fichiers Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+*.txt
+
+# Fichiers de configuration locaux
+.env
+.env.local
+.env.*.local
+env.template
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log*
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Backups
+backups/
+*.bak
+*.backup
+
+# Tests
+test/
+tests/
+*.test.js
+*.spec.js
+__tests__/
+coverage/
+
+# Scripts
+*.sh
+*.ps1
+Makefile
+
+# Données de développement
+scripts/
+maquette/
+

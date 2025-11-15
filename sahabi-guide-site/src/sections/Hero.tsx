@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Download, ChevronDown } from 'lucide-react'
 import CTAButton from '../components/CTAButton'
-import mascotteVideo from '../assets/mascott-anime.mp4'
+import mascotteVideo from '../assets/logo-anime.mp4'
 import logoVideo from '../assets/logo-anime.mp4'
 
 export default function Hero() {
