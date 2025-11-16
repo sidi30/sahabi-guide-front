@@ -53,6 +53,22 @@ app.*.map.json
 .claude/
 /node_modules
 
+# Plateformes non supportées (Android et iOS uniquement)
 /macos
 /linux
 /windows
+/web
+
+# Fichiers temporaires Android
+/android/local.properties
+/android/**/*.iml
+/android/build/
+
+# Fichiers temporaires iOS
+/ios/Pods/
+/ios/.symlinks/
+
+# Notes et documentation temporaire
+/notes/
+/maquette/
+*.md.backup

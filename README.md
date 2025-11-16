@@ -40,9 +40,9 @@ Une application mobile Flutter complète pour accompagner les musulmans dans leu
 - Gestion des données
 - Diagnostics réseau
 
-## Architecture
+## Architecture et Bonnes Pratiques
 
-L'application suit les principes de **Clean Architecture** avec une approche **feature-first**:
+L'application suit les principes de **Clean Architecture** avec une approche **feature-first** et respecte les bonnes pratiques Flutter pour un projet facilement maintenable et déployable :
 
 ```dart
 lib/
@@ -74,6 +74,18 @@ Chaque fonctionnalité est organisée en 3 couches :
 - **Domain** : Logique métier, entités, cas d'usage
 - **Data** : Sources de données, repositories
 - **Presentation** : UI, état, pages
+
+### Bonnes Pratiques Appliquées
+
+✅ **Structure Clean** : Séparation claire des responsabilités  
+✅ **Feature-First** : Organisation par fonctionnalités métier  
+✅ **Dependency Injection** : Utilisation de GetIt pour la gestion des dépendances  
+✅ **State Management** : Riverpod pour une gestion d'état réactive et testable  
+✅ **Localisation** : Support multilingue avec l10n  
+✅ **Code Généré** : build_runner pour la génération de code  
+✅ **Git Ignore** : Configuration optimale pour ignorer les fichiers temporaires  
+✅ **Mobile-Only** : Projet optimisé uniquement pour Android et iOS  
+✅ **Documentation** : Code commenté et README complet
 
 ## Technologies Utilisées
 
@@ -123,6 +135,20 @@ Chaque fonctionnalité est organisée en 3 couches :
 
 ### Installation
 
+#### Option 1 : Installation Automatique (Windows PowerShell) 🚀
+
+```powershell
+# Installation complète en une seule commande
+.\scripts.ps1 setup
+```
+
+Ce script effectue automatiquement :
+- ✅ Vérification de Flutter
+- ✅ Installation des dépendances
+- ✅ Génération du code
+
+#### Option 2 : Installation Manuelle
+
 1. **Cloner le repository**
 ```bash
 git clone https://github.com/sidi30/sahabi-guide-front.git
@@ -148,28 +174,148 @@ API_BASE_URL=https://api.sahabiguide.com
 ```
 
 5. **Lancer l'application**
+
+**Avec scripts PowerShell (recommandé) :**
+```powershell
+# Mode développement
+.\scripts.ps1 run
+
+# Lancer sur Android spécifiquement
+.\scripts.ps1 run-android
+
+# Lancer sur iOS spécifiquement
+.\scripts.ps1 run-ios
+```
+
+**Commandes Flutter classiques :**
 ```bash
+# Mode développement
 flutter run
+
+# Mode production
+flutter run --release
+
+# Pour Android spécifiquement
+flutter run -d android
+
+# Pour iOS spécifiquement
+flutter run -d ios
+```
+
+### 📝 Scripts PowerShell Disponibles
+
+Pour voir toutes les commandes disponibles :
+```powershell
+.\scripts.ps1 help
+```
+
+**Commandes principales :**
+- `setup` - Installation complète du projet
+- `run` / `run-android` / `run-ios` - Lancer l'application
+- `build-apk` / `build-bundle` / `build-ios` - Générer les builds
+- `test` / `coverage` - Lancer les tests
+- `clean` / `get` / `generate` - Maintenance
+- `analyze` - Analyser le code
+- `doctor` - Vérifier l'installation Flutter
+
+## Build et Déploiement
+
+### Avec Scripts PowerShell (Recommandé)
+
+```powershell
+# Build Android APK
+.\scripts.ps1 build-apk
+
+# Build Android App Bundle (pour Play Store)
+.\scripts.ps1 build-bundle
+
+# Build iOS
+.\scripts.ps1 build-ios
+```
+
+### Commandes Flutter Classiques
+
+**Build Android (APK) :**
+```bash
+flutter build apk --release
+```
+
+**Build Android (App Bundle pour Play Store) :**
+```bash
+flutter build appbundle --release
+```
+
+**Build iOS :**
+```bash
+flutter build ios --release
+```
+
+### Maintenance du Projet
+
+**Avec Scripts PowerShell :**
+```powershell
+# Nettoyer le projet
+.\scripts.ps1 clean
+
+# Récupérer les dépendances
+.\scripts.ps1 get
+
+# Générer le code
+.\scripts.ps1 generate
+
+# Vérifier les packages obsolètes
+.\scripts.ps1 outdated
+
+# Mettre à jour les packages
+.\scripts.ps1 upgrade
+```
+
+**Commandes Flutter classiques :**
+```bash
+# Nettoyer les fichiers de build
+flutter clean
+
+# Récupérer les dépendances
+flutter pub get
+
+# Générer le code
+flutter packages pub run build_runner build --delete-conflicting-outputs
+
+# Vérifier les packages obsolètes
+flutter pub outdated
+
+# Mettre à jour les packages
+flutter pub upgrade
 ```
 
 ## Tests
 
-### Lancer tous les tests
+### Avec Scripts PowerShell
+
+```powershell
+# Lancer tous les tests
+.\scripts.ps1 test
+
+# Tests avec couverture de code
+.\scripts.ps1 coverage
+
+# Analyser le code
+.\scripts.ps1 analyze
+```
+
+### Commandes Flutter Classiques
+
+**Lancer tous les tests :**
 ```bash
 flutter test
 ```
 
-### Tests de widgets
+**Tests de widgets :**
 ```bash
 flutter test test/widget_test.dart
 ```
 
-### Tests unitaires
-```bash
-flutter test test/features/
-```
-
-### Couverture de code
+**Couverture de code :**
 ```bash
 flutter test --coverage
 genhtml coverage/lcov.info -o coverage/html
@@ -177,9 +323,12 @@ genhtml coverage/lcov.info -o coverage/html
 
 ## Plateformes Supportées
 
+Ce projet est optimisé exclusivement pour le déploiement mobile :
+
 - **Android** (API 21+)
 - **iOS** (iOS 12+)
-- **Web** (en développement)
+
+> ⚠️ **Note** : Les plateformes Web, Windows, macOS et Linux ne sont pas supportées dans ce projet.
 
 ## Localisation
 

@@ -129,23 +129,6 @@ flutter_launcher_icons:
   # Configuration iOS
   remove_alpha_ios: true
   
-  # Configuration Web (optionnel)
-  web:
-    generate: true
-    image_path: "assets/images/sahabi logo.png"
-    background_color: "#1D3557"
-    theme_color: "#1D3557"
-  
-  # Configuration Windows (optionnel)
-  windows:
-    generate: true
-    image_path: "assets/images/sahabi logo.png"
-    icon_size: 48
-  
-  # Configuration macOS (optionnel)
-  macos:
-    generate: true
-    image_path: "assets/images/sahabi logo.png"
 
 # ============================================
 # CONFIGURATION DU SPLASH SCREEN
@@ -172,13 +155,9 @@ flutter_native_splash:
   # Configuration iOS
   ios: true
   
-  # Configuration Web (optionnel)
-  web: true
-  
   # Remplissage de l'image (centre par défaut)
   android_gravity: center
   ios_content_mode: center
-  web_image_mode: center
   
   # Configuration de taille
   fullscreen: true
