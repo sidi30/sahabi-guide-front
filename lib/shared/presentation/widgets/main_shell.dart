@@ -129,7 +129,7 @@ class _MainShellState extends ConsumerState<MainShell> {
             Semantics(
               label: AppLocalizations.of(context)!.accessibility_logo,
               child: Image.asset(
-                'assets/images/sahabi logo.png',
+                'assets/favion/web-app-manifest-192x192.png',
                 height: 32,
                 width: 32,
                 fit: BoxFit.contain,

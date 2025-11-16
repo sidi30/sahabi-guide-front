@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/di/injection_container.dart';
+import '../../../shared/services/storage_service.dart';
 
 /// Écran de splash vidéo qui s'affiche au premier lancement
 /// Utilise les vidéos disponibles dans assets/video/
 class SplashVideoScreen extends StatefulWidget {
-  final VoidCallback onComplete;
+  final VoidCallback? onComplete;
   
   const SplashVideoScreen({
     super.key,
-    required this.onComplete,
+    this.onComplete,
   });
 
   @override
@@ -71,7 +74,23 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('intro_video_shown', true);
     
-    widget.onComplete();
+    // Appeler onComplete si fourni, sinon naviguer directement
+    if (widget.onComplete != null) {
+      widget.onComplete!();
+    } else {
+      // Navigation automatique vers auth-choice ou home
+      if (mounted) {
+        // Vérifier si l'utilisateur est connecté
+        final storageService = sl<StorageService>();
+        final authToken = await storageService.getSecurely('auth_token');
+        
+        if (authToken == null) {
+          context.go('/auth-choice');
+        } else {
+          context.go('/home');
+        }
+      }
+    }
   }
 
   void _skipVideo() {
@@ -167,41 +186,9 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
   }
 
   Widget _buildLoadingIndicator() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Logo Sahabi pendant le chargement
-        Semantics(
-          label: AppLocalizations.of(context)!.accessibility_logo,
-          child: Image.asset(
-            'assets/images/sahabi logo.png',
-            width: 120,
-            height: 120,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.mosque,
-                size: 80,
-                color: Colors.white,
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 24),
-        Semantics(
-          label: AppLocalizations.of(context)!.accessibility_loading,
-          child: const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          AppLocalizations.of(context)!.splash_loading,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-          ),
-        ),
-      ],
+    // Écran blanc simple pendant le chargement (pas de logo)
+    return const Center(
+      child: SizedBox.shrink(), // Rien à afficher
     );
   }
 
@@ -211,14 +198,22 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
       children: [
         // Logo Sahabi en cas d'erreur
         Image.asset(
-          'assets/images/sahabi logo.png',
+          'assets/favicon/web-app-manifest-192x192.png',
           width: 150,
           height: 150,
           errorBuilder: (context, error, stackTrace) {
-            return const Icon(
-              Icons.mosque,
-              size: 100,
-              color: Colors.white,
+            return Container(
+              width: 150,
+              height: 150,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1D5D4E),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.location_on,
+                size: 80,
+                color: Colors.white,
+              ),
             );
           },
         ),

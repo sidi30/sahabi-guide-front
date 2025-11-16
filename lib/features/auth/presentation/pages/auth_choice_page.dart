@@ -72,13 +72,20 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Image.asset(
-                          'assets/images/sahabi logo.png',
+                          'assets/favicon/web-app-manifest-logo-192x192.png', // Logo pin
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.mosque,
-                              color: AppColors.primary,
-                              size: 50,
+                            // Fallback avec apple-touch-icon
+                            return Image.asset(
+                              'assets/favicon/apple-touch-icon.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error2, stackTrace2) {
+                                return const Icon(
+                                  Icons.location_on,
+                                  color: AppColors.primary,
+                                  size: 50,
+                                );
+                              },
                             );
                           },
                         ),

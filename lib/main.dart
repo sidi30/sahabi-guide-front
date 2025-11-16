@@ -95,8 +95,8 @@ class AppRoutes {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // OPTIMISATION : Initialisations minimales au démarrage
-  // Le reste se chargera en arrière-plan
+  // INITIALISATION COMPLÈTE AVANT LE DÉMARRAGE
+  // Nécessaire pour que GetIt soit prêt avant l'utilisation
   
   // 1. Hive (nécessaire pour StorageService)
   await Hive.initFlutter();
@@ -108,7 +108,23 @@ Future<void> main() async {
   final settingsNotifier = SettingsNotifier(prefs: prefs);
   final languageService = LanguageService(prefs);
 
-  // Lancer l'app IMMÉDIATEMENT
+  // 4. Initialiser TOUTES les dépendances GetIt (critique pour l'auth)
+  try {
+    await initializeDependencies();
+    debugPrint('✅ Dépendances GetIt initialisées');
+  } catch (e) {
+    debugPrint('❌ Erreur initialisation GetIt: $e');
+  }
+
+  // 5. Charger les settings
+  try {
+    await settingsNotifier.loadSettings();
+    debugPrint('✅ Settings chargés');
+  } catch (e) {
+    debugPrint('⚠️ Erreur chargement settings: $e');
+  }
+
+  // Lancer l'app
   runApp(
     ProviderScope(
       overrides: [
@@ -118,27 +134,6 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
-
-  // CHARGEMENT EN ARRIÈRE-PLAN (non bloquant)
-  // Les dépendances lourdes se chargent pendant que le splash s'affiche
-  _initializeHeavyDependenciesAsync(settingsNotifier);
-}
-
-/// Initialise les dépendances lourdes en arrière-plan
-/// Ne bloque PAS le démarrage de l'app
-Future<void> _initializeHeavyDependenciesAsync(SettingsNotifier settingsNotifier) async {
-  try {
-    // Charger les dépendances (API clients, etc.)
-    await initializeDependencies();
-    
-    // Charger les settings (peut prendre du temps)
-    await settingsNotifier.loadSettings();
-    
-    debugPrint('✅ Dépendances lourdes chargées en arrière-plan');
-  } catch (e) {
-    debugPrint('⚠️ Erreur chargement dépendances : $e');
-    // L'app continue de fonctionner même si certaines dépendances échouent
-  }
 }
 
 class MyApp extends ConsumerWidget {

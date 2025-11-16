@@ -6,9 +6,14 @@ class DioClient {
 
   DioClient(Dio dio) {
     _dio = dio;
+
+    // Permet de surcharger l'URL de base via --dart-define=API_BASE_URL=...
+    const envBaseUrl = String.fromEnvironment('API_BASE_URL');
+    final baseUrl =
+        envBaseUrl.isNotEmpty ? envBaseUrl : AppConstants.apiBaseUrl;
+
     _dio.options = BaseOptions(
-      // Utiliser EnvConfig pour obtenir l'URL de l'API selon l'environnement
-      baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: AppConstants.apiBaseUrl),
+      baseUrl: baseUrl,
       connectTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
       receiveTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
       sendTimeout: const Duration(milliseconds: AppConstants.apiTimeout),

@@ -83,7 +83,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                     ),
                     padding: const EdgeInsets.all(12),
                     child: Image.asset(
-                      'assets/images/sahabi logo.png',
+                      'assets/favion/web-app-manifest-192x192.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(
