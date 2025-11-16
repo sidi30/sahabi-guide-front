@@ -108,10 +108,26 @@ class _SplashPageState extends ConsumerState<SplashPage>
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.mosque_outlined,
-                        size: 64,
-                        color: Theme.of(context).primaryColor,
+                      child: Image.asset(
+                        'assets/favicon/web-app-manifest-logo-192x192.png',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/favicon/apple-touch-icon.png',
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error2, stackTrace2) {
+                              return Icon(
+                                Icons.location_on,
+                                size: 64,
+                                color: Theme.of(context).primaryColor,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
 

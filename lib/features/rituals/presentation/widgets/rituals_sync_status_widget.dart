@@ -155,7 +155,7 @@ class _RitualsSyncStatusWidgetState extends State<RitualsSyncStatusWidget> {
               _buildStatRow(
                 'Rituels en cache',
                 '${_cacheStats!['rituals']?['count'] ?? 0}',
-                Icons.mosque,
+                Icons.book, // Icône livre pour les rituels
               ),
               _buildStatRow(
                 'Dernière mise à jour',

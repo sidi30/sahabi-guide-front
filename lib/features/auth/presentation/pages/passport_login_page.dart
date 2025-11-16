@@ -83,13 +83,19 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                     ),
                     padding: const EdgeInsets.all(12),
                     child: Image.asset(
-                      'assets/favion/web-app-manifest-192x192.png',
+                      'assets/favicon/web-app-manifest-logo-192x192.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.mosque,
-                          size: 50,
-                          color: AppColors.primary,
+                        return Image.asset(
+                          'assets/favicon/apple-touch-icon.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error2, stackTrace2) {
+                            return const Icon(
+                              Icons.location_on,
+                              size: 50,
+                              color: AppColors.primary,
+                            );
+                          },
                         );
                       },
                     ),

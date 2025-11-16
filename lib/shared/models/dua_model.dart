@@ -190,7 +190,7 @@ class DuaModel {
   IconData getTypeIcon() {
     switch (type) {
       case DuaType.hajj:
-        return Icons.mosque;
+        return Icons.location_on; // Logo pin pour Hajj
       case DuaType.umrah:
         return Icons.location_on;
       case DuaType.daily:

@@ -30,6 +30,7 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
+  String _currentRoute = '';
 
   final List<NavigationItem> _navigationItems = const [
     NavigationItem(
@@ -116,6 +117,17 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Mettre à jour la route actuelle
+    try {
+      _currentRoute = GoRouterState.of(context).uri.path;
+    } catch (e) {
+      _currentRoute = '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
 
@@ -129,13 +141,21 @@ class _MainShellState extends ConsumerState<MainShell> {
             Semantics(
               label: AppLocalizations.of(context)!.accessibility_logo,
               child: Image.asset(
-                'assets/favion/web-app-manifest-192x192.png',
+                'assets/favicon/web-app-manifest-logo-192x192.png',
                 height: 32,
                 width: 32,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback si l'image ne charge pas
-                  return const Icon(Icons.mosque, size: 24);
+                  // Fallback avec apple-touch-icon
+                  return Image.asset(
+                    'assets/favicon/apple-touch-icon.png',
+                    height: 32,
+                    width: 32,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error2, stackTrace2) {
+                      return const Icon(Icons.location_on, size: 24);
+                    },
+                  );
                 },
               ),
             ),
@@ -278,14 +298,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   /// Détermine si le bouton bot doit être affiché
   bool _shouldShowBotButton() {
-    try {
-      final router = GoRouter.of(context);
-      final currentRoute = router.routerDelegate.currentConfiguration.uri.toString();
-      // Masquer le bouton sur la page bot elle-même
-      return !currentRoute.contains('/bot');
-    } catch (e) {
-      // En cas d'erreur, afficher le bouton par défaut
-      return true;
-    }
+    // Masquer le bouton sur toutes les pages bot (/bot, /bot/settings, etc.)
+    return !_currentRoute.startsWith('/bot');
   }
 }

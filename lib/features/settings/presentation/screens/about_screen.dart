@@ -62,13 +62,19 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                     padding: const EdgeInsets.all(16),
                     child: Image.asset(
-                      'assets/images/sahabi logo.png',
+                      'assets/favicon/web-app-manifest-logo-192x192.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.mosque,
-                          size: 50,
-                          color: AppColors.primary,
+                        return Image.asset(
+                          'assets/favicon/apple-touch-icon.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error2, stackTrace2) {
+                            return const Icon(
+                              Icons.location_on,
+                              size: 50,
+                              color: AppColors.primary,
+                            );
+                          },
                         );
                       },
                     ),
@@ -223,13 +229,19 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                     ),
                     padding: const EdgeInsets.all(8),
                     child: Image.asset(
-                      'assets/images/sahabi logo.png',
+                      'assets/favicon/web-app-manifest-logo-192x192.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.mosque,
-                          size: 30,
-                          color: AppColors.primary,
+                        return Image.asset(
+                          'assets/favicon/apple-touch-icon.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error2, stackTrace2) {
+                            return const Icon(
+                              Icons.location_on,
+                              size: 30,
+                              color: AppColors.primary,
+                            );
+                          },
                         );
                       },
                     ),

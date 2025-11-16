@@ -15,6 +15,7 @@ class _FloatingBotButtonState extends ConsumerState<FloatingBotButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -42,7 +43,20 @@ class _FloatingBotButtonState extends ConsumerState<FloatingBotButton>
   }
 
   void _openBot() {
-    context.push('/bot');
+    // Éviter les clics multiples
+    if (_isNavigating) return;
+    
+    setState(() {
+      _isNavigating = true;
+    });
+    
+    context.push('/bot').then((_) {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+        });
+      }
+    });
   }
 
   @override
@@ -102,8 +116,9 @@ class CompactFloatingBotButton extends ConsumerStatefulWidget {
 }
 
 class _CompactFloatingBotButtonState extends ConsumerState<CompactFloatingBotButton>
-    with SingleTickerProviderStateMixin {
+with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -118,6 +133,23 @@ class _CompactFloatingBotButtonState extends ConsumerState<CompactFloatingBotBut
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _openBot() {
+    // Éviter les clics multiples
+    if (_isNavigating) return;
+    
+    setState(() {
+      _isNavigating = true;
+    });
+    
+    context.push('/bot').then((_) {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+        });
+      }
+    });
   }
 
   @override
@@ -137,7 +169,7 @@ class _CompactFloatingBotButtonState extends ConsumerState<CompactFloatingBotBut
             ],
           ),
           child: FloatingActionButton(
-            onPressed: () => context.push('/bot'),
+            onPressed: _isNavigating ? null : _openBot,
             backgroundColor: const Color(0xFF06D6A0),
             elevation: 4,
             heroTag: 'bot_button_compact',

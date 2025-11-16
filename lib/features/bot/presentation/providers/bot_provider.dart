@@ -134,17 +134,26 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
   /// Initialise le bot
   Future<void> initialize() async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true, error: null);
       
       await botService.initialize();
       
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, error: null);
       logger.i('✅ BotChatNotifier initialized');
     } catch (e, stackTrace) {
       logger.e('❌ Error initializing bot: $e', stackTrace: stackTrace);
+      
+      // Message d'erreur plus clair pour l'utilisateur
+      String userMessage = 'Impossible d\'initialiser l\'assistant.';
+      if (e.toString().contains('knowledge base')) {
+        userMessage = 'Erreur de chargement de la base de connaissances. Vérifiez que les fichiers de données sont présents.';
+      } else if (e.toString().contains('storage')) {
+        userMessage = 'Erreur d\'accès au stockage local.';
+      }
+      
       state = state.copyWith(
         isLoading: false,
-        error: 'Erreur d\'initialisation: $e',
+        error: userMessage,
       );
     }
   }
