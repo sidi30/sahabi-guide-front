@@ -23,23 +23,29 @@ class EnvConfig {
   static const Map<Environment, String> _apiUrls = {
     // Développement local
     Environment.development: 'http://10.0.2.2:8084',  // Android emulator
+    
     // Staging / Test
-    Environment.staging: 'https://api-staging.sahabi.com',
-    // Production
-    Environment.production: 'https://api.sahabi.com',
+    Environment.staging: 'https://sahabi-backend-520537349678.europe-west1.run.app',
+    
+    // Production - Google Cloud Run
+    Environment.production: 'https://sahabi-backend-520537349678.europe-west1.run.app',
   };
 
-  /// URLs Keycloak selon l'environnement
+  // ⚠️ KEYCLOAK NON UTILISÉ DANS L'APP MOBILE
+  // L'application mobile utilise l'authentification par PASSEPORT + OTP
+  // Keycloak est uniquement pour le dashboard web
+  
+  /// URLs Keycloak (NON UTILISÉ - conservé pour référence uniquement)
   static const Map<Environment, String> _keycloakUrls = {
     Environment.development: 'http://10.0.2.2:8080',
-    Environment.staging: 'https://auth-staging.sahabi.com',
-    Environment.production: 'https://auth.sahabi.com',
+    Environment.staging: 'https://sahabi-keycloak-520537349678.europe-west1.run.app',
+    Environment.production: 'https://sahabi-keycloak-520537349678.europe-west1.run.app',
   };
 
-  /// Realm Keycloak (identique pour tous les environnements)
+  /// Realm Keycloak (NON UTILISÉ)
   static const String keycloakRealm = 'sahabi';
 
-  /// Client ID Keycloak pour l'application mobile
+  /// Client ID Keycloak (NON UTILISÉ)
   static const String keycloakClientId = 'sahabi-mobile';
 
   /// Initialiser l'environnement

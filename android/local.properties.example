@@ -1,0 +1,16 @@
+## This file must be in your home directory
+sdk.dir=/path/to/Android/sdk
+flutter.sdk=/path/to/flutter
+
+## Google Maps API Key
+## IMPORTANT: Ne JAMAIS commiter ce fichier avec les vraies clés !
+## Créez un fichier local.properties (ignoré par Git) avec vos vraies clés
+googleMapsApiKey=VOTRE_CLE_API_GOOGLE_MAPS_ICI
+
+## Configuration de signing (optionnel pour dev)
+## Pour la production, utilisez un keystore sécurisé
+storeFile=/path/to/keystore.jks
+storePassword=VOTRE_MOT_DE_PASSE
+keyAlias=VOTRE_ALIAS
+keyPassword=VOTRE_MOT_DE_PASSE
+

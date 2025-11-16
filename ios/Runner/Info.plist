@@ -111,11 +111,14 @@
 			<string>en</string>
 			<string>ar</string>
 		</array>
-		<!-- Autoriser les connections HTTP pour le développement -->
+		<!-- Sécurité réseau -->
 		<key>NSAppTransportSecurity</key>
 		<dict>
+			<!-- Bloquer les connexions HTTP non sécurisées -->
 			<key>NSAllowsArbitraryLoads</key>
 			<false/>
+			<!-- Autoriser localhost UNIQUEMENT en développement -->
+			<!-- TODO: Désactiver en production via scheme de build -->
 			<key>NSAllowsLocalNetworking</key>
 			<true/>
 		</dict>

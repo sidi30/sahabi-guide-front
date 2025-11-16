@@ -1,8 +1,8 @@
 name: sahabi_guide
-description: A comprehensive Islamic companion app for rituals, duas, and spiritual guidance.
+description: Compagnon de pèlerinage intelligent pour le Hajj avec suivi GPS en temps réel, guide des rituels et système d'alertes.
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.0+202501161500
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

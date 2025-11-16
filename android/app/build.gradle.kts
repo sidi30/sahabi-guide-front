@@ -28,13 +28,73 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Lire la clé Google Maps depuis local.properties
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        
+        // Google Maps API Key (depuis local.properties ou variable d'environnement)
+        val googleMapsApiKey = localProperties.getProperty("googleMapsApiKey") 
+            ?: System.getenv("GOOGLE_MAPS_API_KEY") 
+            ?: "AIzaSyBNUp3s4kAS7LRHScAUJezSRKSrTv7YnGk"  // Clé de dev par défaut
+        
+        manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
+    }
+
+    // Configuration de signing pour release
+    signingConfigs {
+        // Lire les propriétés de signing depuis local.properties
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        
+        create("release") {
+            val keystoreFile = localProperties.getProperty("storeFile")
+            if (keystoreFile != null) {
+                storeFile = file(keystoreFile)
+                storePassword = localProperties.getProperty("storePassword")
+                keyAlias = localProperties.getProperty("keyAlias")
+                keyPassword = localProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            
+            // ProGuard pour l'obfuscation et l'optimisation
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            
+            // Utiliser la config de signing release si disponible, sinon debug
+            val localProperties = java.util.Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localPropertiesFile.inputStream().use { localProperties.load(it) }
+            }
+            
+            signingConfig = if (localProperties.getProperty("storeFile") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

@@ -1,3 +1,7 @@
+# ============================================
+# GITIGNORE - SAHABI GUIDE FLUTTER APP
+# ============================================
+
 # Miscellaneous
 *.class
 *.log
@@ -5,11 +9,9 @@
 *.swp
 .DS_Store
 .atom/
-.build/
 .buildlog/
 .history
 .svn/
-.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -17,7 +19,6 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
-.env
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
@@ -30,6 +31,7 @@ migrate_working_dir/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
 /build/
@@ -45,30 +47,168 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-/.idea
-# projects rebuild fix folders
-/fix_adroid_prj/
-/old.android/
+# ============================================
+# SECRETS ET CONFIGURATION SENSIBLE
+# ============================================
 
-.claude/
-/node_modules
+# IMPORTANT: Ne JAMAIS commiter ces fichiers !
+android/local.properties
+android/key.properties
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/Runner/Info-Production.plist
 
-# Plateformes non supportées (Android et iOS uniquement)
-/macos
-/linux
-/windows
-/web
+# Keystores (TRÈS IMPORTANT - Ne JAMAIS commiter !)
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.mobileprovision
+**/*.certSigningRequest
 
-# Fichiers temporaires Android
-/android/local.properties
-/android/**/*.iml
-/android/build/
+# Environment files avec secrets
+.env
+.env.local
+.env.*.local
+*.env
 
-# Fichiers temporaires iOS
-/ios/Pods/
-/ios/.symlinks/
+# ============================================
+# BUILD ET GÉNÉRATION
+# ============================================
 
-# Notes et documentation temporaire
-/notes/
-/maquette/
-*.md.backup
+# Build directories
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Coverage
+coverage/
+lcov.info
+
+# ============================================
+# PLATFORM SPECIFIQUE
+# ============================================
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/.generated/
+**/.symlinks/
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/gradle.properties
+**/android/local.properties
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle-wrapper.jar
+**/android/.idea/
+**/android/*.iml
+**/android/app/google-services.json
+
+# ============================================
+# CACHE ET TEMPORAIRES
+# ============================================
+
+# Cache
+.cache/
+tmp/
+temp/
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*~
+*.backup
+*.bak
+*.orig
+
+# ============================================
+# DOCUMENTATION TEMPORAIRE
+# ============================================
+
+# Ne pas tracker les fichiers temporaires de documentation
+TEMP_*.md
+TODO_*.md
+NOTES_*.md
+
+# ============================================
+# TESTS
+# ============================================
+
+# Test coverage
+coverage/
+test/.test_coverage.dart
+test_driver/
+integration_test/screenshots/
+
+# ============================================
+# IDE ET EDITEURS
+# ============================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Android Studio
+.idea/
+*.iml
+.gradle/
+local.properties
+
+# Xcode
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ============================================
+# OS
+# ============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
