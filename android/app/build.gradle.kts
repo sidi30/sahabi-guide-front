@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -26,11 +28,12 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
+        // Assurer que versionCode est bien un entier (tiré de pubspec.yaml)
+        versionCode = flutter.versionCode.toInt()
         versionName = flutter.versionName
         
         // Lire la clé Google Maps depuis local.properties
-        val localProperties = java.util.Properties()
+        val localProperties = Properties()
         val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use { localProperties.load(it) }
@@ -47,7 +50,7 @@ android {
     // Configuration de signing pour release
     signingConfigs {
         // Lire les propriétés de signing depuis local.properties
-        val localProperties = java.util.Properties()
+        val localProperties = Properties()
         val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use { localProperties.load(it) }
@@ -84,7 +87,7 @@ android {
             )
             
             // Utiliser la config de signing release si disponible, sinon debug
-            val localProperties = java.util.Properties()
+            val localProperties = Properties()
             val localPropertiesFile = rootProject.file("local.properties")
             if (localPropertiesFile.exists()) {
                 localPropertiesFile.inputStream().use { localProperties.load(it) }
