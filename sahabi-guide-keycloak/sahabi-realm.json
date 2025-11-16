@@ -1,0 +1,149 @@
+{
+  "realm": "sahabi",
+  "enabled": true,
+  "displayName": "Sahabi Guide",
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "adminTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "fr", "ar"],
+  "defaultLocale": "fr",
+  "accessTokenLifespan": 3600,
+  "refreshTokenMaxReuse": 0,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "clients": [
+    {
+      "clientId": "sahabi-api",
+      "name": "Sahabi API Client",
+      "description": "Client for Sahabi Guide API",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "sahabi-api-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "access.token.lifespan": "3600"
+      },
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "protocolMappers": [
+        {
+          "name": "role-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "user.attribute": "role",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "sahabi-mobile",
+      "name": "Sahabi Mobile App",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://localhost:*", "sahabi://auth/*"],
+      "webOrigins": ["*"]
+    },
+    {
+      "clientId": "sahabi-dashboard",
+      "name": "Sahabi Dashboard",
+      "description": "Dashboard React pour l'administration",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:3000/login",
+        "https://sahabi.local/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://sahabi.local"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "PILGRIM",
+        "description": "Pilgrim role for regular users"
+      },
+      {
+        "name": "AGENCE_USER", 
+        "description": "Agency user role (guide)"
+      },
+      {
+        "name": "AGENCE_ADMIN",
+        "description": "Agency administrator role"
+      },
+      {
+        "name": "SUPER_ADMIN",
+        "description": "Super administrator role"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "firstName": "Super",
+      "lastName": "Admin",
+      "email": "admin@sahabi.guide",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SUPER_ADMIN"],
+      "attributes": {
+        "agency_id": ["00000000-0000-0000-0000-0000000000c1"]
+      }
+    },
+    {
+      "username": "guide",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "Guide",
+      "email": "guide@sahabi.guide",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "guide123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["AGENCE_USER"],
+      "attributes": {
+        "agency_id": ["00000000-0000-0000-0000-0000000000c1"]
+      }
+    }
+  ]
+}

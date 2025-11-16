@@ -1,0 +1,21 @@
+# Copier ce fichier vers terraform.tfvars et remplir les valeurs
+
+project_id = "sahabiguide-478323"
+region     = "europe-west1"
+
+# Generer un mot de passe fort
+db_password              = "CHANGE_ME_STRONG_PASSWORD"
+keycloak_admin_password  = "CHANGE_ME_ADMIN_PASSWORD"
+jwt_secret               = "CHANGE_ME_JWT_SECRET_MIN_32_CHARS"
+
+# Twilio (optionnel)
+enable_twilio     = false
+twilio_account_sid = ""
+twilio_auth_token  = ""
+
+# Images Docker (laisser vide pour utiliser les dernieres)
+backend_image   = ""
+frontend_image  = ""
+keycloak_image  = ""
+
+

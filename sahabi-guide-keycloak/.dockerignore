@@ -1,0 +1,37 @@
+#######################################################
+# .dockerignore pour sahabi-guide-keycloak
+#######################################################
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
