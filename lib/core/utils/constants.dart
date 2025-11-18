@@ -7,6 +7,8 @@ class AppConstants {
   static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
   
   // API Constants
+  // Production URL
+  static const String _apiBaseUrlProduction = 'https://sahabi-backend-520537349678.europe-west1.run.app';
   // Pour émulateur Android: utiliser 10.0.2.2 au lieu de localhost
   // Pour téléphone physique: utiliser l'IP locale de votre PC (ex: http://192.168.1.X:8084)
   // Pour Web: utiliser localhost
@@ -14,7 +16,16 @@ class AppConstants {
   static const String _apiBaseUrlWeb = 'http://localhost:8084';
   
   /// Retourne l'URL de l'API selon la plateforme
-  static String get apiBaseUrl => kIsWeb ? _apiBaseUrlWeb : _apiBaseUrlAndroid;
+  /// En production, utilise l'URL de production
+  static String get apiBaseUrl {
+    // Vérifier si on est en mode production via variable d'environnement
+    const isProd = bool.fromEnvironment('PRODUCTION', defaultValue: false);
+    if (isProd) {
+      return _apiBaseUrlProduction;
+    }
+    // Sinon, utiliser l'URL selon la plateforme
+    return kIsWeb ? _apiBaseUrlWeb : _apiBaseUrlAndroid;
+  }
   
   static const int apiTimeout = 30000;
   static const String apiHealthPath = '/health';

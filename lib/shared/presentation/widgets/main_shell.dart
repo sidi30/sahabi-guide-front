@@ -65,12 +65,6 @@ class _MainShellState extends ConsumerState<MainShell> {
     ),
   ];
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _updateSelectedIndex();
-  }
-
   void _updateSelectedIndex() {
     try {
       // Use GoRouter.of instead of GoRouterState.of to avoid hot reload issues
@@ -125,6 +119,8 @@ class _MainShellState extends ConsumerState<MainShell> {
     } catch (e) {
       _currentRoute = '';
     }
+    // Mettre à jour l'index de navigation sélectionné
+    _updateSelectedIndex();
   }
 
   @override
