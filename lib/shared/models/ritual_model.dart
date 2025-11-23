@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sahabi_guide/shared/utils/language_utils.dart';
 
 enum RitualType {
   hajj,
@@ -26,6 +27,8 @@ class RitualModel {
   final Duration? estimatedDuration;
   final List<String> audioPaths;
   final String? videoPath;
+  final Map<String, String> audioSources;
+  final Map<String, String> videoSources;
   // Nouveaux champs consommés depuis l'API enrichie
   final List<String> steps;
   final Map<String, String> practicalTips;
@@ -48,6 +51,8 @@ class RitualModel {
     this.estimatedDuration,
     this.audioPaths = const [],
     this.videoPath,
+    this.audioSources = const {},
+    this.videoSources = const {},
     this.steps = const [],
     this.practicalTips = const {},
     this.contentVersion,
@@ -59,6 +64,25 @@ class RitualModel {
   });
 
   factory RitualModel.fromJson(Map<String, dynamic> json) {
+    final rawAudio = json['audioPaths'];
+    List<String> legacyAudio = const [];
+    Map<String, String> audioSources = {};
+    if (rawAudio is Map) {
+      audioSources = _extractMediaMap(rawAudio);
+    } else if (rawAudio is List) {
+      legacyAudio = List<String>.from(rawAudio.map((e) => e.toString()));
+    }
+
+    final rawVideo = json['videoPaths'] ?? json['videoSources'];
+    Map<String, String> videoSources = {};
+    if (rawVideo is Map) {
+      videoSources = _extractMediaMap(rawVideo);
+    }
+
+    final resolvedVideoPath = json['videoPath'] ??
+        videoSources[LanguageUtils.defaultLanguage] ??
+        (videoSources.isNotEmpty ? videoSources.values.first : null);
+
     return RitualModel(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -66,19 +90,22 @@ class RitualModel {
       description: json['description'] as String,
       type: _parseRitualType(json['type']),
       status: _parseRitualStatus(json['status']),
-      scheduledTime: json['scheduledTime'] != null 
-          ? DateTime.parse(json['scheduledTime']) 
+      scheduledTime: json['scheduledTime'] != null
+          ? DateTime.parse(json['scheduledTime'])
           : null,
-      completedAt: json['completedAt'] != null 
-          ? DateTime.parse(json['completedAt']) 
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'])
           : null,
-      estimatedDuration: json['estimatedDuration'] != null 
-          ? Duration(minutes: json['estimatedDuration']) 
+      estimatedDuration: json['estimatedDuration'] != null
+          ? Duration(minutes: json['estimatedDuration'])
           : null,
-      audioPaths: List<String>.from(json['audioPaths'] ?? []),
-      videoPath: json['videoPath'],
+      audioPaths: legacyAudio,
+      videoPath: resolvedVideoPath,
+      audioSources: audioSources,
+      videoSources: videoSources,
       steps: List<String>.from(json['steps'] ?? json['stepsList'] ?? const []),
-      practicalTips: Map<String, String>.from(json['practicalTips'] ?? const {}),
+      practicalTips:
+          Map<String, String>.from(json['practicalTips'] ?? const {}),
       contentVersion: json['contentVersion'],
       translations: Map<String, String>.from(json['translations'] ?? {}),
       tags: List<String>.from(json['tags'] ?? []),
@@ -101,6 +128,8 @@ class RitualModel {
       'estimatedDuration': estimatedDuration?.inMinutes,
       'audioPaths': audioPaths,
       'videoPath': videoPath,
+      'audioSources': audioSources,
+      'videoSources': videoSources,
       'steps': steps,
       'practicalTips': practicalTips,
       'contentVersion': contentVersion,
@@ -124,6 +153,8 @@ class RitualModel {
     Duration? estimatedDuration,
     List<String>? audioPaths,
     String? videoPath,
+    Map<String, String>? audioSources,
+    Map<String, String>? videoSources,
     Map<String, String>? translations,
     List<String>? tags,
     bool? isActive,
@@ -142,6 +173,8 @@ class RitualModel {
       estimatedDuration: estimatedDuration ?? this.estimatedDuration,
       audioPaths: audioPaths ?? this.audioPaths,
       videoPath: videoPath ?? this.videoPath,
+      audioSources: audioSources ?? this.audioSources,
+      videoSources: videoSources ?? this.videoSources,
       translations: translations ?? this.translations,
       tags: tags ?? this.tags,
       isActive: isActive ?? this.isActive,
@@ -154,13 +187,37 @@ class RitualModel {
   bool get isCompleted => status == RitualStatus.completed;
   bool get isPending => status == RitualStatus.pending;
   bool get isOverdue => status == RitualStatus.overdue;
-  
+
   String getTranslation(String language) {
     return translations[language] ?? name;
   }
 
+  bool get hasAudio =>
+      audioSources.values.any((path) => path.isNotEmpty) ||
+      audioPaths.isNotEmpty;
+
+  bool get hasVideo =>
+      videoSources.values.any((path) => path.isNotEmpty) ||
+      (videoPath != null && videoPath!.isNotEmpty);
+
   String? getAudioPath(String language) {
+    for (final code in LanguageUtils.fallbackOrder(language)) {
+      final candidate = audioSources[code];
+      if (candidate != null && candidate.isNotEmpty) {
+        return candidate;
+      }
+    }
     return audioPaths.isNotEmpty ? audioPaths.first : null;
+  }
+
+  String? getVideoUrl(String language) {
+    for (final code in LanguageUtils.fallbackOrder(language)) {
+      final candidate = videoSources[code];
+      if (candidate != null && candidate.isNotEmpty) {
+        return candidate;
+      }
+    }
+    return videoPath;
   }
 
   Color getStatusColor() {
@@ -237,4 +294,17 @@ class RitualModel {
   int get hashCode {
     return id.hashCode ^ name.hashCode ^ order.hashCode ^ status.hashCode;
   }
+}
+
+Map<String, String> _extractMediaMap(dynamic source) {
+  if (source is Map) {
+    final normalized = <String, String>{};
+    source.forEach((key, value) {
+      if (value == null) return;
+      final normalizedKey = LanguageUtils.normalize(key.toString());
+      normalized[normalizedKey] = value.toString();
+    });
+    return normalized;
+  }
+  return {};
 }

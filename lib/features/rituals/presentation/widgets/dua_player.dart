@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/audio_service.dart';
+import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
 
-class DuaPlayer extends StatefulWidget {
+class DuaPlayer extends ConsumerStatefulWidget {
   final DuaModel dua;
   final VoidCallback onClose;
 
@@ -15,10 +17,10 @@ class DuaPlayer extends StatefulWidget {
   });
 
   @override
-  State<DuaPlayer> createState() => _DuaPlayerState();
+  ConsumerState<DuaPlayer> createState() => _DuaPlayerState();
 }
 
-class _DuaPlayerState extends State<DuaPlayer> {
+class _DuaPlayerState extends ConsumerState<DuaPlayer> {
   late final AudioService _audioService;
   bool _isPlaying = false;
   Duration _position = Duration.zero;
@@ -58,7 +60,8 @@ class _DuaPlayerState extends State<DuaPlayer> {
 
       // Démarrer la lecture automatiquement
       if (widget.dua.audioPath.isNotEmpty) {
-        await _audioService.playDua(widget.dua);
+        final audioLanguage = ref.read(settingsProvider).audioLanguage.code;
+        await _audioService.playDua(widget.dua, language: audioLanguage);
       }
     } catch (e) {
       debugPrint('Erreur lors de l\'initialisation de l\'audio: $e');
@@ -93,8 +96,10 @@ class _DuaPlayerState extends State<DuaPlayer> {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 2,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 12),
                 ),
                 child: Slider(
                   value: _position.inSeconds.toDouble(),
@@ -178,5 +183,3 @@ class _DuaPlayerState extends State<DuaPlayer> {
     return '$minutes:$seconds';
   }
 }
-
-

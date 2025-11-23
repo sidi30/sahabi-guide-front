@@ -3,11 +3,13 @@ import 'package:just_audio/just_audio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../shared/utils/language_utils.dart';
 
 class RitualService extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
-  
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
+
   RitualModel? _currentPlayingRitual;
   bool _isInitialized = false;
 
@@ -17,7 +19,8 @@ class RitualService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -27,7 +30,7 @@ class RitualService extends ChangeNotifier {
       android: androidSettings,
       iOS: iosSettings,
     );
-    
+
     await _notifications.initialize(initSettings);
     _isInitialized = true;
     notifyListeners();
@@ -35,10 +38,11 @@ class RitualService extends ChangeNotifier {
 
   Future<void> playAudio(RitualModel ritual, String language) async {
     try {
-      final audioPath = ritual.getAudioPath(language);
-      if (audioPath != null) {
+      final normalizedLanguage = LanguageUtils.normalize(language);
+      final audioPath = ritual.getAudioPath(normalizedLanguage);
+      if (audioPath != null && audioPath.isNotEmpty) {
         _currentPlayingRitual = ritual;
-        await _audioPlayer.setAsset(audioPath);
+        await _setSource(audioPath);
         await _audioPlayer.play();
         notifyListeners();
       } else {
@@ -74,10 +78,10 @@ class RitualService extends ChangeNotifier {
     try {
       // TODO: Mettre à jour via l'API
       // Pour l'instant, on simule la mise à jour locale
-      
+
       // Planifier une notification pour le prochain rituel
       await _scheduleNextRitualNotification(ritual);
-      
+
       notifyListeners();
     } catch (e) {
       throw Exception('Erreur lors de la mise à jour: $e');
@@ -89,7 +93,7 @@ class RitualService extends ChangeNotifier {
       // Planifier une notification 1h avant le prochain rituel
       final now = DateTime.now();
       final notificationTime = now.add(const Duration(hours: 1));
-      
+
       if (notificationTime.isAfter(now)) {
         await _notifications.zonedSchedule(
           ritual.order,
@@ -107,7 +111,8 @@ class RitualService extends ChangeNotifier {
             iOS: DarwinNotificationDetails(),
           ),
           payload: 'ritual_${ritual.id}',
-          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
         );
       }
     } catch (e) {
@@ -119,7 +124,8 @@ class RitualService extends ChangeNotifier {
     await _notifications.cancelAll();
 
     for (final ritual in rituals) {
-      if (ritual.scheduledTime != null && ritual.status != RitualStatus.completed) {
+      if (ritual.scheduledTime != null &&
+          ritual.status != RitualStatus.completed) {
         await _scheduleRitualNotification(ritual);
       }
     }
@@ -127,7 +133,8 @@ class RitualService extends ChangeNotifier {
 
   Future<void> _scheduleRitualNotification(RitualModel ritual) async {
     try {
-      final scheduledTime = ritual.scheduledTime!.subtract(const Duration(hours: 1));
+      final scheduledTime =
+          ritual.scheduledTime!.subtract(const Duration(hours: 1));
       if (scheduledTime.isAfter(DateTime.now())) {
         await _notifications.zonedSchedule(
           ritual.order,
@@ -145,7 +152,8 @@ class RitualService extends ChangeNotifier {
             iOS: DarwinNotificationDetails(),
           ),
           payload: 'ritual_${ritual.id}',
-          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
         );
       }
     } catch (e) {
@@ -157,5 +165,24 @@ class RitualService extends ChangeNotifier {
   void dispose() {
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> _setSource(String path) async {
+    final source = path.trim();
+    if (source.startsWith('http')) {
+      await _audioPlayer.setUrl(source);
+    } else if (source.startsWith('gs://')) {
+      await _audioPlayer.setUrl(_convertGsToHttps(source));
+    } else {
+      await _audioPlayer.setAsset(source);
+    }
+  }
+
+  String _convertGsToHttps(String gsPath) {
+    final sanitized = gsPath.replaceFirst('gs://', '');
+    final parts = sanitized.split('/');
+    final bucket = parts.first;
+    final objectPath = parts.skip(1).join('/');
+    return 'https://storage.googleapis.com/$bucket/$objectPath';
   }
 }

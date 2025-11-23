@@ -35,14 +35,14 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   Future<void> _playExplanation() async {
     try {
       final audioPath = widget.ritual.getAudioPath(widget.audioLanguage);
-      if (audioPath != null) {
-        await _audioPlayer.setAsset(audioPath);
+      if (audioPath != null && audioPath.isNotEmpty) {
+        await _setSource(audioPath);
         await _audioPlayer.play();
         setState(() {
           _isPlaying = true;
           _hasReadExplanation = true;
         });
-        
+
         // Écouter la fin de la lecture
         _audioPlayer.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
@@ -89,8 +89,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
   bool get _canMarkAsCompleted {
     return widget.ritual.status != RitualStatus.completed &&
-           widget.ritual.status != RitualStatus.overdue &&
-           (_hasReadExplanation || _hasWatchedVideo);
+        widget.ritual.status != RitualStatus.overdue &&
+        (_hasReadExplanation || _hasWatchedVideo);
   }
 
   @override
@@ -147,15 +147,15 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Explication complète du rituel
           _buildExplanationSection(),
           const SizedBox(height: 20),
-          
+
           // Boutons audio et vidéo
           _buildMediaButtons(),
           const SizedBox(height: 20),
-          
+
           // Bouton "Marquer comme fait"
           _buildMarkAsCompletedButton(),
         ],
@@ -166,7 +166,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   Widget _buildExplanationSection() {
     final steps = _getImportantSteps();
     final info = _getPracticalInfo();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -181,7 +181,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           ),
         ),
         const SizedBox(height: 20),
-        
+
         // Étapes importantes
         Container(
           padding: const EdgeInsets.all(16),
@@ -260,7 +260,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Informations pratiques
         Container(
           padding: const EdgeInsets.all(16),
@@ -301,7 +301,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -346,11 +347,11 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             label: _isPlaying ? 'Pause' : 'Écouter l\'explication',
             color: const Color(0xFF4FC3F7),
             onPressed: _isPlaying ? _pauseExplanation : _playExplanation,
-            isEnabled: widget.ritual.audioPaths.isNotEmpty,
+            isEnabled: widget.ritual.hasAudio,
           ),
         ),
         const SizedBox(width: 12),
-        
+
         // Bouton Vidéo
         Expanded(
           child: _buildMediaButton(
@@ -358,7 +359,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             label: 'Regarder la vidéo',
             color: const Color(0xFF8B5CF6),
             onPressed: _watchVideo,
-            isEnabled: widget.ritual.videoPath != null,
+            isEnabled: widget.ritual.getVideoUrl(widget.audioLanguage) != null,
           ),
         ),
       ],
@@ -380,8 +381,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: isEnabled 
-            ? color.withValues(alpha: 0.1) 
+        backgroundColor: isEnabled
+            ? color.withValues(alpha: 0.1)
             : Colors.grey.withValues(alpha: 0.1),
         foregroundColor: isEnabled ? color : Colors.grey,
         elevation: 0,
@@ -396,7 +397,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   Widget _buildMarkAsCompletedButton() {
     final isCompleted = widget.ritual.status == RitualStatus.completed;
     final isOverdue = widget.ritual.status == RitualStatus.overdue;
-    
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -406,9 +407,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           size: 24,
         ),
         label: Text(
-          isCompleted 
-              ? '✅ Rituel accompli' 
-              : isOverdue 
+          isCompleted
+              ? '✅ Rituel accompli'
+              : isOverdue
                   ? '❌ Rituel manqué'
                   : 'Marquer comme accompli',
           style: const TextStyle(
@@ -417,14 +418,14 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isCompleted 
+          backgroundColor: isCompleted
               ? const Color(0xFF10B981).withValues(alpha: 0.1)
               : isOverdue
                   ? Colors.grey.withValues(alpha: 0.1)
                   : _canMarkAsCompleted
                       ? const Color(0xFF10B981).withValues(alpha: 0.1)
                       : Colors.grey.withValues(alpha: 0.1),
-          foregroundColor: isCompleted 
+          foregroundColor: isCompleted
               ? const Color(0xFF10B981)
               : isOverdue
                   ? Colors.grey
@@ -454,7 +455,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         return 'Ce rituel fait partie intégrante du Hadj. Suivez attentivement les instructions.';
     }
   }
-  
+
   List<String> _getImportantSteps() {
     switch (widget.ritual.name.toLowerCase()) {
       case 'tawaf':
@@ -490,7 +491,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ];
     }
   }
-  
+
   Map<String, String> _getPracticalInfo() {
     switch (widget.ritual.name.toLowerCase()) {
       case 'tawaf':
@@ -518,5 +519,23 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         };
     }
   }
-}
 
+  Future<void> _setSource(String path) async {
+    final source = path.trim();
+    if (source.startsWith('http')) {
+      await _audioPlayer.setUrl(source);
+    } else if (source.startsWith('gs://')) {
+      await _audioPlayer.setUrl(_convertGsToHttps(source));
+    } else {
+      await _audioPlayer.setAsset(source);
+    }
+  }
+
+  String _convertGsToHttps(String gsPath) {
+    final sanitized = gsPath.replaceFirst('gs://', '');
+    final parts = sanitized.split('/');
+    final bucket = parts.first;
+    final objectPath = parts.skip(1).join('/');
+    return 'https://storage.googleapis.com/$bucket/$objectPath';
+  }
+}

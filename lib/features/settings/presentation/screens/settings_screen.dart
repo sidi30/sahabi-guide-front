@@ -53,7 +53,9 @@ class SettingsScreen extends ConsumerWidget {
                 if (value != null) {
                   await ref.read(settingsProvider.notifier).setThemeMode(value);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Theme changed successfully'), duration: Duration(milliseconds: 900)),
+                    const SnackBar(
+                        content: Text('Theme changed successfully'),
+                        duration: Duration(milliseconds: 900)),
                   );
                 }
               },
@@ -154,10 +156,12 @@ class SettingsScreen extends ConsumerWidget {
   String _getAudioLanguageName(
       AudioLanguage lang, AppLocalizations localizations) {
     switch (lang) {
+      case AudioLanguage.english:
+        return 'English';
       case AudioLanguage.hausa:
-        return 'ha'; //localizations.hausa;
+        return 'Hausa';
       case AudioLanguage.zarma:
-        return 'zarma';
+        return 'Zarma';
     }
   }
 }

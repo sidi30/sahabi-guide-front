@@ -40,7 +40,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             child: Column(
               children: [
                 _buildRitualContent(),
-                
+
                 // Section détaillée unifiée
                 if (_showDetails) ...[
                   const SizedBox(height: 16),
@@ -63,7 +63,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
                 if (_showVideo) ...[
                   const SizedBox(height: 16),
                   VideoPlayerWidget(
-                    videoUrl: widget.ritual.videoPath,
+                    videoUrl: widget.ritual.getVideoUrl(widget.audioLanguage),
                     ritualName: widget.ritual.name,
                   ),
                 ],
@@ -78,7 +78,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
   Widget _buildTimelineIndicator() {
     Color indicatorColor;
     IconData indicatorIcon;
-    
+
     switch (widget.ritual.status) {
       case RitualStatus.completed:
         indicatorColor = const Color(0xFF10B981); // Vert
@@ -171,7 +171,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             ],
           ),
           const SizedBox(height: 8),
-          
+
           // Description
           Text(
             widget.ritual.description,
@@ -182,7 +182,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Bouton principal d'action
           _buildMainActionButton(),
         ],
@@ -194,7 +194,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
     String statusText;
     Color backgroundColor;
     Color textColor;
-    
+
     switch (widget.ritual.status) {
       case RitualStatus.completed:
         statusText = '✅ Fait';
@@ -218,7 +218,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         textColor = const Color(0xFF374151);
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -240,7 +240,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
     final isCompleted = widget.ritual.status == RitualStatus.completed;
     final isOverdue = widget.ritual.status == RitualStatus.overdue;
     final isActive = widget.ritual.status == RitualStatus.active;
-    
+
     if (isCompleted) {
       return SizedBox(
         width: double.infinity,
@@ -260,7 +260,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         ),
       );
     }
-    
+
     if (isOverdue) {
       return SizedBox(
         width: double.infinity,
@@ -280,7 +280,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         ),
       );
     }
-    
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -300,12 +300,11 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
           _showDetails ? 'Masquer les détails' : 'Voir les détails',
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isActive 
+          backgroundColor: isActive
               ? const Color(0xFF4FC3F7).withValues(alpha: 0.1)
               : const Color(0xFF6B7280).withValues(alpha: 0.1),
-          foregroundColor: isActive 
-              ? const Color(0xFF4FC3F7)
-              : const Color(0xFF6B7280),
+          foregroundColor:
+              isActive ? const Color(0xFF4FC3F7) : const Color(0xFF6B7280),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

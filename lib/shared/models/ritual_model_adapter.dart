@@ -46,7 +46,7 @@ class RitualModelAdapter extends TypeAdapter<RitualModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    
+
     return RitualModel(
       id: fields[0] as String,
       name: fields[1] as String,
@@ -56,30 +56,31 @@ class RitualModelAdapter extends TypeAdapter<RitualModel> {
       status: fields[5] as RitualStatus,
       scheduledTime: fields[6] as DateTime?,
       completedAt: fields[7] as DateTime?,
-      estimatedDuration: fields[8] != null 
-          ? Duration(microseconds: fields[8] as int) 
-          : null,
+      estimatedDuration:
+          fields[8] != null ? Duration(microseconds: fields[8] as int) : null,
       audioPaths: (fields[9] as List?)?.cast<String>() ?? [],
       videoPath: fields[10] as String?,
       steps: (fields[11] as List?)?.cast<String>() ?? [],
-      practicalTips: fields[12] != null 
-          ? Map<String, String>.from(fields[12] as Map)
-          : {},
+      practicalTips:
+          fields[12] != null ? Map<String, String>.from(fields[12] as Map) : {},
       contentVersion: fields[13] as int?,
-      translations: fields[14] != null 
-          ? Map<String, String>.from(fields[14] as Map)
-          : {},
+      translations:
+          fields[14] != null ? Map<String, String>.from(fields[14] as Map) : {},
       tags: (fields[15] as List?)?.cast<String>() ?? [],
       isActive: fields[16] as bool? ?? false,
       nextRitualId: fields[17] as String?,
       previousRitualId: fields[18] as String?,
+      audioSources:
+          fields[19] != null ? Map<String, String>.from(fields[19] as Map) : {},
+      videoSources:
+          fields[20] != null ? Map<String, String>.from(fields[20] as Map) : {},
     );
   }
 
   @override
   void write(BinaryWriter writer, RitualModel obj) {
     writer
-      ..writeByte(19) // nombre de champs
+      ..writeByte(21) // nombre de champs
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -117,7 +118,11 @@ class RitualModelAdapter extends TypeAdapter<RitualModel> {
       ..writeByte(17)
       ..write(obj.nextRitualId)
       ..writeByte(18)
-      ..write(obj.previousRitualId);
+      ..write(obj.previousRitualId)
+      ..writeByte(19)
+      ..write(obj.audioSources)
+      ..writeByte(20)
+      ..write(obj.videoSources);
   }
 
   @override
@@ -130,4 +135,3 @@ class RitualModelAdapter extends TypeAdapter<RitualModel> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
-

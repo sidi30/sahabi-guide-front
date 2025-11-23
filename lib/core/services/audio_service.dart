@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../shared/models/dua_model.dart';
+import '../../shared/utils/language_utils.dart';
 
 enum AudioState {
   stopped,
@@ -15,7 +16,7 @@ class AudioService extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   AudioState _state = AudioState.stopped;
   DuaModel? _currentDua;
-  String _currentLanguage = 'fr';
+  String _currentLanguage = LanguageUtils.defaultLanguage;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _isLooping = false;
@@ -32,7 +33,7 @@ class AudioService extends ChangeNotifier {
   bool get isPlaying => _state == AudioState.playing;
   bool get isPaused => _state == AudioState.paused;
   bool get isLoading => _state == AudioState.loading;
-  
+
   // Expose streams for direct access
   Stream<Duration> get positionStream => _audioPlayer.positionStream;
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
@@ -63,7 +64,8 @@ class AudioService extends ChangeNotifier {
     });
 
     // Listen to player state changes
-    _playerStateSubscription = _audioPlayer.playerStateStream.listen((playerState) {
+    _playerStateSubscription =
+        _audioPlayer.playerStateStream.listen((playerState) {
       if (playerState.playing) {
         _state = AudioState.playing;
       } else if (playerState.processingState == ProcessingState.completed) {
@@ -92,21 +94,21 @@ class AudioService extends ChangeNotifier {
       final audioPath = dua.getAudioPath(selectedLanguage);
 
       if (audioPath.isEmpty) {
-        throw Exception('Aucun fichier audio disponible pour la langue $selectedLanguage');
+        throw Exception(
+            'Aucun fichier audio disponible pour la langue $selectedLanguage');
       }
 
       _currentDua = dua;
       _currentLanguage = selectedLanguage;
 
-      await _audioPlayer.setAsset(audioPath);
+      await _setSource(audioPath);
       await _audioPlayer.play();
-      
+
       // Update play count
       _currentDua = dua.copyWith(
         playCount: dua.playCount + 1,
         lastPlayedAt: DateTime.now(),
       );
-
     } catch (e) {
       _state = AudioState.error;
       _errorMessage = 'Erreur lors de la lecture: ${e.toString()}';
@@ -191,7 +193,7 @@ class AudioService extends ChangeNotifier {
   }
 
   void setLanguage(String language) {
-    _currentLanguage = language;
+    _currentLanguage = LanguageUtils.normalize(language);
     notifyListeners();
   }
 
@@ -222,5 +224,25 @@ class AudioService extends ChangeNotifier {
     _playerStateSubscription?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> _setSource(String path) async {
+    final source = path.trim();
+    if (source.startsWith('http')) {
+      await _audioPlayer.setUrl(source);
+    } else if (source.startsWith('gs://')) {
+      final httpsUrl = _convertGsToHttps(source);
+      await _audioPlayer.setUrl(httpsUrl);
+    } else {
+      await _audioPlayer.setAsset(source);
+    }
+  }
+
+  String _convertGsToHttps(String gsPath) {
+    final sanitized = gsPath.replaceFirst('gs://', '');
+    final parts = sanitized.split('/');
+    final bucket = parts.first;
+    final objectPath = parts.skip(1).join('/');
+    return 'https://storage.googleapis.com/$bucket/$objectPath';
   }
 }

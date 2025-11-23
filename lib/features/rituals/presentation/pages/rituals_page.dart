@@ -44,7 +44,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late RitualService _ritualService;
-  
+
   @override
   void initState() {
     super.initState();
@@ -153,8 +153,8 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           final ritual = sortedRituals[index];
           final isLast = index == sortedRituals.length - 1;
           final settings = ref.watch(settingsProvider);
-          final audioLanguage = settings.audioLanguage.name.toLowerCase();
-          
+          final audioLanguage = settings.audioLanguage.code;
+
           return RitualTimelineItem(
             ritual: ritual,
             isLast: isLast,
@@ -242,11 +242,10 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     );
   }
 
-
   Future<void> _markAsCompleted(RitualModel ritual) async {
     try {
       await _ritualService.markAsCompleted(ritual);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

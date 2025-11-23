@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sahabi_guide/shared/utils/language_utils.dart';
 
 enum DuaType {
   daily,
@@ -53,31 +54,40 @@ class DuaModel {
   factory DuaModel.fromJson(Map<String, dynamic> json) {
     // L'API backend retourne: id, arabicText, frenchTranslation, englishTranslation, audioUrl, ritualId, orderIndex
     // On adapte pour correspondre au modèle Flutter
-    
+
     final arabicText = json['arabicText'] ?? json['text'] ?? '';
-    final frenchTranslation = json['frenchTranslation'] ?? json['translation'] ?? '';
+    final frenchTranslation =
+        json['frenchTranslation'] ?? json['translation'] ?? '';
     final englishTranslation = json['englishTranslation'] ?? '';
     final audioUrl = json['audioUrl'] ?? json['audioPath'] ?? '';
-    
+
     // Construire les maps de traductions et d'audio
     final Map<String, String> translations = {
       'fr': frenchTranslation,
       'ar': arabicText,
       if (englishTranslation.isNotEmpty) 'en': englishTranslation,
+      ..._extractLanguageMap(json['translations']),
     };
-    
-    final Map<String, String> audioPaths = {};
+
+    final Map<String, String> audioPaths = {
+      ..._extractLanguageMap(json['audioPaths']),
+    };
     if (audioUrl.isNotEmpty) {
-      audioPaths['fr'] = audioUrl;
-      audioPaths['ar'] = audioUrl;
+      final defaultLang = LanguageUtils.normalize(json['audioLanguage']);
+      audioPaths.putIfAbsent(defaultLang, () => audioUrl);
     }
-    
+
     return DuaModel(
       id: json['id']?.toString() ?? '',
-      title: json['title'] ?? frenchTranslation.split(' ').take(5).join(' '), // Première phrase comme titre
+      title: json['title'] ??
+          frenchTranslation
+              .split(' ')
+              .take(5)
+              .join(' '), // Première phrase comme titre
       description: json['description'] ?? frenchTranslation,
       arabicText: arabicText,
-      transliteration: json['transliteration'] ?? '', // Pas disponible dans l'API actuelle
+      transliteration:
+          json['transliteration'] ?? '', // Pas disponible dans l'API actuelle
       translation: frenchTranslation,
       type: _parseDuaType(json['type']),
       audioPath: audioUrl,
@@ -86,11 +96,11 @@ class DuaModel {
       tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
       isActive: json['isActive'] ?? true,
       isFavorite: json['isFavorite'] ?? false,
-      translations: {...translations, ...?json['translations']},
-      audioPaths: {...audioPaths, ...?json['audioPaths']},
+      translations: translations,
+      audioPaths: audioPaths,
       ritualId: json['ritualId']?.toString(),
-      lastPlayedAt: json['lastPlayedAt'] != null 
-          ? DateTime.parse(json['lastPlayedAt']) 
+      lastPlayedAt: json['lastPlayedAt'] != null
+          ? DateTime.parse(json['lastPlayedAt'])
           : null,
       playCount: json['playCount'] ?? 0,
     );
@@ -167,7 +177,13 @@ class DuaModel {
   }
 
   String getAudioPath(String language) {
-    return audioPaths[language] ?? audioPath;
+    for (final code in LanguageUtils.fallbackOrder(language)) {
+      final candidate = audioPaths[code];
+      if (candidate != null && candidate.isNotEmpty) {
+        return candidate;
+      }
+    }
+    return audioPath;
   }
 
   Color getTypeColor() {
@@ -250,4 +266,17 @@ class DuaModel {
   int get hashCode {
     return id.hashCode ^ title.hashCode ^ type.hashCode;
   }
+}
+
+Map<String, String> _extractLanguageMap(dynamic source) {
+  if (source is Map) {
+    final normalized = <String, String>{};
+    source.forEach((key, value) {
+      if (value == null) return;
+      final normalizedKey = LanguageUtils.normalize(key.toString());
+      normalized[normalizedKey] = value.toString();
+    });
+    return normalized;
+  }
+  return {};
 }

@@ -5,10 +5,36 @@ import 'package:sahabi_guide/shared/constants/app_locale.dart';
 
 // Enums
 enum AppThemeMode { system, light, dark }
-enum AudioLanguage { hausa, zarma }
+
+enum AudioLanguage { english, hausa, zarma }
+
+extension AudioLanguageX on AudioLanguage {
+  String get code {
+    switch (this) {
+      case AudioLanguage.english:
+        return 'en';
+      case AudioLanguage.hausa:
+        return 'ha';
+      case AudioLanguage.zarma:
+        return 'dje';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case AudioLanguage.english:
+        return 'English';
+      case AudioLanguage.hausa:
+        return 'Hausa';
+      case AudioLanguage.zarma:
+        return 'Zarma';
+    }
+  }
+}
 
 // Supported locales
-final List<Locale> supportedLocales = AppLocale.values.map((e) => e.locale).toList();
+final List<Locale> supportedLocales =
+    AppLocale.values.map((e) => e.locale).toList();
 
 // State class
 class SettingsState {
@@ -18,7 +44,7 @@ class SettingsState {
 
   const SettingsState({
     this.themeMode = AppThemeMode.system,
-    this.audioLanguage = AudioLanguage.hausa,
+    this.audioLanguage = AudioLanguage.english,
     this.locale = AppLocale.fr, // Default to French
   });
 
@@ -51,7 +77,7 @@ class SettingsState {
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
   final SharedPreferences prefs;
-  
+
   static const _themeKey = 'theme_mode';
   static const _languageKey = 'audio_language';
   static const _localeKey = 'app_locale';
@@ -65,7 +91,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final themeIndex = prefs.getInt(_themeKey) ?? 0;
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
-      
+
       // Default to system locale if available, otherwise French
       AppLocale defaultLocale = AppLocale.fr;
       try {
@@ -77,13 +103,13 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       } catch (_) {}
 
       state = state.copyWith(
-        themeMode: themeIndex < AppThemeMode.values.length 
-            ? AppThemeMode.values[themeIndex] 
+        themeMode: themeIndex < AppThemeMode.values.length
+            ? AppThemeMode.values[themeIndex]
             : AppThemeMode.system,
-        audioLanguage: languageIndex < AudioLanguage.values.length 
-            ? AudioLanguage.values[languageIndex] 
-            : AudioLanguage.hausa,
-        locale: localeCode != null 
+        audioLanguage: languageIndex < AudioLanguage.values.length
+            ? AudioLanguage.values[languageIndex]
+            : AudioLanguage.english,
+        locale: localeCode != null
             ? AppLocale.values.firstWhere(
                 (e) => e.locale.languageCode == localeCode,
                 orElse: () => defaultLocale,
@@ -116,6 +142,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 }
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
-  throw UnimplementedError('SettingsNotifier should be overridden in main.dart');
+final settingsProvider =
+    StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
+  throw UnimplementedError(
+      'SettingsNotifier should be overridden in main.dart');
 });

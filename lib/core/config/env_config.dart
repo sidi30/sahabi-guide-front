@@ -25,10 +25,10 @@ class EnvConfig {
     Environment.development: 'http://10.0.2.2:8084',  // Android emulator
     
     // Staging / Test
-    Environment.staging: 'https://sahabi-backend-520537349678.europe-west1.run.app',
+    Environment.staging: 'https://sahabi-backend-gcobrlag7q-ew.a.run.app',
     
     // Production - Google Cloud Run
-    Environment.production: 'https://sahabi-backend-520537349678.europe-west1.run.app',
+    Environment.production: 'https://sahabi-backend-gcobrlag7q-ew.a.run.app',
   };
 
   // ⚠️ KEYCLOAK NON UTILISÉ DANS L'APP MOBILE
