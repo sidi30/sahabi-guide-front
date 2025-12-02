@@ -49,20 +49,20 @@ android {
 
     // Configuration de signing pour release
     signingConfigs {
-        // Lire les propriétés de signing depuis local.properties
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        // Lire les propriétés de signing depuis key.properties
+        val keystoreProperties = Properties()
+        val keystorePropertiesFile = rootProject.file("key.properties")
+        if (keystorePropertiesFile.exists()) {
+            keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
         }
         
         create("release") {
-            val keystoreFile = localProperties.getProperty("storeFile")
+            val keystoreFile = keystoreProperties.getProperty("storeFile")
             if (keystoreFile != null) {
-                storeFile = file(keystoreFile)
-                storePassword = localProperties.getProperty("storePassword")
-                keyAlias = localProperties.getProperty("keyAlias")
-                keyPassword = localProperties.getProperty("keyPassword")
+                storeFile = rootProject.file(keystoreFile)
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
             }
         }
     }
@@ -87,13 +87,13 @@ android {
             )
             
             // Utiliser la config de signing release si disponible, sinon debug
-            val localProperties = Properties()
-            val localPropertiesFile = rootProject.file("local.properties")
-            if (localPropertiesFile.exists()) {
-                localPropertiesFile.inputStream().use { localProperties.load(it) }
+            val keystoreProperties = Properties()
+            val keystorePropertiesFile = rootProject.file("key.properties")
+            if (keystorePropertiesFile.exists()) {
+                keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
             }
             
-            signingConfig = if (localProperties.getProperty("storeFile") != null) {
+            signingConfig = if (keystoreProperties.getProperty("storeFile") != null) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")

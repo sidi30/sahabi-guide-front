@@ -87,7 +87,7 @@ class DuaModel {
       description: json['description'] ?? frenchTranslation,
       arabicText: arabicText,
       transliteration:
-          json['transliteration'] ?? '', // Pas disponible dans l'API actuelle
+          json['phoneticText'] ?? json['transliteration'] ?? '', // Support phoneticText et transliteration
       translation: frenchTranslation,
       type: _parseDuaType(json['type']),
       audioPath: audioUrl,

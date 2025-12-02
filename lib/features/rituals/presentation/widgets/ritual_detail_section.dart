@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/models/ritual_model.dart';
 
 class RitualDetailSection extends StatefulWidget {
@@ -66,11 +67,56 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     });
   }
 
-  void _watchVideo() {
-    setState(() {
-      _hasWatchedVideo = true;
-    });
-    widget.onWatchVideo?.call();
+  Future<void> _watchVideo() async {
+    final videoUrl = widget.ritual.getVideoUrl(widget.audioLanguage);
+    
+    if (videoUrl == null || videoUrl.isEmpty) {
+      _showMessage('Aucune vidéo disponible pour ce rituel');
+      return;
+    }
+
+    try {
+      final uri = Uri.parse(videoUrl);
+      
+      // Extraire l'ID YouTube
+      final youtubeId = _extractYouTubeId(videoUrl);
+      
+      // Essayer d'ouvrir dans l'app YouTube
+      if (youtubeId != null) {
+        final youtubeAppUri = Uri.parse('vnd.youtube:$youtubeId');
+        
+        if (await canLaunchUrl(youtubeAppUri)) {
+          await launchUrl(youtubeAppUri, mode: LaunchMode.externalApplication);
+          setState(() {
+            _hasWatchedVideo = true;
+          });
+          widget.onWatchVideo?.call();
+          return;
+        }
+      }
+      
+      // Fallback: ouvrir dans le navigateur
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        setState(() {
+          _hasWatchedVideo = true;
+        });
+        widget.onWatchVideo?.call();
+      } else {
+        _showMessage('Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.');
+      }
+    } catch (e) {
+      _showMessage('Erreur lors de l\'ouverture de la vidéo: $e');
+    }
+  }
+  
+  /// Extrait l'ID de la vidéo YouTube depuis l'URL
+  String? _extractYouTubeId(String url) {
+    final regex = RegExp(
+      r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?\/]+)',
+    );
+    final match = regex.firstMatch(url);
+    return match?.group(1);
   }
 
   void _markAsCompleted() {
