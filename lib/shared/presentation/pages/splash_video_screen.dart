@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/di/injection_container.dart';
+import '../../../core/config/splash_config.dart';
 import '../../../shared/services/storage_service.dart';
 
 /// Écran de splash vidéo qui s'affiche au premier lancement
@@ -113,7 +114,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
     ]);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white, // Blanc au lieu de noir pour une meilleure transition
       body: Stack(
         children: [
           // Vidéo ou fallback
@@ -125,8 +126,8 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
                     : _buildLoadingIndicator(),
           ),
           
-          // Bouton Skip en haut à droite
-          if (_isInitialized && !_hasError)
+          // Bouton Skip en haut à droite (si activé dans la config)
+          if (_isInitialized && !_hasError && SplashConfig.enableSkipButton)
             Positioned(
               top: MediaQuery.of(context).padding.top + 16,
               right: 16,
@@ -172,23 +173,37 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
   }
 
   Widget _buildVideoPlayer() {
-    // Vidéo en plein écran (couvre tout l'écran)
+    // Vidéo en plein écran avec aspect ratio correct (évite le flou)
     return SizedBox.expand(
       child: FittedBox(
         fit: BoxFit.cover,
+        alignment: Alignment.center,
         child: SizedBox(
           width: _controller.value.size.width,
           height: _controller.value.size.height,
-          child: VideoPlayer(_controller),
+          child: AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildLoadingIndicator() {
-    // Écran blanc simple pendant le chargement (pas de logo)
-    return const Center(
-      child: SizedBox.shrink(), // Rien à afficher
+    // Logo en haute qualité pendant le chargement (évite l'écran noir)
+    return Center(
+      child: Image.asset(
+        'assets/images/sahabi_logo_1024.png',
+        width: 200,
+        height: 200,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback simple
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -196,24 +211,37 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Logo Sahabi en cas d'erreur
+        // Logo Sahabi en haute résolution (1024x1024 au lieu de 192x192)
         Image.asset(
-          'assets/favicon/web-app-manifest-192x192.png',
-          width: 150,
-          height: 150,
+          'assets/images/sahabi_logo_1024.png',
+          width: 200,
+          height: 200,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high, // Qualité maximale
           errorBuilder: (context, error, stackTrace) {
-            return Container(
-              width: 150,
-              height: 150,
-              decoration: const BoxDecoration(
-                color: Color(0xFF1D5D4E),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.location_on,
-                size: 80,
-                color: Colors.white,
-              ),
+            // Fallback : essayer la version 512
+            return Image.asset(
+              'assets/images/sahabi_logo_512.png',
+              width: 200,
+              height: 200,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+              errorBuilder: (context, error2, stackTrace2) {
+                // Dernier fallback : icône générique
+                return Container(
+                  width: 200,
+                  height: 200,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1D5D4E),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.location_on,
+                    size: 100,
+                    color: Colors.white,
+                  ),
+                );
+              },
             );
           },
         ),

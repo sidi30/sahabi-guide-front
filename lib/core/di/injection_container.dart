@@ -118,8 +118,13 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => AudioPlayer());
   sl.registerLazySingleton(() => Connectivity());
 
-  // Core
-  sl.registerLazySingleton(() => DioClient(sl()));
+  // Services
+  sl.registerLazySingleton<StorageService>(
+    () => StorageService(sl(), sl()),
+  );
+
+  // Core (après StorageService car DioClient en dépend)
+  sl.registerLazySingleton(() => DioClient(sl(), storageService: sl()));
   sl.registerLazySingleton(() => CacheService(sl<SharedPreferences>()));
   
   // Hive Cache Service
@@ -131,11 +136,6 @@ Future<void> initializeDependencies() async {
   final connectivityService = ConnectivityService(sl<Connectivity>());
   await connectivityService.initialize();
   sl.registerLazySingleton(() => connectivityService);
-
-  // Services
-  sl.registerLazySingleton<StorageService>(
-    () => StorageService(sl(), sl()),
-  );
 
   sl.registerLazySingleton<AudioService>(
     () => AudioService(),

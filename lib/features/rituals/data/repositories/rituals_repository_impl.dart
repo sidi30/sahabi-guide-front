@@ -15,7 +15,7 @@ class RitualsRepositoryImpl implements RitualsRepository {
   });
 
   @override
-  Future<List<RitualModel>> getRituals() async {
+  Future<List<RitualModel>> getRituals({String? userId}) async {
     // Strategy: Offline-first with API sync
     // 1. Load from cache immediately (fast UI)
     // 2. Try to fetch from API (latest data)
@@ -35,7 +35,7 @@ class RitualsRepositoryImpl implements RitualsRepository {
     // Step 2: Try to fetch fresh data from API
     if (remoteDataSource != null) {
       try {
-        final remoteData = await remoteDataSource!.getRituals();
+        final remoteData = await remoteDataSource!.getRituals(userId: userId);
         final rituals = remoteData.map((data) => RitualModel.fromJson(data)).toList();
         
         // Déterminer la version de contenu maximale (pour cache)

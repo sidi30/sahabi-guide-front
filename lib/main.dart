@@ -98,25 +98,23 @@ Future<void> main() async {
   // INITIALISATION COMPLÈTE AVANT LE DÉMARRAGE
   // Nécessaire pour que GetIt soit prêt avant l'utilisation
   
-  // 1. Hive (nécessaire pour StorageService)
-  await Hive.initFlutter();
-
-  // 2. SharedPreferences (très rapide)
+  // 1. SharedPreferences (très rapide)
   final prefs = await SharedPreferences.getInstance();
 
-  // 3. Services légers
+  // 2. Services légers
   final settingsNotifier = SettingsNotifier(prefs: prefs);
   final languageService = LanguageService(prefs);
 
-  // 4. Initialiser TOUTES les dépendances GetIt (critique pour l'auth)
+  // 3. Initialiser TOUTES les dépendances GetIt (critique pour l'auth)
+  //    ⚠️ Hive.initFlutter() est appelé dans initializeDependencies()
   try {
     await initializeDependencies();
-    debugPrint('✅ Dépendances GetIt initialisées');
+    debugPrint('✅ Dépendances GetIt initialisées (Hive inclus)');
   } catch (e) {
     debugPrint('❌ Erreur initialisation GetIt: $e');
   }
 
-  // 5. Charger les settings
+  // 4. Charger les settings
   try {
     await settingsNotifier.loadSettings();
     debugPrint('✅ Settings chargés');

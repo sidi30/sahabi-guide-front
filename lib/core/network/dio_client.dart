@@ -1,10 +1,15 @@
 import 'package:dio/dio.dart';
 import '../utils/constants.dart';
+import '../../shared/services/storage_service.dart';
+import '../config/env_config.dart';
+import '../error/api_exceptions.dart';
+import '../utils/app_logger.dart';
 
 class DioClient {
   late final Dio _dio;
+  final StorageService? _storageService;
 
-  DioClient(Dio dio) {
+  DioClient(Dio dio, {StorageService? storageService}) : _storageService = storageService {
     _dio = dio;
 
     // Permet de surcharger l'URL de base via --dart-define=API_BASE_URL=...
@@ -23,13 +28,15 @@ class DioClient {
       },
     );
 
-    // Add interceptors
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-      requestHeader: true,
-      responseHeader: false,
-    ));
+    // Add interceptors - Conditional logging based on environment
+    if (EnvConfig.enableDioDebugMode) {
+      _dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        requestHeader: true,
+        responseHeader: false,
+      ));
+    }
 
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -42,9 +49,16 @@ class DioClient {
           handler.next(options);
         },
         onError: (error, handler) {
-          // Ne pas traiter l'erreur ici, laisser les couches supérieures gérer
-          // _handleError(error);
-          handler.next(error);
+          // Gérer les erreurs de manière centralisée
+          final apiException = _handleError(error);
+          handler.reject(
+            DioException(
+              requestOptions: error.requestOptions,
+              error: apiException,
+              type: error.type,
+              response: error.response,
+            ),
+          );
         },
       ),
     );
@@ -127,39 +141,105 @@ class DioClient {
   }
 
   Future<String?> _getAuthToken() async {
-    // This would typically get the token from secure storage
-    // For now, we'll return null - this should be implemented with proper token management
-    return null;
+    if (_storageService == null) {
+      return null;
+    }
+    
+    try {
+      // Récupérer le token depuis le stockage sécurisé
+      final token = await _storageService!.getSecurely('auth_token');
+      return token;
+    } catch (e) {
+      // En cas d'erreur, retourner null et laisser l'app gérer
+      return null;
+    }
   }
 
-  void _handleError(DioException error) {
+  ApiException _handleError(DioException error) {
+    // Logger l'erreur en mode debug
+    if (EnvConfig.enableDetailedLogs) {
+      AppLogger.error('API Error: ${error.type} - ${error.message}');
+      if (error.response != null) {
+        AppLogger.error('Status Code: ${error.response?.statusCode}');
+        AppLogger.error('Response: ${error.response?.data}');
+      }
+    }
+
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        throw Exception('Timeout de connexion');
+        return TimeoutException('Délai de connexion dépassé. Veuillez réessayer.');
+
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
-        if (statusCode == 401) {
-          throw Exception('Non autorisé');
-        } else if (statusCode == 403) {
-          throw Exception('Accès interdit');
-        } else if (statusCode == 404) {
-          throw Exception('Ressource non trouvée');
-        } else if (statusCode == 500) {
-          throw Exception('Erreur serveur');
-        } else {
-          throw Exception('Erreur HTTP: $statusCode');
+        final responseData = error.response?.data;
+        
+        // Extraire le message d'erreur du backend si disponible
+        String? backendMessage;
+        if (responseData is Map<String, dynamic>) {
+          backendMessage = responseData['message'] ?? responseData['error'];
         }
+
+        switch (statusCode) {
+          case 400:
+            return ValidationException(
+              backendMessage ?? 'Données invalides',
+              errors: responseData is Map<String, dynamic> 
+                  ? responseData['errors'] 
+                  : null,
+            );
+          case 401:
+            return UnauthorizedException(
+              backendMessage ?? 'Non autorisé. Veuillez vous reconnecter.',
+            );
+          case 403:
+            return ForbiddenException(
+              backendMessage ?? 'Accès interdit.',
+            );
+          case 404:
+            return NotFoundException(
+              backendMessage ?? 'Ressource non trouvée.',
+            );
+          case 422:
+            return ValidationException(
+              backendMessage ?? 'Erreur de validation',
+              errors: responseData is Map<String, dynamic> 
+                  ? responseData['errors'] 
+                  : null,
+            );
+          case 500:
+          case 502:
+          case 503:
+            return ServerException(
+              backendMessage ?? 'Erreur serveur. Veuillez réessayer plus tard.',
+            );
+          default:
+            return UnknownException(
+              backendMessage ?? 'Erreur HTTP: $statusCode',
+              error,
+            );
+        }
+
       case DioExceptionType.cancel:
-        throw Exception('Requête annulée');
+        return CancelException('Requête annulée.');
+
       case DioExceptionType.connectionError:
-        throw Exception('Erreur de connexion');
+        return NetworkException(
+          'Erreur de connexion. Vérifiez votre connexion internet.',
+        );
+
       case DioExceptionType.badCertificate:
-        throw Exception('Certificat invalide');
+        return CertificateException(
+          'Certificat SSL invalide. Connexion non sécurisée.',
+        );
+
       case DioExceptionType.unknown:
       default:
-        throw Exception('Erreur inconnue: ${error.message}');
+        return UnknownException(
+          'Erreur inconnue: ${error.message ?? "Non spécifiée"}',
+          error,
+        );
     }
   }
 }

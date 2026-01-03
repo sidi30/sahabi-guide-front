@@ -80,5 +80,14 @@ class RitualsLocalDataSourceHive implements RitualsLocalDataSource {
       return false;
     }
   }
+
+  @override
+  Future<DateTime?> getLastUpdateTime(String key) async {
+    try {
+      return await _hiveCacheService.getLastUpdateTime(key);
+    } catch (e) {
+      return null;
+    }
+  }
 }
 

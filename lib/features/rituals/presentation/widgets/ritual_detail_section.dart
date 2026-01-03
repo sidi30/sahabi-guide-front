@@ -98,10 +98,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
       // Fallback: ouvrir dans le navigateur
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-        setState(() {
-          _hasWatchedVideo = true;
-        });
-        widget.onWatchVideo?.call();
+    setState(() {
+      _hasWatchedVideo = true;
+    });
+    widget.onWatchVideo?.call();
       } else {
         _showMessage('Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.');
       }

@@ -8,7 +8,7 @@ class RitualsRemoteDataSource {
 
   RitualsRemoteDataSource(this._dioClient, this._storageService);
 
-  Future<List<Map<String, dynamic>>> getRituals() async {
+  Future<List<Map<String, dynamic>>> getRituals({String? userId}) async {
     try {
       // Get auth token if available
       final token = await _storageService.getSecurely('auth_token');
@@ -18,8 +18,15 @@ class RitualsRemoteDataSource {
         options.headers = {'Authorization': 'Bearer $token'};
       }
 
+      // Build query parameters for filtering by pilgrimage type
+      Map<String, dynamic>? queryParameters;
+      if (userId != null && userId.isNotEmpty) {
+        queryParameters = {'userId': userId};
+      }
+
       final response = await _dioClient.get(
         '/api/v1/rituals',
+        queryParameters: queryParameters,
         options: options,
       );
 

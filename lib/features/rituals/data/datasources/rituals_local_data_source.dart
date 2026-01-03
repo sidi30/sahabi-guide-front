@@ -11,6 +11,7 @@ abstract class RitualsLocalDataSource {
   Future<void> clearCache();
   Future<RitualModel?> getRitualById(String id);
   Future<bool> ritualsNeedUpdate(int? serverContentVersion);
+  Future<DateTime?> getLastUpdateTime(String key);
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
@@ -161,5 +162,12 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
     } catch (e) {
       return true;
     }
+  }
+
+  @override
+  Future<DateTime?> getLastUpdateTime(String key) async {
+    // CacheService basique n'a pas de timestamps détaillés
+    // Retourner null pour forcer un refresh
+    return null;
   }
 }

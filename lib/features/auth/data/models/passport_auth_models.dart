@@ -90,6 +90,7 @@ class PilgrimProfile {
   final String? email;
   final String? role;
   final bool? enabled;
+  final String? pilgrimageType; // HAJJ ou OMRA
 
   PilgrimProfile({
     this.id,
@@ -101,6 +102,7 @@ class PilgrimProfile {
     this.email,
     this.role,
     this.enabled,
+    this.pilgrimageType,
   });
 
   factory PilgrimProfile.fromJson(Map<String, dynamic> json) {
@@ -114,6 +116,7 @@ class PilgrimProfile {
       email: json['email']?.toString(),
       role: json['role']?.toString(),
       enabled: json['enabled'] as bool?,
+      pilgrimageType: json['pilgrimageType']?.toString(),
     );
   }
 
@@ -128,6 +131,7 @@ class PilgrimProfile {
       'email': email,
       'role': role,
       'enabled': enabled,
+      'pilgrimageType': pilgrimageType,
     };
   }
 }

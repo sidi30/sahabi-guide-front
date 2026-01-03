@@ -18,13 +18,18 @@ class AuthGuard {
     return null;
   }
   
-  /// Liste des routes protégées
+  /// Liste des routes protégées (nécessitent une authentification)
   static const List<String> protectedRoutes = [
-    '/profile',
-    '/health',
-    '/map',
-    '/connectivity',
-    '/pilgrim-profile',
+    '/home',              // Dashboard principal
+    '/profile',           // Profil utilisateur
+    '/pilgrim-profile',   // Profil pèlerin détaillé
+    '/health',            // Profil de santé
+    '/map',               // Carte et géolocalisation
+    '/connectivity',      // Connectivité eSIM
+    '/alerts',            // Alertes
+    '/emergency-contacts', // Contacts d'urgence
+    '/bot',               // Chat bot
+    '/rituals/timeline',  // Timeline des rituels (nécessite user pour filtrage Hajj/Omra)
   ];
   
   /// Vérifie si une route nécessite une authentification

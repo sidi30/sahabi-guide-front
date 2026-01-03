@@ -54,7 +54,7 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
   }
 
   @override
-  Future<List<RitualModel>> getRituals({bool forceRefresh = false}) async {
+  Future<List<RitualModel>> getRituals({bool forceRefresh = false, String? userId}) async {
     // Stratégie offline-first avec synchronisation intelligente:
     // 1. Charger depuis le cache immédiatement (UI rapide)
     // 2. Si connecté et forceRefresh ou cache obsolète, fetch depuis API
@@ -83,7 +83,7 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
       // Étape 2: Synchroniser avec le backend si nécessaire
       if (remoteDataSource != null && (forceRefresh || cachedRituals.isEmpty)) {
         developer.log('Fetching rituals from API', name: 'RitualsRepository');
-        final freshRituals = await _fetchAndCacheRituals();
+        final freshRituals = await _fetchAndCacheRituals(userId: userId);
         return freshRituals;
       }
 
@@ -102,13 +102,13 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
   }
 
   /// Récupère les rituels depuis l'API et les met en cache
-  Future<List<RitualModel>> _fetchAndCacheRituals() async {
+  Future<List<RitualModel>> _fetchAndCacheRituals({String? userId}) async {
     if (remoteDataSource == null) {
       return await localDataSource.getRituals();
     }
 
     try {
-      final remoteData = await remoteDataSource!.getRituals();
+      final remoteData = await remoteDataSource!.getRituals(userId: userId);
       final rituals = remoteData.map((data) => RitualModel.fromJson(data)).toList();
 
       // Déterminer la version de contenu maximale
@@ -154,30 +154,52 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
 
   @override
   Future<List<DuaModel>> getDuas({bool forceRefresh = false}) async {
-    // Stratégie similaire aux rituels
+    // Stratégie de cache intelligent pour les duas
     List<DuaModel> cachedDuas = [];
 
     try {
-      // Charger depuis le cache
+      // 1. Charger depuis le cache local
       cachedDuas = await localDataSource.getDuas();
       developer.log(
         'Loaded ${cachedDuas.length} duas from cache',
         name: 'RitualsRepository',
       );
 
-      // Si pas de connexion, retourner le cache
+      // 2. Si pas de connexion internet, retourner le cache (même vide)
       if (connectivityService != null && !connectivityService!.isConnected) {
         developer.log('No connection, using cached duas', name: 'RitualsRepository');
         return cachedDuas;
       }
 
-      // Synchroniser avec le backend si nécessaire
-      if (remoteDataSource != null && (forceRefresh || cachedDuas.isEmpty)) {
-        developer.log('Fetching duas from API', name: 'RitualsRepository');
-        final freshDuas = await _fetchAndCacheDuas();
-        return freshDuas;
+      // 3. Décider si on doit fetch depuis l'API
+      final shouldFetch = remoteDataSource != null && (
+        forceRefresh ||                    // Refresh forcé
+        cachedDuas.isEmpty ||              // Cache vide
+        await _isCacheExpired('duas')      // Cache expiré (> 24h)
+      );
+
+      if (shouldFetch) {
+        developer.log('Fetching duas from API (force=$forceRefresh, empty=${cachedDuas.isEmpty})', 
+                      name: 'RitualsRepository');
+        try {
+          final freshDuas = await _fetchAndCacheDuas();
+          developer.log('✅ Successfully fetched ${freshDuas.length} duas from API', 
+                        name: 'RitualsRepository');
+          return freshDuas;
+        } catch (e) {
+          developer.log('⚠️ API fetch failed: $e, falling back to cache', 
+                        name: 'RitualsRepository');
+          // Erreur API : retourner le cache si disponible
+          if (cachedDuas.isNotEmpty) {
+            return cachedDuas;
+          }
+          rethrow;
+        }
       }
 
+      // 4. Retourner le cache s'il est valide et récent
+      developer.log('Using cached duas (${cachedDuas.length} items)', 
+                    name: 'RitualsRepository');
       return cachedDuas;
     } catch (e) {
       developer.log('Error in getDuas: $e', name: 'RitualsRepository');
@@ -185,6 +207,29 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
         return cachedDuas;
       }
       rethrow;
+    }
+  }
+
+  /// Vérifie si le cache est expiré (durée de vie : 24h pour les duas)
+  Future<bool> _isCacheExpired(String key) async {
+    try {
+      // Les duas changent rarement, cache de 24h
+      final cacheValidity = const Duration(hours: 24);
+      final lastUpdate = await localDataSource.getLastUpdateTime(key);
+      
+      if (lastUpdate == null) {
+        return true; // Pas de date de mise à jour = expiré
+      }
+      
+      final isExpired = DateTime.now().difference(lastUpdate) > cacheValidity;
+      if (isExpired) {
+        developer.log('Cache expired for $key (last update: $lastUpdate)', 
+                      name: 'RitualsRepository');
+      }
+      return isExpired;
+    } catch (e) {
+      // En cas d'erreur, considérer comme expiré pour forcer un refresh
+      return true;
     }
   }
 

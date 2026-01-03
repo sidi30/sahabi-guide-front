@@ -7,8 +7,8 @@ class GetRitualsUseCase {
 
   GetRitualsUseCase(this.repository);
 
-  Future<List<RitualModel>> call() async {
-    return await repository.getRituals();
+  Future<List<RitualModel>> call({String? userId}) async {
+    return await repository.getRituals(userId: userId);
   }
 
   Future<List<DuaModel>> getDuas() async {
