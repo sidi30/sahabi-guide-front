@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/emergency_contact_model.dart';
 
 class AddEmergencyContactDialog extends StatefulWidget {
@@ -59,7 +59,8 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.contact != null;
-    
+    final primaryColor = context.primaryColor;
+
     return AlertDialog(
       title: Text(isEditing ? 'Modifier le contact' : 'Ajouter un contact'),
       content: SingleChildScrollView(
@@ -83,9 +84,9 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
                   return null;
                 },
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Téléphone
               TextFormField(
                 controller: _phoneController,
@@ -103,9 +104,9 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
                   return null;
                 },
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Relation
               DropdownButtonFormField<String>(
                 value: _selectedRelation,
@@ -124,9 +125,9 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
                   });
                 },
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Contact principal
               CheckboxListTile(
                 title: const Text('Contact principal'),
@@ -138,7 +139,7 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
                   });
                 },
                 controlAffinity: ListTileControlAffinity.leading,
-                activeColor: AppColors.primary,
+                activeColor: primaryColor,
               ),
             ],
           ),
@@ -152,7 +153,7 @@ class _AddEmergencyContactDialogState extends State<AddEmergencyContactDialog> {
         ElevatedButton(
           onPressed: _saveContact,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: primaryColor,
             foregroundColor: Colors.white,
           ),
           child: Text(isEditing ? 'Modifier' : 'Ajouter'),

@@ -8,7 +8,7 @@ class AppConstants {
   
   // API Constants
   // Production URL
-  static const String _apiBaseUrlProduction = 'https://sahabi-backend-520537349678.europe-west1.run.app';
+  static const String _apiBaseUrlProduction = 'https://46.224.193.109';
   // Pour émulateur Android: utiliser 10.0.2.2 au lieu de localhost
   // Pour téléphone physique: utiliser l'IP locale de votre PC (ex: http://192.168.1.X:8084)
   // Pour Web: utiliser localhost

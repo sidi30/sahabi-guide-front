@@ -18,19 +18,20 @@ class AuthGuard {
     return null;
   }
   
-  /// Liste des routes protégées (nécessitent une authentification)
+  /// Liste des routes protégées (nécessitent une authentification pèlerin)
+  /// Les autres routes sont accessibles aux visiteurs
   static const List<String> protectedRoutes = [
-    '/home',              // Dashboard principal
-    '/profile',           // Profil utilisateur
-    '/pilgrim-profile',   // Profil pèlerin détaillé
-    '/health',            // Profil de santé
-    '/map',               // Carte et géolocalisation
-    '/connectivity',      // Connectivité eSIM
-    '/alerts',            // Alertes
-    '/emergency-contacts', // Contacts d'urgence
-    '/bot',               // Chat bot
-    '/rituals/timeline',  // Timeline des rituels (nécessite user pour filtrage Hajj/Omra)
+    '/profile',           // Profil utilisateur - données personnelles
+    '/pilgrim-profile',   // Profil pèlerin détaillé - données personnelles
+    '/alerts',            // Alertes - notifications personnelles
+    '/emergency-contacts', // Contacts d'urgence - données personnelles
+    '/bot-debug',         // Debug bot - admin seulement
   ];
+  
+  // Routes accessibles aux visiteurs (en lecture seule):
+  // - /health - Informations santé générales (pas de données perso)
+  // - /connectivity - Voir les offres eSIM (pas d'achat sans compte)
+  // - /map - Carte interactive avec POI (lieux sacrés, services)
   
   /// Vérifie si une route nécessite une authentification
   static bool isProtectedRoute(String path) {

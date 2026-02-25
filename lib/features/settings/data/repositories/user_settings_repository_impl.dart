@@ -1,3 +1,4 @@
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/user_settings_repository.dart';
 import '../datasources/user_settings_local_data_source.dart';
 import '../datasources/user_settings_remote_data_source.dart';
@@ -58,7 +59,7 @@ class UserSettingsRepositoryImpl implements UserSettingsRepository {
       final settings = await remoteDataSource.getUserSettings(token);
       await localDataSource.cacheSettings(settings);
     } catch (e) {
-      print('Erreur lors du rafraîchissement des paramètres: $e');
+      AppLogger.error('Erreur lors du rafraîchissement des paramètres', error: e);
     }
   }
 

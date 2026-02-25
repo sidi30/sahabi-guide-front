@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/injection_container.dart';
-import '../../../core/config/splash_config.dart';
 import '../../../shared/services/storage_service.dart';
-import 'splash_video_screen.dart';
 import 'splash_simple_screen.dart';
 
-/// Wrapper intelligent - vérifie si la vidéo a déjà été vue
-/// Affiche la vidéo uniquement au PREMIER lancement
+/// Écran de splash intelligent avec animation élégante
+/// Affiche uniquement lors de la première connexion
 class SplashWrapper extends StatefulWidget {
   const SplashWrapper({super.key});
 
@@ -18,7 +16,7 @@ class SplashWrapper extends StatefulWidget {
 
 class _SplashWrapperState extends State<SplashWrapper> {
   bool _isChecking = true;
-  bool _shouldShowVideo = false;
+  bool _shouldShowSplash = false;
 
   @override
   void initState() {
@@ -29,34 +27,23 @@ class _SplashWrapperState extends State<SplashWrapper> {
   Future<void> _checkFirstLaunch() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final hasSeenIntro = prefs.getBool('intro_video_shown') ?? false;
+      final hasSeenIntro = prefs.getBool('intro_shown') ?? false;
 
       if (!mounted) return;
 
-      if (SplashConfig.debugLogs) {
-        debugPrint('🎬 Splash - Première connexion: ${!hasSeenIntro}');
-        debugPrint('🎬 Splash - Type configuré: ${SplashConfig.currentType}');
-      }
-
       if (hasSeenIntro) {
         // Intro déjà vue, rediriger directement
-        if (SplashConfig.debugLogs) {
-          debugPrint('✅ Splash - Intro déjà vue, redirection immédiate');
-        }
         await _navigateToNextScreen();
       } else {
-        // Première fois, montrer l'intro (vidéo ou simple)
-        if (SplashConfig.debugLogs) {
-          debugPrint('🎬 Splash - Première connexion détectée, affichage intro');
-        }
+        // Première fois, montrer l'animation splash
         setState(() {
-          _shouldShowVideo = true;
+          _shouldShowSplash = true;
           _isChecking = false;
         });
       }
     } catch (e) {
       debugPrint('❌ Erreur vérification première connexion: $e');
-      // En cas d'erreur, ne pas montrer l'intro
+      // En cas d'erreur, rediriger directement
       if (mounted) {
         await _navigateToNextScreen();
       }
@@ -67,15 +54,19 @@ class _SplashWrapperState extends State<SplashWrapper> {
     if (!mounted) return;
 
     try {
+      final prefs = await SharedPreferences.getInstance();
       final storageService = sl<StorageService>();
       final authToken = await storageService.getSecurely('auth_token');
+      final isVisitor = prefs.getBool('is_visitor') ?? false;
 
       if (!mounted) return;
 
-      if (authToken == null) {
-        context.go('/auth-choice');
-      } else {
+      // Si authentifié ou visiteur enregistré, aller à l'accueil
+      if (authToken != null || isVisitor) {
         context.go('/home');
+      } else {
+        // Sinon, aller au choix pèlerin/visiteur
+        context.go('/auth-choice');
       }
     } catch (e) {
       debugPrint('❌ Erreur navigation: $e');
@@ -97,14 +88,9 @@ class _SplashWrapperState extends State<SplashWrapper> {
       );
     }
 
-    if (_shouldShowVideo) {
-      // Première fois : montrer l'intro (vidéo ou simple selon config)
-      switch (SplashConfig.currentType) {
-        case SplashType.video:
-          return const SplashVideoScreen();
-        case SplashType.simple:
-          return const SplashSimpleScreen();
-      }
+    if (_shouldShowSplash) {
+      // Première fois : montrer l'animation élégante
+      return const SplashSimpleScreen();
     }
 
     // Ne devrait jamais arriver ici (navigation déjà effectuée)

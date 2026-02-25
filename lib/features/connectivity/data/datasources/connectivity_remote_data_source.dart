@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/connectivity_plan_model.dart';
 import '../models/connectivity_subscription_model.dart';
 import '../models/connectivity_topup_model.dart';
@@ -30,7 +31,7 @@ class ConnectivityRemoteDataSourceImpl implements ConnectivityRemoteDataSource {
         return Options(headers: {'Authorization': 'Bearer $token'});
       }
     } catch (e) {
-      print('Erreur lors de la récupération du token: $e');
+      AppLogger.error('Erreur lors de la récupération du token', error: e);
     }
     return null;
   }

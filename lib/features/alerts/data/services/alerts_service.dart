@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../shared/models/alert_model.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/app_logger.dart';
 
 class AlertsService {
   final DioClient _dioClient;
@@ -141,7 +142,7 @@ class AlertsService {
       //   ),
       // );
       
-      print('Alerte $alertId marquée comme lue');
+      AppLogger.debug('Alerte $alertId marquée comme lue');
     } catch (e) {
       throw Exception('Erreur lors du marquage comme lu: $e');
     }
@@ -164,7 +165,7 @@ class AlertsService {
       //   ),
       // );
       
-      print('Alerte $alertId résolue');
+      AppLogger.debug('Alerte $alertId résolue');
     } catch (e) {
       throw Exception('Erreur lors de la résolution: $e');
     }

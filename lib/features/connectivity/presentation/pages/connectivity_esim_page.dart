@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 import '../../data/models/connectivity_plan_model.dart';
 import '../../data/models/connectivity_subscription_model.dart';
@@ -47,13 +47,13 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Internet & eSIM'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
+          indicatorColor: ref.colors.textOnPrimary,
+          labelColor: ref.colors.textOnPrimary,
+          unselectedLabelColor: ref.colors.textOnPrimary.withValues(alpha: 0.7),
           tabs: const [
             Tab(text: 'Forfaits', icon: Icon(Icons.sim_card)),
             Tab(text: 'Mes Abonnements', icon: Icon(Icons.wifi)),
@@ -227,7 +227,7 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
           mainAxisSize: MainAxisSize.min,
           children: topupOptions
               .map((option) => ListTile(
-                    leading: const Icon(Icons.data_usage, color: AppColors.primary),
+                    leading: Icon(Icons.data_usage, color: ref.colors.primary),
                     title: Text('${option['gb']} GB'),
                     subtitle: Text('${option['price']} SAR'),
                     onTap: () async {
@@ -270,42 +270,43 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
 }
 
 // Info Banner Widget
-class _InfoBanner extends StatelessWidget {
+class _InfoBanner extends ConsumerWidget {
   const _InfoBanner();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withValues(alpha: 0.8), AppColors.secondary.withValues(alpha: 0.8)],
+          colors: [colors.primary.withValues(alpha: 0.8), colors.secondary.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.white, size: 24),
-              SizedBox(width: 8),
+              Icon(Icons.info_outline, color: colors.textOnPrimary, size: 24),
+              const SizedBox(width: 8),
               Text(
                 'Internet & eSIM',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colors.textOnPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Restez connecté pendant votre pèlerinage avec nos forfaits internet et eSIM.',
-            style: TextStyle(color: Colors.white, fontSize: 14),
+            style: TextStyle(color: colors.textOnPrimary, fontSize: 14),
           ),
         ],
       ),
@@ -314,7 +315,7 @@ class _InfoBanner extends StatelessWidget {
 }
 
 // Plan Card Widget
-class _PlanCard extends StatelessWidget {
+class _PlanCard extends ConsumerWidget {
   final ConnectivityPlanModel plan;
   final VoidCallback onSubscribe;
 
@@ -324,7 +325,8 @@ class _PlanCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.colors;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -338,12 +340,12 @@ class _PlanCard extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.sim_card,
-                    color: AppColors.primary,
+                    color: colors.primary,
                     size: 28,
                   ),
                 ),
@@ -363,7 +365,7 @@ class _PlanCard extends StatelessWidget {
                         plan.partner,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: colors.textSecondary,
                         ),
                       ),
                     ],
@@ -375,8 +377,8 @@ class _PlanCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildFeature(Icons.data_usage, '${plan.dataGb} GB'),
-                _buildFeature(Icons.attach_money, '${plan.price.toStringAsFixed(0)} SAR'),
+                _buildFeature(Icons.data_usage, '${plan.dataGb} GB', colors.secondary),
+                _buildFeature(Icons.attach_money, '${plan.price.toStringAsFixed(0)} SAR', colors.secondary),
               ],
             ),
             const SizedBox(height: 16),
@@ -387,8 +389,8 @@ class _PlanCard extends StatelessWidget {
                 icon: const Icon(Icons.add_circle_outline),
                 label: const Text('Souscrire'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.textOnPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
@@ -399,10 +401,10 @@ class _PlanCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFeature(IconData icon, String label) {
+  Widget _buildFeature(IconData icon, String label, Color iconColor) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppColors.secondary),
+        Icon(icon, size: 20, color: iconColor),
         const SizedBox(width: 8),
         Text(
           label,
@@ -414,7 +416,7 @@ class _PlanCard extends StatelessWidget {
 }
 
 // Subscription Card Widget
-class _SubscriptionCard extends StatelessWidget {
+class _SubscriptionCard extends ConsumerWidget {
   final ConnectivitySubscriptionModel subscription;
   final VoidCallback onTopup;
 
@@ -424,8 +426,9 @@ class _SubscriptionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final statusColor = subscription.isActive ? Colors.green : Colors.orange;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.colors;
+    final statusColor = subscription.isActive ? colors.success : colors.warning;
     final statusText = subscription.status.name.toUpperCase();
 
     return Card(
@@ -454,7 +457,7 @@ class _SubscriptionCard extends StatelessWidget {
                           'EID: ${subscription.esimEid}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: colors.textSecondary,
                           ),
                         ),
                     ],
@@ -482,7 +485,7 @@ class _SubscriptionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.05),
+                color: colors.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -491,17 +494,17 @@ class _SubscriptionCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Solde restant',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style: TextStyle(fontSize: 12, color: colors.textLight),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${subscription.balanceGb.toStringAsFixed(2)} GB',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: colors.primary,
                         ),
                       ),
                     ],
@@ -511,8 +514,8 @@ class _SubscriptionCard extends StatelessWidget {
                     icon: const Icon(Icons.add),
                     label: const Text('Recharger'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                      foregroundColor: Colors.white,
+                      backgroundColor: colors.secondary,
+                      foregroundColor: colors.textOnSecondary,
                     ),
                   ),
                 ],

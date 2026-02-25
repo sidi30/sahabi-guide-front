@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/health_profile_model.dart';
 
 abstract class HealthProfileLocalDataSource {
@@ -24,7 +25,7 @@ class HealthProfileLocalDataSourceImpl implements HealthProfileLocalDataSource {
       }
       return null;
     } catch (e) {
-      print('Erreur lors de la lecture du profil santé en cache: $e');
+      AppLogger.error('Erreur lors de la lecture du profil santé en cache', error: e);
       return null;
     }
   }
@@ -35,7 +36,7 @@ class HealthProfileLocalDataSourceImpl implements HealthProfileLocalDataSource {
       final profileJson = json.encode(profile.toJson());
       await secureStorage.write(key: _healthProfileKey, value: profileJson);
     } catch (e) {
-      print('Erreur lors de la mise en cache du profil santé: $e');
+      AppLogger.error('Erreur lors de la mise en cache du profil santé', error: e);
     }
   }
 
@@ -44,7 +45,7 @@ class HealthProfileLocalDataSourceImpl implements HealthProfileLocalDataSource {
     try {
       await secureStorage.delete(key: _healthProfileKey);
     } catch (e) {
-      print('Erreur lors de la suppression du cache du profil santé: $e');
+      AppLogger.error('Erreur lors de la suppression du cache du profil santé', error: e);
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/audio_service.dart';
@@ -104,7 +104,7 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
                 child: Slider(
                   value: _position.inSeconds.toDouble(),
                   max: _duration.inSeconds.toDouble(),
-                  activeColor: AppColors.primary,
+                  activeColor: ref.colors.primary,
                   inactiveColor: Colors.grey[300],
                   onChanged: (value) {
                     _audioService.seekTo(Duration(seconds: value.toInt()));
@@ -151,7 +151,7 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
                           _isPlaying ? Icons.pause_circle : Icons.play_circle,
                           size: 48,
                         ),
-                        color: AppColors.primary,
+                        color: ref.colors.primary,
                         onPressed: () {
                           if (_isPlaying) {
                             _audioService.pause();

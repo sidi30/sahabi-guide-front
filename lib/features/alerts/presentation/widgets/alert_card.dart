@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/alert_model.dart';
 
 class AlertCard extends StatelessWidget {
@@ -84,8 +84,8 @@ class AlertCard extends StatelessWidget {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.accent,
+                      decoration: BoxDecoration(
+                        color: context.accentColor,
                         shape: BoxShape.circle,
                       ),
                     ),

@@ -1,3 +1,4 @@
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/connectivity_repository.dart';
 import '../datasources/connectivity_local_data_source.dart';
 import '../datasources/connectivity_remote_data_source.dart';
@@ -24,7 +25,7 @@ class ConnectivityRepositoryImpl implements ConnectivityRepository {
       return plans;
     } catch (e) {
       // If remote fails, fallback to cache
-      print('Erreur remote, utilisation du cache: $e');
+      AppLogger.warning('Erreur remote, utilisation du cache', error: e);
       return await localDataSource.getCachedPlans();
     }
   }
@@ -39,7 +40,7 @@ class ConnectivityRepositoryImpl implements ConnectivityRepository {
       return subscriptions;
     } catch (e) {
       // If remote fails, fallback to cache
-      print('Erreur remote, utilisation du cache: $e');
+      AppLogger.warning('Erreur remote, utilisation du cache', error: e);
       return await localDataSource.getCachedSubscriptions();
     }
   }

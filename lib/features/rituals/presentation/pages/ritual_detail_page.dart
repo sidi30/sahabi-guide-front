@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
-
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../core/services/audio_service.dart';
@@ -51,7 +50,7 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur audio: $e'),
-          backgroundColor: AppColors.error,
+          backgroundColor: ref.colors.error,
         ),
       );
     }
@@ -391,7 +390,7 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: ref.colors.textSecondary,
                 ),
           ),
           Text(

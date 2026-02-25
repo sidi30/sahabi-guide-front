@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import '../../core/theme/theme_extensions.dart';
 
 /// Types de notifications
 enum NotificationType {
@@ -38,7 +38,7 @@ class NotificationService {
           ),
         ],
       ),
-      backgroundColor: _getColor(type),
+      backgroundColor: _getColor(context, type),
       duration: duration,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
@@ -68,9 +68,9 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
-              color: AppColors.error,
+              color: context.errorColor,
               size: 28,
             ),
             const SizedBox(width: 12),
@@ -123,9 +123,9 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.info_outline,
-              color: AppColors.primary,
+              color: context.primaryColor,
               size: 28,
             ),
             const SizedBox(width: 12),
@@ -178,9 +178,9 @@ class NotificationService {
         ),
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.help_outline,
-              color: AppColors.warning,
+              color: context.warningColor,
               size: 28,
             ),
             const SizedBox(width: 12),
@@ -237,16 +237,16 @@ class NotificationService {
 
   // Helpers privés
 
-  static Color _getColor(NotificationType type) {
+  static Color _getColor(BuildContext context, NotificationType type) {
     switch (type) {
       case NotificationType.success:
-        return AppColors.success;
+        return context.successColor;
       case NotificationType.error:
-        return AppColors.error;
+        return context.errorColor;
       case NotificationType.warning:
-        return AppColors.warning;
+        return context.warningColor;
       case NotificationType.info:
-        return AppColors.primary;
+        return context.primaryColor;
     }
   }
 

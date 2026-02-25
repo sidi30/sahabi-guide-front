@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sahabi_guide/shared/constants/app_locale.dart';
+import 'package:sahabi_guide/core/theme/app_color_schemes.dart';
 
 // Enums
 enum AppThemeMode { system, light, dark }
@@ -39,24 +40,31 @@ final List<Locale> supportedLocales =
 // State class
 class SettingsState {
   final AppThemeMode themeMode;
+  final AppColorTheme colorTheme;
   final AudioLanguage audioLanguage;
   final AppLocale locale;
 
   const SettingsState({
     this.themeMode = AppThemeMode.system,
+    this.colorTheme = AppColorTheme.serenity, // Thème par défaut
     this.audioLanguage = AudioLanguage.english,
     this.locale = AppLocale.fr, // Default to French
   });
 
   factory SettingsState.initial() => const SettingsState();
 
+  /// Obtenir le schéma de couleurs actuel
+  AppColorScheme get currentColorScheme => colorTheme.scheme;
+
   SettingsState copyWith({
     AppThemeMode? themeMode,
+    AppColorTheme? colorTheme,
     AudioLanguage? audioLanguage,
     AppLocale? locale,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
+      colorTheme: colorTheme ?? this.colorTheme,
       audioLanguage: audioLanguage ?? this.audioLanguage,
       locale: locale ?? this.locale,
     );
@@ -67,18 +75,20 @@ class SettingsState {
     if (identical(this, other)) return true;
     return other is SettingsState &&
         other.themeMode == themeMode &&
+        other.colorTheme == colorTheme &&
         other.audioLanguage == audioLanguage &&
         other.locale == locale;
   }
 
   @override
-  int get hashCode => Object.hash(themeMode, audioLanguage, locale);
+  int get hashCode => Object.hash(themeMode, colorTheme, audioLanguage, locale);
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
   final SharedPreferences prefs;
 
   static const _themeKey = 'theme_mode';
+  static const _colorThemeKey = 'color_theme';
   static const _languageKey = 'audio_language';
   static const _localeKey = 'app_locale';
 
@@ -89,6 +99,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> loadSettings() async {
     try {
       final themeIndex = prefs.getInt(_themeKey) ?? 0;
+      final colorThemeIndex = prefs.getInt(_colorThemeKey) ?? 0;
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
 
@@ -106,6 +117,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         themeMode: themeIndex < AppThemeMode.values.length
             ? AppThemeMode.values[themeIndex]
             : AppThemeMode.system,
+        colorTheme: colorThemeIndex < AppColorTheme.values.length
+            ? AppColorTheme.values[colorThemeIndex]
+            : AppColorTheme.serenity,
         audioLanguage: languageIndex < AudioLanguage.values.length
             ? AudioLanguage.values[languageIndex]
             : AudioLanguage.english,
@@ -129,6 +143,12 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = state.copyWith(themeMode: mode);
   }
 
+  Future<void> setColorTheme(AppColorTheme theme) async {
+    if (state.colorTheme == theme) return; // No change needed
+    await prefs.setInt(_colorThemeKey, theme.index);
+    state = state.copyWith(colorTheme: theme);
+  }
+
   Future<void> setAudioLanguage(AudioLanguage language) async {
     if (state.audioLanguage == language) return; // No change needed
     await prefs.setInt(_languageKey, language.index);
@@ -146,4 +166,10 @@ final settingsProvider =
     StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   throw UnimplementedError(
       'SettingsNotifier should be overridden in main.dart');
+});
+
+/// Provider pour obtenir le schéma de couleurs actuel
+final colorSchemeProvider = Provider<AppColorScheme>((ref) {
+  final settings = ref.watch(settingsProvider);
+  return settings.currentColorScheme;
 });

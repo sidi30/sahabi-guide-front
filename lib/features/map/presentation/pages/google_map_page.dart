@@ -6,8 +6,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/poi_model.dart';
 import '../../data/services/poi_service.dart';
 
@@ -82,7 +83,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         _currentPosition = position;
       });
     } catch (e) {
-      print('Erreur de géolocalisation: $e');
+      AppLogger.warning('Erreur de géolocalisation', error: e);
       // Continue without current location
     }
   }
@@ -193,7 +194,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _getPoiColor(poi.type),
+                  color: _getPoiColor(context, poi.type),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -209,17 +210,17 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   children: [
                     Text(
                       poi.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimaryColor,
                       ),
                     ),
                     Text(
                       poi.typeLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondaryColor,
                       ),
                     ),
                   ],
@@ -234,9 +235,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           if (poi.description != null && poi.description!.isNotEmpty) ...[
             Text(
               poi.description!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textPrimary,
+                color: context.textPrimaryColor,
                 height: 1.5,
               ),
             ),
@@ -247,13 +248,13 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           if (poi.phone != null) ...[
             Row(
               children: [
-                const Icon(Icons.phone, color: AppColors.primary),
+                Icon(Icons.phone, color: context.primaryColor),
                 const SizedBox(width: 12),
                 Text(
                   poi.phone!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textPrimary,
+                    color: context.textPrimaryColor,
                   ),
                 ),
               ],
@@ -264,14 +265,14 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           if (poi.address != null) ...[
             Row(
               children: [
-                const Icon(Icons.location_on, color: AppColors.primary),
+                Icon(Icons.location_on, color: context.primaryColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     poi.address!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: AppColors.textPrimary,
+                      color: context.textPrimaryColor,
                     ),
                   ),
                 ),
@@ -294,7 +295,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   icon: const Icon(Icons.center_focus_strong),
                   label: const Text('Centrer'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: context.primaryColor,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -321,24 +322,24 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     );
   }
 
-  Color _getPoiColor(PoiType type) {
+  Color _getPoiColor(BuildContext context, PoiType type) {
     switch (type) {
       case PoiType.mosque:
       case PoiType.holySite:
-        return AppColors.primary;
+        return context.primaryColor;
       case PoiType.hospital:
-        return AppColors.error;
+        return context.errorColor;
       case PoiType.hotel:
-        return AppColors.secondary;
+        return context.secondaryColor;
       case PoiType.restaurant:
         return const Color(0xFFF77F00);
       case PoiType.hajjSite:
-        return AppColors.accent;
+        return context.accentColor;
       case PoiType.transport:
       case PoiType.airport:
         return const Color(0xFF6F4E37);
       default:
-        return AppColors.textSecondary;
+        return context.textSecondaryColor;
     }
   }
 
@@ -367,7 +368,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.backgroundColor,
       body: Stack(
         children: [
           // Google Map
@@ -388,9 +389,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           if (_isLoading)
             Container(
               color: Colors.black54,
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                 ),
               ),
             ),
@@ -407,10 +408,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline,
                           size: 48,
-                          color: AppColors.error,
+                          color: context.errorColor,
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -427,7 +428,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                             _loadPois();
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: context.primaryColor,
                           ),
                           child: const Text(
                             'Réessayer',
@@ -450,19 +451,19 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildFilterChip('all', 'Tous', Icons.all_inclusive),
+                  _buildFilterChip(context, 'all', 'Tous', Icons.all_inclusive),
                   const SizedBox(width: 8),
-                  _buildFilterChip('mosque', 'Mosquées', Icons.eco_outlined),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(
-                      'hospital', 'Hôpitaux', Icons.local_hospital),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('hotel', 'Hôtels', Icons.hotel),
+                  _buildFilterChip(context, 'mosque', 'Mosquées', Icons.eco_outlined),
                   const SizedBox(width: 8),
                   _buildFilterChip(
-                      'restaurant', 'Restaurants', Icons.restaurant),
+                      context, 'hospital', 'Hôpitaux', Icons.local_hospital),
                   const SizedBox(width: 8),
-                  _buildFilterChip('hajjSite', 'Sites Hajj', Icons.place),
+                  _buildFilterChip(context, 'hotel', 'Hôtels', Icons.hotel),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                      context, 'restaurant', 'Restaurants', Icons.restaurant),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(context, 'hajjSite', 'Sites Hajj', Icons.place),
                 ],
               ),
             ),
@@ -475,7 +476,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             child: FloatingActionButton(
               mini: true,
               backgroundColor: Colors.white,
-              foregroundColor: AppColors.primary,
+              foregroundColor: context.primaryColor,
               onPressed: () async {
                 await _getCurrentLocation();
                 if (_currentPosition != null) {
@@ -501,7 +502,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             child: _buildActionButton(
               'Urgence',
               Icons.warning_rounded,
-              AppColors.error,
+              context.errorColor,
               _sendEmergencySignal,
             ),
           ),
@@ -513,7 +514,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             child: _buildActionButton(
               'Guide',
               Icons.phone_rounded,
-              AppColors.accent,
+              context.accentColor,
               _callGuide,
             ),
           ),
@@ -522,17 +523,17 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     );
   }
 
-  Widget _buildFilterChip(String value, String label, IconData icon) {
+  Widget _buildFilterChip(BuildContext context, String value, String label, IconData icon) {
     final isSelected = _selectedFilter == value;
     return GestureDetector(
       onTap: () => _changeFilter(value),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? context.primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            color: isSelected ? context.primaryColor : Colors.grey[300]!,
           ),
           boxShadow: [
             BoxShadow(
@@ -548,13 +549,13 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             Icon(
               icon,
               size: 18,
-              color: isSelected ? Colors.white : AppColors.primary,
+              color: isSelected ? Colors.white : context.primaryColor,
             ),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected ? Colors.white : context.textPrimaryColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -615,9 +616,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       await _poiService.callGuide();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Guide appelé avec succès'),
-            backgroundColor: AppColors.accent,
+          SnackBar(
+            content: const Text('Guide appelé avec succès'),
+            backgroundColor: context.accentColor,
           ),
         );
       }
@@ -626,7 +627,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -637,12 +638,12 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     // Show confirmation dialog first
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
           children: [
-            Icon(Icons.warning_rounded, color: AppColors.error),
-            SizedBox(width: 8),
-            Text('Signal d\'Urgence'),
+            Icon(Icons.warning_rounded, color: dialogContext.errorColor),
+            const SizedBox(width: 8),
+            const Text('Signal d\'Urgence'),
           ],
         ),
         content: const Text(
@@ -650,13 +651,13 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Annuler'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
+              backgroundColor: dialogContext.errorColor,
               foregroundColor: Colors.white,
             ),
             child: const Text('Envoyer'),
@@ -670,9 +671,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         await _poiService.triggerEmergency();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Signal d\'urgence envoyé !'),
-              backgroundColor: AppColors.error,
+            SnackBar(
+              content: const Text('Signal d\'urgence envoyé !'),
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -681,7 +682,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erreur: $e'),
-              backgroundColor: AppColors.error,
+              backgroundColor: context.errorColor,
             ),
           );
         }

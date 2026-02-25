@@ -1,135 +1,144 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/theme_extensions.dart';
 
-class PrivacyScreen extends StatelessWidget {
+class PrivacyScreen extends ConsumerWidget {
   const PrivacyScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Confidentialité'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        title: const Text('Confidentialite'),
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
+        automaticallyImplyLeading: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildSection(
             context,
+            ref,
             icon: Icons.lock_outline,
-            title: 'Politique de Confidentialité',
+            title: 'Politique de Confidentialite',
             content: '''
-Chez Sahabi Guide, nous prenons la protection de vos données personnelles très au sérieux. Cette politique explique comment nous collectons, utilisons et protégeons vos informations.
+Chez Sahabi Guide, nous prenons la protection de vos donnees personnelles tres au serieux. Cette politique explique comment nous collectons, utilisons et protegeons vos informations.
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.info_outline,
-            title: '1. Données Collectées',
+            title: '1. Donnees Collectees',
             content: '''
 Nous collectons les informations suivantes :
 
-• Informations d'identification : Numéro de passeport, nom, prénom
-• Coordonnées : Numéro de téléphone, email
-• Données de localisation : Position GPS pour votre sécurité
-• Données de santé : Informations médicales que vous fournissez volontairement
-• Données d'utilisation : Interactions avec l'application
+- Informations d'identification : Numero de passeport, nom, prenom
+- Coordonnees : Numero de telephone, email
+- Donnees de localisation : Position GPS pour votre securite
+- Donnees de sante : Informations medicales que vous fournissez volontairement
+- Donnees d'utilisation : Interactions avec l'application
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.security,
-            title: '2. Utilisation des Données',
+            title: '2. Utilisation des Donnees',
             content: '''
-Vos données sont utilisées pour :
+Vos donnees sont utilisees pour :
 
-• Assurer votre sécurité pendant le Hajj
-• Faciliter la communication avec votre groupe
-• Fournir des rappels et alertes personnalisées
-• Améliorer nos services
-• Respecter nos obligations légales
+- Assurer votre securite pendant le Hajj
+- Faciliter la communication avec votre groupe
+- Fournir des rappels et alertes personnalisees
+- Ameliorer nos services
+- Respecter nos obligations legales
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.shield,
-            title: '3. Protection des Données',
+            title: '3. Protection des Donnees',
             content: '''
-Nous mettons en œuvre des mesures de sécurité strictes :
+Nous mettons en oeuvre des mesures de securite strictes :
 
-• Chiffrement de bout en bout pour les communications
-• Stockage sécurisé dans des centres de données certifiés
-• Accès limité aux données sensibles
-• Audits de sécurité réguliers
-• Conformité RGPD
+- Chiffrement de bout en bout pour les communications
+- Stockage securise dans des centres de donnees certifies
+- Acces limite aux donnees sensibles
+- Audits de securite reguliers
+- Conformite RGPD
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.share,
-            title: '4. Partage des Données',
+            title: '4. Partage des Donnees',
             content: '''
-Nous ne partageons vos données qu'avec :
+Nous ne partageons vos donnees qu'avec :
 
-• Votre agence de voyage (avec votre consentement)
-• Votre guide et groupe (informations limitées)
-• Autorités compétentes (en cas d'urgence)
-• Prestataires de services essentiels (hébergement cloud, SMS)
+- Votre agence de voyage (avec votre consentement)
+- Votre guide et groupe (informations limitees)
+- Autorites competentes (en cas d'urgence)
+- Prestataires de services essentiels (hebergement cloud, SMS)
 
-Nous ne vendons JAMAIS vos données à des tiers.
+Nous ne vendons JAMAIS vos donnees a des tiers.
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.person_outline,
             title: '5. Vos Droits',
             content: '''
 Vous avez le droit de :
 
-• Accéder à vos données personnelles
-• Corriger vos informations
-• Supprimer votre compte
-• Exporter vos données
-• Refuser le traitement de certaines données
-• Déposer une plainte auprès d'une autorité de protection
+- Acceder a vos donnees personnelles
+- Corriger vos informations
+- Supprimer votre compte
+- Exporter vos donnees
+- Refuser le traitement de certaines donnees
+- Deposer une plainte aupres d'une autorite de protection
 
 Pour exercer vos droits, contactez-nous via l'application.
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.gps_fixed,
-            title: '6. Géolocalisation',
+            title: '6. Geolocalisation',
             content: '''
 L'utilisation de votre position GPS est essentielle pour :
 
-• Votre sécurité en cas d'urgence
-• Vous guider vers les lieux saints
-• Vous regrouper avec votre groupe
+- Votre securite en cas d'urgence
+- Vous guider vers les lieux saints
+- Vous regrouper avec votre groupe
 
-Vous pouvez désactiver la géolocalisation, mais cela limitera certaines fonctionnalités de sécurité.
+Vous pouvez desactiver la geolocalisation, mais cela limitera certaines fonctionnalites de securite.
 ''',
           ),
           _buildSection(
             context,
+            ref,
             icon: Icons.update,
             title: '7. Modifications',
             content: '''
-Cette politique peut être mise à jour occasionnellement. Nous vous informerons de tout changement important par notification dans l'application.
+Cette politique peut etre mise a jour occasionnellement. Nous vous informerons de tout changement important par notification dans l'application.
 
-Dernière mise à jour : 12 octobre 2025
+Derniere mise a jour : 12 octobre 2025
 ''',
           ),
           const SizedBox(height: 16),
           Card(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: ref.colors.primary.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.email, color: AppColors.primary),
+                  Icon(Icons.email, color: ref.colors.primary),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -142,7 +151,7 @@ Dernière mise à jour : 12 octobre 2025
                               ),
                         ),
                         const SizedBox(height: 4),
-                        const Text('Contactez-nous à privacy@sahabiguide.com'),
+                        const Text('Contactez-nous a privacy@sahabiguide.com'),
                       ],
                     ),
                   ),
@@ -157,7 +166,8 @@ Dernière mise à jour : 12 octobre 2025
   }
 
   Widget _buildSection(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
     required IconData icon,
     required String title,
     required String content,
@@ -171,14 +181,14 @@ Dernière mise à jour : 12 octobre 2025
           children: [
             Row(
               children: [
-                Icon(icon, color: AppColors.primary, size: 24),
+                Icon(icon, color: ref.colors.primary, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: ref.colors.primary,
                         ),
                   ),
                 ),
@@ -197,4 +207,3 @@ Dernière mise à jour : 12 octobre 2025
     );
   }
 }
-

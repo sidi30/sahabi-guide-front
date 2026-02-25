@@ -1,3 +1,4 @@
+import '../../../../core/utils/app_logger.dart';
 import '../../../auth/data/datasources/passport_auth_local_data_source.dart';
 import '../../domain/repositories/health_profile_repository.dart';
 import '../datasources/health_profile_local_data_source.dart';
@@ -69,7 +70,7 @@ class HealthProfileRepositoryImpl implements HealthProfileRepository {
       final profile = await remoteDataSource.getHealthProfile(userId, token);
       await localDataSource.cacheHealthProfile(profile);
     } catch (e) {
-      print('Erreur lors du rafraîchissement du profil santé: $e');
+      AppLogger.error('Erreur lors du rafraîchissement du profil santé', error: e);
     }
   }
 

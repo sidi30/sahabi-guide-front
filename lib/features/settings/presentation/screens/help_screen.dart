@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import 'contact_screen.dart';
 
-class HelpScreen extends StatefulWidget {
+class HelpScreen extends ConsumerStatefulWidget {
   const HelpScreen({super.key});
 
   @override
-  State<HelpScreen> createState() => _HelpScreenState();
+  ConsumerState<HelpScreen> createState() => _HelpScreenState();
 }
 
-class _HelpScreenState extends State<HelpScreen> {
+class _HelpScreenState extends ConsumerState<HelpScreen> {
   String _searchQuery = '';
 
   @override
@@ -17,16 +18,16 @@ class _HelpScreenState extends State<HelpScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Aide & FAQ'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
+        automaticallyImplyLeading: true,
       ),
       body: Column(
         children: [
           // Barre de recherche
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: ref.colors.primary.withValues(alpha: 0.1),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Rechercher une question...',
@@ -36,7 +37,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: ref.colors.surface,
               ),
               onChanged: (value) {
                 setState(() {
@@ -65,18 +66,18 @@ class _HelpScreenState extends State<HelpScreen> {
         },
         icon: const Icon(Icons.contact_support),
         label: const Text('Nous Contacter'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: ref.colors.primary,
       ),
     );
   }
 
   List<Widget> _getFilteredFAQs() {
     final faqs = _getAllFAQs();
-    
+
     if (_searchQuery.isEmpty) {
       return faqs;
     }
-    
+
     return faqs.where((faq) {
       // Extraire le texte de l'ExpansionTile pour le filtre
       if (faq is _FAQItem) {
@@ -90,189 +91,201 @@ class _HelpScreenState extends State<HelpScreen> {
   List<Widget> _getAllFAQs() {
     return [
       _buildCategoryHeader('Authentification & Compte'),
-      const _FAQItem(
-        question: 'Comment me connecter à l\'application ?',
+      _FAQItem(
+        question: 'Comment me connecter a l\'application ?',
         answer: '''
 Pour vous connecter :
 
 1. Ouvrez l'application Sahabi Guide
 2. Appuyez sur "Se connecter"
-3. Entrez votre numéro de passeport
+3. Entrez votre numero de passeport
 4. Vous recevrez un code OTP par SMS
-5. Entrez le code à 6 chiffres
-6. Vous êtes connecté !
+5. Entrez le code a 6 chiffres
+6. Vous etes connecte !
 
-Le code OTP expire après 5 minutes.
+Le code OTP expire apres 5 minutes.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
-        question: 'Je n\'ai pas reçu le code OTP, que faire ?',
+      _FAQItem(
+        question: 'Je n\'ai pas recu le code OTP, que faire ?',
         answer: '''
 Si vous ne recevez pas le code OTP :
 
-1. Vérifiez que votre numéro de téléphone est correct
-2. Vérifiez votre réseau mobile
-3. Attendez quelques minutes (délai SMS)
+1. Verifiez que votre numero de telephone est correct
+2. Verifiez votre reseau mobile
+3. Attendez quelques minutes (delai SMS)
 4. Appuyez sur "Renvoyer le code"
-5. Si le problème persiste, contactez le support
+5. Si le probleme persiste, contactez le support
 
 En cas d'urgence, contactez votre guide directement.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
+      _FAQItem(
         question: 'Comment modifier mes informations personnelles ?',
         answer: '''
 Pour modifier vos informations :
 
 1. Allez dans "Profil"
-2. Appuyez sur l'icône "Modifier" (crayon)
-3. Modifiez les informations souhaitées
+2. Appuyez sur l'icone "Modifier" (crayon)
+3. Modifiez les informations souhaitees
 4. Enregistrez les modifications
 
-Note : Le numéro de passeport ne peut pas être modifié. Contactez votre agence pour toute correction.
+Note : Le numero de passeport ne peut pas etre modifie. Contactez votre agence pour toute correction.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 16),
-      _buildCategoryHeader('Géolocalisation & Carte'),
-      const _FAQItem(
-        question: 'Comment activer la géolocalisation ?',
+      _buildCategoryHeader('Geolocalisation & Carte'),
+      _FAQItem(
+        question: 'Comment activer la geolocalisation ?',
         answer: '''
-Pour activer la géolocalisation :
+Pour activer la geolocalisation :
 
-1. Allez dans les paramètres de votre téléphone
+1. Allez dans les parametres de votre telephone
 2. Activez la localisation/GPS
-3. Autorisez Sahabi Guide à accéder à votre position
-4. Redémarrez l'application
+3. Autorisez Sahabi Guide a acceder a votre position
+4. Redemarrez l'application
 
-La géolocalisation est essentielle pour votre sécurité.
+La geolocalisation est essentielle pour votre securite.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
-        question: 'Pourquoi ma position n\'est pas précise ?',
+      _FAQItem(
+        question: 'Pourquoi ma position n\'est pas precise ?',
         answer: '''
-Si votre position n'est pas précise :
+Si votre position n'est pas precise :
 
-• Assurez-vous d'être à l'extérieur (meilleure réception GPS)
-• Activez le Wi-Fi pour améliorer la précision
-• Vérifiez que le mode haute précision est activé
-• Attendez quelques secondes pour la calibration
-• Redémarrez l'application
+- Assurez-vous d'etre a l'exterieur (meilleure reception GPS)
+- Activez le Wi-Fi pour ameliorer la precision
+- Verifiez que le mode haute precision est active
+- Attendez quelques secondes pour la calibration
+- Redemarrez l'application
 
-Dans les bâtiments, la précision GPS peut être réduite.
+Dans les batiments, la precision GPS peut etre reduite.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 16),
-      _buildCategoryHeader('Rituels & Prières'),
-      const _FAQItem(
+      _buildCategoryHeader('Rituels & Prieres'),
+      _FAQItem(
         question: 'Comment suivre mes rituels du Hajj ?',
         answer: '''
 Pour suivre vos rituels :
 
 1. Allez dans "Rituels" depuis le menu
 2. Consultez la timeline des rituels
-3. Chaque rituel est détaillé avec instructions
+3. Chaque rituel est detaille avec instructions
 4. Cochez les rituels accomplis
 5. Recevez des rappels automatiques
 
-Les rituels sont organisés chronologiquement pour vous guider.
+Les rituels sont organises chronologiquement pour vous guider.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
-        question: 'Comment écouter les duas (invocations) ?',
+      _FAQItem(
+        question: 'Comment ecouter les duas (invocations) ?',
         answer: '''
-Pour écouter les duas :
+Pour ecouter les duas :
 
 1. Allez dans "Rituels" > "Duas"
-2. Sélectionnez une invocation
+2. Selectionnez une invocation
 3. Appuyez sur le bouton lecture
 4. Suivez le texte en arabe et sa traduction
-5. Changez la langue audio dans Paramètres > Langue Audio
+5. Changez la langue audio dans Parametres > Langue Audio
 
 Les duas sont disponibles en plusieurs langues.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Groupe & Communication'),
-      const _FAQItem(
+      _FAQItem(
         question: 'Comment communiquer avec mon groupe ?',
         answer: '''
 Pour communiquer avec votre groupe :
 
-1. Allez dans "Connectivité" ou "Groupe"
+1. Allez dans "Connectivite" ou "Groupe"
 2. Consultez la liste des membres
-3. Voyez leur position en temps réel
+3. Voyez leur position en temps reel
 4. Contactez votre guide en cas de besoin
 
-Les alertes d'urgence sont envoyées automatiquement à tout le groupe.
+Les alertes d'urgence sont envoyees automatiquement a tout le groupe.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 16),
-      _buildCategoryHeader('Santé & Urgences'),
-      const _FAQItem(
-        question: 'Comment enregistrer mes informations médicales ?',
+      _buildCategoryHeader('Sante & Urgences'),
+      _FAQItem(
+        question: 'Comment enregistrer mes informations medicales ?',
         answer: '''
-Pour enregistrer vos informations médicales :
+Pour enregistrer vos informations medicales :
 
-1. Allez dans "Santé"
-2. Complétez votre carnet de santé
+1. Allez dans "Sante"
+2. Completez votre carnet de sante
 3. Ajoutez vos allergies
 4. Listez vos traitements en cours
 5. Ajoutez des contacts d'urgence
 
-Ces informations sont cruciales en cas d'urgence médicale.
+Ces informations sont cruciales en cas d'urgence medicale.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
+      _FAQItem(
         question: 'Que faire en cas d\'urgence ?',
         answer: '''
 En cas d'urgence :
 
 1. Utilisez le bouton d'ALERTE URGENCE
-2. Votre position sera partagée avec votre guide
-3. Contactez les numéros d'urgence :
-   • Police : 911
-   • Ambulance : 997
-   • Défense civile : 998
-4. Contactez votre ambassade si nécessaire
+2. Votre position sera partagee avec votre guide
+3. Contactez les numeros d'urgence :
+   - Police : 911
+   - Ambulance : 997
+   - Defense civile : 998
+4. Contactez votre ambassade si necessaire
 
-Votre guide et groupe seront automatiquement notifiés.
+Votre guide et groupe seront automatiquement notifies.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 16),
       _buildCategoryHeader('Technique'),
-      const _FAQItem(
+      _FAQItem(
         question: 'L\'application ne fonctionne pas, que faire ?',
         answer: '''
 Si l'application ne fonctionne pas :
 
-1. Vérifiez votre connexion Internet
-2. Redémarrez l'application
-3. Videz le cache : Paramètres > Stockage > Vider le cache
-4. Mettez à jour l'application
-5. Redémarrez votre téléphone
-6. Réinstallez l'application en dernier recours
+1. Verifiez votre connexion Internet
+2. Redemarrez l'application
+3. Videz le cache : Parametres > Stockage > Vider le cache
+4. Mettez a jour l'application
+5. Redemarrez votre telephone
+6. Reinstallez l'application en dernier recours
 
-Vos données sont sauvegardées et ne seront pas perdues.
+Vos donnees sont sauvegardees et ne seront pas perdues.
 ''',
+        primaryColor: ref.colors.primary,
       ),
-      const _FAQItem(
-        question: 'Comment économiser la batterie ?',
+      _FAQItem(
+        question: 'Comment economiser la batterie ?',
         answer: '''
-Pour économiser la batterie :
+Pour economiser la batterie :
 
-• Réduisez la luminosité de l'écran
-• Désactivez la géolocalisation quand vous ne vous déplacez pas
-• Activez le mode économie d'énergie
-• Fermez les applications en arrière-plan
-• Utilisez le mode sombre (Paramètres > Thème)
+- Reduisez la luminosite de l'ecran
+- Desactivez la geolocalisation quand vous ne vous deplacez pas
+- Activez le mode economie d'energie
+- Fermez les applications en arriere-plan
+- Utilisez le mode sombre (Parametres > Theme)
 
-Emportez toujours une batterie externe pour votre sécurité.
+Emportez toujours une batterie externe pour votre securite.
 ''',
+        primaryColor: ref.colors.primary,
       ),
 
       const SizedBox(height: 32),
@@ -286,7 +299,7 @@ Emportez toujours une batterie externe pour votre sécurité.
         title,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+              color: ref.colors.primary,
             ),
       ),
     );
@@ -296,10 +309,12 @@ Emportez toujours une batterie externe pour votre sécurité.
 class _FAQItem extends StatelessWidget {
   final String question;
   final String answer;
+  final Color primaryColor;
 
   const _FAQItem({
     required this.question,
     required this.answer,
+    required this.primaryColor,
   });
 
   @override
@@ -314,7 +329,7 @@ class _FAQItem extends StatelessWidget {
             fontSize: 15,
           ),
         ),
-        leading: const Icon(Icons.help_outline, color: AppColors.primary),
+        leading: Icon(Icons.help_outline, color: primaryColor),
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -330,4 +345,3 @@ class _FAQItem extends StatelessWidget {
     );
   }
 }
-

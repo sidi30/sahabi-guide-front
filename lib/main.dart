@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
@@ -19,6 +18,7 @@ import 'core/utils/app_logger.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
+import 'features/auth/presentation/pages/visitor_registration_page.dart';
 import 'features/auth/presentation/providers/passport_auth_provider.dart';
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
@@ -28,7 +28,8 @@ import 'features/map/presentation/pages/google_map_page.dart' show GoogleMapPage
 import 'features/rituals/presentation/pages/ritual_detail_page.dart';
 import 'features/rituals/presentation/pages/rituals_page.dart';
 import 'features/rituals/presentation/pages/duas_modern_page.dart';
-import 'shared/constants/app_colors.dart';
+import 'core/theme/theme.dart';
+import 'core/theme/app_color_schemes.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
 // import 'shared/presentation/pages/splash_page.dart';  // ❌ Non utilisé
@@ -70,6 +71,7 @@ class AppRoutes {
   static const String passportLogin = '/passport-login';
   static const String passportOtp = '/passport-otp';
   static const String testPassportLogin = '/test-passport-login';
+  static const String visitorRegistration = '/visitor-registration';
 
   // Main shell routes
   static const String home = '/home';
@@ -192,6 +194,10 @@ class MyApp extends ConsumerWidget {
           return PassportOtpVerificationPage(passportNo: passportNo);
         },
       ),
+      GoRoute(
+        path: AppRoutes.visitorRegistration,
+        builder: (context, state) => const VisitorRegistrationPage(),
+      ),
 
       // Pilgrim Profile Screen (outside shell) - PROTÉGÉ
       GoRoute(
@@ -298,78 +304,14 @@ class MyApp extends ConsumerWidget {
     );
   }
 
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surface,
-        error: AppColors.error,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: AppColors.textPrimary,
-        brightness: Brightness.light,
-      ),
-      scaffoldBackgroundColor: AppColors.background,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.appBarBackground,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: TextStyle(
-          color: AppColors.appBarText,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        iconTheme: IconThemeData(
-          color: AppColors.appBarIcon,
-        ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.bottomNavBackground,
-        selectedItemColor: AppColors.bottomNavSelected,
-        unselectedItemColor: AppColors.bottomNavUnselected,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
-    );
+  /// Obtenir le thème clair basé sur le schéma de couleurs sélectionné
+  ThemeData _buildLightTheme(AppColorScheme colors) {
+    return AppTheme.lightTheme(colors);
   }
 
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.darkSurface,
-        error: AppColors.error,
-        onPrimary: AppColors.textOnPrimary,
-        onSecondary: AppColors.textOnSecondary,
-        onSurface: Colors.white,
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.darkSurface,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
-    );
+  /// Obtenir le thème sombre basé sur le schéma de couleurs sélectionné
+  ThemeData _buildDarkTheme(AppColorScheme colors) {
+    return AppTheme.darkTheme(colors);
   }
 
   @override
@@ -377,6 +319,7 @@ class MyApp extends ConsumerWidget {
     // Watch for theme and language changes
     final settings = ref.watch(settingsProvider);
     final currentThemeMode = settings.themeMode;
+    final colorScheme = settings.currentColorScheme;
     final locale = ref.watch(languageProvider);
 
     // Use a Builder to ensure the theme updates without rebuilding the entire app
@@ -398,13 +341,13 @@ class MyApp extends ConsumerWidget {
           switchInCurve: Curves.easeInOut,
           switchOutCurve: Curves.easeInOut,
           child: MaterialApp.router(
-            key: ValueKey(locale.languageCode), // Force rebuild avec animation
+            key: ValueKey('${locale.languageCode}_${settings.colorTheme.name}'),
             title: 'Sahabi Guide',
             debugShowCheckedModeBanner: false,
             locale: locale,
             themeMode: themeMode,
-            theme: _buildLightTheme(),
-          darkTheme: _buildDarkTheme(),
+            theme: _buildLightTheme(colorScheme),
+            darkTheme: _buildDarkTheme(colorScheme),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

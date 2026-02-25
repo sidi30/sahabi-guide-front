@@ -40,11 +40,27 @@ android {
         }
         
         // Google Maps API Key (depuis local.properties ou variable d'environnement)
-        val googleMapsApiKey = localProperties.getProperty("googleMapsApiKey") 
-            ?: System.getenv("GOOGLE_MAPS_API_KEY") 
-            ?: "AIzaSyBNUp3s4kAS7LRHScAUJezSRKSrTv7YnGk"  // Clé de dev par défaut
-        
+        // IMPORTANT: Ne jamais committer de clé API en dur dans le code
+        val googleMapsApiKey = localProperties.getProperty("googleMapsApiKey")
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
+            ?: throw GradleException("Google Maps API Key is required. Set 'googleMapsApiKey' in local.properties or GOOGLE_MAPS_API_KEY environment variable.")
+
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
+
+        // NDK ABI Filters pour optimiser la taille de l'APK
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
+        }
+    }
+
+    // Splitting APK par architecture pour réduire la taille
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true // Générer aussi un APK universel
+        }
     }
 
     // Configuration de signing pour release

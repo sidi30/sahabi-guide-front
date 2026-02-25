@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/constants/app_locale.dart';
-// removed duplicate import
 
 class LanguageSettingsScreen extends ConsumerWidget {
   const LanguageSettingsScreen({super.key});
@@ -19,7 +18,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.settings_language),
         elevation: 0,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        automaticallyImplyLeading: true,
       ),
       body: ListView(
         children: [
@@ -28,25 +27,25 @@ class LanguageSettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: ref.colors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: ref.colors.primary.withValues(alpha: 0.3),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  color: AppColors.primary,
+                  color: ref.colors.primary,
                   size: 24,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Choisissez la langue de l\'interface\nChoose interface language\nاختر لغة الواجهة',
+                    'Choisissez la langue de l\'interface\nChoose interface language\naختر لغة الواجهة',
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: ref.colors.primary,
                       fontSize: 13,
                       height: 1.4,
                     ),
@@ -61,7 +60,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
           // Liste des langues disponibles
           ...AppLocale.values.map((appLocale) {
             final isSelected = appLocale == currentAppLocale;
-            
+
             return _buildLanguageTile(
               context: context,
               ref: ref,
@@ -125,7 +124,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
         onTap: () async {
           if (!isSelected) {
             await ref.read(languageProvider.notifier).changeLanguage(appLocale);
-            
+
             // Afficher un message de confirmation
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -136,7 +135,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
                   ),
                   duration: const Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppColors.success,
+                  backgroundColor: ref.colors.success,
                 ),
               );
             }
@@ -146,8 +145,8 @@ class LanguageSettingsScreen extends ConsumerWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: isSelected 
-                ? AppColors.primary.withValues(alpha: 0.1)
+            color: isSelected
+                ? ref.colors.primary.withValues(alpha: 0.1)
                 : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(24),
           ),
@@ -162,25 +161,25 @@ class LanguageSettingsScreen extends ConsumerWidget {
           appLocale.displayName,
           style: TextStyle(
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? AppColors.primary : null,
+            color: isSelected ? ref.colors.primary : null,
           ),
         ),
         subtitle: Text(
           _getSubtitle(appLocale),
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: ref.colors.textSecondary,
           ),
         ),
         trailing: isSelected
-            ? const Icon(
+            ? Icon(
                 Icons.check_circle,
-                color: AppColors.primary,
+                color: ref.colors.primary,
                 size: 28,
               )
             : Icon(
                 Icons.circle_outlined,
-                color: Colors.grey[400],
+                color: ref.colors.textLight,
                 size: 28,
               ),
       ),
@@ -190,18 +189,18 @@ class LanguageSettingsScreen extends ConsumerWidget {
   String _getFlag(AppLocale appLocale) {
     switch (appLocale) {
       case AppLocale.fr:
-        return '🇫🇷';
+        return '\u{1F1EB}\u{1F1F7}';
       case AppLocale.en:
-        return '🇬🇧';
+        return '\u{1F1EC}\u{1F1E7}';
       case AppLocale.ar:
-        return '🇸🇦';
+        return '\u{1F1F8}\u{1F1E6}';
     }
   }
 
   String _getSubtitle(AppLocale appLocale) {
     switch (appLocale) {
       case AppLocale.fr:
-        return 'Français';
+        return 'Francais';
       case AppLocale.en:
         return 'English';
       case AppLocale.ar:
@@ -212,7 +211,7 @@ class LanguageSettingsScreen extends ConsumerWidget {
   String _getSuccessMessage(AppLocale appLocale) {
     switch (appLocale) {
       case AppLocale.fr:
-        return 'Langue changée en Français';
+        return 'Langue changee en Francais';
       case AppLocale.en:
         return 'Language changed to English';
       case AppLocale.ar:
@@ -220,4 +219,3 @@ class LanguageSettingsScreen extends ConsumerWidget {
     }
   }
 }
-

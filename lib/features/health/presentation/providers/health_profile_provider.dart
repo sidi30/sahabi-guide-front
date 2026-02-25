@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/health_profile_model.dart';
 import '../../domain/usecases/get_health_profile_usecase.dart';
 import '../../domain/usecases/update_health_profile_usecase.dart';
@@ -10,7 +11,7 @@ final healthProfileProvider = FutureProvider<HealthProfileModel?>((ref) async {
   try {
     return await getHealthProfileUseCase();
   } catch (e) {
-    print('Erreur récupération profil santé: $e');
+    AppLogger.error('Erreur récupération profil santé', error: e);
     return null;
   }
 });

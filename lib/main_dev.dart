@@ -1,7 +1,7 @@
-/// Point d'entrée pour l'environnement de DÉVELOPPEMENT
-/// 
-/// Utilisation :
-/// flutter run -t lib/main_dev.dart
+// Point d'entrée pour l'environnement de DÉVELOPPEMENT
+//
+// Utilisation :
+// flutter run -t lib/main_dev.dart
 
 import 'package:flutter/material.dart';
 import 'core/config/env_config.dart';
@@ -14,11 +14,10 @@ void main() {
   // Message de démarrage
   debugPrint('');
   debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('🚀 SAHABI GUIDE - ENVIRONNEMENT: DÉVELOPPEMENT');
+  debugPrint('SAHABI GUIDE - ENVIRONNEMENT: DEVELOPPEMENT');
   debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('🔗 API URL: ${EnvConfig.apiFullUrl}');
-  debugPrint('🔐 Keycloak: ${EnvConfig.keycloakAuthUrl}');
-  debugPrint('📱 Mode: ${EnvConfig.isDevelopment ? "DEV" : "PROD"}');
+  debugPrint('API URL: ${EnvConfig.apiFullUrl}');
+  debugPrint('Mode: ${EnvConfig.isDevelopment ? "DEV" : "PROD"}');
   debugPrint('═══════════════════════════════════════════════════');
   debugPrint('');
 

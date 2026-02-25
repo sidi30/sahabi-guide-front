@@ -142,43 +142,41 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> verifyOtp(String passportNo, String otpCode) async {
-    print('🔐 [AuthNotifier] Début vérification OTP...');
+    AppLogger.debug('[AuthNotifier] Début vérification OTP...');
     state = state.copyWith(isLoading: true, error: null);
     try {
-      print('📞 [AuthNotifier] Appel verifyOtpUseCase...');
+      AppLogger.debug('[AuthNotifier] Appel verifyOtpUseCase...');
       final response = await verifyOtpUseCase(passportNo, otpCode);
-      print('📥 [AuthNotifier] Réponse reçue: success=${response.success}, token=${response.token != null}');
-      
+      AppLogger.debug('[AuthNotifier] Réponse reçue: success=${response.success}, token=${response.token != null}');
+
       if (response.success && response.token != null) {
-        print('✅ [AuthNotifier] Authentification réussie ! Token présent.');
+        AppLogger.info('[AuthNotifier] Authentification réussie ! Token présent.');
         // Authentification réussie - on définit l'état même si le profil échoue
         state = state.copyWith(
           isLoading: false,
           isAuthenticated: true,
           token: response.token,
         );
-        
-        print('👤 [AuthNotifier] Récupération du profil...');
+
+        AppLogger.debug('[AuthNotifier] Récupération du profil...');
         // Essayer de récupérer le profil (ne bloque pas l'authentification si ça échoue)
         try {
           final profile = await getPilgrimProfileUseCase();
           state = state.copyWith(pilgrimProfile: profile);
-          print('✅ [AuthNotifier] Profil récupéré: ${profile?.fullName ?? "N/A"}');
-          AppLogger.info('✅ Profil récupéré avec succès');
+          AppLogger.info('[AuthNotifier] Profil récupéré: ${profile?.fullName ?? "N/A"}');
         } catch (e) {
-          print('⚠️ [AuthNotifier] Échec récupération profil: $e');
-          AppLogger.warning('⚠️ Impossible de récupérer le profil: $e');
+          AppLogger.warning('[AuthNotifier] Impossible de récupérer le profil: $e');
           // On continue quand même, l'authentification est valide
         }
       } else {
-        print('❌ [AuthNotifier] Échec auth: ${response.message}');
+        AppLogger.warning('[AuthNotifier] Échec auth: ${response.message}');
         state = state.copyWith(
           isLoading: false,
           error: response.message,
         );
       }
     } catch (e) {
-      print('💥 [AuthNotifier] Exception: $e');
+      AppLogger.error('[AuthNotifier] Exception lors de la vérification OTP', error: e);
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/data/models/passport_auth_models.dart';
 import '../../../auth/domain/usecases/passport_auth_usecases.dart';
@@ -13,6 +13,7 @@ import '../../../settings/presentation/screens/help_screen.dart';
 import '../../../settings/presentation/screens/contact_screen.dart';
 import '../../../settings/presentation/screens/about_screen.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../core/utils/app_logger.dart';
 
 // Provider pour récupérer le profil du pèlerin
 final pilgrimProfileProvider = FutureProvider<PilgrimProfile?>((ref) async {
@@ -20,7 +21,7 @@ final pilgrimProfileProvider = FutureProvider<PilgrimProfile?>((ref) async {
   try {
     return await getPilgrimProfileUseCase();
   } catch (e) {
-    print('Erreur récupération profil: $e');
+    AppLogger.error('Erreur récupération profil', error: e);
     return null;
   }
 });
@@ -41,7 +42,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mon Profil'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: ref.colors.primary,
         foregroundColor: Colors.white,
       ),
       body: profileAsync.when(
@@ -111,17 +112,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: ref.colors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.primary,
+                        color: ref.colors.primary,
                         width: 3,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person,
                       size: 50,
-                      color: AppColors.primary,
+                      color: ref.colors.primary,
                     ),
                   ),
 
@@ -132,7 +133,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     profile?.fullName ?? 'Nom non disponible',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: ref.colors.primary,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -143,23 +144,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.1),
+                      color: ref.colors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.badge,
                           size: 18,
-                          color: AppColors.secondary,
+                          color: ref.colors.secondary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Passeport: ${profile?.passportNo ?? 'N/A'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.secondary,
+                            color: ref.colors.secondary,
                           ),
                         ),
                       ],
@@ -228,12 +229,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: ref.colors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.qr_code,
-                  color: AppColors.primary,
+                  color: ref.colors.primary,
                 ),
               ),
               title: const Text('Mon QR Code'),
@@ -340,13 +341,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout, color: AppColors.accent),
-              label: const Text(
+              icon: Icon(Icons.logout, color: ref.colors.accent),
+              label: Text(
                 'Se déconnecter',
-                style: TextStyle(color: AppColors.accent),
+                style: TextStyle(color: ref.colors.accent),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.accent),
+                side: BorderSide(color: ref.colors.accent),
               ),
             ),
           ),
@@ -389,7 +390,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: ref.colors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
             ),
@@ -412,7 +413,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     VoidCallback onTap,
   ) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
+      leading: Icon(icon, color: ref.colors.primary),
       title: Text(title),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -422,9 +423,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   void _showQRCode(BuildContext context, PilgrimProfile? profile) {
+    final colors = ref.colors;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Mon QR Code d\'Urgence'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -433,20 +435,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primary, width: 2),
+                border: Border.all(color: colors.primary, width: 2),
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.white,
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code, size: 80, color: AppColors.primary),
-                    SizedBox(height: 8),
+                    Icon(Icons.qr_code, size: 80, color: colors.primary),
+                    const SizedBox(height: 8),
                     Text(
                       'QR Code Profil',
                       style: TextStyle(
-                        color: AppColors.primary,
+                        color: colors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -458,25 +460,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Text(
               'Ce QR code contient vos informations d\'urgence (nom, passeport, contacts).',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(dialogContext).textTheme.bodySmall,
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Fermer'),
           ),
           ElevatedButton(
             onPressed: () {
               // TODO: Implémenter le partage du QR code
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
                 const SnackBar(content: Text('Fonctionnalité à venir')),
               );
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: colors.primary,
             ),
             child: const Text('Partager'),
           ),
@@ -486,19 +488,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   void _logout(BuildContext context) {
+    final colors = ref.colors;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Déconnexion'),
         content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Annuler'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               final authNotifier = ref.read(authNotifierProvider.notifier);
               await authNotifier.logout();
               if (context.mounted) {
@@ -506,8 +509,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.white,
+              backgroundColor: colors.error,
+              foregroundColor: colors.textOnPrimary,
             ),
             child: const Text('Se déconnecter'),
           ),

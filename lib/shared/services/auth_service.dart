@@ -95,7 +95,7 @@ class AuthService {
         _setState(AuthState.unauthenticated);
       }
     } catch (e) {
-      print('Erreur lors de l\'initialisation de l\'authentification: $e');
+      AppLogger.error('Erreur lors de l\'initialisation de l\'authentification', error: e);
       _setState(AuthState.unauthenticated);
     }
   }
@@ -429,7 +429,7 @@ class AuthService {
         }
       }
     } catch (e) {
-      print('Erreur lors du chargement du profil: $e');
+      AppLogger.error('Erreur lors du chargement du profil', error: e);
     }
   }
 

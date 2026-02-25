@@ -14,7 +14,7 @@ export 'package:flutter/foundation.dart';
 
 // Constants and Theme
 import 'constants/app_sizes.dart';
-import 'constants/app_colors.dart';
+import '../core/theme/theme_extensions.dart';
 
 // Utilities
 
@@ -64,7 +64,7 @@ extension ContextExtension on BuildContext {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? AppColors.error : AppColors.success,
+        backgroundColor: isError ? errorColor : successColor,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(AppSizes.s16),
         padding: const EdgeInsets.symmetric(
@@ -87,45 +87,51 @@ typedef HeaderParams = Map<String, String>;
 // Common constants
 const kDefaultAnimationDuration = Duration(milliseconds: 300);
 
-// Common styles
+// Common styles - using static colors for compile-time constants
+const _textPrimaryColor = Color(0xFF212121);
+const _textSecondaryColor = Color(0xFF757575);
+
 const kHeadlineStyle = TextStyle(
   fontSize: AppSizes.s24,
   fontWeight: FontWeight.bold,
-  color: AppColors.textPrimary,
+  color: _textPrimaryColor,
 );
 
 const kTitleStyle = TextStyle(
   fontSize: AppSizes.s18,
   fontWeight: FontWeight.w600,
-  color: AppColors.textPrimary,
+  color: _textPrimaryColor,
 );
 
 const kSubtitleStyle = TextStyle(
   fontSize: AppSizes.s16,
   fontWeight: FontWeight.w500,
-  color: AppColors.textSecondary,
+  color: _textSecondaryColor,
 );
 
 const kBodyStyle = TextStyle(
   fontSize: AppSizes.s14,
-  color: AppColors.textPrimary,
+  color: _textPrimaryColor,
 );
 
 const kBodyStyleBold = TextStyle(
   fontSize: AppSizes.s14,
   fontWeight: FontWeight.bold,
-  color: AppColors.textPrimary,
+  color: _textPrimaryColor,
 );
 
 const kCaptionStyle = TextStyle(
   fontSize: AppSizes.s12,
-  color: AppColors.textSecondary,
+  color: _textSecondaryColor,
 );
 
-// Common decorations
+// Common decorations - using static colors for runtime constants
+const _surfaceColor = Color(0xFFFFFFFF);
+const _primaryColor = Color(0xFF2E7D32);
+
 final kDefaultInputDecoration = InputDecoration(
   filled: true,
-  fillColor: AppColors.surface,
+  fillColor: _surfaceColor,
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(AppSizes.s8),
     borderSide: BorderSide.none,
@@ -136,7 +142,7 @@ final kDefaultInputDecoration = InputDecoration(
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(AppSizes.s8),
-    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+    borderSide: const BorderSide(color: _primaryColor, width: 2),
   ),
   contentPadding: const EdgeInsets.symmetric(
     horizontal: AppSizes.s16,
@@ -146,8 +152,8 @@ final kDefaultInputDecoration = InputDecoration(
 
 // Common button styles
 final kDefaultButtonStyle = ElevatedButton.styleFrom(
-  backgroundColor: AppColors.primary,
-  foregroundColor: AppColors.textPrimary,
+  backgroundColor: _primaryColor,
+  foregroundColor: _textPrimaryColor,
   padding: const EdgeInsets.symmetric(
     horizontal: AppSizes.s24,
     vertical: AppSizes.s12,
@@ -158,14 +164,14 @@ final kDefaultButtonStyle = ElevatedButton.styleFrom(
 );
 
 final kSecondaryButtonStyle = ElevatedButton.styleFrom(
-  backgroundColor: AppColors.surface,
-  foregroundColor: AppColors.textPrimary,
+  backgroundColor: _surfaceColor,
+  foregroundColor: _textPrimaryColor,
   padding: const EdgeInsets.symmetric(
     horizontal: AppSizes.s24,
     vertical: AppSizes.s12,
   ),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(AppSizes.s8),
-    side: const BorderSide(color: AppColors.primary, width: 1),
+    side: const BorderSide(color: _primaryColor, width: 1),
   ),
 );

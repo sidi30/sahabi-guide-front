@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class AuthChoicePage extends ConsumerStatefulWidget {
@@ -13,7 +13,7 @@ class AuthChoicePage extends ConsumerStatefulWidget {
 }
 
 class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
-  String _selectedRole = 'pilgrim'; // 'pilgrim' ou 'guide'
+  String _selectedRole = 'pilgrim'; // 'pilgrim' ou 'visitor'
   String _selectedLanguage = 'hausa'; // 'hausa' ou 'djerma'
 
   @override
@@ -36,12 +36,13 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     await prefs.setString('audio_language', _selectedLanguage);
     
     if (_selectedRole == 'pilgrim') {
+      // Les pèlerins vont vers la connexion par passeport
       if (!mounted) return;
       context.push('/passport-login');
     } else {
-      // Pour l'instant, les guides vont aussi vers le login passeport
+      // Les visiteurs vont vers l'inscription newsletter
       if (!mounted) return;
-      context.push('/passport-login');
+      context.push('/visitor-registration');
     }
   }
 
@@ -80,9 +81,9 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                               'assets/favicon/apple-touch-icon.png',
                               fit: BoxFit.contain,
                               errorBuilder: (context, error2, stackTrace2) {
-                                return const Icon(
+                                return Icon(
                                   Icons.location_on,
-                                  color: AppColors.primary,
+                                  color: ref.colors.primary,
                                   size: 50,
                                 );
                               },
@@ -126,13 +127,14 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               ),
               const SizedBox(height: 16),
 
-              // Options Pèlerin / Guide
+              // Options Pèlerin / Visiteur
               Row(
                 children: [
                   Expanded(
                     child: _buildRoleOption(
                       icon: Icons.person,
                       label: 'Pèlerin',
+                      subtitle: 'Avec passeport',
                       value: 'pilgrim',
                       isSelected: _selectedRole == 'pilgrim',
                     ),
@@ -140,10 +142,11 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: _buildRoleOption(
-                      icon: Icons.groups,
-                      label: 'Guide',
-                      value: 'guide',
-                      isSelected: _selectedRole == 'guide',
+                      icon: Icons.explore_outlined,
+                      label: 'Visiteur',
+                      subtitle: 'Juste explorer',
+                      value: 'visitor',
+                      isSelected: _selectedRole == 'visitor',
                     ),
                   ),
                 ],
@@ -191,7 +194,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               ElevatedButton(
                 onPressed: _saveAndContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: ref.colors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -240,6 +243,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
   Widget _buildRoleOption({
     required IconData icon,
     required String label,
+    String? subtitle,
     required String value,
     required bool isSelected,
   }) {
@@ -252,10 +256,10 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE8F5F4) : const Color(0xFFF5F5F5),
+          color: isSelected ? ref.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? ref.colors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -264,7 +268,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
             Icon(
               icon,
               size: 40,
-              color: isSelected ? AppColors.primary : Colors.grey,
+              color: isSelected ? ref.colors.primary : Colors.grey,
             ),
             const SizedBox(height: 8),
             Text(
@@ -272,9 +276,23 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : Colors.grey,
+                color: isSelected ? ref.colors.primary : Colors.grey,
               ),
+              textAlign: TextAlign.center,
             ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                    ? ref.colors.primary.withValues(alpha: 0.7)
+                    : Colors.grey.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),
@@ -296,10 +314,10 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE8F5F4) : const Color(0xFFF5F5F5),
+          color: isSelected ? ref.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? ref.colors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -309,7 +327,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
             Icon(
               icon,
               size: 24,
-              color: isSelected ? AppColors.primary : Colors.grey,
+              color: isSelected ? ref.colors.primary : Colors.grey,
             ),
             const SizedBox(width: 8),
             Text(
@@ -317,7 +335,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : Colors.grey,
+                color: isSelected ? ref.colors.primary : Colors.grey,
               ),
             ),
           ],

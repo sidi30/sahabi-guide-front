@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/dua_model.dart';
 
 class DuaCard extends StatelessWidget {
@@ -24,7 +24,7 @@ class DuaCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? context.primaryColor : Colors.transparent,
           width: 2,
         ),
       ),
@@ -91,12 +91,13 @@ class DuaCard extends StatelessWidget {
                   ),
                 ),
                 child: Center(
-                  child: Text(
+                  child: SelectableText(
                     dua.arabicText,
                     textAlign: TextAlign.center,
                     textDirection: TextDirection.rtl,
                     style: const TextStyle(
                       fontSize: 20,
+                      fontFamily: 'Amiri', // Police arabe optimisée
                       fontWeight: FontWeight.w600,
                       height: 1.8,
                       color: Color(0xFF1a5f3f),
@@ -110,6 +111,8 @@ class DuaCard extends StatelessWidget {
               // Traduction française
               Text(
                 dua.translation,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Color(0xFF4B5563),
@@ -125,7 +128,7 @@ class DuaCard extends StatelessWidget {
                   if (dua.audioPath.isNotEmpty) ...[
                     Icon(
                       isSelected ? Icons.pause_circle : Icons.play_circle,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                       size: 20,
                     ),
                     const SizedBox(width: 4),
@@ -142,7 +145,7 @@ class DuaCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: context.primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(

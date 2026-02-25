@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../providers/notifications_provider.dart';
 
 class NotificationsSettingsScreen extends ConsumerWidget {
@@ -13,9 +13,9 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
+        automaticallyImplyLeading: true,
       ),
       body: notificationSettings.when(
         data: (settings) => _buildContent(context, ref, settings),
@@ -24,13 +24,13 @@ class NotificationsSettingsScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: ref.colors.error),
               const SizedBox(height: 16),
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.refresh(notificationsSettingsProvider),
-                child: const Text('Réessayer'),
+                child: const Text('Reessayer'),
               ),
             ],
           ),
@@ -43,17 +43,17 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // En-tête explicatif
+        // En-tete explicatif
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, color: AppColors.primary, size: 32),
+                Icon(Icons.info_outline, color: ref.colors.primary, size: 32),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'Gérez les notifications que vous souhaitez recevoir',
+                    'Gerez les notifications que vous souhaitez recevoir',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -64,14 +64,14 @@ class NotificationsSettingsScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // Notifications générales
-        _buildSectionTitle(context, 'Notifications Générales'),
+        // Notifications generales
+        _buildSectionTitle(context, ref, 'Notifications Generales'),
         Card(
           child: Column(
             children: [
               SwitchListTile(
                 title: const Text('Toutes les notifications'),
-                subtitle: const Text('Activer/désactiver toutes les notifications'),
+                subtitle: const Text('Activer/desactiver toutes les notifications'),
                 value: settings.allEnabled,
                 onChanged: (value) {
                   ref.read(notificationsSettingsProvider.notifier).toggleAllNotifications(value);
@@ -93,7 +93,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
               const Divider(height: 1),
               SwitchListTile(
                 title: const Text('Sons'),
-                subtitle: const Text('Émettre un son lors de la réception'),
+                subtitle: const Text('Emettre un son lors de la reception'),
                 value: settings.soundEnabled,
                 onChanged: settings.allEnabled
                     ? (value) {
@@ -105,7 +105,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
               const Divider(height: 1),
               SwitchListTile(
                 title: const Text('Vibrations'),
-                subtitle: const Text('Vibrer lors de la réception'),
+                subtitle: const Text('Vibrer lors de la reception'),
                 value: settings.vibrationEnabled,
                 onChanged: settings.allEnabled
                     ? (value) {
@@ -121,7 +121,7 @@ class NotificationsSettingsScreen extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // Types de notifications
-        _buildSectionTitle(context, 'Types de Notifications'),
+        _buildSectionTitle(context, ref, 'Types de Notifications'),
         Card(
           child: Column(
             children: [
@@ -134,12 +134,12 @@ class NotificationsSettingsScreen extends ConsumerWidget {
                         ref.read(notificationsSettingsProvider.notifier).toggleEmergencyAlerts(value);
                       }
                     : null,
-                secondary: const Icon(Icons.emergency, color: Colors.red),
+                secondary: Icon(Icons.emergency, color: ref.colors.error),
               ),
               const Divider(height: 1),
               SwitchListTile(
-                title: const Text('Rappels de prière'),
-                subtitle: const Text('Notifications des heures de prière'),
+                title: const Text('Rappels de priere'),
+                subtitle: const Text('Notifications des heures de priere'),
                 value: settings.prayerReminders,
                 onChanged: settings.allEnabled
                     ? (value) {
@@ -174,8 +174,8 @@ class NotificationsSettingsScreen extends ConsumerWidget {
               ),
               const Divider(height: 1),
               SwitchListTile(
-                title: const Text('Alertes santé'),
-                subtitle: const Text('Notifications liées à votre santé'),
+                title: const Text('Alertes sante'),
+                subtitle: const Text('Notifications liees a votre sante'),
                 value: settings.healthAlerts,
                 onChanged: settings.allEnabled
                     ? (value) {
@@ -186,8 +186,8 @@ class NotificationsSettingsScreen extends ConsumerWidget {
               ),
               const Divider(height: 1),
               SwitchListTile(
-                title: const Text('Mises à jour'),
-                subtitle: const Text('Notifications de mises à jour de l\'application'),
+                title: const Text('Mises a jour'),
+                subtitle: const Text('Notifications de mises a jour de l\'application'),
                 value: settings.appUpdates,
                 onChanged: settings.allEnabled
                     ? (value) {
@@ -202,17 +202,17 @@ class NotificationsSettingsScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // Mode Ne Pas Déranger
-        _buildSectionTitle(context, 'Mode Silencieux'),
+        // Mode Ne Pas Deranger
+        _buildSectionTitle(context, ref, 'Mode Silencieux'),
         Card(
           child: Column(
             children: [
               SwitchListTile(
-                title: const Text('Mode Ne Pas Déranger'),
+                title: const Text('Mode Ne Pas Deranger'),
                 subtitle: Text(
                   settings.doNotDisturb
-                      ? 'Activé - Notifications silencieuses'
-                      : 'Désactivé - Notifications normales',
+                      ? 'Active - Notifications silencieuses'
+                      : 'Desactive - Notifications normales',
                 ),
                 value: settings.doNotDisturb,
                 onChanged: settings.allEnabled
@@ -233,17 +233,16 @@ class NotificationsSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
+  Widget _buildSectionTitle(BuildContext context, WidgetRef ref, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, bottom: 8),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+              color: ref.colors.primary,
             ),
       ),
     );
   }
 }
-

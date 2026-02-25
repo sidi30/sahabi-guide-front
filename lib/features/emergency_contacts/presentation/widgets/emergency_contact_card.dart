@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/emergency_contact_model.dart';
 
 class EmergencyContactCard extends StatelessWidget {
@@ -20,6 +20,8 @@ class EmergencyContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.primaryColor;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -34,14 +36,14 @@ class EmergencyContactCard extends StatelessWidget {
             children: [
               // Avatar
               CircleAvatar(
-                backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                backgroundColor: primaryColor.withValues(alpha: 0.2),
                 radius: 24,
                 child: Text(
                   contact.name.isNotEmpty
                       ? contact.name.substring(0, 1).toUpperCase()
                       : '?',
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: primaryColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),

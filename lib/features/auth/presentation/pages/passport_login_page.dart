@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/constants.dart';
@@ -90,10 +90,10 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                           'assets/favicon/apple-touch-icon.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error2, stackTrace2) {
-                            return const Icon(
+                            return Icon(
                               Icons.location_on,
                               size: 50,
-                              color: AppColors.primary,
+                              color: ref.colors.primary,
                             );
                           },
                         );
@@ -109,7 +109,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                   'Connexion par Passeport',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: ref.colors.textPrimary,
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -119,7 +119,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                 Text(
                   'Entrez votre numéro de passeport pour vous connecter',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: ref.colors.textSecondary,
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -171,7 +171,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    color: ref.colors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -179,9 +179,9 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.info_outline,
-                            color: AppColors.primary,
+                            color: ref.colors.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),

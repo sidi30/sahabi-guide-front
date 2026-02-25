@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/utils/constants.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -39,10 +39,10 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('À Propos'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        title: const Text('A Propos'),
+        backgroundColor: context.primaryColor,
+        foregroundColor: context.onPrimaryColor,
+        automaticallyImplyLeading: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -56,8 +56,8 @@ class _AboutScreenState extends State<AboutScreen> {
                   Container(
                     width: 100,
                     height: 100,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: context.surfaceColor,
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(16),
@@ -69,10 +69,10 @@ class _AboutScreenState extends State<AboutScreen> {
                           'assets/favicon/apple-touch-icon.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error2, stackTrace2) {
-                            return const Icon(
+                            return Icon(
                               Icons.location_on,
                               size: 50,
-                              color: AppColors.primary,
+                              color: context.primaryColor,
                             );
                           },
                         );
@@ -84,28 +84,28 @@ class _AboutScreenState extends State<AboutScreen> {
                     'Sahabi Guide',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Votre compagnon pour le Hajj',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                          color: context.textSecondaryColor,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.1),
+                      color: context.secondaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       'Version $_version (Build $_buildNumber)',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.secondary,
+                        color: context.secondaryColor,
                       ),
                     ),
                   ),
@@ -122,13 +122,13 @@ class _AboutScreenState extends State<AboutScreen> {
             icon: Icons.flag,
             title: 'Notre Mission',
             content: '''
-Sahabi Guide a pour mission de faciliter et sécuriser le pèlerinage des musulmans vers les lieux saints. Nous combinons technologie moderne et traditions islamiques pour offrir une expérience enrichissante et sereine.
+Sahabi Guide a pour mission de faciliter et securiser le pelerinage des musulmans vers les lieux saints. Nous combinons technologie moderne et traditions islamiques pour offrir une experience enrichissante et sereine.
 
-Notre application accompagne les pèlerins à chaque étape de leur Hajj, de la préparation jusqu'au retour, en assurant leur sécurité, en les guidant dans les rituels et en maintenant le lien avec leur groupe.
+Notre application accompagne les pelerins a chaque etape de leur Hajj, de la preparation jusqu'au retour, en assurant leur securite, en les guidant dans les rituels et en maintenant le lien avec leur groupe.
 ''',
           ),
 
-          // Fonctionnalités principales
+          // Fonctionnalites principales
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -137,26 +137,26 @@ Notre application accompagne les pèlerins à chaque étape de leur Hajj, de la 
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.star, color: AppColors.primary, size: 24),
+                      Icon(Icons.star, color: context.primaryColor, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Fonctionnalités Principales',
+                        'Fonctionnalites Principales',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: context.primaryColor,
                             ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildFeatureItem(Icons.location_on, 'Géolocalisation en temps réel'),
-                  _buildFeatureItem(Icons.event, 'Guide des rituels du Hajj'),
-                  _buildFeatureItem(Icons.group, 'Gestion de groupe'),
-                  _buildFeatureItem(Icons.local_hospital, 'Carnet de santé digital'),
-                  _buildFeatureItem(Icons.notifications_active, 'Alertes et rappels'),
-                  _buildFeatureItem(Icons.map, 'Carte interactive'),
-                  _buildFeatureItem(Icons.book, 'Invocations (Duas)'),
-                  _buildFeatureItem(Icons.video_library, 'Vidéos éducatives'),
+                  _buildFeatureItem(context, Icons.location_on, 'Geolocalisation en temps reel'),
+                  _buildFeatureItem(context, Icons.event, 'Guide des rituels du Hajj'),
+                  _buildFeatureItem(context, Icons.group, 'Gestion de groupe'),
+                  _buildFeatureItem(context, Icons.local_hospital, 'Carnet de sante digital'),
+                  _buildFeatureItem(context, Icons.notifications_active, 'Alertes et rappels'),
+                  _buildFeatureItem(context, Icons.map, 'Carte interactive'),
+                  _buildFeatureItem(context, Icons.book, 'Invocations (Duas)'),
+                  _buildFeatureItem(context, Icons.video_library, 'Videos educatives'),
                 ],
               ),
             ),
@@ -164,15 +164,15 @@ Notre application accompagne les pèlerins à chaque étape de leur Hajj, de la 
 
           const SizedBox(height: 16),
 
-          // Équipe
+          // Equipe
           _buildSection(
             context,
             icon: Icons.people,
-            title: 'Notre Équipe',
+            title: 'Notre Equipe',
             content: '''
-Sahabi Guide est développé par une équipe passionnée de développeurs, designers et experts religieux, tous unis par la volonté d'améliorer l'expérience du Hajj.
+Sahabi Guide est developpe par une equipe passionnee de developpeurs, designers et experts religieux, tous unis par la volonte d'ameliorer l'experience du Hajj.
 
-Nous travaillons en étroite collaboration avec des agences de voyage, des guides expérimentés et des autorités religieuses pour vous offrir le meilleur accompagnement possible.
+Nous travaillons en etroite collaboration avec des agences de voyage, des guides experimentes et des autorites religieuses pour vous offrir le meilleur accompagnement possible.
 ''',
           ),
 
@@ -185,23 +185,23 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.code, color: AppColors.primary, size: 24),
+                      Icon(Icons.code, color: context.primaryColor, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Technologies Utilisées',
+                        'Technologies Utilisees',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: context.primaryColor,
                             ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildTechItem('Flutter', 'Framework mobile multiplateforme'),
-                  _buildTechItem('Spring Boot', 'Backend robuste et sécurisé'),
-                  _buildTechItem('PostgreSQL', 'Base de données fiable'),
-                  _buildTechItem('Google Maps', 'Cartographie précise'),
-                  _buildTechItem('Firebase', 'Notifications push'),
+                  _buildTechItem(context, 'Flutter', 'Framework mobile multiplateforme'),
+                  _buildTechItem(context, 'Spring Boot', 'Backend robuste et securise'),
+                  _buildTechItem(context, 'PostgreSQL', 'Base de donnees fiable'),
+                  _buildTechItem(context, 'Google Maps', 'Cartographie precise'),
+                  _buildTechItem(context, 'Firebase', 'Notifications push'),
                 ],
               ),
             ),
@@ -209,10 +209,10 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
 
           const SizedBox(height: 16),
 
-          // Licences et crédits
+          // Licences et credits
           Card(
             child: ListTile(
-              leading: const Icon(Icons.description, color: AppColors.primary),
+              leading: Icon(Icons.description, color: context.primaryColor),
               title: const Text('Licences Open Source'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
@@ -223,8 +223,8 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                   applicationIcon: Container(
                     width: 60,
                     height: 60,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: context.surfaceColor,
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(8),
@@ -236,10 +236,10 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                           'assets/favicon/apple-touch-icon.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error2, stackTrace2) {
-                            return const Icon(
+                            return Icon(
                               Icons.location_on,
                               size: 30,
-                              color: AppColors.primary,
+                              color: context.primaryColor,
                             );
                           },
                         );
@@ -253,7 +253,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
 
           const SizedBox(height: 16),
 
-          // Mentions légales
+          // Mentions legales
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -261,19 +261,19 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mentions Légales',
+                    'Mentions Legales',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '© 2025 Sahabi Guide. Tous droits réservés.',
+                    '(c) 2025 Sahabi Guide. Tous droits reserves.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Développé avec ❤️ pour la communauté musulmane',
+                    'Developpe avec amour pour la communaute musulmane',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontStyle: FontStyle.italic,
                         ),
@@ -291,13 +291,13 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // Ouvrir la page de confidentialité
+                    // Ouvrir la page de confidentialite
                     Navigator.pushNamed(context, '/settings/privacy');
                   },
                   icon: const Icon(Icons.privacy_tip),
-                  label: const Text('Confidentialité'),
+                  label: const Text('Confidentialite'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
+                    foregroundColor: context.primaryColor,
                   ),
                 ),
               ),
@@ -311,8 +311,8 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
                   icon: const Icon(Icons.contact_support),
                   label: const Text('Contact'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: context.onPrimaryColor,
                   ),
                 ),
               ),
@@ -339,14 +339,14 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
           children: [
             Row(
               children: [
-                Icon(icon, color: AppColors.primary, size: 24),
+                Icon(icon, color: context.primaryColor, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: context.primaryColor,
                         ),
                   ),
                 ),
@@ -365,12 +365,12 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String text) {
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.secondary),
+          Icon(icon, size: 20, color: context.secondaryColor),
           const SizedBox(width: 12),
           Expanded(
             child: Text(text),
@@ -380,7 +380,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
     );
   }
 
-  Widget _buildTechItem(String name, String description) {
+  Widget _buildTechItem(BuildContext context, String name, String description) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -397,7 +397,7 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
             description,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: context.textSecondaryColor,
             ),
           ),
         ],
@@ -405,4 +405,3 @@ Nous travaillons en étroite collaboration avec des agences de voyage, des guide
     );
   }
 }
-

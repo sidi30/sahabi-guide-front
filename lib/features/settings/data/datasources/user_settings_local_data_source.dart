@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/user_settings_model.dart';
 
 abstract class UserSettingsLocalDataSource {
@@ -24,7 +25,7 @@ class UserSettingsLocalDataSourceImpl implements UserSettingsLocalDataSource {
       }
       return null;
     } catch (e) {
-      print('Erreur lors de la lecture des paramètres en cache: $e');
+      AppLogger.error('Erreur lors de la lecture des paramètres en cache', error: e);
       return null;
     }
   }
@@ -35,7 +36,7 @@ class UserSettingsLocalDataSourceImpl implements UserSettingsLocalDataSource {
       final settingsJson = json.encode(settings.toJson());
       await secureStorage.write(key: _settingsKey, value: settingsJson);
     } catch (e) {
-      print('Erreur lors de la mise en cache des paramètres: $e');
+      AppLogger.error('Erreur lors de la mise en cache des paramètres', error: e);
     }
   }
 
@@ -44,7 +45,7 @@ class UserSettingsLocalDataSourceImpl implements UserSettingsLocalDataSource {
     try {
       await secureStorage.delete(key: _settingsKey);
     } catch (e) {
-      print('Erreur lors de la suppression du cache des paramètres: $e');
+      AppLogger.error('Erreur lors de la suppression du cache des paramètres', error: e);
     }
   }
 }

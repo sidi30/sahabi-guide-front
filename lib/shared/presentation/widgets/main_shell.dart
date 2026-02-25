@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
-import 'package:sahabi_guide/shared/constants/app_colors.dart';
+import '../../../core/theme/theme_extensions.dart';
 import '../../../features/bot/presentation/widgets/floating_bot_button.dart';
 
 class NavigationItem {
@@ -182,21 +182,21 @@ class _MainShellState extends ConsumerState<MainShell> {
               selectedIndex: _selectedIndex,
               onDestinationSelected: _onDestinationSelected,
               labelType: NavigationRailLabelType.all,
-              backgroundColor: AppColors.surface,
-              selectedIconTheme: const IconThemeData(
-                color: AppColors.primary,
+              backgroundColor: ref.colors.surface,
+              selectedIconTheme: IconThemeData(
+                color: ref.colors.primary,
                 size: 28,
               ),
-              selectedLabelTextStyle: const TextStyle(
-                color: AppColors.primary,
+              selectedLabelTextStyle: TextStyle(
+                color: ref.colors.primary,
                 fontWeight: FontWeight.w600,
               ),
-              unselectedIconTheme: const IconThemeData(
-                color: AppColors.textLight,
+              unselectedIconTheme: IconThemeData(
+                color: ref.colors.textLight,
                 size: 24,
               ),
-              unselectedLabelTextStyle: const TextStyle(
-                color: AppColors.textLight,
+              unselectedLabelTextStyle: TextStyle(
+                color: ref.colors.textLight,
               ),
               destinations: _navigationItems
                   .map(
@@ -210,8 +210,8 @@ class _MainShellState extends ConsumerState<MainShell> {
             ),
           // Divider for navigation rail
           if (isLargeScreen)
-            const VerticalDivider(
-                thickness: 1, width: 1, color: AppColors.divider),
+            VerticalDivider(
+                thickness: 1, width: 1, color: ref.colors.divider),
           // Main content
           Expanded(child: widget.child),
         ],
@@ -249,7 +249,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary
+                              ? ref.colors.primary
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -260,8 +260,8 @@ class _MainShellState extends ConsumerState<MainShell> {
                               isSelected ? item.selectedIcon : item.icon,
                               size: 22,
                               color: isSelected
-                                  ? AppColors.white
-                                  : AppColors.textLight,
+                                  ? ref.colors.textOnPrimary
+                                  : ref.colors.textLight,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -272,8 +272,8 @@ class _MainShellState extends ConsumerState<MainShell> {
                                     ? FontWeight.w600
                                     : FontWeight.normal,
                                 color: isSelected
-                                    ? AppColors.white
-                                    : AppColors.textLight,
+                                    ? ref.colors.textOnPrimary
+                                    : ref.colors.textLight,
                               ),
                             ),
                           ],

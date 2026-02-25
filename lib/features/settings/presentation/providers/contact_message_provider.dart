@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/contact_message_model.dart';
 import '../../domain/usecases/send_contact_message_usecase.dart';
 import '../../domain/usecases/get_my_messages_usecase.dart';
@@ -10,7 +11,7 @@ final myContactMessagesProvider = FutureProvider<List<ContactMessageModel>>((ref
   try {
     return await getMyMessagesUseCase();
   } catch (e) {
-    print('Erreur récupération messages: $e');
+    AppLogger.error('Erreur récupération messages', error: e);
     return [];
   }
 });

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/connectivity_plan_model.dart';
 import '../models/connectivity_subscription_model.dart';
 
@@ -25,7 +26,7 @@ class ConnectivityLocalDataSourceImpl implements ConnectivityLocalDataSource {
       final jsonList = plans.map((plan) => plan.toJson()).toList();
       await secureStorage.write(key: _plansKey, value: jsonEncode(jsonList));
     } catch (e) {
-      print('Erreur lors de la mise en cache des forfaits: $e');
+      AppLogger.error('Erreur lors de la mise en cache des forfaits', error: e);
     }
   }
 
@@ -38,7 +39,7 @@ class ConnectivityLocalDataSourceImpl implements ConnectivityLocalDataSource {
       final List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((json) => ConnectivityPlanModel.fromJson(json)).toList();
     } catch (e) {
-      print('Erreur lors de la lecture du cache des forfaits: $e');
+      AppLogger.error('Erreur lors de la lecture du cache des forfaits', error: e);
       return [];
     }
   }
@@ -49,7 +50,7 @@ class ConnectivityLocalDataSourceImpl implements ConnectivityLocalDataSource {
       final jsonList = subscriptions.map((sub) => sub.toJson()).toList();
       await secureStorage.write(key: _subscriptionsKey, value: jsonEncode(jsonList));
     } catch (e) {
-      print('Erreur lors de la mise en cache des abonnements: $e');
+      AppLogger.error('Erreur lors de la mise en cache des abonnements', error: e);
     }
   }
 
@@ -62,7 +63,7 @@ class ConnectivityLocalDataSourceImpl implements ConnectivityLocalDataSource {
       final List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((json) => ConnectivitySubscriptionModel.fromJson(json)).toList();
     } catch (e) {
-      print('Erreur lors de la lecture du cache des abonnements: $e');
+      AppLogger.error('Erreur lors de la lecture du cache des abonnements', error: e);
       return [];
     }
   }
@@ -73,7 +74,7 @@ class ConnectivityLocalDataSourceImpl implements ConnectivityLocalDataSource {
       await secureStorage.delete(key: _plansKey);
       await secureStorage.delete(key: _subscriptionsKey);
     } catch (e) {
-      print('Erreur lors de la suppression du cache: $e');
+      AppLogger.error('Erreur lors de la suppression du cache', error: e);
     }
   }
 }

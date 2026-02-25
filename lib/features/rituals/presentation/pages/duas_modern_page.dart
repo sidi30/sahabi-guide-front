@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../domain/repositories/rituals_repository.dart';
@@ -32,8 +32,8 @@ class _DuasModernPageState extends ConsumerState<DuasModernPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Douas'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

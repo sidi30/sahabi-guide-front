@@ -1,27 +1,77 @@
 {
   "duas": [
     {
-      "id": "ihram_dua",
-      "title": "Doua de l'Ihram",
-      "description": "Invocation lors de l'entrée en état d'ihram",
-      "arabicText": "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ",
-      "transliteration": "Labbaik Allahumma labbaik, labbaik la sharika laka labbaik, inna al-hamda wa an-ni'mata laka wa al-mulk, la sharika laka",
-      "translation": "Me voici, ô Allah, me voici. Me voici, Tu n'as pas d'associé, me voici. Certes, la louange, la grâce et la royauté T'appartiennent. Tu n'as pas d'associé.",
+      "id": "ihram_niyyah_umrah",
+      "title": "Intention de la Omra",
+      "description": "Invocation pour formuler l'intention de la Omra au Meqat",
+      "arabicText": "اللَّهُمَّ إِنِّي أُرِيدُ الْعُمْرَةَ فَيَسِّرْهَا لِي وَتَقَبَّلْهَا مِنِّي",
+      "transliteration": "Allahumma inni uridu al-'umrata fayassirha li wa taqabbalha minni",
+      "translation": "O Allah, je veux accomplir la Omra, facilite-la moi et accepte-la de moi.",
       "type": "hajj",
-      "audioPath": "assets/audio/duas/ihram_dua.mp3",
+      "audioPath": "assets/audio/duas/ihram_niyyah_umrah.mp3",
       "audioPaths": {
-        "fr": "assets/audio/duas/ihram_dua_fr.mp3",
-        "ha": "assets/audio/duas/ihram_dua_ha.mp3",
-        "za": "assets/audio/duas/ihram_dua_za.mp3",
-        "ar": "assets/audio/duas/ihram_dua_ar.mp3"
+        "fr": "assets/audio/duas/ihram_niyyah_umrah_fr.mp3",
+        "ar": "assets/audio/duas/ihram_niyyah_umrah_ar.mp3"
       },
-      "duration": 30,
+      "duration": 15,
       "priority": 5,
-      "tags": ["hajj", "ihram", "talbiyah"],
+      "tags": ["hajj", "ihram", "niyyah", "omra"],
       "isActive": true,
       "isFavorite": false,
       "translations": {
-        "fr": "Me voici, ô Allah, me voici. Me voici, Tu n'as pas d'associé, me voici. Certes, la louange, la grâce et la royauté T'appartiennent. Tu n'as pas d'associé.",
+        "fr": "O Allah, je veux accomplir la Omra, facilite-la moi et accepte-la de moi.",
+        "ar": "اللَّهُمَّ إِنِّي أُرِيدُ الْعُمْرَةَ فَيَسِّرْهَا لِي وَتَقَبَّلْهَا مِنِّي"
+      },
+      "ritualId": "ihram",
+      "playCount": 0
+    },
+    {
+      "id": "ihram_niyyah_hajj",
+      "title": "Intention du Hajj",
+      "description": "Invocation pour formuler l'intention du Hajj",
+      "arabicText": "اللَّهُمَّ إِنِّي أُرِيدُ الْحَجَّ فَيَسِّرْهُ لِي وَتَقَبَّلْهُ مِنِّي",
+      "transliteration": "Allahumma inni uridu al-hajja fayassirhu li wa taqabbalhu minni",
+      "translation": "O Allah, je veux accomplir le Hajj, facilite-le moi et accepte-le de moi.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/ihram_niyyah_hajj.mp3",
+      "audioPaths": {
+        "fr": "assets/audio/duas/ihram_niyyah_hajj_fr.mp3",
+        "ar": "assets/audio/duas/ihram_niyyah_hajj_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 5,
+      "tags": ["hajj", "ihram", "niyyah"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "O Allah, je veux accomplir le Hajj, facilite-le moi et accepte-le de moi.",
+        "ar": "اللَّهُمَّ إِنِّي أُرِيدُ الْحَجَّ فَيَسِّرْهُ لِي وَتَقَبَّلْهُ مِنِّي"
+      },
+      "ritualId": "ihram",
+      "playCount": 0
+    },
+    {
+      "id": "talbiyah",
+      "title": "La Talbiyah",
+      "description": "Invocation principale de l'Ihram a repeter tout au long du pelerinage",
+      "arabicText": "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ",
+      "transliteration": "Labbayk Allahumma labbayk, labbayk la sharika laka labbayk, inna al-hamda wa an-ni'mata laka wa al-mulk, la sharika laka",
+      "translation": "Me voici, O Allah, me voici. Me voici, Tu n'as pas d'associe, me voici. Certes, la louange, la grace et la royaute T'appartiennent. Tu n'as pas d'associe.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/talbiyah.mp3",
+      "audioPaths": {
+        "fr": "assets/audio/duas/talbiyah_fr.mp3",
+        "ha": "assets/audio/duas/talbiyah_ha.mp3",
+        "za": "assets/audio/duas/talbiyah_za.mp3",
+        "ar": "assets/audio/duas/talbiyah_ar.mp3"
+      },
+      "duration": 30,
+      "priority": 5,
+      "tags": ["hajj", "ihram", "talbiyah", "essentiel"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Me voici, O Allah, me voici. Me voici, Tu n'as pas d'associe, me voici. Certes, la louange, la grace et la royaute T'appartiennent. Tu n'as pas d'associe.",
         "ha": "Na zo, ya Allah, na zo. Na zo, ba ka da abokin tarayya, na zo. Lalle, godiya da ni'ima da mulki naka ne, ba ka da abokin tarayya.",
         "za": "Na zo, ya Allah, na zo. Na zo, ba ka da abokin tarayya, na zo. Lalle, godiya da ni'ima da mulki naka ne, ba ka da abokin tarayya.",
         "ar": "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ"
@@ -30,116 +80,630 @@
       "playCount": 0
     },
     {
-      "id": "tawaf_dua",
-      "title": "Doua du Tawaf",
-      "description": "Invocation pendant la circumambulation",
-      "arabicText": "سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ",
-      "transliteration": "Subhana Allah wa al-hamdu lillah wa la ilaha illa Allah wa Allahu akbar",
-      "translation": "Gloire à Allah, louange à Allah, il n'y a de divinité qu'Allah, Allah est le plus grand.",
+      "id": "dua_after_talbiyah",
+      "title": "Doua apres la Talbiyah",
+      "description": "Invocation a reciter apres la Talbiyah",
+      "arabicText": "اللَّهُمَّ إِنِّي أَسْأَلُكَ رِضَاكَ وَالْجَنَّةَ، وَأَعُوذُ بِكَ مِنْ سَخَطِكَ وَالنَّارِ",
+      "transliteration": "Allahumma inni as'aluka ridaka wal-jannah, wa a'udhu bika min sakhatika wan-nar",
+      "translation": "O Allah, je Te demande Ta satisfaction et le Paradis, et je cherche refuge aupres de Toi contre Ton courroux et le Feu.",
       "type": "hajj",
-      "audioPath": "assets/audio/duas/tawaf_dua.mp3",
+      "audioPath": "assets/audio/duas/dua_after_talbiyah.mp3",
       "audioPaths": {
-        "fr": "assets/audio/duas/tawaf_dua_fr.mp3",
-        "ha": "assets/audio/duas/tawaf_dua_ha.mp3",
-        "za": "assets/audio/duas/tawaf_dua_za.mp3",
-        "ar": "assets/audio/duas/tawaf_dua_ar.mp3"
+        "ar": "assets/audio/duas/dua_after_talbiyah_ar.mp3"
       },
       "duration": 15,
       "priority": 4,
-      "tags": ["hajj", "tawaf", "dhikr"],
+      "tags": ["hajj", "ihram", "talbiyah"],
       "isActive": true,
       "isFavorite": false,
       "translations": {
-        "fr": "Gloire à Allah, louange à Allah, il n'y a de divinité qu'Allah, Allah est le plus grand.",
-        "ha": "Tsarkin Allah, godiya ga Allah, babu ubangiji sai Allah, Allah ne mafi girma.",
-        "za": "Tsarkin Allah, godiya ga Allah, babu ubangiji sai Allah, Allah ne mafi girma.",
-        "ar": "سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ"
+        "fr": "O Allah, je Te demande Ta satisfaction et le Paradis, et je cherche refuge aupres de Toi contre Ton courroux et le Feu.",
+        "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ رِضَاكَ وَالْجَنَّةَ، وَأَعُوذُ بِكَ مِنْ سَخَطِكَ وَالنَّارِ"
+      },
+      "ritualId": "ihram",
+      "playCount": 0
+    },
+    {
+      "id": "kaaba_first_sight",
+      "title": "En voyant la Kaaba",
+      "description": "Invocation en voyant la Kaaba pour la premiere fois",
+      "arabicText": "اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، فَحَيِّنَا رَبَّنَا بِالسَّلَامِ",
+      "transliteration": "Allahumma antas-salam wa minkas-salam, fahayyina rabbana bis-salam",
+      "translation": "O Allah, Tu es la Paix et de Toi vient la paix, fais-nous vivre, notre Seigneur, dans la paix.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/kaaba_first_sight.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/kaaba_first_sight_ar.mp3"
+      },
+      "duration": 12,
+      "priority": 5,
+      "tags": ["hajj", "tawaf", "kaaba"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, Tu es la Paix et de Toi vient la paix, fais-nous vivre, notre Seigneur, dans la paix.",
+        "ar": "اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، فَحَيِّنَا رَبَّنَا بِالسَّلَامِ"
       },
       "ritualId": "tawaf",
       "playCount": 0
     },
     {
-      "id": "arafat_dua",
-      "title": "Doua d'Arafat",
-      "description": "La meilleure doua du jour d'Arafat",
-      "arabicText": "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-      "transliteration": "La ilaha illa Allah wahdahu la sharika lah, lahul mulku wa lahul hamdu wa huwa 'ala kulli shay'in qadir",
-      "translation": "Il n'y a de divinité qu'Allah, Unique, sans associé. À Lui appartient la royauté et la louange, et Il est capable de toute chose.",
+      "id": "tawaf_start",
+      "title": "Debut du Tawaf (Pierre Noire)",
+      "description": "Invocation au debut de chaque tour a la Pierre Noire",
+      "arabicText": "بِسْمِ اللهِ وَاللهُ أَكْبَرُ",
+      "transliteration": "Bismillahi wallahu akbar",
+      "translation": "Au nom d'Allah et Allah est le Plus Grand.",
       "type": "hajj",
-      "audioPath": "assets/audio/duas/arafat_dua.mp3",
+      "audioPath": "assets/audio/duas/tawaf_start.mp3",
       "audioPaths": {
-        "fr": "assets/audio/duas/arafat_dua_fr.mp3",
-        "ha": "assets/audio/duas/arafat_dua_ha.mp3",
-        "za": "assets/audio/duas/arafat_dua_za.mp3",
-        "ar": "assets/audio/duas/arafat_dua_ar.mp3"
+        "ar": "assets/audio/duas/tawaf_start_ar.mp3"
+      },
+      "duration": 5,
+      "priority": 5,
+      "tags": ["hajj", "tawaf", "pierre-noire"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Au nom d'Allah et Allah est le Plus Grand.",
+        "ar": "بِسْمِ اللهِ وَاللهُ أَكْبَرُ"
+      },
+      "ritualId": "tawaf",
+      "playCount": 0
+    },
+    {
+      "id": "tawaf_general",
+      "title": "Dhikr pendant le Tawaf",
+      "description": "Invocation generale a repeter pendant le Tawaf",
+      "arabicText": "سُبْحَانَ اللهِ وَالْحَمْدُ لِلهِ وَلَا إِلَهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+      "transliteration": "Subhanallah, walhamdulillah, wa la ilaha illallah, wallahu akbar, wa la hawla wa la quwwata illa billah",
+      "translation": "Gloire a Allah, louange a Allah, il n'y a de divinite qu'Allah, Allah est le Plus Grand, et il n'y a de force ni de puissance qu'en Allah.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/tawaf_general.mp3",
+      "audioPaths": {
+        "fr": "assets/audio/duas/tawaf_general_fr.mp3",
+        "ar": "assets/audio/duas/tawaf_general_ar.mp3"
       },
       "duration": 20,
+      "priority": 4,
+      "tags": ["hajj", "tawaf", "dhikr"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Gloire a Allah, louange a Allah, il n'y a de divinite qu'Allah, Allah est le Plus Grand, et il n'y a de force ni de puissance qu'en Allah.",
+        "ar": "سُبْحَانَ اللهِ وَالْحَمْدُ لِلهِ وَلَا إِلَهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ"
+      },
+      "ritualId": "tawaf",
+      "playCount": 0
+    },
+    {
+      "id": "tawaf_yemeni_corner",
+      "title": "Entre le Coin Yemenite et la Pierre Noire",
+      "description": "Invocation entre le Coin Yemenite et la Pierre Noire (a chaque tour)",
+      "arabicText": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+      "transliteration": "Rabbana atina fid-dunya hasanah, wa fil-akhirati hasanah, wa qina 'adhabannar",
+      "translation": "Seigneur ! Accorde-nous belle part ici-bas, et belle part aussi dans l'au-dela ; et protege-nous du chatiment du Feu.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/tawaf_yemeni_corner.mp3",
+      "audioPaths": {
+        "fr": "assets/audio/duas/tawaf_yemeni_corner_fr.mp3",
+        "ar": "assets/audio/duas/tawaf_yemeni_corner_ar.mp3"
+      },
+      "duration": 15,
       "priority": 5,
-      "tags": ["hajj", "arafat", "pilier"],
+      "tags": ["hajj", "tawaf", "coin-yemenite", "essentiel"],
       "isActive": true,
       "isFavorite": true,
       "translations": {
-        "fr": "Il n'y a de divinité qu'Allah, Unique, sans associé. À Lui appartient la royauté et la louange, et Il est capable de toute chose.",
+        "fr": "Seigneur ! Accorde-nous belle part ici-bas, et belle part aussi dans l'au-dela ; et protege-nous du chatiment du Feu.",
+        "ar": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ"
+      },
+      "ritualId": "tawaf",
+      "playCount": 0
+    },
+    {
+      "id": "tawaf_forgiveness",
+      "title": "Demande de pardon (Tawaf)",
+      "description": "Invocation de demande de pardon pendant le Tawaf",
+      "arabicText": "رَبِّ اغْفِرْ وَارْحَمْ وَأَنْتَ الْأَعَزُّ الْأَكْرَمُ",
+      "transliteration": "Rabbighfir warham wa anta al-a'azzul-akram",
+      "translation": "Seigneur, pardonne et fais misericorde, Tu es le Plus Puissant, le Plus Genereux.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/tawaf_forgiveness.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/tawaf_forgiveness_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 4,
+      "tags": ["hajj", "tawaf", "pardon"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Seigneur, pardonne et fais misericorde, Tu es le Plus Puissant, le Plus Genereux.",
+        "ar": "رَبِّ اغْفِرْ وَارْحَمْ وَأَنْتَ الْأَعَزُّ الْأَكْرَمُ"
+      },
+      "ritualId": "tawaf",
+      "playCount": 0
+    },
+    {
+      "id": "zamzam_dua",
+      "title": "En buvant Zamzam",
+      "description": "Invocation en buvant l'eau de Zamzam",
+      "arabicText": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا وَاسِعًا، وَشِفَاءً مِنْ كُلِّ دَاءٍ",
+      "transliteration": "Allahumma inni as'aluka 'ilman nafi'an, wa rizqan wasi'an, wa shifa'an min kulli da'",
+      "translation": "O Allah, je Te demande une science benefique, une subsistance abondante et une guerison de toute maladie.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/zamzam_dua.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/zamzam_dua_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 4,
+      "tags": ["hajj", "tawaf", "zamzam"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, je Te demande une science benefique, une subsistance abondante et une guerison de toute maladie.",
+        "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا وَاسِعًا، وَشِفَاءً مِنْ كُلِّ دَاءٍ"
+      },
+      "ritualId": "tawaf",
+      "playCount": 0
+    },
+    {
+      "id": "sai_start_safa",
+      "title": "Debut du Sa'i (sur Safa)",
+      "description": "Invocation en montant sur Safa pour commencer le Sa'i",
+      "arabicText": "إِنَّ الصَّفَا وَالْمَرْوَةَ مِنْ شَعَائِرِ اللهِ. أَبْدَأُ بِمَا بَدَأَ اللهُ بِهِ",
+      "transliteration": "Innas-safa wal-marwata min sha'a'irillah. Abda'u bima bada'allahu bih",
+      "translation": "Certes, As-Safa et Al-Marwah sont parmi les lieux sacres d'Allah. Je commence par ce par quoi Allah a commence.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/sai_start_safa.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/sai_start_safa_ar.mp3"
+      },
+      "duration": 12,
+      "priority": 5,
+      "tags": ["hajj", "sai", "safa"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Certes, As-Safa et Al-Marwah sont parmi les lieux sacres d'Allah. Je commence par ce par quoi Allah a commence.",
+        "ar": "إِنَّ الصَّفَا وَالْمَرْوَةَ مِنْ شَعَائِرِ اللهِ. أَبْدَأُ بِمَا بَدَأَ اللهُ بِهِ"
+      },
+      "ritualId": "sai",
+      "playCount": 0
+    },
+    {
+      "id": "sai_on_safa",
+      "title": "Invocation sur Safa",
+      "description": "Invocation a reciter sur Safa face a la Kaaba",
+      "arabicText": "اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ. لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ",
+      "transliteration": "Allahu akbar (x3). La ilaha illallah wahdahu la sharika lah, lahul-mulku wa lahul-hamd, yuhyi wa yumit, wa huwa 'ala kulli shay'in qadir. La ilaha illallah wahdah, anjaza wa'dah, wa nasara 'abdah, wa hazamal-ahzaba wahdah",
+      "translation": "Allah est le Plus Grand (x3). Il n'y a de divinite qu'Allah, Seul sans associe. A Lui appartient la royaute et la louange. Il donne la vie et la mort, et Il est Capable de toute chose. Il n'y a de divinite qu'Allah, Seul. Il a tenu Sa promesse, a donne la victoire a Son serviteur et a vaincu les coalises Seul.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/sai_on_safa.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/sai_on_safa_ar.mp3"
+      },
+      "duration": 35,
+      "priority": 5,
+      "tags": ["hajj", "sai", "safa", "essentiel"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Allah est le Plus Grand (x3). Il n'y a de divinite qu'Allah, Seul sans associe. A Lui appartient la royaute et la louange. Il donne la vie et la mort, et Il est Capable de toute chose. Il n'y a de divinite qu'Allah, Seul. Il a tenu Sa promesse, a donne la victoire a Son serviteur et a vaincu les coalises Seul.",
+        "ar": "اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ. لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ"
+      },
+      "ritualId": "sai",
+      "playCount": 0
+    },
+    {
+      "id": "sai_between",
+      "title": "Entre Safa et Marwa",
+      "description": "Invocation a reciter entre Safa et Marwa",
+      "arabicText": "رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ",
+      "transliteration": "Rabbighfir warham, innaka antal-a'azzul-akram",
+      "translation": "Seigneur, pardonne et fais misericorde, certes Tu es le Plus Puissant, le Plus Genereux.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/sai_between.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/sai_between_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 4,
+      "tags": ["hajj", "sai"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Seigneur, pardonne et fais misericorde, certes Tu es le Plus Puissant, le Plus Genereux.",
+        "ar": "رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ"
+      },
+      "ritualId": "sai",
+      "playCount": 0
+    },
+    {
+      "id": "sai_green_lights",
+      "title": "Entre les lumieres vertes",
+      "description": "Invocation pendant la course entre les lumieres vertes (hommes)",
+      "arabicText": "رَبِّ اغْفِرْ وَارْحَمْ وَتَجَاوَزْ عَمَّا تَعْلَمُ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ",
+      "transliteration": "Rabbighfir warham wa tajawaz 'amma ta'lam, innaka antal-a'azzul-akram",
+      "translation": "Seigneur, pardonne, fais misericorde et passe sur ce que Tu sais, certes Tu es le Plus Puissant, le Plus Genereux.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/sai_green_lights.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/sai_green_lights_ar.mp3"
+      },
+      "duration": 12,
+      "priority": 4,
+      "tags": ["hajj", "sai", "course"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Seigneur, pardonne, fais misericorde et passe sur ce que Tu sais, certes Tu es le Plus Puissant, le Plus Genereux.",
+        "ar": "رَبِّ اغْفِرْ وَارْحَمْ وَتَجَاوَزْ عَمَّا تَعْلَمُ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ"
+      },
+      "ritualId": "sai",
+      "playCount": 0
+    },
+    {
+      "id": "arafat_best_dua",
+      "title": "Meilleure doua d'Arafat",
+      "description": "La meilleure invocation du jour d'Arafat (a repeter abondamment)",
+      "arabicText": "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+      "transliteration": "La ilaha illallah wahdahu la sharika lah, lahul mulku wa lahul hamdu wa huwa 'ala kulli shay'in qadir",
+      "translation": "Il n'y a de divinite qu'Allah, Seul, sans associe. A Lui appartient la royaute et la louange, et Il est Capable de toute chose.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/arafat_best_dua.mp3",
+      "audioPaths": {
+        "fr": "assets/audio/duas/arafat_best_dua_fr.mp3",
+        "ha": "assets/audio/duas/arafat_best_dua_ha.mp3",
+        "ar": "assets/audio/duas/arafat_best_dua_ar.mp3"
+      },
+      "duration": 20,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "pilier", "essentiel"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Il n'y a de divinite qu'Allah, Seul, sans associe. A Lui appartient la royaute et la louange, et Il est Capable de toute chose.",
         "ha": "Babu ubangiji sai Allah, daya, ba ka da abokin tarayya. Mulki da godiya naka ne, kuma Shi ne mai iyawa ga kowane abu.",
-        "za": "Babu ubangiji sai Allah, daya, ba ka da abokin tarayya. Mulki da godiya naka ne, kuma Shi ne mai iyawa ga kowane abu.",
-        "ar": "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
+        "ar": "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
       },
       "ritualId": "arafat",
       "playCount": 0
     },
     {
-      "id": "ramy_dua",
-      "title": "Doua de la Lapidation",
-      "description": "Invocation lors de la lapidation des stèles",
-      "arabicText": "اللَّهُمَّ اجْعَلْهُ حَجًّا مَبْرُورًا وَذَنْبًا مَغْفُورًا",
-      "transliteration": "Allahumma ij'alhu hajjan mabruran wa dhanban maghfuran",
-      "translation": "Ô Allah, fais que ce soit un pèlerinage accepté et un péché pardonné.",
+      "id": "arafat_forgiveness",
+      "title": "Demande de pardon (Arafat)",
+      "description": "Invocation de demande de pardon pour le jour d'Arafat",
+      "arabicText": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+      "transliteration": "Allahumma innaka 'afuwwun tuhibbul-'afwa fa'fu 'anni",
+      "translation": "O Allah, Tu es Pardonnant et Tu aimes le pardon, alors pardonne-moi.",
       "type": "hajj",
-      "audioPath": "assets/audio/duas/ramy_dua.mp3",
+      "audioPath": "assets/audio/duas/arafat_forgiveness.mp3",
       "audioPaths": {
-        "fr": "assets/audio/duas/ramy_dua_fr.mp3",
-        "ha": "assets/audio/duas/ramy_dua_ha.mp3",
-        "za": "assets/audio/duas/ramy_dua_za.mp3",
-        "ar": "assets/audio/duas/ramy_dua_ar.mp3"
+        "ar": "assets/audio/duas/arafat_forgiveness_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "pardon"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, Tu es Pardonnant et Tu aimes le pardon, alors pardonne-moi.",
+        "ar": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي"
+      },
+      "ritualId": "arafat",
+      "playCount": 0
+    },
+    {
+      "id": "arafat_yunus",
+      "title": "Doua du Prophete Yunus",
+      "description": "Invocation du Prophete Yunus (paix sur lui)",
+      "arabicText": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+      "transliteration": "La ilaha illa anta subhanaka inni kuntu minaz-zalimin",
+      "translation": "Il n'y a de divinite que Toi, Gloire a Toi, j'etais certes parmi les injustes.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/arafat_yunus.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/arafat_yunus_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "pardon", "prophete"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Il n'y a de divinite que Toi, Gloire a Toi, j'etais certes parmi les injustes.",
+        "ar": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ"
+      },
+      "ritualId": "arafat",
+      "playCount": 0
+    },
+    {
+      "id": "arafat_parents",
+      "title": "Doua pour les parents",
+      "description": "Invocation pour demander le pardon pour les parents",
+      "arabicText": "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+      "transliteration": "Rabbighfir li wa liwalidayya wa lil-mu'minina yawma yaqumul-hisab",
+      "translation": "Seigneur, pardonne-moi, ainsi qu'a mes parents et aux croyants, le Jour ou le compte sera etabli.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/arafat_parents.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/arafat_parents_ar.mp3"
+      },
+      "duration": 12,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "parents", "pardon"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Seigneur, pardonne-moi, ainsi qu'a mes parents et aux croyants, le Jour ou le compte sera etabli.",
+        "ar": "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ"
+      },
+      "ritualId": "arafat",
+      "playCount": 0
+    },
+    {
+      "id": "arafat_protection",
+      "title": "Doua de protection",
+      "description": "Invocation pour se proteger des epreuves",
+      "arabicText": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ",
+      "transliteration": "Allahumma inni a'udhu bika min 'adhabi jahannam, wa min 'adhabil-qabr, wa min fitnatil-mahya wal-mamat, wa min sharri fitnatil-masihid-dajjal",
+      "translation": "O Allah, je cherche refuge aupres de Toi contre le chatiment de l'Enfer, contre le chatiment de la tombe, contre les epreuves de la vie et de la mort, et contre le mal de l'epreuve du faux Messie.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/arafat_protection.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/arafat_protection_ar.mp3"
+      },
+      "duration": 25,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "protection"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, je cherche refuge aupres de Toi contre le chatiment de l'Enfer, contre le chatiment de la tombe, contre les epreuves de la vie et de la mort, et contre le mal de l'epreuve du faux Messie.",
+        "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ"
+      },
+      "ritualId": "arafat",
+      "playCount": 0
+    },
+    {
+      "id": "arafat_sayyid_istighfar",
+      "title": "Sayyidul Istighfar",
+      "description": "Le Maitre de la demande de pardon",
+      "arabicText": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
+      "transliteration": "Allahumma anta rabbi la ilaha illa ant, khalaqtani wa ana 'abduk, wa ana 'ala 'ahdika wa wa'dika mastata't, a'udhu bika min sharri ma sana't, abu'u laka bini'matika 'alayy, wa abu'u bidhanbi faghfir li fa'innahu la yaghfirudh-dhunuba illa ant",
+      "translation": "O Allah, Tu es mon Seigneur, il n'y a de divinite que Toi. Tu m'as cree et je suis Ton serviteur. Je suis fidele a Ton pacte et a Ta promesse autant que je le peux. Je cherche refuge aupres de Toi contre le mal que j'ai commis. Je reconnais Tes bienfaits sur moi et je reconnais mon peche, alors pardonne-moi, car nul ne pardonne les peches sauf Toi.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/arafat_sayyid_istighfar.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/arafat_sayyid_istighfar_ar.mp3"
+      },
+      "duration": 40,
+      "priority": 5,
+      "tags": ["hajj", "arafat", "istighfar", "pardon", "essentiel"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, Tu es mon Seigneur, il n'y a de divinite que Toi. Tu m'as cree et je suis Ton serviteur. Je suis fidele a Ton pacte et a Ta promesse autant que je le peux. Je cherche refuge aupres de Toi contre le mal que j'ai commis. Je reconnais Tes bienfaits sur moi et je reconnais mon peche, alors pardonne-moi, car nul ne pardonne les peches sauf Toi.",
+        "ar": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ"
+      },
+      "ritualId": "arafat",
+      "playCount": 0
+    },
+    {
+      "id": "muzdalifah_arrival",
+      "title": "Arrivee a Muzdalifah",
+      "description": "Invocation en arrivant a Muzdalifah",
+      "arabicText": "اللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَرْزُقَنِي جَوَامِعَ الْخَيْرِ",
+      "transliteration": "Allahumma inni as'aluka an tarzuqani jawami'al-khayr",
+      "translation": "O Allah, je Te demande de m'accorder les biens les plus complets.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/muzdalifah_arrival.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/muzdalifah_arrival_ar.mp3"
       },
       "duration": 10,
       "priority": 4,
-      "tags": ["hajj", "lapidation", "jamrat"],
+      "tags": ["hajj", "muzdalifah"],
       "isActive": true,
       "isFavorite": false,
       "translations": {
-        "fr": "Ô Allah, fais que ce soit un pèlerinage accepté et un péché pardonné.",
-        "ha": "Ya Allah, ka sanya shi hajji mai kyau da zunubi mai gafara.",
-        "za": "Ya Allah, ka sanya shi hajji mai kyau da zunubi mai gafara.",
+        "fr": "O Allah, je Te demande de m'accorder les biens les plus complets.",
+        "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَرْزُقَنِي جَوَامِعَ الْخَيْرِ"
+      },
+      "ritualId": "muzdalifah",
+      "playCount": 0
+    },
+    {
+      "id": "muzdalifah_mashar",
+      "title": "Au Mash'ar al-Haram",
+      "description": "Invocation au Mash'ar al-Haram apres le Fajr",
+      "arabicText": "اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ، اللهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ",
+      "transliteration": "Allahu akbar (x3), la ilaha illallahu wallahu akbar, Allahu akbar wa lillahil-hamd",
+      "translation": "Allah est le Plus Grand (x3), il n'y a de divinite qu'Allah et Allah est le Plus Grand, Allah est le Plus Grand et a Allah revient la louange.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/muzdalifah_mashar.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/muzdalifah_mashar_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 5,
+      "tags": ["hajj", "muzdalifah", "takbir"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Allah est le Plus Grand (x3), il n'y a de divinite qu'Allah et Allah est le Plus Grand, Allah est le Plus Grand et a Allah revient la louange.",
+        "ar": "اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ، اللهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ"
+      },
+      "ritualId": "muzdalifah",
+      "playCount": 0
+    },
+    {
+      "id": "jamarat_takbir",
+      "title": "Takbir pour la Lapidation",
+      "description": "Dire Allahu Akbar a chaque lancer de caillou",
+      "arabicText": "اللهُ أَكْبَرُ",
+      "transliteration": "Allahu Akbar",
+      "translation": "Allah est le Plus Grand.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/jamarat_takbir.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/jamarat_takbir_ar.mp3"
+      },
+      "duration": 3,
+      "priority": 5,
+      "tags": ["hajj", "jamarat", "lapidation", "takbir"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Allah est le Plus Grand.",
+        "ar": "اللهُ أَكْبَرُ"
+      },
+      "ritualId": "jamarat",
+      "playCount": 0
+    },
+    {
+      "id": "jamarat_after_small",
+      "title": "Apres la petite stele",
+      "description": "Invocation apres la lapidation de la petite stele",
+      "arabicText": "اللَّهُمَّ اجْعَلْهُ حَجًّا مَبْرُورًا وَذَنْبًا مَغْفُورًا",
+      "transliteration": "Allahummaj'alhu hajjan mabruran wa dhanban maghfuran",
+      "translation": "O Allah, fais-en un Hajj agree et un peche pardonne.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/jamarat_after_small.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/jamarat_after_small_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 4,
+      "tags": ["hajj", "jamarat", "lapidation"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "O Allah, fais-en un Hajj agree et un peche pardonne.",
         "ar": "اللَّهُمَّ اجْعَلْهُ حَجًّا مَبْرُورًا وَذَنْبًا مَغْفُورًا"
       },
-      "ritualId": "ramy",
+      "ritualId": "jamarat",
+      "playCount": 0
+    },
+    {
+      "id": "jamarat_after_middle",
+      "title": "Apres la stele moyenne",
+      "description": "Invocation apres la lapidation de la stele moyenne",
+      "arabicText": "اللَّهُمَّ اجْعَلْهُ سَعْيًا مَشْكُورًا وَعَمَلًا مَقْبُولًا وَتِجَارَةً لَنْ تَبُورَ",
+      "transliteration": "Allahummaj'alhu sa'yan mashkuran wa 'amalan maqbulan wa tijaratan lan tabur",
+      "translation": "O Allah, fais-en un effort remercie, une oeuvre acceptee et un commerce qui ne perira jamais.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/jamarat_after_middle.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/jamarat_after_middle_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 4,
+      "tags": ["hajj", "jamarat", "lapidation"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "O Allah, fais-en un effort remercie, une oeuvre acceptee et un commerce qui ne perira jamais.",
+        "ar": "اللَّهُمَّ اجْعَلْهُ سَعْيًا مَشْكُورًا وَعَمَلًا مَقْبُولًا وَتِجَارَةً لَنْ تَبُورَ"
+      },
+      "ritualId": "jamarat",
+      "playCount": 0
+    },
+    {
+      "id": "sacrifice_dua",
+      "title": "Doua du Sacrifice",
+      "description": "Invocation au moment du sacrifice",
+      "arabicText": "بِسْمِ اللهِ وَاللهُ أَكْبَرُ، اللَّهُمَّ هَذَا مِنْكَ وَلَكَ، اللَّهُمَّ تَقَبَّلْ مِنِّي",
+      "transliteration": "Bismillahi wallahu akbar, Allahumma hadha minka wa lak, Allahumma taqabbal minni",
+      "translation": "Au nom d'Allah, Allah est le Plus Grand. O Allah, ceci vient de Toi et est pour Toi. O Allah, accepte cela de moi.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/sacrifice_dua.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/sacrifice_dua_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 4,
+      "tags": ["hajj", "sacrifice", "hady"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Au nom d'Allah, Allah est le Plus Grand. O Allah, ceci vient de Toi et est pour Toi. O Allah, accepte cela de moi.",
+        "ar": "بِسْمِ اللهِ وَاللهُ أَكْبَرُ، اللَّهُمَّ هَذَا مِنْكَ وَلَكَ، اللَّهُمَّ تَقَبَّلْ مِنِّي"
+      },
+      "ritualId": "sacrifice",
+      "playCount": 0
+    },
+    {
+      "id": "tawaf_wada_farewell",
+      "title": "Tawaf d'Adieu",
+      "description": "Invocation lors du Tawaf d'Adieu",
+      "arabicText": "اللَّهُمَّ لَا تَجْعَلْهُ آخِرَ الْعَهْدِ بِبَيْتِكَ الْحَرَامِ",
+      "transliteration": "Allahumma la taj'alhu akhiral-'ahdi bi-baytikal-haram",
+      "translation": "O Allah, ne fais pas que ce soit ma derniere visite a Ta Maison Sacree.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/tawaf_wada_farewell.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/tawaf_wada_farewell_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 5,
+      "tags": ["hajj", "tawaf", "adieu", "wada"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, ne fais pas que ce soit ma derniere visite a Ta Maison Sacree.",
+        "ar": "اللَّهُمَّ لَا تَجْعَلْهُ آخِرَ الْعَهْدِ بِبَيْتِكَ الْحَرَامِ"
+      },
+      "ritualId": "tawaf_wada",
+      "playCount": 0
+    },
+    {
+      "id": "tashreeq_takbir",
+      "title": "Takbir des jours de Tashreeq",
+      "description": "Takbir a reciter apres chaque priere pendant les jours de Tashreeq",
+      "arabicText": "اللهُ أَكْبَرُ اللهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللهُ، وَاللهُ أَكْبَرُ اللهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ",
+      "transliteration": "Allahu akbar, Allahu akbar, la ilaha illallah, wallahu akbar, Allahu akbar, wa lillahil-hamd",
+      "translation": "Allah est le Plus Grand, Allah est le Plus Grand, il n'y a de divinite qu'Allah. Allah est le Plus Grand, Allah est le Plus Grand et a Allah revient la louange.",
+      "type": "hajj",
+      "audioPath": "assets/audio/duas/tashreeq_takbir.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/tashreeq_takbir_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 5,
+      "tags": ["hajj", "tashreeq", "takbir", "mina"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Allah est le Plus Grand, Allah est le Plus Grand, il n'y a de divinite qu'Allah. Allah est le Plus Grand, Allah est le Plus Grand et a Allah revient la louange.",
+        "ar": "اللهُ أَكْبَرُ اللهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللهُ، وَاللهُ أَكْبَرُ اللهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ"
+      },
+      "ritualId": "tashreeq",
       "playCount": 0
     },
     {
       "id": "morning_dua",
       "title": "Doua du matin",
-      "description": "Invocations à réciter au réveil",
+      "description": "Invocation a reciter au reveil",
       "arabicText": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
-      "transliteration": "Alhamdu lillahi alladhi ahyana ba'da ma amatana wa ilayhi an-nushur",
-      "translation": "Louange à Allah qui nous a redonné la vie après nous avoir fait mourir, et vers Lui est la résurrection.",
+      "transliteration": "Alhamdu lillahil-ladhi ahyana ba'da ma amatana wa ilayhin-nushur",
+      "translation": "Louange a Allah qui nous a redonne la vie apres nous avoir fait mourir, et vers Lui est la resurrection.",
       "type": "daily",
       "audioPath": "assets/audio/duas/morning_dua.mp3",
       "audioPaths": {
         "fr": "assets/audio/duas/morning_dua_fr.mp3",
-        "ha": "assets/audio/duas/morning_dua_ha.mp3",
-        "za": "assets/audio/duas/morning_dua_za.mp3",
         "ar": "assets/audio/duas/morning_dua_ar.mp3"
       },
       "duration": 15,
       "priority": 4,
-      "tags": ["quotidien", "matin", "réveil"],
+      "tags": ["quotidien", "matin", "reveil"],
       "isActive": true,
       "isFavorite": true,
       "translations": {
-        "fr": "Louange à Allah qui nous a redonné la vie après nous avoir fait mourir, et vers Lui est la résurrection.",
-        "ha": "Godiya ga Allah wanda ya rayar da mu bayan ya kashe mu, kuma zuwa gare Shi ne tashin.",
-        "za": "Godiya ga Allah wanda ya rayar da mu bayan ya kashe mu, kuma zuwa gare Shi ne tashin.",
+        "fr": "Louange a Allah qui nous a redonne la vie apres nous avoir fait mourir, et vers Lui est la resurrection.",
         "ar": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ"
       },
       "ritualId": null,
@@ -148,16 +712,14 @@
     {
       "id": "evening_dua",
       "title": "Doua du soir",
-      "description": "Invocations à réciter le soir",
+      "description": "Invocation a reciter le soir",
       "arabicText": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
-      "transliteration": "Amsayna wa amsa al-mulku lillah wa al-hamdu lillah la ilaha illa Allah wahdahu la sharika lah",
-      "translation": "Nous avons atteint le soir et la royauté appartient à Allah, louange à Allah, il n'y a de divinité qu'Allah, Unique, sans associé.",
+      "transliteration": "Amsayna wa amsal-mulku lillah walhamdu lillah la ilaha illallahu wahdahu la sharika lah",
+      "translation": "Nous avons atteint le soir et la royaute appartient a Allah, louange a Allah, il n'y a de divinite qu'Allah, Seul, sans associe.",
       "type": "daily",
       "audioPath": "assets/audio/duas/evening_dua.mp3",
       "audioPaths": {
         "fr": "assets/audio/duas/evening_dua_fr.mp3",
-        "ha": "assets/audio/duas/evening_dua_ha.mp3",
-        "za": "assets/audio/duas/evening_dua_za.mp3",
         "ar": "assets/audio/duas/evening_dua_ar.mp3"
       },
       "duration": 20,
@@ -166,68 +728,32 @@
       "isActive": true,
       "isFavorite": true,
       "translations": {
-        "fr": "Nous avons atteint le soir et la royauté appartient à Allah, louange à Allah, il n'y a de divinité qu'Allah, Unique, sans associé.",
-        "ha": "Mun isa da maraice kuma mulki na Allah ne, godiya ga Allah, babu ubangiji sai Allah, daya, ba ka da abokin tarayya.",
-        "za": "Mun isa da maraice kuma mulki na Allah ne, godiya ga Allah, babu ubangiji sai Allah, daya, ba ka da abokin tarayya.",
+        "fr": "Nous avons atteint le soir et la royaute appartient a Allah, louange a Allah, il n'y a de divinite qu'Allah, Seul, sans associe.",
         "ar": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ"
       },
       "ritualId": null,
       "playCount": 0
     },
     {
-      "id": "protection_dua",
-      "title": "Doua de protection",
-      "description": "Invocation pour se protéger des malheurs",
-      "arabicText": "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
-      "transliteration": "Hasbiya Allah la ilaha illa huwa 'alayhi tawakkaltu wa huwa rabbu al-'arshi al-'azim",
-      "translation": "Allah me suffit, il n'y a de divinité que Lui, je me confie à Lui et Il est le Seigneur du Trône immense.",
-      "type": "protection",
-      "audioPath": "assets/audio/duas/protection_dua.mp3",
+      "id": "sleep_dua",
+      "title": "Doua avant de dormir",
+      "description": "Invocation avant de dormir",
+      "arabicText": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+      "transliteration": "Bismika Allahumma amutu wa ahya",
+      "translation": "En Ton nom, O Allah, je meurs et je vis.",
+      "type": "daily",
+      "audioPath": "assets/audio/duas/sleep_dua.mp3",
       "audioPaths": {
-        "fr": "assets/audio/duas/protection_dua_fr.mp3",
-        "ha": "assets/audio/duas/protection_dua_ha.mp3",
-        "za": "assets/audio/duas/protection_dua_za.mp3",
-        "ar": "assets/audio/duas/protection_dua_ar.mp3"
+        "ar": "assets/audio/duas/sleep_dua_ar.mp3"
       },
-      "duration": 15,
-      "priority": 5,
-      "tags": ["protection", "sécurité", "confiance"],
-      "isActive": true,
-      "isFavorite": true,
-      "translations": {
-        "fr": "Allah me suffit, il n'y a de divinité que Lui, je me confie à Lui et Il est le Seigneur du Trône immense.",
-        "ha": "Allah ya isa ni, babu ubangiji sai Shi, na dogara da Shi kuma Shi ne Ubangijin kursiyi mai girma.",
-        "za": "Allah ya isa ni, babu ubangiji sai Shi, na dogara da Shi kuma Shi ne Ubangijin kursiyi mai girma.",
-        "ar": "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ"
-      },
-      "ritualId": null,
-      "playCount": 0
-    },
-    {
-      "id": "gratitude_dua",
-      "title": "Doua de gratitude",
-      "description": "Invocation pour remercier Allah",
-      "arabicText": "اللَّهُمَّ لَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
-      "transliteration": "Allahumma laka al-hamdu wa laka ash-shukr",
-      "translation": "Ô Allah, à Toi la louange et à Toi la gratitude.",
-      "type": "gratitude",
-      "audioPath": "assets/audio/duas/gratitude_dua.mp3",
-      "audioPaths": {
-        "fr": "assets/audio/duas/gratitude_dua_fr.mp3",
-        "ha": "assets/audio/duas/gratitude_dua_ha.mp3",
-        "za": "assets/audio/duas/gratitude_dua_za.mp3",
-        "ar": "assets/audio/duas/gratitude_dua_ar.mp3"
-      },
-      "duration": 10,
-      "priority": 3,
-      "tags": ["gratitude", "remerciement", "louange"],
+      "duration": 8,
+      "priority": 4,
+      "tags": ["quotidien", "nuit", "sommeil"],
       "isActive": true,
       "isFavorite": false,
       "translations": {
-        "fr": "Ô Allah, à Toi la louange et à Toi la gratitude.",
-        "ha": "Ya Allah, gare ka godiya da gare ka godiya.",
-        "za": "Ya Allah, gare ka godiya da gare ka godiya.",
-        "ar": "اللَّهُمَّ لَكَ الْحَمْدُ وَلَكَ الشُّكْرُ"
+        "fr": "En Ton nom, O Allah, je meurs et je vis.",
+        "ar": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا"
       },
       "ritualId": null,
       "playCount": 0
@@ -238,25 +764,237 @@
       "description": "Invocation pour le voyage",
       "arabicText": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
       "transliteration": "Subhana alladhi sakhkhara lana hadha wa ma kunna lahu muqrinin wa inna ila rabbina lamunqalibun",
-      "translation": "Gloire à Celui qui a mis ceci à notre service alors que nous n'étions pas capables de les dominer. Et c'est vers notre Seigneur que nous retournerons.",
+      "translation": "Gloire a Celui qui a mis ceci a notre service alors que nous n'etions pas capables de les dominer. Et c'est vers notre Seigneur que nous retournerons.",
       "type": "special",
       "audioPath": "assets/audio/duas/travel_dua.mp3",
       "audioPaths": {
         "fr": "assets/audio/duas/travel_dua_fr.mp3",
-        "ha": "assets/audio/duas/travel_dua_ha.mp3",
-        "za": "assets/audio/duas/travel_dua_za.mp3",
         "ar": "assets/audio/duas/travel_dua_ar.mp3"
       },
       "duration": 20,
-      "priority": 3,
+      "priority": 4,
       "tags": ["voyage", "transport", "protection"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "Gloire a Celui qui a mis ceci a notre service alors que nous n'etions pas capables de les dominer. Et c'est vers notre Seigneur que nous retournerons.",
+        "ar": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "travel_protection",
+      "title": "Protection pendant le voyage",
+      "description": "Invocation pour la protection pendant le voyage",
+      "arabicText": "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ",
+      "transliteration": "Allahumma inna nas'aluka fi safarina hadhal-birra wat-taqwa, wa minal-'amali ma tarda, Allahumma hawwin 'alayna safarana hadha watwi 'anna bu'dah",
+      "translation": "O Allah, nous Te demandons dans ce voyage la piete et la crainte, et des oeuvres qui Te plaisent. O Allah, facilite-nous ce voyage et rapproche-nous sa distance.",
+      "type": "special",
+      "audioPath": "assets/audio/duas/travel_protection.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/travel_protection_ar.mp3"
+      },
+      "duration": 25,
+      "priority": 4,
+      "tags": ["voyage", "protection"],
       "isActive": true,
       "isFavorite": false,
       "translations": {
-        "fr": "Gloire à Celui qui a mis ceci à notre service alors que nous n'étions pas capables de les dominer. Et c'est vers notre Seigneur que nous retournerons.",
-        "ha": "Tsarkin wanda ya sanya mana wannan yayin da ba mu iya sarrafa shi ba. Kuma lalle zuwa ga Ubangijinmu ne za mu koma.",
-        "za": "Tsarkin wanda ya sanya mana wannan yayin da ba mu iya sarrafa shi ba. Kuma lalle zuwa ga Ubangijinmu ne za mu koma.",
-        "ar": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ"
+        "fr": "O Allah, nous Te demandons dans ce voyage la piete et la crainte, et des oeuvres qui Te plaisent. O Allah, facilite-nous ce voyage et rapproche-nous sa distance.",
+        "ar": "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "return_travel",
+      "title": "Retour de voyage",
+      "description": "Invocation au retour de voyage",
+      "arabicText": "آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ",
+      "transliteration": "Ayibuna, ta'ibuna, 'abiduna, lirabbina hamidun",
+      "translation": "Nous revenons repentants, adorateurs de notre Seigneur, reconnaissants.",
+      "type": "special",
+      "audioPath": "assets/audio/duas/return_travel.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/return_travel_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 4,
+      "tags": ["voyage", "retour"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Nous revenons repentants, adorateurs de notre Seigneur, reconnaissants.",
+        "ar": "آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "masjid_enter",
+      "title": "Entree a la mosquee",
+      "description": "Invocation en entrant a la mosquee",
+      "arabicText": "اللّهُـمَّ افْتَـحْ لي أَبْوابَ رَحْمَتـِك",
+      "transliteration": "Allahumma ftah li abwaba rahmatik",
+      "translation": "O Allah, ouvre-moi les portes de Ta misericorde.",
+      "type": "daily",
+      "audioPath": "assets/audio/duas/masjid_enter.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/masjid_enter_ar.mp3"
+      },
+      "duration": 8,
+      "priority": 4,
+      "tags": ["mosquee", "entree"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "O Allah, ouvre-moi les portes de Ta misericorde.",
+        "ar": "اللّهُـمَّ افْتَـحْ لي أَبْوابَ رَحْمَتـِك"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "masjid_exit",
+      "title": "Sortie de la mosquee",
+      "description": "Invocation en sortant de la mosquee",
+      "arabicText": "اللّهُـمَّ إِنّـي أَسْأَلُكَ مِـنْ فَضْـلِك",
+      "transliteration": "Allahumma inni as'aluka min fadlik",
+      "translation": "O Allah, je Te demande de Ta grace.",
+      "type": "daily",
+      "audioPath": "assets/audio/duas/masjid_exit.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/masjid_exit_ar.mp3"
+      },
+      "duration": 8,
+      "priority": 4,
+      "tags": ["mosquee", "sortie"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "O Allah, je Te demande de Ta grace.",
+        "ar": "اللّهُـمَّ إِنّـي أَسْأَلُكَ مِـنْ فَضْـلِك"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "ease_difficulty",
+      "title": "Facilite dans les difficultes",
+      "description": "Invocation pour demander la facilite",
+      "arabicText": "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",
+      "transliteration": "Allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alul-hazna idha shi'ta sahla",
+      "translation": "O Allah, rien n'est facile sauf ce que Tu as rendu facile, et Tu rends la tristesse facile quand Tu le veux.",
+      "type": "special",
+      "audioPath": "assets/audio/duas/ease_difficulty.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/ease_difficulty_ar.mp3"
+      },
+      "duration": 15,
+      "priority": 5,
+      "tags": ["difficulte", "facilite", "aide"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, rien n'est facile sauf ce que Tu as rendu facile, et Tu rends la tristesse facile quand Tu le veux.",
+        "ar": "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "protection_anxiety",
+      "title": "Contre l'anxiete",
+      "description": "Invocation contre le souci et la tristesse",
+      "arabicText": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحُزْنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ",
+      "transliteration": "Allahumma inni a'udhu bika minal-hammi wal-hazan, wal-'ajzi wal-kasal, wal-bukhli wal-jubn, wa dala'id-dayni wa ghalabatir-rijal",
+      "translation": "O Allah, je cherche refuge aupres de Toi contre le souci et la tristesse, l'incapacite et la paresse, l'avarice et la lachete, le poids de la dette et la domination des hommes.",
+      "type": "special",
+      "audioPath": "assets/audio/duas/protection_anxiety.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/protection_anxiety_ar.mp3"
+      },
+      "duration": 25,
+      "priority": 5,
+      "tags": ["protection", "anxiete", "souci"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, je cherche refuge aupres de Toi contre le souci et la tristesse, l'incapacite et la paresse, l'avarice et la lachete, le poids de la dette et la domination des hommes.",
+        "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحُزْنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "health_dua",
+      "title": "Doua pour la sante",
+      "description": "Invocation pour la preservation de la sante",
+      "arabicText": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ",
+      "transliteration": "Allahumma 'afini fi badani, Allahumma 'afini fi sam'i, Allahumma 'afini fi basari, la ilaha illa ant",
+      "translation": "O Allah, preserve-moi dans mon corps. O Allah, preserve-moi dans mon ouie. O Allah, preserve-moi dans ma vue. Il n'y a de divinite que Toi.",
+      "type": "special",
+      "audioPath": "assets/audio/duas/health_dua.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/health_dua_ar.mp3"
+      },
+      "duration": 18,
+      "priority": 4,
+      "tags": ["sante", "protection", "corps"],
+      "isActive": true,
+      "isFavorite": true,
+      "translations": {
+        "fr": "O Allah, preserve-moi dans mon corps. O Allah, preserve-moi dans mon ouie. O Allah, preserve-moi dans ma vue. Il n'y a de divinite que Toi.",
+        "ar": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "before_meal",
+      "title": "Avant le repas",
+      "description": "Invocation avant de manger",
+      "arabicText": "بِسْمِ اللهِ، اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ",
+      "transliteration": "Bismillah. Allahumma barik lana fima razaqtana wa qina 'adhabannar",
+      "translation": "Au nom d'Allah. O Allah, benis-nous ce que Tu nous as accorde et protege-nous du chatiment du Feu.",
+      "type": "daily",
+      "audioPath": "assets/audio/duas/before_meal.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/before_meal_ar.mp3"
+      },
+      "duration": 10,
+      "priority": 3,
+      "tags": ["repas", "nourriture"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Au nom d'Allah. O Allah, benis-nous ce que Tu nous as accorde et protege-nous du chatiment du Feu.",
+        "ar": "بِسْمِ اللهِ، اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ"
+      },
+      "ritualId": null,
+      "playCount": 0
+    },
+    {
+      "id": "after_meal",
+      "title": "Apres le repas",
+      "description": "Invocation apres avoir mange",
+      "arabicText": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِينَ",
+      "transliteration": "Alhamdulillahil-ladhi at'amana wa saqana wa ja'alana minal-muslimin",
+      "translation": "Louange a Allah qui nous a nourris, nous a abreuves et nous a fait musulmans.",
+      "type": "daily",
+      "audioPath": "assets/audio/duas/after_meal.mp3",
+      "audioPaths": {
+        "ar": "assets/audio/duas/after_meal_ar.mp3"
+      },
+      "duration": 12,
+      "priority": 3,
+      "tags": ["repas", "nourriture", "gratitude"],
+      "isActive": true,
+      "isFavorite": false,
+      "translations": {
+        "fr": "Louange a Allah qui nous a nourris, nous a abreuves et nous a fait musulmans.",
+        "ar": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِينَ"
       },
       "ritualId": null,
       "playCount": 0

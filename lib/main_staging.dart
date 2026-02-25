@@ -1,7 +1,7 @@
-/// Point d'entrée pour l'environnement de STAGING
-/// 
-/// Utilisation :
-/// flutter run -t lib/main_staging.dart --dart-define=API_BASE_URL=https://api-staging.sahabi.com
+// Point d'entrée pour l'environnement de STAGING
+//
+// Utilisation :
+// flutter run -t lib/main_staging.dart --dart-define=API_BASE_URL=https://api-staging.sahabi.com
 
 import 'package:flutter/material.dart';
 import 'core/config/env_config.dart';
@@ -14,11 +14,10 @@ void main() {
   // Message de démarrage
   debugPrint('');
   debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('🚀 SAHABI GUIDE - ENVIRONNEMENT: STAGING');
+  debugPrint('SAHABI GUIDE - ENVIRONNEMENT: STAGING');
   debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('🔗 API URL: ${EnvConfig.apiFullUrl}');
-  debugPrint('🔐 Keycloak: ${EnvConfig.keycloakAuthUrl}');
-  debugPrint('📱 Mode: ${EnvConfig.isStaging ? "STAGING" : "PROD"}');
+  debugPrint('API URL: ${EnvConfig.apiFullUrl}');
+  debugPrint('Mode: ${EnvConfig.isStaging ? "STAGING" : "PROD"}');
   debugPrint('═══════════════════════════════════════════════════');
   debugPrint('');
 

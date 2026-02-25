@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/app_color_schemes.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/emergency_contact_model.dart';
 import '../providers/emergency_contacts_provider.dart';
 import '../widgets/emergency_contact_card.dart';
@@ -28,10 +29,12 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
   Widget build(BuildContext context) {
     final contactsState = ref.watch(emergencyContactsNotifierProvider);
 
+    final colors = ref.colors;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contacts d\'Urgence'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: colors.primary,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -40,16 +43,16 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
           ),
         ],
       ),
-      body: _buildBody(contactsState),
+      body: _buildBody(contactsState, colors),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddContactDialog(),
-        backgroundColor: AppColors.accent,
+        backgroundColor: colors.accent,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildBody(EmergencyContactsState state) {
+  Widget _buildBody(EmergencyContactsState state, AppColorScheme colors) {
     if (state.isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -129,7 +132,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               icon: const Icon(Icons.add),
               label: const Text('Ajouter un contact'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: colors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
@@ -150,14 +153,14 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
+                  colors: [colors.primary, colors.primary.withValues(alpha: 0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: colors.primary.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -220,7 +223,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                         label: const Text('Appeler'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primary,
+                          foregroundColor: colors.primary,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
                       ),
@@ -298,6 +301,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
   }
 
   void _showContactActions(EmergencyContactModel contact) {
+    final colors = ref.colors;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -324,25 +328,25 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             ListTile(
-              leading: const Icon(Icons.call, color: AppColors.primary),
+              leading: Icon(Icons.call, color: colors.primary),
               title: const Text('Appeler'),
               onTap: () {
                 Navigator.pop(context);
                 _callContact(contact.phone);
               },
             ),
-            
+
             ListTile(
-              leading: const Icon(Icons.message, color: AppColors.accent),
+              leading: Icon(Icons.message, color: colors.accent),
               title: const Text('Envoyer un SMS'),
               onTap: () {
                 Navigator.pop(context);
                 _sendSms(contact.phone);
               },
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.orange),
               title: const Text('Modifier'),
@@ -351,7 +355,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
                 _showEditContactDialog(contact);
               },
             ),
-            
+
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text('Supprimer'),

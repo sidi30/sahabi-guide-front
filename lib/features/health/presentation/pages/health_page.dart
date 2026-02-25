@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/models/health_profile_model.dart';
@@ -55,7 +55,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Santé'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: ref.colors.primary,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -253,7 +253,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     'QR Code',
                     'Partager',
                     Icons.qr_code,
-                    AppColors.primary,
+                    ref.colors.primary,
                     () => _generateMedicalQR(),
                   ),
                 ),
@@ -263,7 +263,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     'Urgence',
                     'Appeler',
                     Icons.local_hospital,
-                    AppColors.accent,
+                    ref.colors.accent,
                     () => _callEmergency(),
                   ),
                 ),
@@ -348,12 +348,12 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    color: ref.colors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.health_and_safety,
-                    color: AppColors.secondary,
+                    color: ref.colors.secondary,
                     size: 25,
                   ),
                 ),
@@ -373,7 +373,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                         'Informations médicales sécurisées',
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: ref.colors.textSecondary,
                                 ),
                       ),
                     ],
@@ -437,13 +437,13 @@ class _HealthPageState extends ConsumerState<HealthPage> {
                     child: Text(
                       'Aucun élément ajouté',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: ref.colors.textSecondary,
                           ),
                     ),
                   )
                 else
                   ...items.map((item) => ListTile(
-                        leading: Icon(icon, color: AppColors.primary),
+                        leading: Icon(icon, color: ref.colors.primary),
                         title: Text(item),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -508,7 +508,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: ref.colors.textSecondary,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -666,7 +666,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent),
+                backgroundColor: ref.colors.accent),
             child: const Text('Appeler'),
           ),
         ],

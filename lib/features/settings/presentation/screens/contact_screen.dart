@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../data/models/contact_message_model.dart';
 import '../providers/contact_message_provider.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
@@ -20,12 +20,12 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
   final _emailController = TextEditingController();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
-  String _selectedCategory = 'Général';
+  String _selectedCategory = 'General';
 
   @override
   void initState() {
     super.initState();
-    // Pré-remplir le nom et l'email si l'utilisateur est authentifié
+    // Pre-remplir le nom et l'email si l'utilisateur est authentifie
     _fillUserInfo();
   }
 
@@ -50,20 +50,20 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
   @override
   Widget build(BuildContext context) {
     final contactState = ref.watch(contactMessageNotifierProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nous Contacter'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: true, // ✅ Bouton retour automatique
+        backgroundColor: ref.colors.primary,
+        foregroundColor: ref.colors.textOnPrimary,
+        automaticallyImplyLeading: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Informations de contact rapides
           Card(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: ref.colors.primary.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -78,7 +78,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                   const SizedBox(height: 16),
                   _buildQuickContact(
                     icon: Icons.phone,
-                    title: 'Support Téléphone',
+                    title: 'Support Telephone',
                     subtitle: '+966 11 234 5678',
                     onTap: () => _copyToClipboard(context, '+966112345678'),
                   ),
@@ -103,26 +103,26 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
 
           const SizedBox(height: 24),
 
-          // Horaires de disponibilité
+          // Horaires de disponibilite
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.access_time, color: AppColors.primary, size: 32),
+                  Icon(Icons.access_time, color: ref.colors.primary, size: 32),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Horaires de disponibilité',
+                          'Horaires de disponibilite',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
                         const SizedBox(height: 4),
-                        const Text('24h/24 pendant la période du Hajj'),
+                        const Text('24h/24 pendant la periode du Hajj'),
                         const Text('Lun-Ven : 9h-18h (hors Hajj)'),
                       ],
                     ),
@@ -147,11 +147,11 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       'Envoyer un message',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: ref.colors.primary,
                           ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Nom
                     TextFormField(
                       controller: _nameController,
@@ -168,7 +168,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Email
                     TextFormField(
                       controller: _emailController,
@@ -189,21 +189,21 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
-                    // Catégorie
+
+                    // Categorie
                     DropdownButtonFormField<String>(
                       value: _selectedCategory,
                       decoration: const InputDecoration(
-                        labelText: 'Catégorie *',
+                        labelText: 'Categorie *',
                         prefixIcon: Icon(Icons.category),
                         border: OutlineInputBorder(),
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'Général', child: Text('Question générale')),
-                        DropdownMenuItem(value: 'Technique', child: Text('Problème technique')),
+                        DropdownMenuItem(value: 'General', child: Text('Question generale')),
+                        DropdownMenuItem(value: 'Technique', child: Text('Probleme technique')),
                         DropdownMenuItem(value: 'Compte', child: Text('Mon compte')),
                         DropdownMenuItem(value: 'Rituels', child: Text('Rituels du Hajj')),
-                        DropdownMenuItem(value: 'Santé', child: Text('Santé & Urgence')),
+                        DropdownMenuItem(value: 'Sante', child: Text('Sante & Urgence')),
                         DropdownMenuItem(value: 'Groupe', child: Text('Mon groupe')),
                         DropdownMenuItem(value: 'Autre', child: Text('Autre')),
                       ],
@@ -214,7 +214,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Sujet
                     TextFormField(
                       controller: _subjectController,
@@ -231,13 +231,13 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Message
                     TextFormField(
                       controller: _messageController,
                       decoration: const InputDecoration(
                         labelText: 'Message *',
-                        hintText: 'Décrivez votre demande en détail...',
+                        hintText: 'Decrivez votre demande en detail...',
                         prefixIcon: Icon(Icons.message),
                         border: OutlineInputBorder(),
                         alignLabelWithHint: true,
@@ -248,13 +248,13 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                           return 'Veuillez entrer un message';
                         }
                         if (value.length < 10) {
-                          return 'Le message doit contenir au moins 10 caractères';
+                          return 'Le message doit contenir au moins 10 caracteres';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Bouton d'envoi
                     SizedBox(
                       width: double.infinity,
@@ -272,8 +272,8 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                             : const Icon(Icons.send),
                         label: Text(contactState.isLoading ? 'Envoi en cours...' : 'Envoyer'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: ref.colors.primary,
+                          foregroundColor: ref.colors.textOnPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                       ),
@@ -286,7 +286,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
 
           const SizedBox(height: 24),
 
-          // Réseaux sociaux
+          // Reseaux sociaux
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -332,7 +332,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary, size: 28),
+            Icon(icon, color: ref.colors.primary, size: 28),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -348,14 +348,14 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: ref.colors.textSecondary,
                       fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.copy, size: 20, color: Colors.grey),
+            Icon(Icons.copy, size: 20, color: ref.colors.textLight),
           ],
         ),
       ),
@@ -371,10 +371,10 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: ref.colors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.primary, size: 24),
+            child: Icon(icon, color: ref.colors.primary, size: 24),
           ),
           const SizedBox(height: 4),
           Text(
@@ -390,8 +390,8 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Copié : $text'),
-        backgroundColor: Colors.green,
+        content: Text('Copie : $text'),
+        backgroundColor: ref.colors.success,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -402,7 +402,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
       return;
     }
 
-    // Créer le message de contact
+    // Creer le message de contact
     final contactMessage = ContactMessageModel(
       fullName: _nameController.text.trim(),
       email: _emailController.text.trim(),
@@ -417,24 +417,24 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Afficher un message de succès
+      // Afficher un message de succes
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          icon: const Icon(Icons.check_circle, color: Colors.green, size: 64),
-          title: const Text('Message envoyé !'),
+          icon: Icon(Icons.check_circle, color: ref.colors.success, size: 64),
+          title: const Text('Message envoye !'),
           content: const Text(
-            'Nous avons bien reçu votre message. Notre équipe vous répondra dans les plus brefs délais.',
+            'Nous avons bien recu votre message. Notre equipe vous repondra dans les plus brefs delais.',
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Fermer la dialog
-                // Vérifier si on peut revenir en arrière, sinon aller à l'accueil
+                // Verifier si on peut revenir en arriere, sinon aller a l'accueil
                 if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop(); // Retour à la page précédente
+                  Navigator.of(context).pop(); // Retour a la page precedente
                 } else {
-                  context.go('/home'); // Aller à l'accueil si pas de page précédente
+                  context.go('/home'); // Aller a l'accueil si pas de page precedente
                 }
               },
               child: const Text('OK'),
@@ -443,27 +443,26 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
         ),
       );
 
-      // Réinitialiser le formulaire
+      // Reinitialiser le formulaire
       _formKey.currentState!.reset();
       _nameController.clear();
       _emailController.clear();
       _subjectController.clear();
       _messageController.clear();
       setState(() {
-        _selectedCategory = 'Général';
+        _selectedCategory = 'General';
       });
     } else {
       // Afficher un message d'erreur
       final errorMessage = ref.read(contactMessageNotifierProvider).error ?? 'Erreur inconnue';
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors de l\'envoi: $errorMessage'),
-          backgroundColor: Colors.red,
+          backgroundColor: ref.colors.error,
           duration: const Duration(seconds: 4),
         ),
       );
     }
   }
 }
-

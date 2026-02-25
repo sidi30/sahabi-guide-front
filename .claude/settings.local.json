@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(adb:*)",
+      "Bash(where:*)",
+      "Bash(\"%LOCALAPPDATA%\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" -s emulator-5554 uninstall com.sahabi_guide.sahabi_guide.debug)",
+      "Bash(C:/Users/ramzi/AppData/Local/Android/Sdk/platform-tools/adb.exe -s emulator-5554 uninstall com.sahabi_guide.sahabi_guide.debug)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(tail:*)"
+    ]
+  }
+}

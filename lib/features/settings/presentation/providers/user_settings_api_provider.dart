@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../domain/usecases/get_user_settings_usecase.dart';
 import '../../domain/usecases/update_user_settings_usecase.dart';
@@ -12,7 +13,7 @@ final userSettingsProvider = FutureProvider<UserSettingsModel?>((ref) async {
   try {
     return await getUserSettingsUseCase();
   } catch (e) {
-    print('Erreur récupération paramètres: $e');
+    AppLogger.error('Erreur récupération paramètres', error: e);
     return null;
   }
 });

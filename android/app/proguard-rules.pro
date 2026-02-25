@@ -109,8 +109,26 @@
 -optimizationpasses 5
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
--verbose
+# Note: -verbose retiré pour éviter l'exposition d'informations en production
 
 # Autoriser l'optimisation
 -optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+
+## ====================================
+## RÈGLES GEOLOCATOR
+## ====================================
+-keep class com.baseflow.geolocator.** { *; }
+-dontwarn com.baseflow.geolocator.**
+
+## ====================================
+## RÈGLES FLUTTER SECURE STORAGE
+## ====================================
+-keep class com.it_nomads.fluttersecurestorage.** { *; }
+-dontwarn com.it_nomads.fluttersecurestorage.**
+
+## ====================================
+## RÈGLES AUDIO PLAYERS
+## ====================================
+-keep class xyz.luan.audioplayers.** { *; }
+-dontwarn xyz.luan.audioplayers.**
 

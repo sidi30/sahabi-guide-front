@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../../shared/constants/app_colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/alert_model.dart';
 import '../providers/alerts_provider.dart';
 import '../widgets/alert_card.dart';
@@ -46,7 +46,7 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alertes'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: ref.colors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -133,7 +133,7 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
       // Bouton flottant pour créer une alerte (pour test)
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateAlertDialog(),
-        backgroundColor: AppColors.accent,
+        backgroundColor: ref.colors.accent,
         child: const Icon(Icons.add_alert, color: Colors.white),
       ),
     );
@@ -295,6 +295,8 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                         children: [
                           Text(
                             alert.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -302,6 +304,8 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                           ),
                           Text(
                             alert.type.displayName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 14,
@@ -310,7 +314,11 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                         ],
                       ),
                     ),
-                    _buildPriorityBadge(alert.priority),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      flex: 0,
+                      child: _buildPriorityBadge(alert.priority),
+                    ),
                   ],
                 ),
                 
@@ -346,7 +354,7 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                           icon: const Icon(Icons.done),
                           label: const Text('Marquer comme lue'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: ref.colors.primary,
                             foregroundColor: Colors.white,
                           ),
                         ),

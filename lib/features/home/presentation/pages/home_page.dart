@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
@@ -30,13 +30,13 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       body: homeData.when(
-        data: (data) => _buildHomeContent(context, data),
+        data: (data) => _buildHomeContent(context, ref, data),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: context.errorColor),
               const SizedBox(height: 16),
               Text('Erreur: $error'),
               const SizedBox(height: 16),
@@ -51,42 +51,49 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildHomeContent(BuildContext context, Map<String, dynamic> data) {
+  Widget _buildHomeContent(BuildContext context, WidgetRef ref, Map<String, dynamic> data) {
     final user = data['user'] as UserModel?;
     final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
     final dashboardData = (data['dashboardData'] as Map<String, dynamic>?) ?? {};
+    final colors = ref.colors;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome Section - Afficher seulement si authentifié
+          // Welcome Section - Différent selon authentification
           Consumer(
             builder: (context, ref, _) {
               final authState = ref.watch(authNotifierProvider);
-              
-              // Ne pas afficher le bloc si non connecté
-              if (!authState.isAuthenticated) {
-                return const SizedBox.shrink();
+
+              if (authState.isAuthenticated) {
+                // Message pour pèlerin authentifié
+                return Column(
+                  children: [
+                    _buildWelcomeSection(context, ref, authState),
+                    const SizedBox(height: 24),
+                  ],
+                );
+              } else {
+                // Message pour visiteur
+                return Column(
+                  children: [
+                    _buildVisitorWelcomeSection(context, ref),
+                    const SizedBox(height: 24),
+                  ],
+                );
               }
-              
-              return Column(
-                children: [
-                  _buildWelcomeSection(context, authState),
-                  const SizedBox(height: 24),
-                ],
-              );
             },
           ),
 
           // Prayer Times Card
-          _buildPrayerTimesCard(context, dashboardData),
+          _buildPrayerTimesCard(context, ref, dashboardData),
 
           const SizedBox(height: 24),
 
           // Quick Stats
-          _buildQuickStats(context, dashboardData),
+          _buildQuickStats(context, ref, dashboardData),
 
           const SizedBox(height: 24),
 
@@ -100,13 +107,99 @@ class HomePage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          _buildMenuGrid(context, menuItems),
+          _buildMenuGrid(context, ref, menuItems),
         ],
       ),
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context, AuthState authState) {
+  Widget _buildVisitorWelcomeSection(BuildContext context, WidgetRef ref) {
+    final colors = ref.colors;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colors.primary.withValues(alpha: 0.9),
+            colors.secondary.withValues(alpha: 0.9),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bienvenue sur',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                    ),
+                    Text(
+                      'SahabiGuide',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Explorez notre guide du Hajj et de la Omra',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Icon(
+                  Icons.explore,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/passport-login'),
+                  icon: const Icon(Icons.login, size: 18),
+                  label: const Text('Se connecter'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: colors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWelcomeSection(BuildContext context, WidgetRef ref, AuthState authState) {
+    final colors = ref.colors;
     final now = DateTime.now();
     final hour = now.hour;
     String greeting;
@@ -120,15 +213,15 @@ class HomePage extends ConsumerWidget {
     }
 
     // Récupérer le prénom depuis le profil du pèlerin authentifié
-    final firstName = authState.pilgrimProfile?.firstName ?? 
-                     authState.pilgrimProfile?.fullName?.split(' ').first ?? 
+    final firstName = authState.pilgrimProfile?.firstName ??
+                     authState.pilgrimProfile?.fullName?.split(' ').first ??
                      'Pèlerin';
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
+        gradient: LinearGradient(
+          colors: [colors.primary, colors.secondary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -182,7 +275,8 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildPrayerTimesCard(
-      BuildContext context, Map<String, dynamic> dashboardData) {
+      BuildContext context, WidgetRef ref, Map<String, dynamic> dashboardData) {
+    final colors = ref.colors;
     final currentPrayer =
         dashboardData['currentPrayer'] as Map<String, dynamic>? ?? {};
     final nextPrayer = dashboardData['nextPrayer'] as Map<String, dynamic>? ?? {};
@@ -209,7 +303,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prière actuelle',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.textSecondaryColor,
                             ),
                       ),
                       Text(
@@ -233,7 +327,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         'Prochaine prière',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.textSecondaryColor,
                             ),
                       ),
                       Text(
@@ -246,7 +340,7 @@ class HomePage extends ConsumerWidget {
                       Text(
                         nextPrayer['remaining'] != null ? 'dans ${nextPrayer['remaining']}' : '--',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.secondary,
+                              color: colors.secondary,
                             ),
                       ),
                     ],
@@ -261,7 +355,8 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildQuickStats(
-      BuildContext context, Map<String, dynamic> dashboardData) {
+      BuildContext context, WidgetRef ref, Map<String, dynamic> dashboardData) {
+    final colors = ref.colors;
     final todayStats = dashboardData['todayStats'] as Map<String, dynamic>? ?? {};
 
     return Row(
@@ -272,7 +367,7 @@ class HomePage extends ConsumerWidget {
             'Prières',
             '${todayStats['prayersCompleted'] ?? 0}/${todayStats['totalPrayers'] ?? 5}',
             Icons.schedule,
-            AppColors.primary,
+            colors.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -282,7 +377,7 @@ class HomePage extends ConsumerWidget {
             'Douas',
             '${todayStats['duasRead'] ?? 0}',
             Icons.book,
-            AppColors.secondary,
+            colors.secondary,
           ),
         ),
         const SizedBox(width: 12),
@@ -292,7 +387,7 @@ class HomePage extends ConsumerWidget {
             'Dhikr',
             '${todayStats['dhikrCount'] ?? 0}',
             Icons.favorite,
-            AppColors.accent,
+            colors.accent,
           ),
         ),
       ],
@@ -318,7 +413,7 @@ class HomePage extends ConsumerWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.textSecondaryColor,
                   ),
             ),
           ],
@@ -328,7 +423,7 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildMenuGrid(
-      BuildContext context, List<Map<String, dynamic>> menuItems) {
+      BuildContext context, WidgetRef ref, List<Map<String, dynamic>> menuItems) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -388,7 +483,7 @@ class HomePage extends ConsumerWidget {
                 child: Text(
                   item['subtitle'],
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.textSecondaryColor,
                       ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
