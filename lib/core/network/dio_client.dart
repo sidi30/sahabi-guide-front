@@ -235,7 +235,6 @@ class DioClient {
         );
 
       case DioExceptionType.unknown:
-      default:
         return UnknownException(
           'Erreur inconnue: ${error.message ?? "Non spécifiée"}',
           error,

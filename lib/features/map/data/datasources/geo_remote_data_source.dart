@@ -1,5 +1,5 @@
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/alert_model.dart';
+import '../../../tracking/data/models/position_model.dart';
 
 abstract class GeoRemoteDataSource {
   Future<List<Map<String, dynamic>>> getPois({String? agencyId, String? type});
@@ -77,7 +77,7 @@ class GeoRemoteDataSourceImpl implements GeoRemoteDataSource {
   Future<PositionModel> getLatestPosition(String pilgrimId) async {
     try {
       final response = await dioClient.get('/api/v1/pilgrims/$pilgrimId/position/latest');
-      return PositionModel.fromMap(response.data);
+      return PositionModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Erreur lors de la récupération de la position: $e');
     }
@@ -88,7 +88,7 @@ class GeoRemoteDataSourceImpl implements GeoRemoteDataSource {
     try {
       final response = await dioClient.get('/api/v1/pilgrims/$pilgrimId/positions');
       final List<dynamic> data = response.data;
-      return data.map((json) => PositionModel.fromMap(json)).toList();
+      return data.map((json) => PositionModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Erreur lors de la récupération de l\'historique des positions: $e');
     }

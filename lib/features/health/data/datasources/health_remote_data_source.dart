@@ -1,5 +1,5 @@
 import '../../../../core/network/dio_client.dart';
-import '../../../../shared/models/alert_model.dart';
+import '../../../../shared/models/health_profile_model.dart';
 
 abstract class HealthRemoteDataSource {
   Future<HealthProfileModel> getHealthProfile(String pilgrimId);

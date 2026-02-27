@@ -1,3 +1,4 @@
+import '../../../tracking/data/models/position_model.dart';
 import '../../domain/repositories/geo_repository.dart';
 import '../datasources/geo_remote_data_source.dart';
 

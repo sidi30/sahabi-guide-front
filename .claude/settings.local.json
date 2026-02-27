@@ -12,7 +12,8 @@
       "Bash(C:/Users/ramzi/AppData/Local/Android/Sdk/platform-tools/adb.exe -s emulator-5554 uninstall com.sahabi_guide.sahabi_guide.debug)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(grep   error:*)"
     ]
   }
 }

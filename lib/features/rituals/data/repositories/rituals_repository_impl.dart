@@ -122,7 +122,6 @@ class RitualsRepositoryImpl implements RitualsRepository {
   //   return await localDataSource.getRitualsByType(type);
   // }
 
-  @override
   Future<void> markAsCompleted(String ritualId) async {
     await localDataSource.markAsCompleted(ritualId);
   }

@@ -243,7 +243,6 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     }
   }
 
-  @override
   Future<void> markAsCompleted(String ritualId) async {
     await localDataSource.markAsCompleted(ritualId);
   }

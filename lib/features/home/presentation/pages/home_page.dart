@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/theme_extensions.dart';
-import '../../../../shared/models/user_model.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
@@ -52,10 +51,8 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildHomeContent(BuildContext context, WidgetRef ref, Map<String, dynamic> data) {
-    final user = data['user'] as UserModel?;
     final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
     final dashboardData = (data['dashboardData'] as Map<String, dynamic>?) ?? {};
-    final colors = ref.colors;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),

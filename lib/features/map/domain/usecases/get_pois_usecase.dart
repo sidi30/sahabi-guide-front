@@ -1,3 +1,4 @@
+import '../../../tracking/data/models/position_model.dart';
 import '../repositories/geo_repository.dart';
 
 class GetPoisUseCase {

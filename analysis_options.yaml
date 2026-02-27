@@ -22,7 +22,7 @@ linter:
   rules:
     avoid_print: true
     prefer_const_constructors: true
-    prefer_final_local_variables: true
+    prefer_final_locals: true
     prefer_const_declarations: true
     unnecessary_this: true
     prefer_is_empty: true

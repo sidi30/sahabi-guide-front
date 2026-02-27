@@ -1,4 +1,6 @@
 
+import '../../../tracking/data/models/position_model.dart';
+
 abstract class GeoRepository {
   Future<List<Map<String, dynamic>>> getPois({String? agencyId, String? type});
   Future<List<Map<String, dynamic>>> getHotels({String? agencyId});

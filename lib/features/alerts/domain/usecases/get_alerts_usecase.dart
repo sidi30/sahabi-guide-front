@@ -1,3 +1,5 @@
+import 'package:sahabi_guide/shared/models/pilgrim_alert_model.dart';
+
 import '../../../../shared/models/alert_model.dart';
 import '../repositories/alerts_repository.dart';
 
@@ -16,7 +18,7 @@ class GetPilgrimAlertsUseCase {
 
   GetPilgrimAlertsUseCase(this.repository);
 
-  Future<List<AlertModel>> call(String pilgrimId) async {
+  Future<List<PilgrimAlertModel>> call(String pilgrimId) async {
     return await repository.getPilgrimAlerts(pilgrimId);
   }
 }

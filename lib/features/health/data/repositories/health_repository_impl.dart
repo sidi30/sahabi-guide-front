@@ -1,4 +1,4 @@
-import '../../../../shared/models/alert_model.dart';
+import '../../../../shared/models/health_profile_model.dart';
 import '../../domain/repositories/health_repository.dart';
 import '../datasources/health_remote_data_source.dart';
 

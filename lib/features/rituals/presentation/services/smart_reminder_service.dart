@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../../../../shared/models/ritual_model.dart';
@@ -183,7 +182,7 @@ class SmartReminderService {
       'Rappels Intelligents',
       channelDescription: 'Notifications intelligentes pour guider votre parcours spirituel',
       importance: _mapPriority(priority),
-      priority: _mapAndroidPriority(priority),
+      priority: priority,
       styleInformation: BigTextStyleInformation(body),
       icon: 'ic_notification',
       sound: sound != null ? RawResourceAndroidNotificationSound(sound.split('.').first) : null,
@@ -221,7 +220,7 @@ class SmartReminderService {
       'Rappels Intelligents',
       channelDescription: 'Notifications intelligentes pour guider votre parcours spirituel',
       importance: _mapPriority(priority),
-      priority: _mapAndroidPriority(priority),
+      priority: priority,
       styleInformation: BigTextStyleInformation(body),
       icon: 'ic_notification',
     );
@@ -277,19 +276,6 @@ class SmartReminderService {
     }
   }
 
-  AndroidNotificationPriority _mapAndroidPriority(Priority priority) {
-    switch (priority) {
-      case Priority.max:
-        return AndroidNotificationPriority.max;
-      case Priority.high:
-        return AndroidNotificationPriority.high;
-      case Priority.low:
-        return AndroidNotificationPriority.low;
-      default:
-        return AndroidNotificationPriority.defaultPriority;
-    }
-  }
-
   /// Annuler tous les rappels d'un rituel
   Future<void> cancelRitualReminders(String ritualId) async {
     await _notifications.cancel(_getNotificationId(ritualId, 'prep'));
@@ -298,12 +284,4 @@ class SmartReminderService {
     await _notifications.cancel(_getNotificationId(ritualId, 'check'));
   }
 }
-
-enum Priority {
-  low,
-  defaultPriority,
-  high,
-  max,
-}
-
 

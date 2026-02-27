@@ -93,7 +93,6 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         indicatorIcon = Icons.warning;
         break;
       case RitualStatus.pending:
-      default:
         indicatorColor = const Color(0xFFE5E7EB); // Gris
         indicatorIcon = Icons.circle_outlined;
         break;
@@ -212,7 +211,6 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         textColor = const Color(0xFFDC2626);
         break;
       case RitualStatus.pending:
-      default:
         statusText = '🕓 À venir';
         backgroundColor = const Color(0xFFF3F4F6);
         textColor = const Color(0xFF374151);

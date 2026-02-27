@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
-import '../../../../core/services/audio_service.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 
 final ritualDetailProvider =
@@ -25,37 +23,6 @@ class RitualDetailPage extends ConsumerStatefulWidget {
 }
 
 class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
-  bool _isPlaying = false;
-  final AudioService _audioService = sl<AudioService>();
-
-  @override
-  void dispose() {
-    _audioService.stop();
-    super.dispose();
-  }
-
-  void _toggleAudio(String? audioPath) async {
-    if (audioPath == null) return;
-
-    try {
-      if (_isPlaying) {
-        await _audioService.pause();
-      } else {
-        await _audioService.playFromAssets(audioPath);
-      }
-      setState(() {
-        _isPlaying = !_isPlaying;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur audio: $e'),
-          backgroundColor: ref.colors.error,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final ritualAsync = ref.watch(ritualDetailProvider(widget.ritualId));
@@ -381,29 +348,6 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: ref.colors.textSecondary,
-                ),
-          ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Color _getRitualColor(RitualType type) {
   //   switch (type) {
   //     case RitualType.prayer:
@@ -470,13 +414,4 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
   //   }
   // }
 
-  String _formatDuration(Duration duration) {
-    if (duration.inHours > 0) {
-      return '${duration.inHours}h ${duration.inMinutes.remainder(60)}min';
-    } else if (duration.inMinutes > 0) {
-      return '${duration.inMinutes}min';
-    } else {
-      return '${duration.inSeconds}s';
-    }
-  }
 }
