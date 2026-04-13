@@ -33,9 +33,9 @@ class LLMService {
       logger.d('Initializing LLMService...');
       
       // Charge les préférences
-      _enabled = await storageService.isLLMEnabled();
-      _apiKey = await storageService.getLLMApiKey();
-      _provider = await storageService.getLLMProvider();
+      _enabled = storageService.isLLMEnabled();
+      _apiKey = storageService.getLLMApiKey();
+      _provider = storageService.getLLMProvider();
       
       logger.i('✅ LLMService initialized (enabled: $_enabled, provider: $_provider)');
     } catch (e, stackTrace) {

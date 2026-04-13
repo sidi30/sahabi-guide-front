@@ -48,8 +48,8 @@ class PoiModel {
 
   /// Factory pour le format GeoController (/api/v1/geo/pois)
   factory PoiModel.fromGeoApi(Map<String, dynamic> json) {
-    double lat = json['lat']?.toDouble() ?? 21.4225;
-    double lng = json['lng']?.toDouble() ?? 39.8262;
+    final double lat = json['lat']?.toDouble() ?? 21.4225;
+    final double lng = json['lng']?.toDouble() ?? 39.8262;
 
     // Extraire metadata pour description, address, phone
     final metadata = json['metadata'] as Map<String, dynamic>?;

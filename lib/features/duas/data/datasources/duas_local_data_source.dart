@@ -15,7 +15,7 @@ abstract class DuasLocalDataSource {
 
 class DuasLocalDataSourceImpl implements DuasLocalDataSource {
   static const String _duasAssetPath = 'assets/data/duas.json';
-  static const String CACHED_DUAS_KEY = 'CACHED_DUAS';
+  static const String _cachedDuasKey = 'CACHED_DUAS';
   final Set<String> _favoriteDuaIds = {};
   final SharedPreferences sharedPreferences;
 
@@ -23,7 +23,7 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
 
   @override
   Future<List<DuaModel>> getCachedDuas() async {
-    final jsonString = sharedPreferences.getString(CACHED_DUAS_KEY);
+    final jsonString = sharedPreferences.getString(_cachedDuasKey);
     if (jsonString != null) {
       final List<dynamic> jsonList = json.decode(jsonString);
       return Future.value(
@@ -37,7 +37,7 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
   @override
   Future<void> cacheDuas(List<DuaModel> duasToCache) {
     return sharedPreferences.setString(
-      CACHED_DUAS_KEY,
+      _cachedDuasKey,
       json.encode(duasToCache.map((dua) => dua.toJson()).toList()),
     );
   }

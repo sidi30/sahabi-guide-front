@@ -20,7 +20,7 @@ class DuasRepositoryImpl implements DuasRepository {
   Future<List<DuaModel>> getDuas({String? tag}) async {
     try {
       final connectivityResult = await connectivity.checkConnectivity();
-      if (connectivityResult == ConnectivityResult.none) {
+      if (connectivityResult.contains(ConnectivityResult.none)) {
         return _getLocalDuas();
       }
 

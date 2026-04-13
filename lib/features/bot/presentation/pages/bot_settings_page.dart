@@ -35,12 +35,12 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
     try {
       final storageService = ref.read(storageServiceProvider);
       
-      _llmEnabled = await storageService.isLLMEnabled();
-      _llmProvider = await storageService.getLLMProvider();
-      _notificationsEnabled = await storageService.areNotificationsEnabled();
-      
-      final apiKey = await storageService.getLLMApiKey();
-      if (apiKey != null) {
+      _llmEnabled = storageService.isLLMEnabled();
+      _llmProvider = storageService.getLLMProvider();
+      _notificationsEnabled = storageService.areNotificationsEnabled();
+
+      final apiKey = storageService.getLLMApiKey();
+      if (apiKey.isNotEmpty) {
         _apiKeyController.text = apiKey;
       }
     } catch (e) {

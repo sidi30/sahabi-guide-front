@@ -152,7 +152,7 @@ class AlertCard extends StatelessWidget {
   }
 
   Widget _buildPriorityBadge(AlertPriority priority) {
-    Color color = _getPriorityColor(priority);
+    final Color color = _getPriorityColor(priority);
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

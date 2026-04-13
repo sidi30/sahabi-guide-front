@@ -295,7 +295,7 @@ class _VisitorRegistrationPageState
                           // Marquer comme visiteur sans info
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.setBool('is_visitor', true);
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           context.go('/home');
                         },
                   child: Text(

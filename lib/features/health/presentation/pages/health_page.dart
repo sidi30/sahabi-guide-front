@@ -657,7 +657,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri);
               } else {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Impossible d\'appeler ce numéro')),

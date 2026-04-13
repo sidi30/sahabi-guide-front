@@ -55,7 +55,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
   Future<void> _getCurrentLocation() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         throw Exception('Les services de localisation sont désactivés');
       }
@@ -73,7 +73,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       }
 
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       setState(() {

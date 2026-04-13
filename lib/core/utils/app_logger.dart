@@ -10,7 +10,7 @@ class AppLogger {
       lineLength: 120, // Longueur des lignes
       colors: true, // Couleurs dans la console
       printEmojis: true, // Emojis pour les niveaux de log
-      printTime: true, // Timestamp
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, // Timestamp
     ),
   );
 

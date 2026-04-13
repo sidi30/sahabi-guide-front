@@ -65,6 +65,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
         await storageService.getSecurely(AppConstants.authTokenKey);
 
     // ✅ Redirection directe vers auth-choice (pas d'onboarding)
+    if (!mounted) return;
     if (authToken == null) {
       context.go('/auth-choice');
     } else {

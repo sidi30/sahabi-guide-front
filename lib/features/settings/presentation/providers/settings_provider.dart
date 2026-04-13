@@ -1,3 +1,4 @@
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +107,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       // Default to system locale if available, otherwise French
       AppLocale defaultLocale = AppLocale.fr;
       try {
-        final systemLocale = WidgetsBinding.instance.window.locale;
+        final systemLocale = PlatformDispatcher.instance.locale;
         final detectedLocale = AppLocale.tryFromLocale(systemLocale);
         if (detectedLocale != null) {
           defaultLocale = detectedLocale;

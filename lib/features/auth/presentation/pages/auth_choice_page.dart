@@ -216,7 +216,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               TextButton(
                 onPressed: () async {
                   await _savePreferences();
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   context.go('/home');
                 },
                 child: const Text(

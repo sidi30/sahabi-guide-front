@@ -173,7 +173,7 @@ class _BotDebugPageState extends ConsumerState<BotDebugPage> {
       await service.initialize();
       _log('✅ Initialisé');
 
-      final stats = await service.getStorageStats();
+      final stats = service.getStorageStats();
       _log('✅ Stats: $stats');
 
       _log('🎉 StorageService OK !');

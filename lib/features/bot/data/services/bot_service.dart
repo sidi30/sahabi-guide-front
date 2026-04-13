@@ -315,7 +315,7 @@ class BotService {
       if (apiResponse != null && apiResponse['answer'] != null) {
         final answer = apiResponse['answer'] as String;
         final source = apiResponse['source'] as String? ?? 'api';
-        String apiContent = '$answer';
+        String apiContent = answer;
         if (source == 'llm') apiContent += '\n\n💡 Réponse IA';
         // Skip the rest of FAQ search
         final message = BotMessageModel.bot(

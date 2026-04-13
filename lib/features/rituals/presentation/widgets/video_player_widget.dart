@@ -49,12 +49,14 @@ class VideoPlayerWidget extends StatelessWidget {
         // Fallback: ouvrir dans le navigateur
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
+        if (!context.mounted) return;
         _showErrorSnackbar(
           context,
           'Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.',
         );
       }
     } catch (e) {
+      if (!context.mounted) return;
       _showErrorSnackbar(context, 'Erreur lors de l\'ouverture de la vidéo: $e');
     }
   }
@@ -117,7 +119,7 @@ class VideoPlayerWidget extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.9),
+                    color: Colors.red.withValues(alpha: 0.9),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
