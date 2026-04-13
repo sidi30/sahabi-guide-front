@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bot_provider.dart';
@@ -16,6 +17,9 @@ class _BotDebugPageState extends ConsumerState<BotDebugPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!kDebugMode) {
+      return const Scaffold(body: Center(child: Text('Debug mode only')));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Bot Debug')),
       body: Padding(

@@ -1,5 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:sahabi_guide/shared/utils/language_utils.dart';
+
+const String _defaultLanguage = 'en';
+
+String _normalizeLanguage(String? code) {
+  if (code == null || code.isEmpty) return _defaultLanguage;
+  final lower = code.toLowerCase();
+  if (lower.startsWith('en') || lower.contains('english')) return 'en';
+  if (lower.startsWith('fr') || lower.contains('franc')) return 'fr';
+  if (lower.startsWith('ar') || lower.contains('arab')) return 'ar';
+  if (lower.startsWith('ha') || lower.contains('hausa')) return 'ha';
+  if (lower == 'za' ||
+      lower == 'zr' ||
+      lower == 'dje' ||
+      lower.contains('zarma') ||
+      lower.contains('djerma')) {
+    return 'dje';
+  }
+  return lower;
+}
+
+List<String> _languageFallbackOrder(String? preferred) {
+  final normalized = _normalizeLanguage(preferred);
+  final ordered = <String>{normalized, _defaultLanguage, 'ha', 'dje', 'fr', 'ar'};
+  ordered.removeWhere((code) => code.isEmpty);
+  return ordered.toList();
+}
 
 enum RitualType {
   hajj,
@@ -80,7 +105,7 @@ class RitualModel {
     }
 
     final resolvedVideoPath = json['videoPath'] ??
-        videoSources[LanguageUtils.defaultLanguage] ??
+        videoSources[_defaultLanguage] ??
         (videoSources.isNotEmpty ? videoSources.values.first : null);
 
     return RitualModel(
@@ -201,7 +226,7 @@ class RitualModel {
       (videoPath != null && videoPath!.isNotEmpty);
 
   String? getAudioPath(String language) {
-    for (final code in LanguageUtils.fallbackOrder(language)) {
+    for (final code in _languageFallbackOrder(language)) {
       final candidate = audioSources[code];
       if (candidate != null && candidate.isNotEmpty) {
         return candidate;
@@ -211,7 +236,7 @@ class RitualModel {
   }
 
   String? getVideoUrl(String language) {
-    for (final code in LanguageUtils.fallbackOrder(language)) {
+    for (final code in _languageFallbackOrder(language)) {
       final candidate = videoSources[code];
       if (candidate != null && candidate.isNotEmpty) {
         return candidate;
@@ -301,7 +326,7 @@ Map<String, String> _extractMediaMap(dynamic source) {
     final normalized = <String, String>{};
     source.forEach((key, value) {
       if (value == null) return;
-      final normalizedKey = LanguageUtils.normalize(key.toString());
+      final normalizedKey = _normalizeLanguage(key.toString());
       normalized[normalizedKey] = value.toString();
     });
     return normalized;

@@ -3,7 +3,23 @@ import 'package:just_audio/just_audio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../../../../shared/models/ritual_model.dart';
-import '../../../../shared/utils/language_utils.dart';
+
+String _normalizeLanguage(String? code) {
+  if (code == null || code.isEmpty) return 'en';
+  final lower = code.toLowerCase();
+  if (lower.startsWith('en') || lower.contains('english')) return 'en';
+  if (lower.startsWith('fr') || lower.contains('franc')) return 'fr';
+  if (lower.startsWith('ar') || lower.contains('arab')) return 'ar';
+  if (lower.startsWith('ha') || lower.contains('hausa')) return 'ha';
+  if (lower == 'za' ||
+      lower == 'zr' ||
+      lower == 'dje' ||
+      lower.contains('zarma') ||
+      lower.contains('djerma')) {
+    return 'dje';
+  }
+  return lower;
+}
 
 class RitualService extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -38,7 +54,7 @@ class RitualService extends ChangeNotifier {
 
   Future<void> playAudio(RitualModel ritual, String language) async {
     try {
-      final normalizedLanguage = LanguageUtils.normalize(language);
+      final normalizedLanguage = _normalizeLanguage(language);
       final audioPath = ritual.getAudioPath(normalizedLanguage);
       if (audioPath != null && audioPath.isNotEmpty) {
         _currentPlayingRitual = ritual;

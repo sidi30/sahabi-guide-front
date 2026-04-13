@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bot_provider.dart';
@@ -9,8 +10,11 @@ class GpsDebugPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!kDebugMode) {
+      return const SizedBox.shrink();
+    }
     final contextService = ref.watch(contextServiceProvider);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -144,6 +148,9 @@ class GpsDebugButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!kDebugMode) {
+      return const SizedBox.shrink();
+    }
     return IconButton(
       icon: const Icon(Icons.my_location, size: 20),
       tooltip: 'Debug GPS',

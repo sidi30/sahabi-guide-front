@@ -86,26 +86,6 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
     }
   }
 
-
-  // @override
-  // Future<List<RitualModel>> getTodayRituals() async {
-  //   final allRituals = await getRituals();
-  //   final now = DateTime.now();
-    
-  //   return allRituals.where((ritual) {
-  //     // Filter daily rituals and weekly rituals for today
-  //     if (ritual.frequency == RitualFrequency.daily) {
-  //       return true;
-  //     }
-  //     if (ritual.frequency == RitualFrequency.weekly && 
-  //         ritual.title.toLowerCase().contains('friday') && 
-  //         now.weekday == DateTime.friday) {
-  //       return true;
-  //     }
-  //     return false;
-  //   }).toList()..sort((a, b) => b.priority.compareTo(a.priority));
-  // }
-
   @override
   Future<void> markAsCompleted(String ritualId) async {
     try {

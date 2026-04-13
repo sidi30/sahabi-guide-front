@@ -6,8 +6,4 @@ abstract class RitualsRepository {
   Future<List<RitualModel>> getRituals({String? userId});
   Future<List<DuaModel>> getDuas();
   Future<RitualModel?> getRitualById(String id);
-  //Future<List<RitualModel>> getRitualsByType(RitualType type);
-  //Future<List<RitualModel>> getTodayRituals();
-  //Future<void> markRitualAsCompleted(String id);
-  //Future<void> updateRitual(RitualModel ritual);
 }

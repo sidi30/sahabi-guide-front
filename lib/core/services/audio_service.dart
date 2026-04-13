@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../shared/models/dua_model.dart';
-import '../../shared/utils/language_utils.dart';
 
 enum AudioState {
   stopped,
@@ -16,7 +15,7 @@ class AudioService extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   AudioState _state = AudioState.stopped;
   DuaModel? _currentDua;
-  String _currentLanguage = LanguageUtils.defaultLanguage;
+  String _currentLanguage = 'en';
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _isLooping = false;
@@ -193,7 +192,7 @@ class AudioService extends ChangeNotifier {
   }
 
   void setLanguage(String language) {
-    _currentLanguage = LanguageUtils.normalize(language);
+    _currentLanguage = _normalizeLanguage(language);
     notifyListeners();
   }
 
@@ -236,6 +235,23 @@ class AudioService extends ChangeNotifier {
     } else {
       await _audioPlayer.setAsset(source);
     }
+  }
+
+  static String _normalizeLanguage(String? code) {
+    if (code == null || code.isEmpty) return 'en';
+    final lower = code.toLowerCase();
+    if (lower.startsWith('en') || lower.contains('english')) return 'en';
+    if (lower.startsWith('fr') || lower.contains('franc')) return 'fr';
+    if (lower.startsWith('ar') || lower.contains('arab')) return 'ar';
+    if (lower.startsWith('ha') || lower.contains('hausa')) return 'ha';
+    if (lower == 'za' ||
+        lower == 'zr' ||
+        lower == 'dje' ||
+        lower.contains('zarma') ||
+        lower.contains('djerma')) {
+      return 'dje';
+    }
+    return lower;
   }
 
   String _convertGsToHttps(String gsPath) {

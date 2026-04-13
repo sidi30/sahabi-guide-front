@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-// old: supprimé l'usage flutter_map ici aussi
-// import 'package:flutter_map/flutter_map.dart';
-// import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
