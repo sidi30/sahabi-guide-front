@@ -76,7 +76,7 @@ class LLMService {
   /// Configure l'API key
   Future<void> setApiKey(String? apiKey) async {
     _apiKey = apiKey;
-    await storageService.setLLMApiKey(apiKey);
+    await storageService.setLLMApiKey(apiKey ?? '');
     logger.d('LLM API key ${apiKey != null ? 'set' : 'cleared'}');
   }
 

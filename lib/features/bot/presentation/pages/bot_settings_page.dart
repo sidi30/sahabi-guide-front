@@ -355,7 +355,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
             const Divider(),
             
             FutureBuilder<Map<String, dynamic>>(
-              future: ref.read(storageServiceProvider).getStorageStats(),
+              future: Future.value(ref.read(storageServiceProvider).getStorageStats()),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const SizedBox.shrink();

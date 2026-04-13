@@ -42,8 +42,7 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 
 /// Provider pour StorageService
 final storageServiceProvider = Provider<StorageService>((ref) {
-  final logger = ref.watch(loggerProvider);
-  return StorageService(logger: logger);
+  return StorageService();
 });
 
 /// Provider pour LLMService
