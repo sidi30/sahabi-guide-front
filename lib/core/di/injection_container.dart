@@ -20,6 +20,12 @@ import '../../features/rituals/data/repositories/rituals_repository_impl_with_sy
 import '../../features/rituals/domain/repositories/rituals_repository.dart';
 import '../../features/rituals/domain/usecases/get_rituals_usecase.dart';
 
+// Duas Feature
+import '../../features/duas/data/datasources/duas_remote_data_source.dart';
+import '../../features/duas/data/datasources/duas_local_data_source.dart';
+import '../../features/duas/data/repositories/duas_repository_impl.dart';
+import '../../features/duas/domain/repositories/duas_repository.dart';
+
 // Hive Models and Adapters
 import '../../shared/models/ritual_model_adapter.dart';
 import '../../shared/models/dua_model_adapter.dart';
@@ -197,6 +203,23 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton(() => GetRitualsUseCase(sl()));
+
+  // Duas Feature
+  sl.registerLazySingleton<DuasRemoteDataSource>(
+    () => DuasRemoteDataSourceImpl(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<DuasLocalDataSource>(
+    () => DuasLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+
+  sl.registerLazySingleton<DuasRepository>(
+    () => DuasRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      connectivity: sl(),
+    ),
+  );
 
   // Home Feature
   sl.registerLazySingleton<HomeLocalDataSource>(

@@ -3,19 +3,22 @@
     <!-- Configuration pour PRODUCTION : HTTPS uniquement -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
-            <!-- Certificats système Android -->
+            <!-- Certificats système Android uniquement -->
             <certificates src="system" />
-            <!-- Certificats utilisateur (pour debug avec proxy) -->
-            <certificates src="user" />
         </trust-anchors>
     </base-config>
-    
-    <!-- Configuration pour DÉVELOPPEMENT : Autoriser localhost -->
-    <!-- Cette section sera automatiquement désactivée en release build -->
+
+    <!-- Production domain with certificate pinning placeholder -->
+    <domain-config>
+        <domain includeSubdomains="true">sahabiguide.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Emulator only: allow cleartext for 10.0.2.2 (debug builds) -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
     </domain-config>
 </network-security-config>
 

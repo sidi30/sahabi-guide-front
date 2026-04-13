@@ -692,6 +692,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
   @override
   void dispose() {
+    _mapController?.dispose();
     super.dispose();
   }
 }

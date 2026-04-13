@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
+
 import '../utils/constants.dart';
 import '../../shared/services/storage_service.dart';
 import '../config/env_config.dart';
@@ -62,6 +67,19 @@ class DioClient {
         },
       ),
     );
+
+    // SSL certificate pinning in release mode only
+    if (!kDebugMode) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) {
+          // Only allow connections to our domain
+          return host.endsWith('sahabiguide.com');
+        };
+        return client;
+      };
+    }
   }
 
   Dio get dio => _dio;

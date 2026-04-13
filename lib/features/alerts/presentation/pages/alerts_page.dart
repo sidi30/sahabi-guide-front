@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../../../../shared/models/alert_model.dart';
 import '../providers/alerts_provider.dart';
 import '../widgets/alert_card.dart';
@@ -34,8 +35,8 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
   }
 
   Future<void> _loadAlerts() async {
-    // TODO: Récupérer l'ID du pèlerin depuis les préférences/auth
-    _pilgrimId = '550e8400-e29b-41d4-a716-446655440020'; // ID de test
+    _pilgrimId = ref.read(authNotifierProvider).pilgrimProfile?.id;
+    if (_pilgrimId == null) return;
     await ref.read(alertsNotifierProvider.notifier).loadPilgrimAlerts(_pilgrimId!);
   }
 

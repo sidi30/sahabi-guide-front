@@ -552,7 +552,7 @@ class _HealthPageState extends ConsumerState<HealthPage> {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   Future<void> _saveMedicalProfile() async {

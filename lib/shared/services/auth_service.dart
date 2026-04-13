@@ -116,7 +116,7 @@ class AuthService {
         if (result.success) {
           _setState(AuthState.otpSent);
           // Stocker temporairement le numéro de passeport
-          await _storage.store(AppConstants.passportNoKey, passportNo);
+          await _storage.storeSecurely(AppConstants.passportNoKey, passportNo);
         } else {
           _setState(AuthState.error);
         }
@@ -219,7 +219,7 @@ class AuthService {
       
       return AuthResult(
         success: false,
-        message: 'Erreur inattendue: ${e.toString()}',
+        message: 'Une erreur est survenue',
       );
     }
   }
@@ -264,9 +264,10 @@ class AuthService {
       }
     } catch (e) {
       _setState(AuthState.error);
+      AppLogger.error('Erreur lors de la vérification OTP', error: e);
       return AuthResult(
         success: false,
-        message: 'Erreur lors de la vérification: ${e.toString()}',
+        message: 'Une erreur est survenue lors de la vérification',
       );
     }
   }
@@ -334,9 +335,10 @@ class AuthService {
       }
     } catch (e) {
       _setState(AuthState.error);
+      AppLogger.error('Erreur lors du renvoi OTP', error: e);
       return AuthResult(
         success: false,
-        message: 'Erreur de connexion: ${e.toString()}',
+        message: 'Une erreur est survenue lors du renvoi du code',
       );
     }
   }
@@ -360,9 +362,9 @@ class AuthService {
     } finally {
       // Nettoyer les données locales
       await _storage.deleteSecurely(AppConstants.authTokenKey);
-      await _storage.remove(AppConstants.userIdKey);
-      await _storage.remove(AppConstants.passportNoKey);
-      await _storage.remove(AppConstants.userProfileKey);
+      await _storage.deleteSecurely(AppConstants.userIdKey);
+      await _storage.deleteSecurely(AppConstants.passportNoKey);
+      await _storage.deleteSecurely(AppConstants.userProfileKey);
 
       _currentToken = null;
       _currentUser = null;
@@ -407,14 +409,14 @@ class AuthService {
       return _currentUser!['id'].toString();
     }
 
-    return _storage.get(AppConstants.userIdKey);
+    return await _storage.getSecurely(AppConstants.userIdKey);
   }
 
   /// Charge le profil utilisateur depuis le storage ou l'API
   Future<void> _loadUserProfile() async {
     try {
       // D'abord essayer de charger depuis le storage
-      final cachedProfile = _storage.get(AppConstants.userProfileKey);
+      final cachedProfile = await _storage.getSecurely(AppConstants.userProfileKey);
 
       if (cachedProfile != null) {
         _currentUser = json.decode(cachedProfile);
@@ -422,7 +424,7 @@ class AuthService {
 
         // Stocker l'ID utilisateur
         if (_currentUser!['id'] != null) {
-          await _storage.store(
+          await _storage.storeSecurely(
             AppConstants.userIdKey,
             _currentUser!['id'].toString(),
           );

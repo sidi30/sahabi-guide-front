@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/di/injection_container.dart';
@@ -26,6 +28,10 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
 
+  StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<Duration?>? _durationSub;
+  StreamSubscription<PlayerState>? _stateSub;
+
   @override
   void initState() {
     super.initState();
@@ -35,27 +41,16 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
 
   Future<void> _initAudio() async {
     try {
-      // Écouter les changements de position
-      _audioService.positionStream.listen((position) {
-        if (mounted) {
-          setState(() => _position = position);
-        }
+      _positionSub = _audioService.positionStream.listen((position) {
+        if (mounted) setState(() => _position = position);
       });
 
-      // Écouter les changements de durée
-      _audioService.durationStream.listen((duration) {
-        if (mounted && duration != null) {
-          setState(() => _duration = duration);
-        }
+      _durationSub = _audioService.durationStream.listen((duration) {
+        if (mounted && duration != null) setState(() => _duration = duration);
       });
 
-      // Écouter l'état du lecteur
-      _audioService.playerStateStream.listen((state) {
-        if (mounted) {
-          setState(() {
-            _isPlaying = state.playing;
-          });
-        }
+      _stateSub = _audioService.playerStateStream.listen((state) {
+        if (mounted) setState(() => _isPlaying = state.playing);
       });
 
       // Démarrer la lecture automatiquement
@@ -70,6 +65,9 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
 
   @override
   void dispose() {
+    _positionSub?.cancel();
+    _durationSub?.cancel();
+    _stateSub?.cancel();
     _audioService.stop();
     super.dispose();
   }

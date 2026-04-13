@@ -5,13 +5,12 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
-import '../../../duas/data/datasources/duas_remote_data_source.dart';
+import '../../../duas/domain/repositories/duas_repository.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
 import '../../../../features/settings/presentation/providers/settings_provider.dart';
 import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
-import '../../../../core/network/dio_client.dart';
 
 final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
   final useCase = sl<GetRitualsUseCase>();
@@ -23,9 +22,8 @@ final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
 
 // Provider pour les douas - utilise le bon type DuaModel
 final duasProvider = FutureProvider<List<DuaModel>>((ref) async {
-  // Fetch duas directly from backend to avoid cache/auth side-effects
-  final ds = DuasRemoteDataSourceImpl(dioClient: sl<DioClient>());
-  final duas = await ds.getDuas();
+  final repository = sl<DuasRepository>();
+  final duas = await repository.getDuas();
   if (duas.isEmpty) {
     debugPrint('DuasProvider: backend returned empty list');
   }

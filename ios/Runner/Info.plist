@@ -117,10 +117,9 @@
 			<!-- Bloquer les connexions HTTP non sécurisées -->
 			<key>NSAllowsArbitraryLoads</key>
 			<false/>
-			<!-- Autoriser localhost UNIQUEMENT en développement -->
-			<!-- TODO: Désactiver en production via scheme de build -->
+			<!-- Local networking disabled for production security -->
 			<key>NSAllowsLocalNetworking</key>
-			<true/>
+			<false/>
 		</dict>
 		<!-- Support des fichiers iCloud (optionnel) -->
 		<key>LSSupportsOpeningDocumentsInPlace</key>

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -142,15 +143,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> verifyOtp(String passportNo, String otpCode) async {
-    AppLogger.debug('[AuthNotifier] Début vérification OTP...');
+    if (kDebugMode) AppLogger.debug('[AuthNotifier] Début vérification OTP...');
     state = state.copyWith(isLoading: true, error: null);
     try {
-      AppLogger.debug('[AuthNotifier] Appel verifyOtpUseCase...');
+      if (kDebugMode) AppLogger.debug('[AuthNotifier] Appel verifyOtpUseCase...');
       final response = await verifyOtpUseCase(passportNo, otpCode);
-      AppLogger.debug('[AuthNotifier] Réponse reçue: success=${response.success}, token=${response.token != null}');
+      if (kDebugMode) AppLogger.debug('[AuthNotifier] Réponse reçue: success=${response.success}, token=${response.token != null}');
 
       if (response.success && response.token != null) {
-        AppLogger.info('[AuthNotifier] Authentification réussie ! Token présent.');
+        if (kDebugMode) AppLogger.info('[AuthNotifier] Authentification réussie ! Token présent.');
         // Authentification réussie - on définit l'état même si le profil échoue
         state = state.copyWith(
           isLoading: false,
@@ -158,12 +159,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
           token: response.token,
         );
 
-        AppLogger.debug('[AuthNotifier] Récupération du profil...');
+        if (kDebugMode) AppLogger.debug('[AuthNotifier] Récupération du profil...');
         // Essayer de récupérer le profil (ne bloque pas l'authentification si ça échoue)
         try {
           final profile = await getPilgrimProfileUseCase();
           state = state.copyWith(pilgrimProfile: profile);
-          AppLogger.info('[AuthNotifier] Profil récupéré: ${profile?.fullName ?? "N/A"}');
+          if (kDebugMode) AppLogger.info('[AuthNotifier] Profil récupéré: ${profile?.fullName ?? "N/A"}');
         } catch (e) {
           AppLogger.warning('[AuthNotifier] Impossible de récupérer le profil: $e');
           // On continue quand même, l'authentification est valide

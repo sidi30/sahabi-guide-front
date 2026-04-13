@@ -25,11 +25,11 @@ class EnvConfig {
     // Développement local
     Environment.development: 'http://10.0.2.2:8084', // Android emulator
 
-    // Staging / Test - Hetzner
-    Environment.staging: 'https://46.224.193.109',
+    // Staging / Test
+    Environment.staging: 'https://api.sahabiguide.com',
 
-    // Production - Hetzner
-    Environment.production: 'https://46.224.193.109',
+    // Production
+    Environment.production: 'https://api.sahabiguide.com',
   };
 
   /// Initialiser l'environnement

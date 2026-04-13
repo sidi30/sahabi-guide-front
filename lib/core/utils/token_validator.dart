@@ -2,10 +2,16 @@ import 'dart:convert';
 
 import 'package:sahabi_guide/core/utils/app_logger.dart';
 
-/// Utilitaire pour valider les tokens JWT côté client
+/// Utilitaire pour valider les tokens JWT côté client.
+///
+/// IMPORTANT: Cette classe ne vérifie PAS la signature du JWT.
+/// La vérification de signature est déléguée au backend via
+/// [AuthService.validateToken] qui appelle /api/auth/passport/validate.
+/// Côté client, on vérifie uniquement le format et l'expiration pour
+/// éviter des appels API inutiles avec un token clairement expiré.
 class TokenValidator {
 
-  /// Vérifie si un token JWT est expiré
+  /// Vérifie si un token JWT est expiré (sans vérifier la signature)
   static bool isTokenExpired(String token) {
     try {
       final parts = token.split('.');

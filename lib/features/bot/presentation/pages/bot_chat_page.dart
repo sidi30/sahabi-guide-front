@@ -183,7 +183,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   }
 
   Widget _buildChatInterface(BotChatState state) {
-    // Crée les contrôleurs d'animation pour les nouveaux messages
+    // Crée les contrôleurs d'animation uniquement pour les nouveaux messages
     while (_animationControllers.length < state.messages.length) {
       final controller = AnimationController(
         duration: const Duration(milliseconds: 300),
@@ -193,16 +193,18 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       controller.forward();
     }
 
-    // Scroll automatique vers le bas
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+    // Scroll automatique vers le bas (une seule fois par build)
+    if (_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
 
     return Column(
       children: [
