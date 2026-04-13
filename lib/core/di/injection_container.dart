@@ -62,6 +62,9 @@ import '../../features/alerts/data/services/alerts_service.dart';
 // Emergency Contacts Feature
 import '../../features/emergency_contacts/data/services/emergency_contacts_service.dart';
 
+// Bot Feature
+import '../../features/bot/data/services/hajj_chat_api.dart';
+
 import '../../features/alerts/data/datasources/alerts_remote_data_source.dart';
 import '../../features/alerts/data/repositories/alerts_repository_impl.dart';
 import '../../features/alerts/domain/repositories/alerts_repository.dart';
@@ -267,6 +270,9 @@ Future<void> initializeDependencies() async {
         positionRepository: sl(),
         locationService: sl(),
       ));
+
+  // Hajj Chat API (Bot AI assistant)
+  sl.registerLazySingleton<HajjChatApi>(() => HajjChatApi(sl<DioClient>()));
 
   // Alerts Feature
   sl.registerLazySingleton(

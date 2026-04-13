@@ -327,6 +327,32 @@ class NotificationService {
     );
   }
 
+  /// Planifie un rappel après la durée estimée d'un rituel
+  Future<void> scheduleRitualReminder({
+    required String stepName,
+    required int delayMinutes,
+    required String message,
+  }) async {
+    if (!_initialized) {
+      logger.w('NotificationService not initialized, cannot schedule ritual reminder');
+      return;
+    }
+
+    try {
+      final scheduledTime = DateTime.now().add(Duration(minutes: delayMinutes));
+      await scheduleNotification(
+        id: DateTime.now().millisecondsSinceEpoch % 100000,
+        title: '🕋 Rappel : $stepName',
+        body: message,
+        scheduledTime: scheduledTime,
+        payload: 'ritual_reminder:$stepName',
+      );
+      logger.d('Ritual reminder scheduled for $stepName in $delayMinutes minutes');
+    } catch (e) {
+      logger.e('Error scheduling ritual reminder: $e');
+    }
+  }
+
   /// Envoie un rappel urgent immédiat
   Future<void> sendUrgentReminder({
     required String title,

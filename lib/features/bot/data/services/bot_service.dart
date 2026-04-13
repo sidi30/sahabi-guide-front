@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/bot_message_model.dart';
 import '../models/hajj_step_model.dart';
 import '../models/ritual_context_model.dart';
+import 'hajj_chat_api.dart';
 import 'knowledge_base_service.dart';
 import 'context_service.dart';
 import 'notification_service.dart';
@@ -17,6 +18,7 @@ class BotService {
   final NotificationService? notificationService;
   final StorageService? storageService;
   final LLMService? llmService;
+  final HajjChatApi? chatApi;
   final Logger logger;
   final Uuid uuid = const Uuid();
 
@@ -26,12 +28,30 @@ class BotService {
   bool _conversationStarted = false;
   RitualContextModel? _lastContext;
 
+  /// Estimated durations per ritual step (in minutes)
+  static const Map<String, int> _ritualEstimatedMinutes = {
+    'ihram': 30,
+    'tawaf_arrival': 60,
+    'sai': 90,
+    'mina_day8': 720, // 12 hours
+    'arafat': 480, // 8 hours (Dhuhr to Maghrib)
+    'muzdalifah': 600, // 10 hours (night)
+    'ramy_jamarat_day10': 60,
+    'sacrifice': 120,
+    'haircut': 15,
+    'tawaf_ifadah': 60,
+    'mina_days_tashriq': 720,
+    'ramy_days_11_13': 60,
+    'tawaf_wida': 60,
+  };
+
   BotService({
     required this.knowledgeBase,
     required this.contextService,
     this.notificationService,
     this.storageService,
     this.llmService,
+    this.chatApi,
     required this.logger,
   });
 
@@ -243,12 +263,22 @@ class BotService {
     
     // Passe à l'étape suivante
     _currentStep = nextStep;
-    
+
     // Planifie les notifications si le contexte a changé
     if (notificationService != null) {
       await notificationService!.scheduleContextualNotifications();
     }
-    
+
+    // Schedule proactive reminder after estimated ritual duration
+    final estimatedMinutes = _ritualEstimatedMinutes[_currentStep!.id] ?? 120;
+    if (notificationService != null) {
+      await notificationService!.scheduleRitualReminder(
+        stepName: _currentStep!.name,
+        delayMinutes: estimatedMinutes,
+        message: '${_currentStep!.name} - Avez-vous terminé ce rituel ? Ouvrez l\'assistant pour confirmer.',
+      );
+    }
+
     // Génère le message de la nouvelle étape
     return await _generateQuestionMessage(locale: locale);
   }
@@ -279,8 +309,30 @@ class BotService {
 
   /// Recherche dans les FAQs
   Future<BotMessageModel> searchFAQs(String query) async {
+    // Try API chat first (RAG + LLM)
+    try {
+      final apiResponse = await chatApi?.chat(query, 'fr');
+      if (apiResponse != null && apiResponse['answer'] != null) {
+        final answer = apiResponse['answer'] as String;
+        final source = apiResponse['source'] as String? ?? 'api';
+        String apiContent = '$answer';
+        if (source == 'llm') apiContent += '\n\n💡 Réponse IA';
+        // Skip the rest of FAQ search
+        final message = BotMessageModel.bot(
+          id: uuid.v4(),
+          content: apiContent,
+          quickReplies: ['Autre question', 'Continuer'],
+        );
+        _messageHistory.add(message);
+        await _saveMessage(message);
+        return message;
+      }
+    } catch (e) {
+      logger.w('API chat failed, falling back to local: $e');
+    }
+
     final faq = knowledgeBase.getBestFAQ(query);
-    
+
     String content;
     
     if (faq != null) {
