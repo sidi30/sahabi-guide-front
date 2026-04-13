@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/models/ritual_model.dart';
 
 String _normalizeLanguage(String? code) {
@@ -85,9 +86,11 @@ class RitualService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playVideo(RitualModel ritual) async {
-    // TODO: Implémenter la lecture vidéo
-    throw Exception('Fonctionnalité vidéo à venir');
+  Future<void> playVideo(String videoUrl) async {
+    final uri = Uri.parse(videoUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   Future<void> markAsCompleted(RitualModel ritual) async {

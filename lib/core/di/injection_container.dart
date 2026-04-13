@@ -56,6 +56,9 @@ import '../../features/map/data/services/poi_service.dart';
 import '../../features/tracking/data/repositories/position_repository.dart';
 import '../../features/tracking/data/services/position_tracking_service.dart';
 
+// Video Feature
+import '../../features/video/data/video_service.dart';
+
 // Alerts Feature
 import '../../features/alerts/data/services/alerts_service.dart';
 
@@ -270,6 +273,9 @@ Future<void> initializeDependencies() async {
         positionRepository: sl(),
         locationService: sl(),
       ));
+
+  // Video Feature
+  sl.registerLazySingleton<VideoService>(() => VideoService(sl<DioClient>()));
 
   // Hajj Chat API (Bot AI assistant)
   sl.registerLazySingleton<HajjChatApi>(() => HajjChatApi(sl<DioClient>()));
