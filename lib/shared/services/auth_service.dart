@@ -57,6 +57,9 @@ class AuthService {
   final StorageService _storage;
   final DioClient _dioClient;
 
+  // Rate limiting pour les requêtes OTP
+  DateTime? _lastOtpRequestTime;
+
   // Stream pour notifier les changements d'état d'authentification
   final _authStateController = StreamController<AuthState>.broadcast();
   Stream<AuthState> get authStateStream => _authStateController.stream;
@@ -102,6 +105,14 @@ class AuthService {
 
   /// Demande d'OTP pour un numéro de passeport
   Future<AuthResult> requestOtp(String passportNo) async {
+    if (_lastOtpRequestTime != null &&
+        DateTime.now().difference(_lastOtpRequestTime!) < const Duration(seconds: 60)) {
+      return AuthResult(
+        success: false,
+        message: 'Veuillez patienter avant de renvoyer un code OTP',
+      );
+    }
+
     _setState(AuthState.loading);
 
     try {
@@ -114,6 +125,7 @@ class AuthService {
         final result = AuthResult.fromJson(response.data);
 
         if (result.success) {
+          _lastOtpRequestTime = DateTime.now();
           _setState(AuthState.otpSent);
           // Stocker temporairement le numéro de passeport
           await _storage.storeSecurely(AppConstants.passportNoKey, passportNo);
@@ -308,6 +320,14 @@ class AuthService {
 
   /// Renvoie un nouveau code OTP
   Future<AuthResult> resendOtp(String passportNo) async {
+    if (_lastOtpRequestTime != null &&
+        DateTime.now().difference(_lastOtpRequestTime!) < const Duration(seconds: 60)) {
+      return AuthResult(
+        success: false,
+        message: 'Veuillez patienter avant de renvoyer un code OTP',
+      );
+    }
+
     _setState(AuthState.loading);
 
     try {
@@ -320,6 +340,7 @@ class AuthService {
         final result = AuthResult.fromJson(response.data);
 
         if (result.success) {
+          _lastOtpRequestTime = DateTime.now();
           _setState(AuthState.otpSent);
         } else {
           _setState(AuthState.error);

@@ -149,9 +149,9 @@ class PositionTrackingService extends ChangeNotifier {
           position.latitude,
           position.longitude,
         );
-        
+
         if (distance < _config.mode.distanceFilter) {
-          debugPrint('⏭️ Position inchangée (distance: ${distance.toStringAsFixed(1)}m < ${_config.mode.distanceFilter}m) - Pas d\'envoi');
+          debugPrint('⏭️ Position inchangée - Pas d\'envoi');
           return;
         }
       }
@@ -174,7 +174,6 @@ class PositionTrackingService extends ChangeNotifier {
       _lastError = null;
 
       debugPrint('✅ Position envoyée avec succès');
-      debugPrint('   📍 Lat: ${position.latitude}, Lng: ${position.longitude}');
       debugPrint('   🔋 Batterie: $batteryLevel%');
       debugPrint('   🎯 Mode: ${_config.mode.label}');
       debugPrint('   📊 Succès: $_successCount, Erreurs: $_errorCount');

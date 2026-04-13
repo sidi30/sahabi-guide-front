@@ -108,16 +108,20 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
       );
     }
 
-    return ListView(
+    final activePlans = plans.where((plan) => plan.isActive).toList();
+
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      children: [
-        const _InfoBanner(),
-        const SizedBox(height: 16),
-        ...plans.where((plan) => plan.isActive).map((plan) => _PlanCard(
-              plan: plan,
-              onSubscribe: () => _showSubscribeDialog(plan),
-            )),
-      ],
+      itemCount: activePlans.length + 2, // +2 for InfoBanner and SizedBox
+      itemBuilder: (context, index) {
+        if (index == 0) return const _InfoBanner();
+        if (index == 1) return const SizedBox(height: 16);
+        final plan = activePlans[index - 2];
+        return _PlanCard(
+          plan: plan,
+          onSubscribe: () => _showSubscribeDialog(plan),
+        );
+      },
     );
   }
 
@@ -141,12 +145,16 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
       );
     }
 
-    return ListView(
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      children: subscriptions.map((subscription) => _SubscriptionCard(
-            subscription: subscription,
-            onTopup: () => _showTopupDialog(subscription),
-          )).toList(),
+      itemCount: subscriptions.length,
+      itemBuilder: (context, index) {
+        final subscription = subscriptions[index];
+        return _SubscriptionCard(
+          subscription: subscription,
+          onTopup: () => _showTopupDialog(subscription),
+        );
+      },
     );
   }
 

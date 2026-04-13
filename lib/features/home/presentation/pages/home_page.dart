@@ -9,14 +9,16 @@ import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repository = sl<HomeRepository>();
-  final menuItems = await repository.getHomeMenuItems();
-  final dashboardData = await repository.getDashboardData();
-  final user = await repository.getCurrentUser();
+  final results = await Future.wait([
+    repository.getHomeMenuItems(),
+    repository.getDashboardData(),
+    repository.getCurrentUser(),
+  ]);
 
   return {
-    'menuItems': menuItems,
-    'dashboardData': dashboardData,
-    'user': user,
+    'menuItems': results[0],
+    'dashboardData': results[1],
+    'user': results[2],
   };
 });
 

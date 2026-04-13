@@ -12,7 +12,8 @@ import '../../../../features/auth/presentation/providers/passport_auth_provider.
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
 
-final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
+final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) async {
+  ref.keepAlive(); // Keep data when switching tabs
   final useCase = sl<GetRitualsUseCase>();
   // Récupérer l'ID utilisateur depuis le profil pour filtrer par type de pèlerinage (Hajj/Omra)
   final profile = ref.watch(pilgrimProfileProvider);
@@ -21,7 +22,8 @@ final ritualsProvider = FutureProvider<List<RitualModel>>((ref) async {
 });
 
 // Provider pour les douas - utilise le bon type DuaModel
-final duasProvider = FutureProvider<List<DuaModel>>((ref) async {
+final duasProvider = FutureProvider.autoDispose<List<DuaModel>>((ref) async {
+  ref.keepAlive(); // Keep data when switching tabs
   final repository = sl<DuasRepository>();
   final duas = await repository.getDuas();
   if (duas.isEmpty) {

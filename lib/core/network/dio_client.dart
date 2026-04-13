@@ -53,7 +53,12 @@ class DioClient {
           }
           handler.next(options);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
+          // Token expired or invalid - clear auth state
+          if (error.response?.statusCode == 401 && _storageService != null) {
+            await _storageService!.deleteSecurely('auth_token');
+            // Don't retry - user needs to re-authenticate via OTP
+          }
           // Gérer les erreurs de manière centralisée
           final apiException = _handleError(error);
           handler.reject(
