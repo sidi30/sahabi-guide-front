@@ -61,6 +61,14 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         'route': AppRoutes.connectivity,
       },
       {
+        'id': 'dhikr',
+        'title': 'Dhikr',
+        'subtitle': 'Compteur de tasbeeh',
+        'icon': 'touch_app',
+        'color': '#1B5E20',
+        'route': AppRoutes.dhikr,
+      },
+      {
         'id': 'bot',
         'title': '🤖 Assistant Hajj',
         'subtitle': 'Guide personnel du Hajj',

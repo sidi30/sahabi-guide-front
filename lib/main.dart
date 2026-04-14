@@ -8,6 +8,7 @@ import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
 import 'package:sahabi_guide/features/bot/presentation/pages/bot_chat_page.dart';
 import 'package:sahabi_guide/features/bot/presentation/pages/bot_debug_page.dart';
+import 'package:sahabi_guide/features/dhikr/presentation/pages/dhikr_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
@@ -92,6 +93,7 @@ class AppRoutes {
   static const String emergencyContacts = '/emergency-contacts';
   static const String bot = '/bot';
   static const String botDebug = '/bot-debug';
+  static const String dhikr = '/dhikr';
 }
 
 Future<void> main() async {
@@ -268,6 +270,12 @@ class MyApp extends ConsumerWidget {
           GoRoute(
             path: AppRoutes.videos,
             builder: (context, state) => const VideoPage(),
+          ),
+
+          // Dhikr Counter Screen
+          GoRoute(
+            path: AppRoutes.dhikr,
+            builder: (context, state) => const DhikrPage(),
           ),
 
           // Bot Screen

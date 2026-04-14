@@ -510,6 +510,10 @@ class HomePage extends ConsumerWidget {
         return Icons.person;
       case 'wifi':
         return Icons.wifi;
+      case 'touch_app':
+        return Icons.touch_app;
+      case 'smart_toy':
+        return Icons.smart_toy;
       default:
         return Icons.help_outline;
     }
