@@ -54,12 +54,12 @@ class DioClient {
           handler.next(options);
         },
         onError: (error, handler) async {
-          // Token expired or invalid - clear auth state
-          if (error.response?.statusCode == 401 && _storageService != null) {
-            await _storageService!.deleteSecurely('auth_token');
-            // Don't retry - user needs to re-authenticate via OTP
-          }
-          // Gérer les erreurs de manière centralisée
+          // NE PAS supprimer le token automatiquement sur 401 : certains
+          // endpoints (ex: config Oidc vs mobile) renvoient 401 sans que
+          // le JWT mobile soit reellement invalide. Un effet en cascade
+          // deconnecte l'utilisateur sur des faux positifs.
+          // La reconnexion se fait uniquement via le flux de login OTP
+          // quand l'app detecte reellement un token expire.
           final apiException = _handleError(error);
           handler.reject(
             DioException(
