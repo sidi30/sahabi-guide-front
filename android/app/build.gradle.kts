@@ -26,7 +26,8 @@ android {
         applicationId = "com.sahabi_guide.sahabi_guide"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // minSdk 24 requis par flutter_tts 4.x (APIs audio Android N+)
+        minSdk = 24
         targetSdk = flutter.targetSdkVersion
         // Assurer que versionCode est bien un entier (tiré de pubspec.yaml)
         versionCode = flutter.versionCode.toInt()

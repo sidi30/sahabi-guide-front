@@ -20,6 +20,61 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   final TextEditingController _textController = TextEditingController();
   final List<AnimationController> _animationControllers = [];
 
+  bool _isListening = false;
+  String? _currentlySpeakingMessageId;
+  String _voiceLang = 'fr'; // fr / ha — langue vocale choisie
+  bool _conversationMode = false; // mode mains-libres (ecoute auto apres TTS)
+  bool _lastInputWasVoice = false; // flag : derniere question envoyee par vocal
+  int _processedVoiceCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final voice = ref.read(voiceServiceProvider);
+      voice.onSttError = _showSttError;
+      voice.initialize();
+    });
+  }
+
+  /// Traduit les codes d'erreur STT de Google en messages explicites.
+  void _showSttError(String errorMsg) {
+    if (!mounted) return;
+    setState(() => _isListening = false);
+    final friendly = switch (errorMsg) {
+      'error_network' =>
+        '📡 Pas d\'internet — la reconnaissance vocale nécessite une connexion (même sur émulateur)',
+      'error_network_timeout' =>
+        '⏱️ Réseau trop lent pour la reconnaissance vocale',
+      'error_no_match' =>
+        '🤔 Je n\'ai pas compris, réessayez en parlant plus clairement',
+      'error_speech_timeout' =>
+        '⏱️ Aucune voix détectée. Réessayez en parlant après avoir tapé le micro',
+      'error_audio' =>
+        '🎙️ Problème micro. Vérifiez les permissions dans Paramètres Android',
+      'error_client' =>
+        '❌ Erreur client de reconnaissance vocale',
+      'error_server' =>
+        '❌ Serveur Google Speech indisponible',
+      'error_recognizer_busy' =>
+        'Reconnaissance déjà en cours, patience...',
+      'error_permission' =>
+        '🔒 Permission micro refusée. Autorisez dans Paramètres Android',
+      _ => 'Erreur vocale : $errorMsg',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(friendly),
+        backgroundColor: Colors.deepOrange,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+    // Desactive le mode conversation continue pour eviter un spam d'erreurs
+    if (_conversationMode) {
+      setState(() => _conversationMode = false);
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -27,12 +82,21 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     for (var controller in _animationControllers) {
       controller.dispose();
     }
+    ref.read(voiceServiceProvider).dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(botChatProvider);
+
+    // Ecoute les changements de messages pour declencher l'auto-TTS
+    // quand la derniere question provenait du micro.
+    ref.listen(botChatProvider, (previous, next) {
+      if (previous?.messages.length != next.messages.length) {
+        _maybeAutoSpeak(next);
+      }
+    });
 
     // Affiche l'erreur si présente
     if (state.error != null) {
@@ -131,21 +195,101 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         ],
       ),
       actions: [
-        const GpsDebugButton(),
+        // Micro langue : affichage compact du drapeau actuel
         IconButton(
-          icon: const Icon(Icons.settings_rounded),
-          onPressed: _openSettings,
-          tooltip: 'Paramètres',
+          icon: Text(
+            _voiceLang == 'ha' ? '🇳🇪' : '🇫🇷',
+            style: const TextStyle(fontSize: 18),
+          ),
+          tooltip: 'Langue vocale',
+          onPressed: () {
+            setState(() => _voiceLang = _voiceLang == 'fr' ? 'ha' : 'fr');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_voiceLang == 'ha'
+                    ? 'Voix : Haoussa 🇳🇪'
+                    : 'Voix : Français 🇫🇷'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          },
+        ),
+        // Toggle conversation continue (mains-libres)
+        IconButton(
+          icon: Icon(
+            _conversationMode
+                ? Icons.headset_mic_rounded
+                : Icons.headset_off_rounded,
+            color: _conversationMode
+                ? const Color(0xFF06D6A0)
+                : Colors.white,
+          ),
+          tooltip: _conversationMode
+              ? 'Mode mains-libres activé (désactiver)'
+              : 'Activer conversation vocale continue',
+          onPressed: () {
+            setState(() => _conversationMode = !_conversationMode);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_conversationMode
+                    ? '🎙️ Mode conversation continue activé'
+                    : 'Mode conversation continue désactivé'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          },
         ),
         IconButton(
-          icon: const Icon(Icons.refresh_rounded),
-          onPressed: _showRestartDialog,
-          tooltip: 'Recommencer',
+          icon: const Icon(Icons.history_rounded),
+          onPressed: _showHistoryDialog,
+          tooltip: 'Mes questions',
         ),
-        IconButton(
-          icon: const Icon(Icons.info_outline_rounded),
-          onPressed: _showStatsDialog,
-          tooltip: 'Statistiques',
+        // Toutes les autres actions regroupees dans un menu pour eviter l'overflow
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert_rounded),
+          tooltip: 'Plus',
+          onSelected: (v) {
+            switch (v) {
+              case 'settings':
+                _openSettings();
+                break;
+              case 'restart':
+                _showRestartDialog();
+                break;
+              case 'stats':
+                _showStatsDialog();
+                break;
+            }
+          },
+          itemBuilder: (_) => const [
+            PopupMenuItem(
+              value: 'settings',
+              child: ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.settings_rounded),
+                title: Text('Paramètres'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'restart',
+              child: ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.refresh_rounded),
+                title: Text('Recommencer'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'stats',
+              child: ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.info_outline_rounded),
+                title: Text('Statistiques'),
+              ),
+            ),
+          ],
         ),
       ],
       bottom: PreferredSize(
@@ -226,10 +370,16 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
                     final message = state.messages[index];
                     final animation = _animationControllers[index];
+                    final isThisSpeaking = _currentlySpeakingMessageId == message.id;
 
                     return BotMessageBubble(
                       message: message,
                       animation: animation,
+                      onSpeak: message.isBot
+                          ? () => _handleSpeak(message.id, message.content)
+                          : null,
+                      onStop: message.isBot ? _handleStopSpeak : null,
+                      isSpeaking: isThisSpeaking,
                     );
                   },
                 ),
@@ -417,7 +567,11 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               controller: _textController,
               enabled: !state.isTyping,
               decoration: InputDecoration(
-                hintText: 'Posez une question...',
+                hintText: _isListening
+                    ? (_voiceLang == 'ha' ? 'Ina saurara...' : 'Écoute en cours...')
+                    : (_voiceLang == 'ha'
+                        ? 'Tambayi tambaya ko danna makirafo'
+                        : 'Posez une question ou utilisez le micro'),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: const BorderSide(color: Color(0xFF1D3557)),
@@ -435,18 +589,278 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               onSubmitted: (_) => _handleTextInput(),
             ),
           ),
+          const SizedBox(width: 8),
+          // Bouton micro
+          Material(
+            color: _isListening ? Colors.red : const Color(0xFF2A9D8F),
+            shape: const CircleBorder(),
+            elevation: 2,
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: state.isTyping ? null : _handleMicToggle,
+              child: Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                child: Icon(
+                  _isListening ? Icons.stop_rounded : Icons.mic_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _handleMicToggle() async {
+    final voice = ref.read(voiceServiceProvider);
+    // Arrete le TTS s'il parle avant d'ouvrir le micro (evite le larsen)
+    await voice.stopSpeaking();
+    await voice.initialize();
+    if (!voice.isSttAvailable) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Reconnaissance vocale indisponible sur cet appareil'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+    if (_isListening) {
+      await voice.stopListening();
+      setState(() => _isListening = false);
+      return;
+    }
+    setState(() => _isListening = true);
+    await voice.startListening(
+      lang: _voiceLang,
+      onResult: (text, isFinal) {
+        if (!mounted) return;
+        _textController.text = text;
+        if (isFinal) {
+          setState(() {
+            _isListening = false;
+            _lastInputWasVoice = text.trim().isNotEmpty;
+          });
+          if (text.trim().isNotEmpty) {
+            _handleTextInput();
+          }
+        }
+      },
+    );
+  }
+
+  /// Demarre l'ecoute automatiquement (mode conversation continue)
+  Future<void> _autoListen() async {
+    if (!mounted || !_conversationMode || _isListening) return;
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted || !_conversationMode) return;
+    await _handleMicToggle();
+  }
+
+  /// Appele quand un nouveau message bot arrive : auto-TTS si input vocal.
+  Future<void> _maybeAutoSpeak(BotChatState state) async {
+    if (!_lastInputWasVoice) return;
+    final botMessages = state.messages.where((m) => m.isBot).toList();
+    if (botMessages.length <= _processedVoiceCount) return;
+    final last = botMessages.last;
+    _processedVoiceCount = botMessages.length;
+    _lastInputWasVoice = false; // reset
+
+    final voice = ref.read(voiceServiceProvider);
+    setState(() => _currentlySpeakingMessageId = last.id);
+    await voice.speak(last.content, lang: _voiceLang);
+    if (!mounted) return;
+    setState(() => _currentlySpeakingMessageId = null);
+    // En mode conversation continue, reenclenche le micro apres la lecture
+    if (_conversationMode) {
+      _autoListen();
+    }
+  }
+
+  Future<void> _handleSpeak(String messageId, String content) async {
+    final voice = ref.read(voiceServiceProvider);
+    setState(() => _currentlySpeakingMessageId = messageId);
+    await voice.speak(content, lang: _voiceLang);
+    if (mounted) {
+      setState(() => _currentlySpeakingMessageId = null);
+    }
+  }
+
+  Future<void> _handleStopSpeak() async {
+    await ref.read(voiceServiceProvider).stopSpeaking();
+    if (mounted) {
+      setState(() => _currentlySpeakingMessageId = null);
+    }
+  }
+
+  void _showHistoryDialog() {
+    final state = ref.read(botChatProvider);
+    final userQuestions = state.messages.where((m) => !m.isBot).toList();
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+            maxWidth: 500,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1D3557),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.history_rounded, color: Colors.white),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Mes questions précédentes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${userQuestions.length}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: userQuestions.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.chat_bubble_outline,
+                                size: 48, color: Colors.grey),
+                            SizedBox(height: 12),
+                            Text(
+                              'Aucune question posée pour le moment.',
+                              style: TextStyle(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: userQuestions.length,
+                        separatorBuilder: (_, __) =>
+                            const Divider(height: 1, indent: 16, endIndent: 16),
+                        itemBuilder: (context, i) {
+                          final q = userQuestions[userQuestions.length - 1 - i];
+                          final idx = state.messages.indexOf(q);
+                          final botAnswer = (idx >= 0 &&
+                                  idx + 1 < state.messages.length &&
+                                  state.messages[idx + 1].isBot)
+                              ? state.messages[idx + 1].content
+                              : null;
+                          return ListTile(
+                            leading: CircleAvatar(
+                              radius: 14,
+                              backgroundColor:
+                                  const Color(0xFF06D6A0).withValues(alpha: 0.2),
+                              child: Text(
+                                '${userQuestions.length - i}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1D3557),
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              q.content,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: botAnswer != null
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      botAnswer,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                            trailing: Text(
+                              '${q.timestamp.hour.toString().padLeft(2, '0')}:${q.timestamp.minute.toString().padLeft(2, '0')}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              // Scroll to that message in the chat
+                              if (idx >= 0 && _scrollController.hasClients) {
+                                _scrollController.animateTo(
+                                  (idx * 100).toDouble(),
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Fermer'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   void _handleTextInput() {
     if (_textController.text.trim().isEmpty) return;
-    
+
     final text = _textController.text.trim();
     _textController.clear();
-    
-    ref.read(botChatProvider.notifier).askQuestion(text);
+
+    ref.read(botChatProvider.notifier).askQuestion(text, language: _voiceLang);
   }
 
   void _openSettings() {

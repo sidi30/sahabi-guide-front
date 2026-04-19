@@ -9,6 +9,7 @@ import '../../data/services/context_service.dart';
 import '../../data/services/notification_service.dart';
 import '../../data/services/storage_service.dart';
 import '../../data/services/llm_service.dart';
+import '../../data/services/voice_service.dart';
 import 'package:sahabi_guide/core/network/dio_client.dart';
 import 'package:sahabi_guide/core/di/injection_container.dart';
 
@@ -60,6 +61,12 @@ final llmServiceProvider = Provider<LLMService>((ref) {
 /// Provider pour HajjChatApi
 final hajjChatApiProvider = Provider<HajjChatApi>((ref) {
   return HajjChatApi(sl<DioClient>());
+});
+
+/// Provider pour VoiceService (STT + TTS)
+final voiceServiceProvider = Provider<VoiceService>((ref) {
+  final logger = ref.watch(loggerProvider);
+  return VoiceService(logger: logger);
 });
 
 /// Provider pour BotService
@@ -140,26 +147,29 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
     required this.logger,
   }) : super(BotChatState.initial());
 
-  /// Initialise le bot
+  /// Initialise le bot. Protege contre les setState() apres dispose
+  /// (utilisateur quittant la page pendant l'init async).
   Future<void> initialize() async {
+    if (!mounted) return;
     try {
       state = state.copyWith(isLoading: true, error: null);
-      
+
       await botService.initialize();
-      
+
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: null);
       logger.i('✅ BotChatNotifier initialized');
     } catch (e, stackTrace) {
       logger.e('❌ Error initializing bot: $e', stackTrace: stackTrace);
-      
-      // Message d'erreur plus clair pour l'utilisateur
+
       String userMessage = 'Impossible d\'initialiser l\'assistant.';
       if (e.toString().contains('knowledge base')) {
         userMessage = 'Erreur de chargement de la base de connaissances. Vérifiez que les fichiers de données sont présents.';
       } else if (e.toString().contains('storage')) {
         userMessage = 'Erreur d\'accès au stockage local.';
       }
-      
+
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: userMessage,
@@ -167,111 +177,114 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
     }
   }
 
+  /// Setter securise : n'applique state que si le notifier est toujours monte.
+  /// Evite les exceptions "markNeedsBuild on defunct element" quand l'utilisateur
+  /// quitte la page avant la fin d'une operation asynchrone.
+  void _safeState(BotChatState next) {
+    if (!mounted) return;
+    state = next;
+  }
+
   /// Démarre la conversation
   Future<void> startConversation({String locale = 'fr'}) async {
     try {
-      state = state.copyWith(isTyping: true);
-      
+      _safeState(state.copyWith(isTyping: true));
+
       await botService.startConversation(locale: locale);
-      
-      // Simule un délai pour l'effet de frappe
       await Future.delayed(const Duration(milliseconds: 800));
-      
+      if (!mounted) return;
+
       final allMessages = botService.getMessageHistory();
       final progress = botService.getProgressPercentage();
-      
-      state = state.copyWith(
+
+      _safeState(state.copyWith(
         messages: allMessages,
         isTyping: false,
         progressPercentage: progress,
         conversationStarted: true,
-      );
-      
+      ));
+
       logger.d('Conversation started');
     } catch (e, stackTrace) {
       logger.e('❌ Error starting conversation: $e', stackTrace: stackTrace);
-      state = state.copyWith(
+      _safeState(state.copyWith(
         isTyping: false,
         error: 'Erreur: $e',
-      );
+      ));
     }
   }
 
   /// Envoie une réponse
   Future<void> sendAnswer(String answer, {String locale = 'fr'}) async {
     if (answer.trim().isEmpty) return;
-
     try {
-      state = state.copyWith(isTyping: true);
-      
-      // Le message utilisateur est ajouté automatiquement par BotService
+      _safeState(state.copyWith(isTyping: true));
+
       await botService.handleAnswer(answer, locale: locale);
-      
-      // Simule un délai pour l'effet de frappe du bot
       await Future.delayed(const Duration(milliseconds: 800));
-      
+      if (!mounted) return;
+
       final allMessages = botService.getMessageHistory();
       final progress = botService.getProgressPercentage();
-      
-      state = state.copyWith(
+
+      _safeState(state.copyWith(
         messages: allMessages,
         isTyping: false,
         progressPercentage: progress,
-      );
-      
+      ));
+
       logger.d('Answer sent: $answer');
     } catch (e, stackTrace) {
       logger.e('❌ Error sending answer: $e', stackTrace: stackTrace);
-      state = state.copyWith(
+      _safeState(state.copyWith(
         isTyping: false,
         error: 'Erreur: $e',
-      );
+      ));
     }
   }
 
-  /// Recherche dans les FAQs
-  Future<void> askQuestion(String question) async {
+  /// Recherche dans les FAQs avec langue configuree.
+  Future<void> askQuestion(String question, {String language = 'fr'}) async {
     if (question.trim().isEmpty) return;
-
     try {
-      state = state.copyWith(isTyping: true);
-      
-      await botService.searchFAQs(question);
-      
-      await Future.delayed(const Duration(milliseconds: 800));
-      
+      _safeState(state.copyWith(isTyping: true));
+
+      await botService.searchFAQs(question, language: language);
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+
       final allMessages = botService.getMessageHistory();
-      
-      state = state.copyWith(
+      _safeState(state.copyWith(
         messages: allMessages,
         isTyping: false,
-      );
-      
-      logger.d('Question asked: $question');
+      ));
+
+      logger.d('Question asked: $question (lang=$language)');
     } catch (e, stackTrace) {
       logger.e('❌ Error asking question: $e', stackTrace: stackTrace);
-      state = state.copyWith(
+      _safeState(state.copyWith(
         isTyping: false,
         error: 'Erreur: $e',
-      );
+      ));
     }
   }
 
   /// Redémarre la conversation
   Future<void> restartConversation({String locale = 'fr'}) async {
     try {
-      state = BotChatState.initial().copyWith(isTyping: true);
-      
+      _safeState(BotChatState.initial().copyWith(isTyping: true));
+
       await botService.initialize();
+      if (!mounted) return;
       await startConversation(locale: locale);
-      
+
       logger.d('Conversation restarted');
     } catch (e, stackTrace) {
       logger.e('❌ Error restarting conversation: $e', stackTrace: stackTrace);
-      state = state.copyWith(
+      _safeState(state.copyWith(
         isTyping: false,
         error: 'Erreur: $e',
-      );
+      ));
     }
   }
 

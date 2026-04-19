@@ -308,16 +308,23 @@ class BotService {
   }
 
   /// Recherche dans les FAQs
-  Future<BotMessageModel> searchFAQs(String query) async {
-    // Try API chat first (RAG + LLM)
+  Future<BotMessageModel> searchFAQs(String query, {String language = 'fr'}) async {
+    // 1. Ajouter la question de l'utilisateur dans l'historique (bulle "user")
+    final userMessage = BotMessageModel.user(
+      id: uuid.v4(),
+      content: query,
+    );
+    _messageHistory.add(userMessage);
+    await _saveMessage(userMessage);
+
+    // 2. Appel API chat (RAG + LLM) avec la langue choisie
     try {
-      final apiResponse = await chatApi?.chat(query, 'fr');
+      final apiResponse = await chatApi?.chat(query, language);
       if (apiResponse != null && apiResponse['answer'] != null) {
         final answer = apiResponse['answer'] as String;
         final source = apiResponse['source'] as String? ?? 'api';
         String apiContent = answer;
         if (source == 'llm') apiContent += '\n\n💡 Réponse IA';
-        // Skip the rest of FAQ search
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,

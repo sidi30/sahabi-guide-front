@@ -214,100 +214,40 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SwitchListTile(
-              title: const Text('Activer l\'IA'),
+              title: const Text('Activer l\'IA enrichie'),
               subtitle: const Text(
-                'Enrichir les réponses avec une IA externe (nécessite Internet)',
+                'Le copilote utilise l\'IA du serveur Sahabi (Ollama + RAG) '
+                'pour les questions hors de la base de connaissances. Actif par défaut.',
               ),
               value: _llmEnabled,
-              onChanged: (value) {
+              onChanged: (value) async {
                 setState(() => _llmEnabled = value);
+                await _saveLLMSettings();
               },
             ),
-            
-            if (_llmEnabled) ...[
-              const Divider(),
-              const SizedBox(height: 8),
-              
-              // Choix du provider
-              const Text(
-                'Provider IA',
-                style: TextStyle(fontWeight: FontWeight.w600),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A9D8F).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _llmProvider,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'huggingface',
-                    child: Text('HuggingFace (gratuit)'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'openai',
-                    child: Text('OpenAI (payant)'),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, color: Color(0xFF1D3557), size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'L\'IA tourne côté serveur avec des sources authentifiées '
+                      '(Bukhari, Muslim, Tirmidhi). Aucune configuration requise, '
+                      'aucune clé API à fournir.',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _llmProvider = value);
-                  }
-                },
               ),
-              
-              const SizedBox(height: 16),
-              
-              // API Key
-              const Text(
-                'Clé API',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _apiKeyController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Entrez votre clé API',
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-                obscureText: true,
-              ),
-              
-              const SizedBox(height: 8),
-              
-              // Instructions
-              Text(
-                _llmProvider == 'huggingface'
-                    ? 'Obtenez une clé gratuite sur huggingface.co/settings/tokens'
-                    : 'Obtenez une clé sur platform.openai.com/api-keys',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Bouton sauvegarder
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveLLMSettings,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1D3557),
-                  ),
-                  child: const Text('Sauvegarder les paramètres IA'),
-                ),
-              ),
-            ],
+            ),
           ],
         ),
       ),

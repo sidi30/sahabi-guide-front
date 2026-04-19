@@ -31,6 +31,8 @@ class MainShell extends ConsumerStatefulWidget {
 class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
   String _currentRoute = '';
+  GoRouter? _router;
+  VoidCallback? _routerListener;
 
   final List<NavigationItem> _navigationItems = const [
     NavigationItem(
@@ -113,14 +115,42 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Mettre à jour la route actuelle
+    _refreshCurrentRoute();
+    _updateSelectedIndex();
+
+    // S'abonner une fois au routerDelegate pour rebuild a chaque navigation.
+    // Sans cela, MainShell ne "voit" pas les changements de route interne
+    // (ShellRoute ne declenche pas didChangeDependencies sur chaque push).
+    final router = GoRouter.of(context);
+    if (_router != router) {
+      _router?.routerDelegate.removeListener(_routerListener ?? () {});
+      _router = router;
+      _routerListener = () {
+        if (!mounted) return;
+        setState(_refreshCurrentRoute);
+      };
+      router.routerDelegate.addListener(_routerListener!);
+    }
+  }
+
+  void _refreshCurrentRoute() {
     try {
-      _currentRoute = GoRouterState.of(context).uri.path;
-    } catch (e) {
+      _currentRoute = GoRouter.of(context)
+          .routerDelegate
+          .currentConfiguration
+          .uri
+          .path;
+    } catch (_) {
       _currentRoute = '';
     }
-    // Mettre à jour l'index de navigation sélectionné
-    _updateSelectedIndex();
+  }
+
+  @override
+  void dispose() {
+    if (_router != null && _routerListener != null) {
+      _router!.routerDelegate.removeListener(_routerListener!);
+    }
+    super.dispose();
   }
 
   @override
@@ -284,17 +314,30 @@ class _MainShellState extends ConsumerState<MainShell> {
                 ),
               ),
             ),
-      // Bouton flottant du bot (masqué sur la page bot elle-même)
-      floatingActionButton: _shouldShowBotButton()
-          ? const FloatingBotButton()
-          : null,
+      // Bouton flottant du bot : visible UNIQUEMENT sur les onglets
+      // principaux (Accueil/Rituels/Carte/Videos/Profil). Cache partout
+      // ailleurs — y compris /bot, /settings, /profile/details, etc.
+      floatingActionButton: ListenableBuilder(
+        listenable: GoRouter.of(context).routeInformationProvider,
+        builder: (context, _) {
+          final path = GoRouter.of(context)
+              .routeInformationProvider
+              .value
+              .uri
+              .path;
+          const mainTabs = {'/home', '/rituals', '/map', '/videos', '/profile'};
+          final visible = mainTabs.contains(path);
+          debugPrint('[MainShell] path="$path" fab=$visible');
+          return visible ? const FloatingBotButton() : const SizedBox.shrink();
+        },
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  /// Détermine si le bouton bot doit être affiché
+  /// Détermine si le bouton bot doit être affiché. _currentRoute est
+  /// rafraichi a chaque navigation via le listener du routerDelegate.
   bool _shouldShowBotButton() {
-    // Masquer le bouton sur toutes les pages bot (/bot, /bot/settings, etc.)
     return !_currentRoute.startsWith('/bot');
   }
 }

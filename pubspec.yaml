@@ -74,6 +74,10 @@ dependencies:
   package_info_plus: ^8.0.0
   url_launcher: ^6.2.5
 
+  # Voix (STT/TTS) pour le copilote en haoussa et francais
+  speech_to_text: ^7.3.0
+  flutter_tts: ^4.2.0
+
   http: any
 dev_dependencies:
   flutter_test:
