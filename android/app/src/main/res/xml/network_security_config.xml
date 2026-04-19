@@ -20,5 +20,14 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">10.0.2.2</domain>
     </domain-config>
+
+    <!-- LAN local : autorise le HTTP pour les tests de terrain via WiFi
+         (PC hote du backend sahabi-guide-api sur le meme reseau).
+         Couvre 192.168.0.0/16 et 10.0.0.0/8 les plus frequents. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.168.0.100</domain>
+        <domain includeSubdomains="false">192.168.0.1</domain>
+        <domain includeSubdomains="false">10.0.0.1</domain>
+    </domain-config>
 </network-security-config>
 

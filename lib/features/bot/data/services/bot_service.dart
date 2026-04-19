@@ -323,12 +323,14 @@ class BotService {
       if (apiResponse != null && apiResponse['answer'] != null) {
         final answer = apiResponse['answer'] as String;
         final source = apiResponse['source'] as String? ?? 'api';
+        final ritualId = apiResponse['ritualId'] as String?;
         String apiContent = answer;
         if (source == 'llm') apiContent += '\n\n💡 Réponse IA';
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,
           quickReplies: ['Autre question', 'Continuer'],
+          relatedRitualId: ritualId,
         );
         _messageHistory.add(message);
         await _saveMessage(message);
