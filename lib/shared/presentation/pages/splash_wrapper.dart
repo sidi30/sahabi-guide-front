@@ -59,18 +59,14 @@ class _SplashWrapperState extends State<SplashWrapper> {
       final authToken = await storageService.getSecurely('auth_token');
       final isVisitor = prefs.getBool('is_visitor') ?? false;
 
-      if (!mounted) return;
-
-      // Pelerin authentifie -> accueil complet (toutes les pages)
-      // Visiteur / acces libre -> Rituels (page publique de demarrage)
-      // Inconnu -> page choix
-      if (authToken != null) {
-        context.go('/home');
-      } else if (isVisitor) {
-        context.go('/rituals');
-      } else {
-        context.go('/auth-choice');
+      // Phase pre-Hajj : login desactive. Tout le monde entre en visiteur.
+      // - Pelerin auth (cas rare en dev) -> /home avec acces complet
+      // - Tout le reste -> visiteur automatique -> /home
+      if (authToken == null && !isVisitor) {
+        await prefs.setBool('is_visitor', true);
       }
+      if (!mounted) return;
+      context.go('/home');
     } catch (e) {
       debugPrint('❌ Erreur navigation: $e');
       if (mounted) {

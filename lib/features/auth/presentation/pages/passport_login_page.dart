@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import 'package:go_router/go_router.dart';
 
@@ -204,13 +205,19 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
 
                 const SizedBox(height: 32),
 
-                // Option pour accéder sans connexion
+                // Option pour acceder sans connexion (acces libre lecture seule)
+                // Donne acces aux pages publiques : Rituels, Douas, Carte+POI, IA.
                 Center(
                   child: TextButton.icon(
-                    onPressed: () => context.go('/home'),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('is_visitor', true);
+                      if (!context.mounted) return;
+                      context.go('/rituals');
+                    },
                     icon: const Icon(Icons.arrow_back, size: 18),
                     label: const Text(
-                      'Accéder sans se connecter',
+                      'Acceder sans se connecter',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,

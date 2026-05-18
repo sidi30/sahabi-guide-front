@@ -15,7 +15,6 @@ import 'core/di/injection_container.dart';
 import 'core/router/auth_guard.dart';
 import 'core/providers/language_provider.dart';
 import 'core/services/language_service.dart';
-import 'core/utils/app_logger.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
@@ -149,22 +148,16 @@ class MyApp extends ConsumerWidget {
       navigatorKey: navigatorKey,
       initialLocation: AppRoutes.splash,
       redirect: (context, state) {
-        // Vérifier l'état d'authentification
+        // Phase pre-Hajj : login desactive. Toutes les pages publiques sauf
+        // les pages de profil personnel (qui dependent d'un JWT reel).
         final isAuthenticated = ref.read(authNotifierProvider).isAuthenticated;
         final currentLocation = state.matchedLocation;
-        
-        // ✅ Si déjà authentifié et sur splash ou auth-choice, rediriger vers home
-        if (isAuthenticated && (currentLocation == '/' || currentLocation == '/auth-choice')) {
-          AppLogger.info('🔄 Utilisateur authentifié détecté, redirection vers /home');
+
+        if (!isAuthenticated && AuthGuard.isProtectedRoute(currentLocation)) {
+          // Renvoie sur /home plutot que /passport-login pour ne pas bloquer
+          // la decouverte (le login n'est plus accessible en phase pre-Hajj).
           return '/home';
         }
-        
-        // Si l'utilisateur essaie d'accéder à une page protégée sans être authentifié
-        if (!isAuthenticated && AuthGuard.isProtectedRoute(currentLocation)) {
-          return '/passport-login';
-        }
-        
-        // Pas de redirection nécessaire
         return null;
       },
       routes: [

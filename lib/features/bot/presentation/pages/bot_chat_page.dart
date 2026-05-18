@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bot_provider.dart';
 import '../widgets/bot_message_bubble.dart';
 import '../widgets/quick_reply_chip.dart';
-import '../widgets/gps_debug_panel.dart';
 import 'bot_settings_page.dart';
 
 /// Page principale du chat bot Hajj

@@ -22,7 +22,9 @@ class LLMService {
   final Logger logger;
 
   bool _enabled = false;
+  // ignore: unused_field
   String? _apiKey;
+  // ignore: unused_field
   String _provider = 'backend';
 
   LLMService({

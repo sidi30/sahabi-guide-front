@@ -30,6 +30,7 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
+  // ignore: unused_field
   String _currentRoute = '';
   GoRouter? _router;
   VoidCallback? _routerListener;
@@ -59,12 +60,8 @@ class _MainShellState extends ConsumerState<MainShell> {
       label: 'Vidéos',
       route: '/videos',
     ),
-    NavigationItem(
-      icon: Icons.person_outline,
-      selectedIcon: Icons.person,
-      label: 'Profil',
-      route: '/profile',
-    ),
+    // Profil cache en phase pre-Hajj : pas de vrai profil utilisateur tant
+    // que le login passeport n'est pas reactive.
   ];
 
   void _updateSelectedIndex() {
@@ -325,7 +322,7 @@ class _MainShellState extends ConsumerState<MainShell> {
               .value
               .uri
               .path;
-          const mainTabs = {'/home', '/rituals', '/map', '/videos', '/profile'};
+          const mainTabs = {'/home', '/rituals', '/map', '/videos'};
           final visible = mainTabs.contains(path);
           debugPrint('[MainShell] path="$path" fab=$visible');
           return visible ? const FloatingBotButton() : const SizedBox.shrink();
@@ -335,9 +332,4 @@ class _MainShellState extends ConsumerState<MainShell> {
     );
   }
 
-  /// Détermine si le bouton bot doit être affiché. _currentRoute est
-  /// rafraichi a chaque navigation via le listener du routerDelegate.
-  bool _shouldShowBotButton() {
-    return !_currentRoute.startsWith('/bot');
-  }
 }

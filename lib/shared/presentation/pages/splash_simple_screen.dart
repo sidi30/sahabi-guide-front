@@ -155,18 +155,12 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
     final authToken = await storageService.getSecurely('auth_token');
     final isVisitor = prefs.getBool('is_visitor') ?? false;
 
-    if (!mounted) return;
-
-    // Pelerin authentifie -> accueil complet
-    // Visiteur / acces libre -> Rituels (page publique)
-    // Inconnu -> page choix
-    if (authToken != null) {
-      context.go('/home');
-    } else if (isVisitor) {
-      context.go('/rituals');
-    } else {
-      context.go('/auth-choice');
+    // Phase pre-Hajj : login desactive. Tout le monde entre en visiteur.
+    if (authToken == null && !isVisitor) {
+      await prefs.setBool('is_visitor', true);
     }
+    if (!mounted) return;
+    context.go('/home');
   }
 
   @override
