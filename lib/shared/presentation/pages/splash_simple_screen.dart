@@ -157,11 +157,14 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
 
     if (!mounted) return;
 
-    // Si authentifié ou visiteur enregistré, aller à l'accueil
-    if (authToken != null || isVisitor) {
+    // Pelerin authentifie -> accueil complet
+    // Visiteur / acces libre -> Rituels (page publique)
+    // Inconnu -> page choix
+    if (authToken != null) {
       context.go('/home');
+    } else if (isVisitor) {
+      context.go('/rituals');
     } else {
-      // Sinon, aller au choix pèlerin/visiteur
       context.go('/auth-choice');
     }
   }

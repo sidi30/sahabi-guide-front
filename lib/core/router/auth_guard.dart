@@ -3,47 +3,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/providers/passport_auth_provider.dart';
 
-/// Guard pour protéger les routes qui nécessitent une authentification
+/// Garde de routes : approche whitelist.
+///
+/// Seules les routes explicitement listees dans `publicRoutes` sont
+/// accessibles sans connexion. Tout le reste necessite une authentification
+/// (pelerin via passeport) ou un mode visiteur (`is_visitor` SharedPref).
+///
+/// Pages publiques en lecture seule :
+///  - Rituels du Hajj (timeline + detail)
+///  - Douas / invocations
+///  - Copilote IA Hajj (chat)
+///  - Carte interactive + POIs (lieux saints, services)
+///  - Splash / auth-choice / login / visitor registration
 class AuthGuard {
-  /// Vérifie si l'utilisateur est authentifié et redirige si nécessaire
+  /// Routes accessibles sans authentification (lecture seule, contenu pedagogique).
+  static const List<String> publicRoutes = [
+    '/',
+    '/auth-choice',
+    '/passport-login',
+    '/passport-otp',
+    '/test-passport-login',
+    '/visitor-registration',
+    '/rituals',
+    '/bot',
+    '/map',
+  ];
+
+  /// Prefixes publics (pour routes dynamiques type `/rituals/detail/:id`).
+  static const List<String> publicPrefixes = [
+    '/rituals/',
+  ];
+
+  /// Verifie si une route est publique (accessible sans auth).
+  static bool isPublicRoute(String path) {
+    if (publicRoutes.contains(path)) return true;
+    return publicPrefixes.any(path.startsWith);
+  }
+
+  /// Pour back-compat : route protegee = non publique.
+  static bool isProtectedRoute(String path) => !isPublicRoute(path);
+
+  /// Redirige vers /passport-login si la route demandee est protegee
+  /// et que l'utilisateur n'est pas authentifie.
   static String? checkAuth(BuildContext context, GoRouterState state, WidgetRef ref) {
     final authState = ref.read(authNotifierProvider);
-    
-    // Si l'utilisateur n'est pas authentifié, rediriger vers la page de connexion
-    if (!authState.isAuthenticated) {
+    if (!authState.isAuthenticated && isProtectedRoute(state.matchedLocation)) {
       return '/passport-login';
     }
-    
-    // Si authentifié, autoriser l'accès
     return null;
-  }
-  
-  /// Liste des routes protégées (nécessitent une authentification pèlerin)
-  /// Les autres routes sont accessibles aux visiteurs
-  static const List<String> protectedRoutes = [
-    '/profile',           // Profil utilisateur - données personnelles
-    '/pilgrim-profile',   // Profil pèlerin détaillé - données personnelles
-    '/alerts',            // Alertes - notifications personnelles
-    '/emergency-contacts', // Contacts d'urgence - données personnelles
-    '/bot-debug',         // Debug bot - admin seulement
-  ];
-  
-  // Routes accessibles aux visiteurs (en lecture seule):
-  // - /health - Informations santé générales (pas de données perso)
-  // - /connectivity - Voir les offres eSIM (pas d'achat sans compte)
-  // - /map - Carte interactive avec POI (lieux sacrés, services)
-  
-  /// Vérifie si une route nécessite une authentification
-  static bool isProtectedRoute(String path) {
-    return protectedRoutes.any((route) => path.startsWith(route));
   }
 }
 
-/// Provider pour accéder à l'état d'authentification dans les guards
+/// Provider pour acceder a l'etat d'authentification dans les guards.
 final authGuardProvider = Provider<bool>((ref) {
   return ref.watch(authNotifierProvider).isAuthenticated;
 });
-
-
-
-

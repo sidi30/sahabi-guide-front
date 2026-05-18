@@ -325,7 +325,7 @@ class BotService {
         final source = apiResponse['source'] as String? ?? 'api';
         final ritualId = apiResponse['ritualId'] as String?;
         String apiContent = answer;
-        if (source == 'llm') apiContent += '\n\n💡 Réponse IA';
+        if (source.startsWith('llm')) apiContent += '\n\n💡 Réponse IA';
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,

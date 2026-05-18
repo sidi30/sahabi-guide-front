@@ -61,11 +61,14 @@ class _SplashWrapperState extends State<SplashWrapper> {
 
       if (!mounted) return;
 
-      // Si authentifié ou visiteur enregistré, aller à l'accueil
-      if (authToken != null || isVisitor) {
+      // Pelerin authentifie -> accueil complet (toutes les pages)
+      // Visiteur / acces libre -> Rituels (page publique de demarrage)
+      // Inconnu -> page choix
+      if (authToken != null) {
         context.go('/home');
+      } else if (isVisitor) {
+        context.go('/rituals');
       } else {
-        // Sinon, aller au choix pèlerin/visiteur
         context.go('/auth-choice');
       }
     } catch (e) {

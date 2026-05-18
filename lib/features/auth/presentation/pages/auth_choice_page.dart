@@ -212,15 +212,19 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
 
               const SizedBox(height: 16),
 
-              // Bouton Continuer sans connexion
+              // Bouton Continuer sans connexion (acces libre lecture seule)
+              // Donne acces aux pages publiques : Rituels, Douas, Carte+POI, IA.
+              // Les autres pages (Accueil, Videos, Profil) restent fermees.
               TextButton(
                 onPressed: () async {
                   await _savePreferences();
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('is_visitor', true);
                   if (!context.mounted) return;
-                  context.go('/home');
+                  context.go('/rituals');
                 },
                 child: const Text(
-                  'Continuer sans connexion',
+                  'Continuer sans connexion (acces libre)',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
