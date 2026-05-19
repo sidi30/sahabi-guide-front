@@ -18,18 +18,22 @@ class DuasRepositoryImpl implements DuasRepository {
 
   @override
   Future<List<DuaModel>> getDuas({String? tag}) async {
+    // Tente d'abord le remote : si emulateur signale faux-positif
+    // ConnectivityResult.none (mixé avec mobile/wifi), on aurait sinon
+    // basculé à tort sur le cache local vide.
     try {
-      final connectivityResult = await connectivity.checkConnectivity();
-      if (connectivityResult.contains(ConnectivityResult.none)) {
-        return _getLocalDuas();
-      }
-
       final remoteDuas = await remoteDataSource.getDuas(tag: tag);
+      // ignore: avoid_print
+      print('[DUAS-REPO] remote returned ${remoteDuas.length} duas');
       await localDataSource.cacheDuas(remoteDuas);
       return remoteDuas;
-    } on ServerException {
+    } on ServerException catch (e) {
+      // ignore: avoid_print
+      print('[DUAS-REPO] ServerException -> local fallback: $e');
       return _getLocalDuas();
     } catch (e) {
+      // ignore: avoid_print
+      print('[DUAS-REPO] catch-all -> local fallback: $e');
       return _getLocalDuas();
     }
   }
