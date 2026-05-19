@@ -11,6 +11,7 @@ import '../../../../features/settings/presentation/providers/settings_provider.d
 import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
+import 'dua_detail_page.dart';
 
 final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) async {
   ref.keepAlive(); // Keep data when switching tabs
@@ -235,9 +236,10 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // TODO: Navigate to dua details
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Détails de: ${dua.title}')),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => DuaDetailPage(dua: dua),
+                  ),
                 );
               },
             ),
