@@ -1,4 +1,5 @@
 import 'package:sahabi_guide/core/network/dio_client.dart';
+import 'package:sahabi_guide/core/utils/app_logger.dart';
 
 class VideoService {
   final DioClient _dioClient;
@@ -12,8 +13,10 @@ class VideoService {
       if (response.data is List) {
         return List<Map<String, dynamic>>.from(response.data);
       }
+      AppLogger.warning('VideoService.getActiveVideos: réponse non-liste (${response.data.runtimeType})');
       return [];
-    } catch (e) {
+    } catch (e, st) {
+      AppLogger.error('VideoService.getActiveVideos a échoué', error: e, stackTrace: st);
       return [];
     }
   }
@@ -21,6 +24,8 @@ class VideoService {
   Future<void> trackView(String videoId) async {
     try {
       await _dioClient.post('/api/v1/videos/$videoId/view');
-    } catch (_) {}
+    } catch (e) {
+      AppLogger.warning('VideoService.trackView($videoId) a échoué', error: e);
+    }
   }
 }

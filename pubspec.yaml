@@ -44,12 +44,18 @@ dependencies:
   # Video Player (pour splash screen animé)
   video_player: ^2.8.0
   # chewie: ^1.7.0  # ❌ SUPPRIMÉ - Non utilisé
+  # youtube_player_flutter retiré : la dep transitive flutter_inappwebview
+  # requiert AGP 8.0.1 depuis dl.google.com et déclenche un SSL handshake
+  # error sur cet environnement. Lecture YouTube via launchUrl externe.
 
   # Maps & Location
   # flutter_map remplacé par google_maps_flutter
   google_maps_flutter: ^2.9.0
   geolocator: ^14.0.2
   battery_plus: ^6.0.2
+
+  # Prayer times calculation (Islamic prayer times based on geo coordinates)
+  adhan: ^2.0.0
 
   # Localization
   intl: ^0.20.2
@@ -116,6 +122,7 @@ flutter:
     - assets/data/
     - assets/video/
     - assets/favicon/
+    - assets/google_fonts/
     # - assets/audio/   # désactivé: dossier manquant
     # - assets/icons/   # désactivé: dossier manquant
 

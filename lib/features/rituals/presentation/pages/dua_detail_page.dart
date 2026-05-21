@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -21,8 +22,25 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
   bool _isPlaying = false;
   bool _ttsReady = false;
   bool _useAudioFile = false;
+  bool _arabicTtsAvailable = false;
 
   static const double _slowRate = 0.35;
+
+  bool _markedRead = false;
+
+  Future<void> _markAsRead() async {
+    if (_markedRead) return;
+    HapticFeedback.selectionClick();
+    if (!mounted) return;
+    setState(() => _markedRead = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Dua comptabilisée ✓'),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -60,7 +78,8 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
       try {
         await _audioPlayer.setUrl(audioUrl);
         await _audioPlayer.setSpeed(0.85); // legerement ralenti pour memorisation
-        if (mounted) await _audioPlayer.play();
+        // Pas d'auto-play : attend l'action user.
+        if (mounted) setState(() {});
         return;
       } catch (_) {
         _useAudioFile = false;
@@ -77,20 +96,27 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
       await _tts.setPitch(1.0);
       await _tts.setVolume(1.0);
 
-      String locale = 'ar-SA';
+      // Vérifie strictement la dispo d'un pack arabe. Pas de fallback fr-FR :
+      // lire du texte arabe avec une voix française produit du son incompréhensible.
+      String? arabicLocale;
       try {
-        final available = await _tts.isLanguageAvailable('ar-SA');
-        if (available != true) {
-          locale = 'ar';
-          final fallback = await _tts.isLanguageAvailable('ar');
-          if (fallback != true) {
-            locale = 'fr-FR';
-          }
+        if (await _tts.isLanguageAvailable('ar-SA') == true) {
+          arabicLocale = 'ar-SA';
+        } else if (await _tts.isLanguageAvailable('ar') == true) {
+          arabicLocale = 'ar';
         }
       } catch (_) {
-        locale = 'ar';
+        arabicLocale = null;
       }
-      await _tts.setLanguage(locale);
+
+      if (arabicLocale == null) {
+        _arabicTtsAvailable = false;
+        _ttsReady = false;
+        if (mounted) setState(() {});
+        return;
+      }
+
+      await _tts.setLanguage(arabicLocale);
 
       _tts.setCompletionHandler(() {
         if (mounted) setState(() => _isPlaying = false);
@@ -102,12 +128,14 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
         if (mounted) setState(() => _isPlaying = false);
       });
 
+      _arabicTtsAvailable = true;
       _ttsReady = true;
-      if (mounted) {
-        await _speak();
-      }
+      // Pas d'auto-play : attend l'action user.
+      if (mounted) setState(() {});
     } catch (_) {
+      _arabicTtsAvailable = false;
       _ttsReady = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -185,39 +213,79 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
             ),
             const SizedBox(height: 16),
 
-            // Bouton lecture
-            ElevatedButton.icon(
-              onPressed: _isPlaying ? _stop : _speak,
-              icon: Icon(_isPlaying ? Icons.stop_circle : Icons.volume_up),
-              label: Text(
-                _isPlaying
-                    ? 'Arrêter la lecture'
-                    : 'Écouter la prononciation',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1B5E3F),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            // Bouton lecture (désactivé si aucun audio dispo)
+            Builder(builder: (_) {
+              final canPlay = _useAudioFile || _arabicTtsAvailable;
+              return ElevatedButton.icon(
+                onPressed: !canPlay
+                    ? null
+                    : (_isPlaying ? _stop : _speak),
+                icon: Icon(_isPlaying ? Icons.stop_circle : Icons.volume_up),
+                label: Text(
+                  _isPlaying
+                      ? 'Arrêter la lecture'
+                      : 'Écouter la prononciation',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B5E3F),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade600,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(height: 8),
+            if (_useAudioFile)
+              Text(
+                'Récitation audio ralentie pour la mémorisation',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              )
+            else if (_arabicTtsAvailable)
+              Text(
+                'Lecture vocale en arabe via le moteur TTS de l\'appareil',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              )
+            else
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3CD),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFE69C)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Color(0xFF856404), size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Audio arabe indisponible. Installe un pack vocal arabe '
+                        'dans les réglages système (Android : Paramètres > Langues '
+                        '> Sortie vocale > moteur de Google > Installer arabe).',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: const Color(0xFF856404),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _useAudioFile
-                  ? 'Récitation audio ralentie pour la mémorisation'
-                  : 'Lecture vocale en arabe (installer un pack TTS arabe sur Android pour le son)',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
             const SizedBox(height: 24),
 
             // Translitteration (si dispo)
             if (dua.transliteration.trim().isNotEmpty) ...[
-              _SectionLabel(text: 'Translittération'),
+              const _SectionLabel(text: 'Translittération'),
               const SizedBox(height: 8),
               Text(
                 dua.transliteration,
@@ -232,7 +300,7 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
             ],
 
             // Traduction francaise
-            _SectionLabel(text: 'Traduction française'),
+            const _SectionLabel(text: 'Traduction française'),
             const SizedBox(height: 8),
             Text(
               dua.translation,
@@ -259,6 +327,34 @@ class _DuaDetailPageState extends State<DuaDetailPage> {
                     .toList(),
               ),
             ],
+
+            const SizedBox(height: 32),
+
+            // Mark as read button — comptabilise dans dashboard
+            ElevatedButton.icon(
+              onPressed: _markedRead ? null : _markAsRead,
+              icon: Icon(
+                _markedRead ? Icons.check_circle : Icons.task_alt,
+              ),
+              label: Text(
+                _markedRead ? 'Comptabilisée ✓' : 'J\'ai récité cette dua',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _markedRead
+                    ? Colors.green.shade100
+                    : const Color(0xFF1B5E3F),
+                foregroundColor:
+                    _markedRead ? Colors.green.shade800 : Colors.white,
+                minimumSize: const Size.fromHeight(52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
           ],
         ),
       ),

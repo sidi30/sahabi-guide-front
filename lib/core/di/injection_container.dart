@@ -100,6 +100,7 @@ import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
 import '../services/audio_service.dart';
 import '../services/notification_service.dart';
+import '../services/prayer_times_service.dart';
 
 import '../network/dio_client.dart';
 import '../cache/cache_service.dart';
@@ -159,6 +160,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton<LocationService>(
     () => LocationService(),
+  );
+
+  sl.registerLazySingleton<PrayerTimesService>(
+    () => PrayerTimesService(sl<LocationService>()),
   );
 
   // Auth Service

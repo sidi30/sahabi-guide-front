@@ -11,7 +11,7 @@
       "quick_replies": ["Oui", "Non", "Besoin d'aide"],
       "next_step_yes": "tawaf_arrival",
       "next_step_no": "ihram",
-      "related_ritual_id": "ihram",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000001",
       "location_context": {
         "miqat": true,
         "required_before": ["tawaf", "sai"]
@@ -28,7 +28,7 @@
       "quick_replies": ["Oui", "Non", "En cours"],
       "next_step_yes": "sai",
       "next_step_no": "tawaf_arrival",
-      "related_ritual_id": "tawaf",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000002",
       "location_context": {
         "masjid_al_haram": true
       }
@@ -44,7 +44,7 @@
       "quick_replies": ["Oui", "Non", "En cours"],
       "next_step_yes": "mina_day8",
       "next_step_no": "sai",
-      "related_ritual_id": "sai"
+      "related_ritual_id": "10000000-0000-0000-0000-000000000003"
     },
     {
       "id": "mina_day8",
@@ -57,7 +57,7 @@
       "quick_replies": ["Oui", "Non", "En route"],
       "next_step_yes": "arafat",
       "next_step_no": "mina_day8",
-      "related_ritual_id": "mina",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000005",
       "location_context": {
         "mina": true,
         "date": "8_dhul_hijjah"
@@ -74,7 +74,7 @@
       "quick_replies": ["Oui, je suis à Arafat", "Non", "En route"],
       "next_step_yes": "muzdalifah",
       "next_step_no": "arafat",
-      "related_ritual_id": "arafat",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000006",
       "is_critical": true,
       "urgent_reminder": "⚠️ IMPORTANT : Ne quittez pas Arafat avant le coucher du soleil !",
       "location_context": {
@@ -94,7 +94,7 @@
       "quick_replies": ["Oui", "Non", "En route"],
       "next_step_yes": "ramy_jamarat_day10",
       "next_step_no": "muzdalifah",
-      "related_ritual_id": "muzdalifah",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000007",
       "location_context": {
         "muzdalifah": true
       }
@@ -110,7 +110,7 @@
       "quick_replies": ["Oui", "Non"],
       "next_step_yes": "sacrifice",
       "next_step_no": "ramy_jamarat_day10",
-      "related_ritual_id": "ramy",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000008",
       "is_critical": true
     },
     {
@@ -124,7 +124,7 @@
       "quick_replies": ["Oui", "Délégué", "Non"],
       "next_step_yes": "haircut",
       "next_step_no": "sacrifice",
-      "related_ritual_id": "sacrifice"
+      "related_ritual_id": "10000000-0000-0000-0000-000000000009"
     },
     {
       "id": "haircut",
@@ -136,7 +136,8 @@
       "description": "Rasez complètement vos cheveux (recommandé) ou coupez-les légèrement.",
       "quick_replies": ["Oui, rasé", "Oui, coupé", "Non"],
       "next_step_yes": "tawaf_ifadah",
-      "next_step_no": "haircut"
+      "next_step_no": "haircut",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000010"
     },
     {
       "id": "tawaf_ifadah",
@@ -149,7 +150,7 @@
       "quick_replies": ["Oui", "Non"],
       "next_step_yes": "mina_days_tashriq",
       "next_step_no": "tawaf_ifadah",
-      "related_ritual_id": "tawaf_ifadah",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000011",
       "is_critical": true
     },
     {
@@ -163,7 +164,7 @@
       "quick_replies": ["Oui", "Non"],
       "next_step_yes": "ramy_days_11_13",
       "next_step_no": "mina_days_tashriq",
-      "related_ritual_id": "mina"
+      "related_ritual_id": "10000000-0000-0000-0000-000000000012"
     },
     {
       "id": "ramy_days_11_13",
@@ -176,6 +177,7 @@
       "quick_replies": ["Oui, jour 11", "Oui, jour 12", "Oui, jour 13", "Non"],
       "next_step_yes": "tawaf_wida",
       "next_step_no": "ramy_days_11_13",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000012",
       "is_critical": true
     },
     {
@@ -189,6 +191,7 @@
       "quick_replies": ["Oui", "Non"],
       "next_step_yes": "hajj_completed",
       "next_step_no": "tawaf_wida",
+      "related_ritual_id": "10000000-0000-0000-0000-000000000013",
       "is_critical": true
     },
     {

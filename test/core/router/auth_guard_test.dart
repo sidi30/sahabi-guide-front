@@ -11,18 +11,6 @@ void main() {
       expect(AuthGuard.isProtectedRoute('/pilgrim-profile'), isTrue);
     });
 
-    test('returns true for /alerts', () {
-      expect(AuthGuard.isProtectedRoute('/alerts'), isTrue);
-    });
-
-    test('returns true for /emergency-contacts', () {
-      expect(AuthGuard.isProtectedRoute('/emergency-contacts'), isTrue);
-    });
-
-    test('returns true for /bot-debug', () {
-      expect(AuthGuard.isProtectedRoute('/bot-debug'), isTrue);
-    });
-
     test('returns false for /home', () {
       expect(AuthGuard.isProtectedRoute('/home'), isFalse);
     });
@@ -47,6 +35,18 @@ void main() {
       expect(AuthGuard.isProtectedRoute('/settings'), isFalse);
     });
 
+    test('returns false for /alerts (now public in visitor mode)', () {
+      expect(AuthGuard.isProtectedRoute('/alerts'), isFalse);
+    });
+
+    test('returns false for /emergency-contacts (now public in visitor mode)', () {
+      expect(AuthGuard.isProtectedRoute('/emergency-contacts'), isFalse);
+    });
+
+    test('returns false for /bot-debug (now public in visitor mode)', () {
+      expect(AuthGuard.isProtectedRoute('/bot-debug'), isFalse);
+    });
+
     test('returns false for /passport-login', () {
       expect(AuthGuard.isProtectedRoute('/passport-login'), isFalse);
     });
@@ -61,10 +61,10 @@ void main() {
 
     test('matches routes starting with protected prefix', () {
       expect(AuthGuard.isProtectedRoute('/profile/edit'), isTrue);
-      expect(AuthGuard.isProtectedRoute('/alerts/123'), isTrue);
+      expect(AuthGuard.isProtectedRoute('/pilgrim-profile/123'), isTrue);
     });
 
-    test('returns false for /bot (not debug)', () {
+    test('returns false for /bot (not protected in visitor mode)', () {
       expect(AuthGuard.isProtectedRoute('/bot'), isFalse);
     });
   });
@@ -73,13 +73,10 @@ void main() {
     test('contains expected protected routes', () {
       expect(AuthGuard.protectedRoutes, contains('/profile'));
       expect(AuthGuard.protectedRoutes, contains('/pilgrim-profile'));
-      expect(AuthGuard.protectedRoutes, contains('/alerts'));
-      expect(AuthGuard.protectedRoutes, contains('/emergency-contacts'));
-      expect(AuthGuard.protectedRoutes, contains('/bot-debug'));
     });
 
-    test('has exactly 5 protected routes', () {
-      expect(AuthGuard.protectedRoutes.length, 5);
+    test('has exactly 2 protected routes (visitor mode pre-Hajj)', () {
+      expect(AuthGuard.protectedRoutes.length, 2);
     });
   });
 }

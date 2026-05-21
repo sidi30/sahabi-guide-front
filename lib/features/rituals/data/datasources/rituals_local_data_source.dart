@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../../core/cache/cache_service.dart';
@@ -25,19 +27,40 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   Future<List<RitualModel>> getRituals() async {
     try {
       final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
-      
+
+      // Fallback asset : si pas de cache (ex. premier lancement, API offline)
+      // on charge le seed bundle pour avoir des rituels avec UUIDs réels et
+      // URLs vidéo YouTube. Sinon l'écran rituels serait vide.
       if (cached == null) {
-        return []; // Retourner liste vide si pas de cache
+        return await _loadSeedFromAsset();
       }
 
       final rituals = cached.data
           .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
           .toList();
-      
+
+      if (rituals.isEmpty) {
+        return await _loadSeedFromAsset();
+      }
+
       return rituals;
     } catch (e) {
-      throw Exception('Failed to load cached rituals: $e');
+      // Cache corrompu → on tente le seed asset plutôt que de tout casser.
+      try {
+        return await _loadSeedFromAsset();
+      } catch (_) {
+        throw Exception('Failed to load cached rituals: $e');
+      }
     }
+  }
+
+  Future<List<RitualModel>> _loadSeedFromAsset() async {
+    final raw = await rootBundle.loadString('assets/data/rituals_seed.json');
+    final decoded = json.decode(raw) as Map<String, dynamic>;
+    final list = decoded['rituals'] as List<dynamic>;
+    return list
+        .map((e) => RitualModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   @override

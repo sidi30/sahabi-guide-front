@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,10 +32,11 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
   }
 
   Future<void> _saveAndContinue() async {
+    HapticFeedback.selectionClick();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_role', _selectedRole);
     await prefs.setString('audio_language', _selectedLanguage);
-    
+
     if (_selectedRole == 'pilgrim') {
       // Les pèlerins vont vers la connexion par passeport
       if (!mounted) return;
@@ -95,19 +97,19 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                     const SizedBox(height: 24),
                     Text(
                       AppLocalizations.of(context)!.appTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D5F5D),
+                        color: ref.colors.primary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.splash_welcome,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: ref.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -117,12 +119,12 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               const SizedBox(height: 48),
 
               // Je suis un...
-              const Text(
+              Text(
                 'Je suis un...',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D5F5D),
+                  color: ref.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -155,12 +157,12 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               const SizedBox(height: 32),
 
               // Langue
-              const Text(
+              Text(
                 'Langue',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D5F5D),
+                  color: ref.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -196,7 +198,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ref.colors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size.fromHeight(56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -217,17 +219,22 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               // Les autres pages (Accueil, Videos, Profil) restent fermees.
               TextButton(
                 onPressed: () async {
+                  HapticFeedback.selectionClick();
                   await _savePreferences();
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.setBool('is_visitor', true);
                   if (!context.mounted) return;
                   context.go('/rituals');
                 },
-                child: const Text(
-                  'Continuer sans connexion (acces libre)',
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                child: Text(
+                  'Continuer sans connexion (accès libre)',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                    color: ref.colors.textSecondary,
                   ),
                 ),
               ),
@@ -251,53 +258,72 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     required String value,
     required bool isSelected,
   }) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedRole = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? ref.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
+    final inactiveBg = ref.colors.surfaceVariant;
+    final inactiveFg = ref.colors.textSecondary;
+    return Semantics(
+      label: subtitle != null ? '$label, $subtitle' : label,
+      button: true,
+      selected: isSelected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? ref.colors.primary : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 40,
-              color: isSelected ? ref.colors.primary : Colors.grey,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? ref.colors.primary : Colors.grey,
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() {
+              _selectedRole = value;
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(minHeight: 120),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? ref.colors.primary.withValues(alpha: 0.1)
+                  : inactiveBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? ref.colors.primary : Colors.transparent,
+                width: 2,
               ),
-              textAlign: TextAlign.center,
             ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isSelected
-                    ? ref.colors.primary.withValues(alpha: 0.7)
-                    : Colors.grey.withValues(alpha: 0.7),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 40,
+                  color: isSelected ? ref.colors.primary : inactiveFg,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ],
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? ref.colors.primary : inactiveFg,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isSelected
+                          ? ref.colors.primary.withValues(alpha: 0.75)
+                          : inactiveFg.withValues(alpha: 0.85),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -309,40 +335,58 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     required String value,
     required bool isSelected,
   }) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLanguage = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? ref.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
+    final inactiveBg = ref.colors.surfaceVariant;
+    final inactiveFg = ref.colors.textSecondary;
+    return Semantics(
+      label: 'Langue $label',
+      button: true,
+      selected: isSelected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? ref.colors.primary : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: isSelected ? ref.colors.primary : Colors.grey,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? ref.colors.primary : Colors.grey,
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() {
+              _selectedLanguage = value;
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? ref.colors.primary.withValues(alpha: 0.1)
+                  : inactiveBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? ref.colors.primary : Colors.transparent,
+                width: 2,
               ),
             ),
-          ],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 24,
+                  color: isSelected ? ref.colors.primary : inactiveFg,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? ref.colors.primary : inactiveFg,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

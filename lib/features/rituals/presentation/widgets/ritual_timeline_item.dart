@@ -23,7 +23,6 @@ class RitualTimelineItem extends StatefulWidget {
 
 class _RitualTimelineItemState extends State<RitualTimelineItem> {
   bool _showDetails = false;
-  bool _showVideo = false;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +52,12 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
                         _showDetails = false;
                       });
                     },
-                    onWatchVideo: () {
-                      setState(() {
-                        _showVideo = true;
-                      });
-                    },
+                    onWatchVideo: () {},
                   ),
-                ],
-                if (_showVideo) ...[
+                  // Affiche la carte vidéo (miniature + tap externe) dès
+                  // l'expansion des détails — sinon invisible jusqu'à un clic
+                  // « Regarder la vidéo » qui ne se déclenchait jamais si
+                  // launchUrl externe échouait.
                   const SizedBox(height: 16),
                   VideoPlayerWidget(
                     videoUrl: widget.ritual.getVideoUrl(widget.audioLanguage),
@@ -285,9 +282,6 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         onPressed: () {
           setState(() {
             _showDetails = !_showDetails;
-            if (!_showDetails) {
-              _showVideo = false;
-            }
           });
         },
         icon: Icon(

@@ -1,0 +1,264 @@
+{
+  "rituals": [
+    {
+      "id": "10000000-0000-0000-0000-000000000001",
+      "name": "L'Ihram (L'État de Sacralisation)",
+      "order": 1,
+      "description": "Première étape du Hajj. L'intention d'entrer en état de sacralisation au Meqat.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/watch?v=NI_TkqlHSUY"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Prendre un bain rituel (Ghusl)",
+        "Se parfumer le corps (pour les hommes, avant de porter l'habit)",
+        "Mettre les vêtements de l'Ihram",
+        "Prier deux Rakats (Sunnah de l'Ihram)",
+        "Formuler l'intention (Niyyah) au Meqat",
+        "Commencer la Talbiyah"
+      ],
+      "tags": ["obligatoire", "début"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000002",
+      "name": "Tawaf al-Qudum (Tawaf d'Arrivée / Omra)",
+      "order": 2,
+      "description": "Circumambulation autour de la Kaaba (7 tours).",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "ha": "https://www.youtube.com/watch?v=z7PM2I6sPZI",
+        "fr": "https://www.youtube.com/results?search_query=Tawaf+Kaaba+tutoriel+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Entrer dans le Masjid al-Haram du pied droit",
+        "Commencer chaque tour à la Pierre Noire (Hajar al-Aswad)",
+        "Faire 7 tours dans le sens anti-horaire",
+        "Prier 2 Rakats derrière Maqam Ibrahim après le 7ème tour",
+        "Boire de l'eau de Zamzam"
+      ],
+      "tags": ["obligatoire", "kaaba"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000003",
+      "name": "Le Sa'i (Marche entre Safa et Marwa)",
+      "order": 3,
+      "description": "Parcours entre les monts Safa et Marwa (7 trajets).",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Sai+Safa+Marwa+tutoriel+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Commencer à Safa",
+        "Se diriger vers Marwa (1er trajet)",
+        "Retourner à Safa (2ème trajet)",
+        "Répéter jusqu'au 7ème trajet qui finit à Marwa"
+      ],
+      "tags": ["obligatoire"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000004",
+      "name": "Taqsir (Coupe des cheveux - Fin Omra)",
+      "order": 4,
+      "description": "Couper une petite partie des cheveux pour sortir de l'état d'Ihram.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Taqsir+Omra+couper+cheveux"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Couper environ 2-3 cm de cheveux (hommes)",
+        "Couper une mèche (femmes)",
+        "Retirer les vêtements de l'Ihram"
+      ],
+      "tags": ["omra"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000005",
+      "name": "Jour de Tarwiyah (8 Dhul-Hijjah)",
+      "order": 5,
+      "description": "Départ pour Mina et reprise de l'Ihram pour le Hajj.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/watch?v=z1mVGwAQr-A"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Remettre l'Ihram (Ghusl, vêtements, prière)",
+        "Formuler l'intention du Hajj (Niyyah)",
+        "Aller à Mina avant le Dhuhr",
+        "Prier Dhuhr, Asr, Maghrib, Isha et Fajr à Mina"
+      ],
+      "tags": ["mina"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000006",
+      "name": "Jour d'Arafat (9 Dhul-Hijjah)",
+      "order": 6,
+      "description": "Le pilier le plus important du Hajj. Station à Arafat.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/watch?v=ak8cf3U4BWo",
+        "en": "https://www.youtube.com/watch?v=3F30WR0aoc4"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Partir de Mina pour Arafat après le lever du soleil",
+        "Arriver à Arafat avant ou au moment du Zénith (Dhuhr)",
+        "Prier Dhuhr et Asr regroupés et raccourcis",
+        "Faire beaucoup d'invocations face à la Qibla jusqu'au coucher du soleil"
+      ],
+      "tags": ["pilier", "obligatoire"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000007",
+      "name": "Nuit à Muzdalifah",
+      "order": 7,
+      "description": "Départ d'Arafat après le coucher du soleil vers Muzdalifah.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Muzdalifah+Hajj+nuit+cailloux"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Quitter Arafat calmement après le coucher du soleil",
+        "Prier Maghrib (3 Rakats) et Isha (2 Rakats) regroupés",
+        "Ramasser 7 cailloux (ou plus) pour la lapidation",
+        "Dormir à la belle étoile",
+        "Prier le Fajr à Muzdalifah"
+      ],
+      "tags": ["nuit"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000008",
+      "name": "Lapidation de Jamarat Al-Aqabah (10 Dhul-Hijjah)",
+      "order": 8,
+      "description": "Le jour de l'Aïd (Yawm al-Nahr). Lapidation de la grande stèle.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Jamarat+Aqaba+lapidation+Hajj+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Aller à Jamarat Al-Aqabah (la grande stèle)",
+        "Jeter 7 cailloux successifs en disant 'Allahu Akbar'",
+        "Arrêter la Talbiyah après le premier caillou"
+      ],
+      "tags": ["aid", "obligatoire"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000009",
+      "name": "Le Sacrifice (Hady)",
+      "order": 9,
+      "description": "Sacrifice d'une bête en remerciement.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=sacrifice+Hady+Hajj+Qurbani"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Acheter un coupon de sacrifice",
+        "Le sacrifice est effectué en votre nom"
+      ],
+      "tags": ["sacrifice"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000010",
+      "name": "Halq ou Taqsir (Rasage ou Coupe)",
+      "order": 10,
+      "description": "Désacralisation majeure (Tahallul Al-Asghar).",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Halq+Taqsir+Hajj+rasage+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Se raser complètement la tête (Halq) - hommes",
+        "Ou couper les cheveux court (Taqsir)",
+        "Couper une mèche (femmes)"
+      ],
+      "tags": ["tahallul"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000011",
+      "name": "Tawaf Al-Ifadah",
+      "order": 11,
+      "description": "Pilier essentiel du Hajj. À faire le 10 Dhul-Hijjah ou les jours suivants.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Tawaf+al+Ifadah+Hajj+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Retourner à la Mecque",
+        "Faire 7 tours autour de la Kaaba (sans Ihram)",
+        "Prier 2 Rakats",
+        "Faire le Sa'i du Hajj si non fait"
+      ],
+      "tags": ["pilier", "obligatoire"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000012",
+      "name": "Jours de Tashreeq (Mina & Lapidation)",
+      "order": 12,
+      "description": "Séjour à Mina et lapidation des 3 stèles chaque jour.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=jours+Tashriq+Mina+lapidation+Hajj"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Passer les nuits des 11 et 12 (et 13) à Mina",
+        "Lapider les 3 stèles chaque après-midi",
+        "7 cailloux par stèle"
+      ],
+      "tags": ["tashreeq"],
+      "isActive": false
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000013",
+      "name": "Tawaf Al-Wada (Tawaf d'Adieu)",
+      "order": 13,
+      "description": "Dernier rite avant de quitter la Mecque.",
+      "type": "hajj",
+      "status": "pending",
+      "videoSources": {
+        "fr": "https://www.youtube.com/results?search_query=Tawaf+al+Wada+adieu+Hajj+francais"
+      },
+      "audioPaths": {},
+      "steps": [
+        "Faire 7 tours d'adieu autour de la Kaaba",
+        "Prier 2 Rakats",
+        "Boire Zamzam",
+        "Quitter la Mecque immédiatement après"
+      ],
+      "tags": ["adieu"],
+      "isActive": false
+    }
+  ]
+}

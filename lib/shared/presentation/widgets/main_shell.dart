@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
@@ -85,6 +86,8 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 
   void _onDestinationSelected(int index) {
+    if (index == _selectedIndex) return;
+    HapticFeedback.selectionClick();
     setState(() {
       _selectedIndex = index;
     });
@@ -246,68 +249,92 @@ class _MainShellState extends ConsumerState<MainShell> {
       // Bottom Navigation for mobile
       bottomNavigationBar: isLargeScreen
           ? null
-          : Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+          : SafeArea(
+              top: false,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                decoration: BoxDecoration(
+                  color: ref.colors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: ref.colors.divider.withValues(alpha: 0.4),
+                    width: 0.5,
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(_navigationItems.length, (index) {
-                    final item = _navigationItems[index];
-                    final isSelected = _selectedIndex == index;
+                  boxShadow: [
+                    BoxShadow(
+                      color: ref.colors.shadow.withValues(alpha: 0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: List.generate(_navigationItems.length, (index) {
+                        final item = _navigationItems[index];
+                        final isSelected = _selectedIndex == index;
 
-                    return GestureDetector(
-                      onTap: () => _onDestinationSelected(index),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? ref.colors.primary
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isSelected ? item.selectedIcon : item.icon,
-                              size: 22,
-                              color: isSelected
-                                  ? ref.colors.textOnPrimary
-                                  : ref.colors.textLight,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item.label,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                color: isSelected
-                                    ? ref.colors.textOnPrimary
-                                    : ref.colors.textLight,
+                        return Expanded(
+                          child: Semantics(
+                            label: item.label,
+                            button: true,
+                            selected: isSelected,
+                            child: InkWell(
+                              onTap: () => _onDestinationSelected(index),
+                              borderRadius: BorderRadius.circular(14),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeOut,
+                                constraints: const BoxConstraints(minHeight: 52),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? ref.colors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      isSelected ? item.selectedIcon : item.icon,
+                                      size: 24,
+                                      color: isSelected
+                                          ? ref.colors.textOnPrimary
+                                          : ref.colors.textSecondary,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      item.label,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                        color: isSelected
+                                            ? ref.colors.textOnPrimary
+                                            : ref.colors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
             ),

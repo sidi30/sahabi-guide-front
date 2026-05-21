@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/dua_model.dart';
-import '../../domain/repositories/rituals_repository.dart';
+import '../../../duas/domain/repositories/duas_repository.dart';
 import '../widgets/dua_card.dart';
 import '../widgets/dua_player.dart';
 
-// Provider pour récupérer les duas
-final duasModernProvider = FutureProvider<List<DuaModel>>((ref) async {
-  final repository = sl<RitualsRepository>();
+// Même source que l'onglet Douas dans Rituels (DuasRepository) :
+// inclut fallback local si l'API timeout.
+final duasModernProvider = FutureProvider.autoDispose<List<DuaModel>>((ref) async {
+  ref.keepAlive();
+  final repository = sl<DuasRepository>();
   return await repository.getDuas();
 });
 

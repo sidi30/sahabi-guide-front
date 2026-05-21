@@ -92,7 +92,7 @@ class VoiceService {
       localeId: _sttLocale(lang),
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 3),
-      partialResults: true,
+      listenOptions: stt.SpeechListenOptions(partialResults: true),
       onResult: (r) => onResult(r.recognizedWords, r.finalResult),
     );
   }

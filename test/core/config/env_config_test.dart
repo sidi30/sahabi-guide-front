@@ -18,14 +18,14 @@ void main() {
       expect(EnvConfig.apiBaseUrl, contains('8084'));
     });
 
-    test('staging URL points to Hetzner', () {
+    test('staging URL points to api domain', () {
       EnvConfig.init(Environment.staging);
-      expect(EnvConfig.apiBaseUrl, 'https://46.224.193.109');
+      expect(EnvConfig.apiBaseUrl, 'https://api.sahabiguide.com');
     });
 
-    test('production URL points to Hetzner', () {
+    test('production URL points to api domain', () {
       EnvConfig.init(Environment.production);
-      expect(EnvConfig.apiBaseUrl, 'https://46.224.193.109');
+      expect(EnvConfig.apiBaseUrl, 'https://api.sahabiguide.com');
     });
   });
 
@@ -127,7 +127,7 @@ void main() {
 
     test('combines base URL with api path for production', () {
       EnvConfig.init(Environment.production);
-      expect(EnvConfig.apiFullUrl, 'https://46.224.193.109/api/v1');
+      expect(EnvConfig.apiFullUrl, 'https://api.sahabiguide.com/api/v1');
     });
   });
 }

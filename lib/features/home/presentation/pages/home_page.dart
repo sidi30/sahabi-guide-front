@@ -1,24 +1,37 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/prayer_times_service.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
+
+final prayerScheduleProvider =
+    FutureProvider<DailyPrayerSchedule>((ref) async {
+  final service = sl<PrayerTimesService>();
+  final schedule = await service.getTodaySchedule();
+  // Schedule daily notifications once we have a schedule.
+  // Fire-and-forget — no need to block the UI.
+  unawaited(sl<NotificationService>().schedulePrayerNotifications(schedule));
+  return schedule;
+});
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repository = sl<HomeRepository>();
   final results = await Future.wait([
     repository.getHomeMenuItems(),
-    repository.getDashboardData(),
     repository.getCurrentUser(),
   ]);
 
   return {
     'menuItems': results[0],
-    'dashboardData': results[1],
-    'user': results[2],
+    'user': results[1],
   };
 });
 
@@ -54,10 +67,12 @@ class HomePage extends ConsumerWidget {
 
   Widget _buildHomeContent(BuildContext context, WidgetRef ref, Map<String, dynamic> data) {
     final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
-    final dashboardData = (data['dashboardData'] as Map<String, dynamic>?) ?? {};
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -67,7 +82,6 @@ class HomePage extends ConsumerWidget {
               final authState = ref.watch(authNotifierProvider);
 
               if (authState.isAuthenticated) {
-                // Message pour pèlerin authentifié
                 return Column(
                   children: [
                     _buildWelcomeSection(context, ref, authState),
@@ -75,7 +89,6 @@ class HomePage extends ConsumerWidget {
                   ],
                 );
               } else {
-                // Message pour visiteur
                 return Column(
                   children: [
                     _buildVisitorWelcomeSection(context, ref),
@@ -86,13 +99,8 @@ class HomePage extends ConsumerWidget {
             },
           ),
 
-          // Prayer Times Card
-          _buildPrayerTimesCard(context, ref, dashboardData),
-
-          const SizedBox(height: 24),
-
-          // Quick Stats
-          _buildQuickStats(context, ref, dashboardData),
+          // Prayer Times Card (real schedule + next prayer)
+          _buildPrayerTimesCard(context, ref),
 
           const SizedBox(height: 24),
 
@@ -273,152 +281,124 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPrayerTimesCard(
-      BuildContext context, WidgetRef ref, Map<String, dynamic> dashboardData) {
+  Widget _buildPrayerTimesCard(BuildContext context, WidgetRef ref) {
     final colors = ref.colors;
-    final currentPrayer =
-        dashboardData['currentPrayer'] as Map<String, dynamic>? ?? {};
-    final nextPrayer = dashboardData['nextPrayer'] as Map<String, dynamic>? ?? {};
+    final scheduleAsync = ref.watch(prayerScheduleProvider);
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Prières d\'aujourd\'hui',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Prière actuelle',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: context.textSecondaryColor,
-                            ),
-                      ),
-                      Text(
-                        currentPrayer['name'] ?? 'N/A',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                      Text(
-                        currentPrayer['time'] ?? '--:--',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+        child: scheduleAsync.when(
+          loading: () => const SizedBox(
+            height: 80,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (e, _) => Row(
+            children: [
+              Icon(Icons.location_off, color: context.errorColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Géolocalisation indisponible. Horaires non calculés.',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Prochaine prière',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: context.textSecondaryColor,
-                            ),
+              ),
+            ],
+          ),
+          data: (schedule) {
+            final current = schedule.current;
+            final next = schedule.next;
+            final remaining = next == null
+                ? '--'
+                : _formatRemaining(next.time.difference(DateTime.now()));
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.schedule, color: colors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Prières d\'aujourd\'hui',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Prière actuelle',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: context.textSecondaryColor,
+                                    ),
+                          ),
+                          Text(
+                            current?.displayName ?? '—',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            current?.formattedTime ?? '--:--',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
                       ),
-                      Text(
-                        nextPrayer['name'] ?? 'N/A',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Prochaine prière',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: context.textSecondaryColor,
+                                    ),
+                          ),
+                          Text(
+                            next?.displayName ?? '—',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            next == null ? '--' : 'dans $remaining',
+                            style:
+                                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: colors.secondary,
+                                    ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        nextPrayer['remaining'] != null ? 'dans ${nextPrayer['remaining']}' : '--',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: colors.secondary,
-                            ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildQuickStats(
-      BuildContext context, WidgetRef ref, Map<String, dynamic> dashboardData) {
-    final colors = ref.colors;
-    final todayStats = dashboardData['todayStats'] as Map<String, dynamic>? ?? {};
-
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            context,
-            'Prières',
-            '${todayStats['prayersCompleted'] ?? 0}/${todayStats['totalPrayers'] ?? 5}',
-            Icons.schedule,
-            colors.primary,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            context,
-            'Douas',
-            '${todayStats['duasRead'] ?? 0}',
-            Icons.book,
-            colors.secondary,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            context,
-            'Dhikr',
-            '${todayStats['dhikrCount'] ?? 0}',
-            Icons.favorite,
-            colors.accent,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, String title, String value,
-      IconData icon, Color color) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-            ),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: context.textSecondaryColor,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
+  String _formatRemaining(Duration d) {
+    if (d.isNegative) return '0 min';
+    final h = d.inHours;
+    final m = d.inMinutes.remainder(60);
+    if (h > 0) return '${h}h ${m}min';
+    return '${m}min';
   }
 
   Widget _buildMenuGrid(
@@ -430,7 +410,7 @@ class HomePage extends ConsumerWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.0,
+        childAspectRatio: 0.95,
       ),
       itemCount: menuItems.length,
       itemBuilder: (context, index) {
@@ -445,9 +425,12 @@ class HomePage extends ConsumerWidget {
         Color(int.parse(item['color'].substring(1), radix: 16) + 0xFF000000);
 
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.go(item['route']),
-        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          context.go(item['route']);
+        },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -458,7 +441,7 @@ class HomePage extends ConsumerWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
@@ -467,11 +450,11 @@ class HomePage extends ConsumerWidget {
                   size: 24,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 item['title'],
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -519,3 +502,4 @@ class HomePage extends ConsumerWidget {
     }
   }
 }
+

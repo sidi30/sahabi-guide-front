@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
@@ -97,6 +98,9 @@ class AppRoutes {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Disable network fetch — NotoSans is bundled in assets/fonts/
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // INITIALISATION COMPLÈTE AVANT LE DÉMARRAGE
   // Nécessaire pour que GetIt soit prêt avant l'utilisation

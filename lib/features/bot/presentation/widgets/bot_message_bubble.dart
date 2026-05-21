@@ -221,9 +221,9 @@ class BotMessageBubble extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF2A9D8F).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          right: BorderSide(color: const Color(0xFF2A9D8F), width: 3),
-          left: BorderSide(color: const Color(0xFF2A9D8F), width: 3),
+        border: const Border(
+          right: BorderSide(color: Color(0xFF2A9D8F), width: 3),
+          left: BorderSide(color: Color(0xFF2A9D8F), width: 3),
         ),
       ),
       child: SelectableText(

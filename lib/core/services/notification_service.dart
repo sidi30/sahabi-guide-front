@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import '../../shared/models/ritual_model.dart';
 import '../../shared/models/dua_model.dart';
+import 'prayer_times_service.dart';
 
 class NotificationService extends ChangeNotifier {
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
@@ -14,6 +16,12 @@ class NotificationService extends ChangeNotifier {
 
   Future<void> initialize() async {
     if (_isInitialized) return;
+
+    // Initialise la base IANA des fuseaux horaires AVANT toute utilisation de
+    // tz.local — sinon LateInitializationError sur _local lors du schedule
+    // des prières (cron Fajr/Dhuhr/Asr/Maghrib/Isha).
+    tz_data.initializeTimeZones();
+    tz.setLocalLocation(_guessLocalLocation());
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -36,12 +44,99 @@ class NotificationService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Devine la tz IANA à partir de l'offset DateTime local. Pas de plugin natif
+  /// requis (évite SSL block sur dl.google.com pour `flutter_timezone`).
+  /// Précision suffisante pour notifications quotidiennes — l'utilisateur Hajj
+  /// est généralement Asia/Riyadh (UTC+3) ou Europe/Paris (UTC+1).
+  tz.Location _guessLocalLocation() {
+    final offsetHours = DateTime.now().timeZoneOffset.inMinutes / 60.0;
+    String name;
+    if (offsetHours == 3) {
+      name = 'Asia/Riyadh';
+    } else if (offsetHours == 1 || offsetHours == 2) {
+      name = 'Europe/Paris';
+    } else if (offsetHours == 0) {
+      name = 'UTC';
+    } else if (offsetHours == -5 || offsetHours == -4) {
+      name = 'America/New_York';
+    } else if (offsetHours == 5.5) {
+      name = 'Asia/Kolkata';
+    } else if (offsetHours == 8) {
+      name = 'Asia/Singapore';
+    } else {
+      name = 'UTC';
+    }
+    try {
+      return tz.getLocation(name);
+    } catch (_) {
+      return tz.UTC;
+    }
+  }
+
   void _onNotificationTapped(NotificationResponse response) {
     // Handle notification tap
     final payload = response.payload;
     if (payload != null) {
       // Navigate to specific ritual or dua
       debugPrint('Notification tapped: $payload');
+    }
+  }
+
+  // ====================== PRAYER NOTIFICATIONS ======================
+
+  /// Schedule daily prayer reminders. Cancels previously scheduled
+  /// prayer notifications (id range 3000-3099) before scheduling.
+  /// Each prayer becomes a daily recurring notification at its time.
+  Future<void> schedulePrayerNotifications(DailyPrayerSchedule schedule) async {
+    // Cancel existing prayer notifs first
+    for (int id = 3000; id < 3100; id++) {
+      await _notifications.cancel(id);
+    }
+
+    const androidDetails = AndroidNotificationDetails(
+      'prayers_channel',
+      'Heures de prière',
+      channelDescription: 'Rappels des 5 prières quotidiennes',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
+      category: AndroidNotificationCategory.reminder,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    final now = DateTime.now();
+    int id = 3000;
+    for (final p in schedule.prayers) {
+      // Skip prayers already passed today — they would not fire until tomorrow
+      // anyway with matchDateTimeComponents.time. Still schedule them so they
+      // recur daily starting tomorrow.
+      final scheduled = p.time;
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          'Heure de la prière',
+          '${p.displayName} — ${p.formattedTime}. Aurez-vous prié ?',
+          tz.TZDateTime.from(scheduled, tz.local),
+          details,
+          payload: 'prayer:${p.name}',
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+        debugPrint(
+            '[NotificationService] scheduled ${p.displayName} at ${p.formattedTime} (id=$id, future=${scheduled.isAfter(now)})');
+      } catch (e) {
+        debugPrint('[NotificationService] failed to schedule ${p.displayName}: $e');
+      }
+      id++;
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
+import '../widgets/video_player_widget.dart';
 
 final ritualDetailProvider =
     FutureProvider.family<RitualModel?, String>((ref, id) async {
@@ -136,6 +137,21 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
                 ],
               ),
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Tutoriel vidéo
+          Text(
+            'Tutoriel vidéo',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 12),
+          VideoPlayerWidget(
+            videoUrl: ritual.getVideoUrl('fr'),
+            ritualName: ritual.name,
           ),
 
           const SizedBox(height: 16),

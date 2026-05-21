@@ -40,7 +40,9 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
   void initState() {
     super.initState();
     _initAnimations();
-    _startAnimationSequence();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _startAnimationSequence();
+    });
   }
 
   void _initAnimations() {
@@ -114,27 +116,28 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
   }
 
   void _startAnimationSequence() async {
-    // Démarrer l'animation principale
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+
     _mainController.forward();
 
-    // Après 400ms, démarrer la pulsation et le glow
     await Future.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
-    _pulseController.repeat(reverse: true);
-    _glowController.repeat();
+    if (!reduceMotion) {
+      _pulseController.repeat(reverse: true);
+      _glowController.repeat();
+    }
 
-    // Après 600ms, afficher le texte
     await Future.delayed(const Duration(milliseconds: 200));
     if (!mounted) return;
     _textController.forward();
 
-    // Après 300ms, afficher l'indicateur de chargement
     await Future.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
     _loadingController.repeat();
 
-    // Attendre 1.6 secondes puis naviguer (durée optimale)
-    await Future.delayed(const Duration(milliseconds: 1600));
+    await Future.delayed(
+      Duration(milliseconds: reduceMotion ? 600 : 1200),
+    );
     if (!mounted) return;
     await _completeAndNavigate();
   }

@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
 class AppConstants {
   // App Info
   static const String appName = 'Sahabi Guide';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Votre compagnon spirituel pour le Hajj et la Omra';
-  
+
   // API Constants
   // Production URL
   static const String _apiBaseUrlProduction = 'https://api.sahabiguide.com';
@@ -14,16 +14,27 @@ class AppConstants {
   // Pour Web: utiliser localhost
   static const String _apiBaseUrlAndroid = 'http://10.0.2.2:8084';
   static const String _apiBaseUrlWeb = 'http://localhost:8084';
-  
-  /// Retourne l'URL de l'API selon la plateforme
-  /// En production, utilise l'URL de production
+
+  /// Retourne l'URL de l'API selon la plateforme et le mode de build.
+  ///
+  /// Priorités :
+  ///   1. `--dart-define=API_BASE_URL=...` surcharge tout (gérée plus haut dans DioClient).
+  ///   2. `--dart-define=PRODUCTION=true` → URL production.
+  ///   3. Build release (APK release / IPA) → URL production par défaut,
+  ///      pour qu'un APK distribué ne pointe jamais sur un backend dev mort.
+  ///   4. Build debug → URL locale selon la plateforme (émulateur Android / Web).
+  ///   5. `--dart-define=USE_LOCAL_API=true` force l'URL locale même en release
+  ///      (utile pour tests en filaire sur device physique).
   static String get apiBaseUrl {
-    // Vérifier si on est en mode production via variable d'environnement
-    const isProd = bool.fromEnvironment('PRODUCTION', defaultValue: false);
-    if (isProd) {
+    const forceLocal = bool.fromEnvironment('USE_LOCAL_API', defaultValue: false);
+    const isProdFlag = bool.fromEnvironment('PRODUCTION', defaultValue: false);
+
+    if (isProdFlag) {
       return _apiBaseUrlProduction;
     }
-    // Sinon, utiliser l'URL selon la plateforme
+    if (kReleaseMode && !forceLocal) {
+      return _apiBaseUrlProduction;
+    }
     return kIsWeb ? _apiBaseUrlWeb : _apiBaseUrlAndroid;
   }
   

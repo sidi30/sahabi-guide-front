@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
+
 /// Data model for a single dhikr type
 class _DhikrItem {
   final String arabic;
