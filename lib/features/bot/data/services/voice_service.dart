@@ -1,29 +1,55 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-/// Service voix pour le copilote Hajj : STT (haoussa/français) + TTS.
+import 'voice_remote_api.dart';
+
+/// Langues prises en charge par le moteur TTS *embarqué* (flutter_tts) de
+/// façon fiable. Pour celles-ci on garde la synthèse on-device.
+const Set<String> kOnDeviceVoiceLangs = {'fr', 'ar', 'en'};
+
+/// Langues africaines pour lesquelles l'appareil n'a (presque) jamais de voix
+/// TTS : on passe par le microservice backend (SeamlessM4T v2).
+const Set<String> kBackendVoiceLangs = {'ha', 'dje', 'yo', 'sw', 'wo', 'bm'};
+
+/// Service voix pour le copilote Hajj : STT + TTS multilingue.
 ///
-/// - STT : utilise le moteur système Android (Google Speech). Hausa (ha-NG)
-///   et Français (fr-FR) supportés si les paquets linguistiques sont installés
-///   sur l'appareil.
-/// - TTS : flutter_tts, avec fallback FR si la voix haoussa n'est pas dispo
-///   (peu de TTS offrent le haoussa ; on parle alors en FR).
+/// - TTS langues {fr, ar, en} : flutter_tts (on-device), fiable.
+/// - TTS langues africaines {ha, dje, yo, sw, wo, bm} : backend /tts ->
+///   octets WAV joués via just_audio. PLUS de repli silencieux en français :
+///   si le backend échoue, on log + on notifie via [onTtsError].
+/// - STT {fr, ar, en} : speech_to_text on-device.
+/// - STT langues africaines : préfère le backend /asr si une locale on-device
+///   n'est pas disponible (nécessite l'enregistrement audio — voir TODO).
 class VoiceService {
   final Logger logger;
+
+  /// Client backend voix. Optionnel : si absent, le service retombe sur le
+  /// comportement on-device uniquement (et signale l'indisponibilité pour les
+  /// langues africaines au lieu de parler en français).
+  final VoiceRemoteApi? remoteApi;
+
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _tts = FlutterTts();
+  final AudioPlayer _player = AudioPlayer();
 
   bool _sttInitialized = false;
   bool _ttsInitialized = false;
 
-  /// Callback externe declenche a chaque erreur STT (pour que l'UI affiche
-  /// un message a l'utilisateur au lieu d'un echec silencieux).
+  /// Callback externe déclenché à chaque erreur STT (pour que l'UI affiche un
+  /// message à l'utilisateur au lieu d'un échec silencieux).
   void Function(String errorMsg)? onSttError;
 
-  VoiceService({required this.logger});
+  /// Callback externe déclenché quand la synthèse vocale échoue (par ex. le
+  /// backend voix est indisponible pour une langue africaine). Permet à l'UI
+  /// de prévenir l'utilisateur plutôt que de rester muet.
+  void Function(String errorMsg)? onTtsError;
+
+  VoiceService({required this.logger, this.remoteApi});
 
   /// Initialise STT + TTS. Idempotent.
   Future<void> initialize() async {
@@ -61,14 +87,15 @@ class VoiceService {
   String _sttLocale(String lang) => switch (lang) {
         'ha' => 'ha-NG',
         'ar' => 'ar-SA',
+        'en' => 'en-US',
         _ => 'fr-FR',
       };
 
-  /// Locale pour TTS ; retombe sur FR si la langue n'est pas dispo.
+  /// Locale pour TTS on-device (uniquement pour {fr, ar, en}).
   Future<String> _ttsLocale(String lang) async {
     final desired = switch (lang) {
-      'ha' => 'ha-NG',
       'ar' => 'ar-SA',
+      'en' => 'en-US',
       _ => 'fr-FR',
     };
     try {
@@ -78,7 +105,18 @@ class VoiceService {
     return 'fr-FR';
   }
 
-  /// Démarre une écoute. Retourne la transcription finale via [onResult].
+  /// Démarre une écoute on-device. Retourne la transcription via [onResult].
+  ///
+  /// Pour les langues africaines (ha, dje, yo, sw, wo, bm), la reconnaissance
+  /// on-device n'est en général PAS disponible. On tente quand même la locale
+  /// correspondante ; si rien n'est capté, l'UI peut basculer vers le backend
+  /// /asr via [transcribeRemote] une fois l'enregistrement audio implémenté.
+  ///
+  /// TODO(voice): ajouter un package d'enregistrement (`record`) pour capturer
+  /// l'audio et appeler `remoteApi.asr(bytes, lang)` pour les langues
+  /// africaines. Aucune dépendance d'enregistrement n'est présente dans
+  /// pubspec.yaml aujourd'hui ; on conserve donc le STT on-device et on câble
+  /// la méthode [transcribeRemote] pour usage ultérieur.
   Future<void> startListening({
     required String lang,
     required void Function(String text, bool isFinal) onResult,
@@ -105,25 +143,113 @@ class VoiceService {
     if (_speech.isListening) await _speech.cancel();
   }
 
+  /// Transcription distante (backend /asr) à partir d'octets audio déjà
+  /// enregistrés. Renvoie le texte ou `null`. Prévu pour les langues africaines
+  /// quand l'enregistrement audio sera disponible (voir TODO dans
+  /// [startListening]).
+  Future<String?> transcribeRemote(Uint8List audioBytes, String lang) async {
+    if (remoteApi == null) {
+      logger.w('transcribeRemote: no remoteApi configured');
+      return null;
+    }
+    return remoteApi!.asr(audioBytes, lang);
+  }
+
   /// Lit un texte à voix haute. N'échoue jamais silencieusement.
+  ///
+  /// - {fr, ar, en} -> flutter_tts on-device.
+  /// - {ha, dje, yo, sw, wo, bm} -> backend /tts (octets WAV) joués via
+  ///   just_audio. Si le backend échoue, on log + on notifie [onTtsError]
+  ///   (PLUS de repli silencieux en français).
   Future<void> speak(String text, {String lang = 'fr'}) async {
     await initialize();
+    final cleaned = _prepareForSpeech(text);
+    if (cleaned.isEmpty) return;
+
+    if (kBackendVoiceLangs.contains(lang)) {
+      await _speakBackend(cleaned, lang);
+      return;
+    }
+    await _speakOnDevice(cleaned, lang);
+  }
+
+  /// TTS on-device via flutter_tts ({fr, ar, en}).
+  Future<void> _speakOnDevice(String cleaned, String lang) async {
     if (!_ttsInitialized) return;
     try {
       final locale = await _ttsLocale(lang);
       await _tts.setLanguage(locale);
       await _tts.stop();
-      // Retire les blocs "Texte arabe" / disclaimer pour la lecture (moins de bruit vocal)
-      final cleaned = _prepareForSpeech(text);
       await _tts.speak(cleaned);
     } catch (e) {
-      logger.w('TTS speak failed: $e');
+      logger.w('TTS on-device speak failed: $e');
+      onTtsError?.call(e.toString());
+    }
+  }
+
+  /// TTS distant via le backend voix ({ha, dje, yo, sw, wo, bm}).
+  Future<void> _speakBackend(String cleaned, String lang) async {
+    if (remoteApi == null) {
+      final msg = 'Voix « $lang » indisponible (service voix non configuré).';
+      logger.w(msg);
+      onTtsError?.call(msg);
+      return;
+    }
+    try {
+      // Coupe une éventuelle lecture en cours (on-device ou distante).
+      await stopSpeaking();
+      final bytes = await remoteApi!.tts(cleaned, lang);
+      if (bytes == null || bytes.isEmpty) {
+        final msg =
+            'Synthèse vocale « $lang » indisponible pour le moment (serveur).';
+        logger.w(msg);
+        onTtsError?.call(msg);
+        return;
+      }
+      await _player.setAudioSource(_BytesAudioSource(bytes));
+      await _player.play();
+    } catch (e) {
+      logger.w('TTS backend speak failed ($lang): $e');
+      onTtsError?.call(e.toString());
+    }
+  }
+
+  /// Speak-to-speak : transforme un audio source en audio cible via /s2s et le
+  /// joue. Prévu pour un usage futur (traduction vocale temps quasi réel).
+  /// Renvoie `true` si la lecture a démarré.
+  Future<bool> speakToSpeak(
+    Uint8List audioBytes,
+    String src,
+    String tgt,
+  ) async {
+    if (remoteApi == null) {
+      logger.w('speakToSpeak: no remoteApi configured');
+      onTtsError?.call('Service voix non configuré.');
+      return false;
+    }
+    try {
+      await stopSpeaking();
+      final bytes = await remoteApi!.s2s(audioBytes, src, tgt);
+      if (bytes == null || bytes.isEmpty) {
+        onTtsError?.call('Conversion vocale indisponible (serveur).');
+        return false;
+      }
+      await _player.setAudioSource(_BytesAudioSource(bytes));
+      await _player.play();
+      return true;
+    } catch (e) {
+      logger.w('speakToSpeak failed: $e');
+      onTtsError?.call(e.toString());
+      return false;
     }
   }
 
   Future<void> stopSpeaking() async {
     try {
       await _tts.stop();
+    } catch (_) {}
+    try {
+      await _player.stop();
     } catch (_) {}
   }
 
@@ -142,5 +268,29 @@ class VoiceService {
     try {
       _tts.stop();
     } catch (_) {}
+    try {
+      _player.dispose();
+    } catch (_) {}
+  }
+}
+
+/// Source audio just_audio à partir d'octets en mémoire (WAV renvoyé par le
+/// backend /tts ou /s2s).
+class _BytesAudioSource extends StreamAudioSource {
+  final Uint8List _bytes;
+
+  _BytesAudioSource(this._bytes);
+
+  @override
+  Future<StreamAudioResponse> request([int? start, int? end]) async {
+    start ??= 0;
+    end ??= _bytes.length;
+    return StreamAudioResponse(
+      sourceLength: _bytes.length,
+      contentLength: end - start,
+      offset: start,
+      stream: Stream.value(_bytes.sublist(start, end)),
+      contentType: 'audio/wav',
+    );
   }
 }

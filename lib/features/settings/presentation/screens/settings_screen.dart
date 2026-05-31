@@ -268,14 +268,10 @@ class SettingsScreen extends ConsumerWidget {
 
   String _getAudioLanguageName(
       AudioLanguage lang, AppLocalizations localizations) {
-    switch (lang) {
-      case AudioLanguage.english:
-        return 'English';
-      case AudioLanguage.hausa:
-        return 'Hausa';
-      case AudioLanguage.zarma:
-        return 'Zarma';
-    }
+    // Le libellé canonique de chaque langue est porté par l'enum lui-même
+    // (français, anglais, arabe + langues africaines servies par le backend
+    // voix : Hausa, Zarma, Yoruba, Kiswahili, Wolof, Bambara).
+    return lang.label;
   }
 }
 

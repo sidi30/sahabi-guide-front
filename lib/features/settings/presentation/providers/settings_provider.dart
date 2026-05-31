@@ -8,28 +8,75 @@ import 'package:sahabi_guide/core/theme/app_color_schemes.dart';
 // Enums
 enum AppThemeMode { system, light, dark }
 
-enum AudioLanguage { english, hausa, zarma }
+/// Langue choisie pour le copilote vocal / assistant (bot).
+///
+/// Couvre les langues d'interface classiques (fr/en/ar) et les langues
+/// africaines servies par le microservice voix backend (ha/dje/yo/sw/wo/bm).
+/// Codes canoniques alignés avec le backend : en, fr, ar, ha, dje, yo, sw, wo, bm.
+enum AudioLanguage {
+  french,
+  english,
+  arabic,
+  hausa,
+  zarma,
+  yoruba,
+  swahili,
+  wolof,
+  bambara;
+
+  /// Résout une [AudioLanguage] depuis un code canonique (fr, en, ha, ...).
+  static AudioLanguage fromCode(String code) {
+    return AudioLanguage.values.firstWhere(
+      (l) => l.code == code,
+      orElse: () => AudioLanguage.french,
+    );
+  }
+}
 
 extension AudioLanguageX on AudioLanguage {
   String get code {
     switch (this) {
+      case AudioLanguage.french:
+        return 'fr';
       case AudioLanguage.english:
         return 'en';
+      case AudioLanguage.arabic:
+        return 'ar';
       case AudioLanguage.hausa:
         return 'ha';
       case AudioLanguage.zarma:
         return 'dje';
+      case AudioLanguage.yoruba:
+        return 'yo';
+      case AudioLanguage.swahili:
+        return 'sw';
+      case AudioLanguage.wolof:
+        return 'wo';
+      case AudioLanguage.bambara:
+        return 'bm';
     }
   }
 
   String get label {
     switch (this) {
+      case AudioLanguage.french:
+        return 'Français';
       case AudioLanguage.english:
         return 'English';
+      case AudioLanguage.arabic:
+        return 'العربية';
       case AudioLanguage.hausa:
         return 'Hausa';
       case AudioLanguage.zarma:
         return 'Zarma';
+      case AudioLanguage.yoruba:
+        return 'Yoruba';
+      case AudioLanguage.swahili:
+        return 'Kiswahili';
+      case AudioLanguage.wolof:
+        return 'Wolof';
+      case AudioLanguage.bambara:
+        return 'Bambara';
     }
   }
 }

@@ -10,6 +10,7 @@ import '../../data/services/notification_service.dart';
 import '../../data/services/storage_service.dart';
 import '../../data/services/llm_service.dart';
 import '../../data/services/voice_service.dart';
+import '../../data/services/voice_remote_api.dart';
 import 'package:sahabi_guide/core/network/dio_client.dart';
 import 'package:sahabi_guide/core/di/injection_container.dart';
 
@@ -63,10 +64,17 @@ final hajjChatApiProvider = Provider<HajjChatApi>((ref) {
   return HajjChatApi(sl<DioClient>());
 });
 
-/// Provider pour VoiceService (STT + TTS)
+/// Provider pour VoiceRemoteApi (microservice voix backend)
+final voiceRemoteApiProvider = Provider<VoiceRemoteApi>((ref) {
+  final logger = ref.watch(loggerProvider);
+  return VoiceRemoteApi(sl<DioClient>(), logger: logger);
+});
+
+/// Provider pour VoiceService (STT + TTS multilingue)
 final voiceServiceProvider = Provider<VoiceService>((ref) {
   final logger = ref.watch(loggerProvider);
-  return VoiceService(logger: logger);
+  final remoteApi = ref.watch(voiceRemoteApiProvider);
+  return VoiceService(logger: logger, remoteApi: remoteApi);
 });
 
 /// Provider pour BotService

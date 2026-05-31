@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
 import '../providers/bot_provider.dart';
 import '../widgets/bot_message_bubble.dart';
 import '../widgets/quick_reply_chip.dart';
@@ -21,7 +22,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   bool _isListening = false;
   String? _currentlySpeakingMessageId;
-  String _voiceLang = 'fr'; // fr / ha — langue vocale choisie
+  // Langue vocale / assistant. Initialisée depuis le réglage utilisateur
+  // (Paramètres > Langue audio) puis surchargeable via le bouton de l'AppBar.
+  String _voiceLang = 'fr';
+  bool _voiceLangInit = false; // a-t-on déjà résolu la langue depuis les réglages
   bool _conversationMode = false; // mode mains-libres (ecoute auto apres TTS)
   bool _lastInputWasVoice = false; // flag : derniere question envoyee par vocal
   int _processedVoiceCount = 0;
@@ -32,8 +36,45 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final voice = ref.read(voiceServiceProvider);
       voice.onSttError = _showSttError;
+      voice.onTtsError = _showTtsError;
       voice.initialize();
+      // Initialise la langue vocale depuis le réglage utilisateur.
+      _syncVoiceLangFromSettings();
     });
+  }
+
+  /// Récupère la langue choisie par l'utilisateur (Paramètres > Langue audio)
+  /// pour piloter le bot et la voix. N'écrase pas un choix déjà fait via le
+  /// bouton de l'AppBar pendant la session.
+  void _syncVoiceLangFromSettings() {
+    if (_voiceLangInit) return;
+    try {
+      final settings = ref.read(settingsProvider);
+      if (mounted) {
+        setState(() {
+          _voiceLang = settings.audioLanguage.code;
+          _voiceLangInit = true;
+        });
+      }
+    } catch (_) {
+      // settingsProvider peut ne pas être overridé dans certains contextes de
+      // test : on garde le défaut 'fr'.
+      _voiceLangInit = true;
+    }
+  }
+
+  /// Affiche un message clair quand la synthèse vocale échoue (ex : voix d'une
+  /// langue africaine indisponible côté serveur) au lieu de rester muet.
+  void _showTtsError(String errorMsg) {
+    if (!mounted) return;
+    setState(() => _currentlySpeakingMessageId = null);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🔊 Lecture vocale indisponible : $errorMsg'),
+        backgroundColor: Colors.deepOrange,
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   /// Traduit les codes d'erreur STT de Google en messages explicites.
@@ -194,24 +235,40 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         ],
       ),
       actions: [
-        // Micro langue : affichage compact du drapeau actuel
-        IconButton(
+        // Sélecteur de langue vocale / assistant (toutes les langues
+        // supportées, y compris les langues africaines servies par le backend).
+        PopupMenuButton<String>(
           icon: Text(
-            _voiceLang == 'ha' ? '🇳🇪' : '🇫🇷',
+            _flagFor(_voiceLang),
             style: const TextStyle(fontSize: 18),
           ),
-          tooltip: 'Langue vocale',
-          onPressed: () {
-            setState(() => _voiceLang = _voiceLang == 'fr' ? 'ha' : 'fr');
+          tooltip: 'Langue de l\'assistant',
+          onSelected: (code) {
+            setState(() {
+              _voiceLang = code;
+              _voiceLangInit = true;
+            });
+            final label = AudioLanguage.fromCode(code).label;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(_voiceLang == 'ha'
-                    ? 'Voix : Haoussa 🇳🇪'
-                    : 'Voix : Français 🇫🇷'),
+                content: Text('Langue : $label ${_flagFor(code)}'),
                 duration: const Duration(seconds: 2),
               ),
             );
           },
+          itemBuilder: (_) => AudioLanguage.values.map((lang) {
+            return PopupMenuItem<String>(
+              value: lang.code,
+              child: Row(
+                children: [
+                  Text(_flagFor(lang.code),
+                      style: const TextStyle(fontSize: 18)),
+                  const SizedBox(width: 12),
+                  Text(lang.label),
+                ],
+              ),
+            );
+          }).toList(),
         ),
         // Toggle conversation continue (mains-libres)
         IconButton(
@@ -860,6 +917,32 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     _textController.clear();
 
     ref.read(botChatProvider.notifier).askQuestion(text, language: _voiceLang);
+  }
+
+  /// Emoji drapeau associé à un code de langue de l'assistant.
+  String _flagFor(String code) {
+    switch (code) {
+      case 'fr':
+        return '🇫🇷';
+      case 'en':
+        return '🇬🇧';
+      case 'ar':
+        return '🇸🇦';
+      case 'ha':
+        return '🇳🇪'; // Hausa (Niger / Nigeria)
+      case 'dje':
+        return '🇳🇪'; // Zarma (Niger)
+      case 'yo':
+        return '🇳🇬'; // Yoruba (Nigeria)
+      case 'sw':
+        return '🇹🇿'; // Kiswahili (Tanzanie / Afrique de l'Est)
+      case 'wo':
+        return '🇸🇳'; // Wolof (Sénégal)
+      case 'bm':
+        return '🇲🇱'; // Bambara (Mali)
+      default:
+        return '🌍';
+    }
   }
 
   void _openSettings() {

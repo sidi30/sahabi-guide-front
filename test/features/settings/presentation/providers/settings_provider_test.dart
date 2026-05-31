@@ -15,22 +15,45 @@ void main() {
 
   group('AudioLanguage', () {
     test('has all expected values', () {
-      expect(AudioLanguage.values.length, 3);
+      expect(AudioLanguage.values.length, 9);
+      expect(AudioLanguage.values, contains(AudioLanguage.french));
       expect(AudioLanguage.values, contains(AudioLanguage.english));
+      expect(AudioLanguage.values, contains(AudioLanguage.arabic));
       expect(AudioLanguage.values, contains(AudioLanguage.hausa));
       expect(AudioLanguage.values, contains(AudioLanguage.zarma));
+      expect(AudioLanguage.values, contains(AudioLanguage.yoruba));
+      expect(AudioLanguage.values, contains(AudioLanguage.swahili));
+      expect(AudioLanguage.values, contains(AudioLanguage.wolof));
+      expect(AudioLanguage.values, contains(AudioLanguage.bambara));
     });
 
     test('code returns correct language codes', () {
+      expect(AudioLanguage.french.code, 'fr');
       expect(AudioLanguage.english.code, 'en');
+      expect(AudioLanguage.arabic.code, 'ar');
       expect(AudioLanguage.hausa.code, 'ha');
       expect(AudioLanguage.zarma.code, 'dje');
+      expect(AudioLanguage.yoruba.code, 'yo');
+      expect(AudioLanguage.swahili.code, 'sw');
+      expect(AudioLanguage.wolof.code, 'wo');
+      expect(AudioLanguage.bambara.code, 'bm');
     });
 
     test('label returns correct display names', () {
       expect(AudioLanguage.english.label, 'English');
       expect(AudioLanguage.hausa.label, 'Hausa');
       expect(AudioLanguage.zarma.label, 'Zarma');
+      expect(AudioLanguage.yoruba.label, 'Yoruba');
+      expect(AudioLanguage.swahili.label, 'Kiswahili');
+      expect(AudioLanguage.wolof.label, 'Wolof');
+      expect(AudioLanguage.bambara.label, 'Bambara');
+    });
+
+    test('fromCode resolves canonical codes', () {
+      expect(AudioLanguage.fromCode('ha'), AudioLanguage.hausa);
+      expect(AudioLanguage.fromCode('dje'), AudioLanguage.zarma);
+      expect(AudioLanguage.fromCode('yo'), AudioLanguage.yoruba);
+      expect(AudioLanguage.fromCode('zz'), AudioLanguage.french);
     });
   });
 
