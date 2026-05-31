@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -131,12 +132,15 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
         ],
       ),
       
-      // Bouton flottant pour créer une alerte (pour test)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateAlertDialog(),
-        backgroundColor: ref.colors.accent,
-        child: const Icon(Icons.add_alert, color: Colors.white),
-      ),
+      // Bouton flottant de creation d'alerte de test : reserve au debug,
+      // jamais embarque dans un build release.
+      floatingActionButton: kDebugMode
+          ? FloatingActionButton(
+              onPressed: () => _showCreateAlertDialog(),
+              backgroundColor: ref.colors.accent,
+              child: const Icon(Icons.add_alert, color: Colors.white),
+            )
+          : null,
     );
   }
 
@@ -491,17 +495,28 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
     // Dialog simple pour créer une alerte de test
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Créer une alerte de test'),
         content: const Text('Voulez-vous créer une alerte de test ?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Annuler'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
+              // Sans pèlerin identifié, on ne peut pas rattacher l'alerte.
+              if (_pilgrimId == null) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Aucun pèlerin identifié : alerte non créée.'),
+                    ),
+                  );
+                }
+                return;
+              }
               await ref.read(alertsNotifierProvider.notifier).createAlert(
                 pilgrimId: _pilgrimId,
                 type: AlertType.other,

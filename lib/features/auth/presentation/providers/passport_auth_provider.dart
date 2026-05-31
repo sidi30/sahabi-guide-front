@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../data/models/passport_auth_models.dart';
 import '../../data/repositories/passport_auth_repository_impl.dart';
@@ -45,6 +46,10 @@ class AuthState {
   final String? error;
   final String? passportNo;
 
+  /// Vrai quand le serveur a renvoyé un 401 sur un token précédemment valide.
+  /// Le routeur peut réagir pour forcer une reconnexion.
+  final bool sessionExpired;
+
   const AuthState({
     this.isLoading = false,
     this.isAuthenticated = false,
@@ -52,6 +57,7 @@ class AuthState {
     this.pilgrimProfile,
     this.error,
     this.passportNo,
+    this.sessionExpired = false,
   });
 
   AuthState copyWith({
@@ -61,14 +67,18 @@ class AuthState {
     PilgrimProfile? pilgrimProfile,
     String? error,
     String? passportNo,
+    bool? sessionExpired,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       token: token ?? this.token,
       pilgrimProfile: pilgrimProfile ?? this.pilgrimProfile,
-      error: error ?? this.error,
+      // error est assigné directement (pas de ?? this.error) afin que
+      // copyWith(error: null) puisse réellement effacer l'erreur.
+      error: error,
       passportNo: passportNo ?? this.passportNo,
+      sessionExpired: sessionExpired ?? this.sessionExpired,
     );
   }
 }
@@ -142,7 +152,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> verifyOtp(String passportNo, String otpCode) async {
+  /// Vérifie l'OTP et retourne `true` si l'authentification a réussi.
+  /// La page peut brancher directement sur ce résultat sans relire l'état
+  /// (évite la course liée à un Future.delayed arbitraire).
+  Future<bool> verifyOtp(String passportNo, String otpCode) async {
     if (kDebugMode) AppLogger.debug('[AuthNotifier] Début vérification OTP...');
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -169,12 +182,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
           AppLogger.warning('[AuthNotifier] Impossible de récupérer le profil: $e');
           // On continue quand même, l'authentification est valide
         }
+        return true;
       } else {
         AppLogger.warning('[AuthNotifier] Échec auth: ${response.message}');
         state = state.copyWith(
           isLoading: false,
           error: response.message,
         );
+        return false;
       }
     } catch (e) {
       AppLogger.error('[AuthNotifier] Exception lors de la vérification OTP', error: e);
@@ -182,6 +197,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         error: e.toString(),
       );
+      return false;
     }
   }
 
@@ -221,11 +237,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void clearError() {
     state = state.copyWith(error: null);
   }
+
+  /// Appelé sur un 401 réseau : le token a déjà été effacé par DioClient.
+  /// On bascule l'état en non authentifié + session expirée pour que le
+  /// routeur force une reconnexion (au lieu d'écrans muets en échec).
+  void handleSessionExpired() {
+    if (!state.isAuthenticated && state.sessionExpired) return;
+    state = const AuthState(sessionExpired: true);
+  }
 }
 
 // Provider pour le notifier d'authentification
 final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier(
+  final notifier = AuthNotifier(
     loginUseCase: ref.watch(passportLoginUseCaseProvider),
     verifyOtpUseCase: ref.watch(passportVerifyOtpUseCaseProvider),
     resendOtpUseCase: ref.watch(passportResendOtpUseCaseProvider),
@@ -233,6 +257,14 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref
     getPilgrimProfileUseCase: ref.watch(getPilgrimProfileUseCaseProvider),
     checkAuthStatusUseCase: ref.watch(checkAuthStatusUseCaseProvider),
   );
+
+  // Recovery sur 401 : DioClient efface le token puis nous notifie afin de
+  // basculer en session expirée et forcer une reconnexion.
+  final dioClient = sl<DioClient>();
+  dioClient.onUnauthorized = notifier.handleSessionExpired;
+  ref.onDispose(() => dioClient.onUnauthorized = null);
+
+  return notifier;
 });
 
 // Providers utilitaires

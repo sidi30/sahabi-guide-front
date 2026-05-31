@@ -141,22 +141,73 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends ConsumerWidget {
+/// Pont entre un Riverpod listenable et le `refreshListenable` de GoRouter.
+/// Notifie le routeur à chaque changement d'état d'authentification afin de
+/// re-déclencher la logique de redirection (login / logout / session expirée).
+class _AuthRouterRefreshNotifier extends ChangeNotifier {
+  _AuthRouterRefreshNotifier(this._ref) {
+    _removeListener = _ref.listen<AuthState>(
+      authNotifierProvider,
+      (previous, next) {
+        if (previous?.isAuthenticated != next.isAuthenticated ||
+            previous?.sessionExpired != next.sessionExpired) {
+          notifyListeners();
+        }
+      },
+    ).close;
+  }
+
+  final Ref _ref;
+  late final VoidCallback _removeListener;
+
+  @override
+  void dispose() {
+    _removeListener();
+    super.dispose();
+  }
+}
+
+final _authRouterRefreshProvider = Provider<_AuthRouterRefreshNotifier>((ref) {
+  final notifier = _AuthRouterRefreshNotifier(ref);
+  ref.onDispose(notifier.dispose);
+  return notifier;
+});
+
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
+  @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  // Le routeur est construit une seule fois et réutilisé entre les rebuilds
+  // (locale/thème via AnimatedSwitcher) pour ne pas perdre l'état de navigation.
+  late final GoRouter _router = _buildRouter();
+
   // Build router with auth guard support
-  GoRouter _buildRouter(WidgetRef ref) {
+  GoRouter _buildRouter() {
     return GoRouter(
-      navigatorKey: navigatorKey,
+      navigatorKey: MyApp.navigatorKey,
       initialLocation: AppRoutes.splash,
+      // Re-déclenche redirect quand l'auth change (login/logout/401).
+      refreshListenable: ref.read(_authRouterRefreshProvider),
       redirect: (context, state) {
-        // Phase pre-Hajj : login desactive. Toutes les pages publiques sauf
-        // les pages de profil personnel (qui dependent d'un JWT reel).
-        final isAuthenticated = ref.read(authNotifierProvider).isAuthenticated;
+        final authState = ref.read(authNotifierProvider);
+        final isAuthenticated = authState.isAuthenticated;
         final currentLocation = state.matchedLocation;
 
+        // Session expirée (401) : renvoyer vers le login passeport pour
+        // permettre une reconnexion plutôt qu'un écran muet.
+        if (authState.sessionExpired &&
+            AuthGuard.isProtectedRoute(currentLocation)) {
+          return AppRoutes.passportLogin;
+        }
+
+        // Phase pre-Hajj : login desactive. Toutes les pages publiques sauf
+        // les pages de profil personnel (qui dependent d'un JWT reel).
         if (!isAuthenticated && AuthGuard.isProtectedRoute(currentLocation)) {
           // Renvoie sur /home plutot que /passport-login pour ne pas bloquer
           // la decouverte (le login n'est plus accessible en phase pre-Hajj).
@@ -320,7 +371,7 @@ class MyApp extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     // Watch for theme and language changes
     final settings = ref.watch(settingsProvider);
     final currentThemeMode = settings.themeMode;
@@ -360,7 +411,7 @@ class MyApp extends ConsumerWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: _buildRouter(ref),
+          routerConfig: _router,
           // Ensure the app updates when locale changes + support RTL
           builder: (context, child) {
             return Directionality(

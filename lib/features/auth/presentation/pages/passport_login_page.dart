@@ -42,11 +42,14 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
     final loginState = ref.watch(passportLoginProvider);
 
     ref.listen<PassportLoginState>(passportLoginProvider, (previous, next) {
-      if (next.requiresOtp) {
+      // Ne declencher les effets de bord que sur de vraies transitions d'etat,
+      // pas sur des rebuilds transitoires (locale/theme).
+      if (previous?.requiresOtp != next.requiresOtp && next.requiresOtp) {
         context.push('/passport-otp', extra: _passportController.text);
-      } else if (next.isSuccess) {
+      } else if (previous?.isSuccess != next.isSuccess && next.isSuccess) {
         context.go(AppConstants.homeRoute);
-      } else if (next.errorMessage != null) {
+      } else if (previous?.errorMessage != next.errorMessage &&
+          next.errorMessage != null) {
         if (next.isPassportNotFound) {
           // Afficher une boîte de dialogue pour passeport non enregistré
           NotificationService.showErrorDialog(

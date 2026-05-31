@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/constants.dart';
 import '../models/connectivity_plan_model.dart';
 import '../models/connectivity_subscription_model.dart';
 import '../models/connectivity_topup_model.dart';
@@ -22,7 +23,7 @@ class ConnectivityRemoteDataSourceImpl implements ConnectivityRemoteDataSource {
     required this.secureStorage,
   });
 
-  static const String _tokenKey = 'passport_auth_token';
+  static const String _tokenKey = AppConstants.authTokenKey;
 
   Future<Options?> _getAuthOptions() async {
     try {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/utils/constants.dart';
 import '../models/passport_auth_models.dart';
 
 abstract class PassportAuthLocalDataSource {
@@ -19,7 +20,7 @@ class PassportAuthLocalDataSourceImpl implements PassportAuthLocalDataSource {
 
   PassportAuthLocalDataSourceImpl(this.secureStorage);
 
-  static const String _tokenKey = 'passport_auth_token';
+  static const String _tokenKey = AppConstants.authTokenKey;
   static const String _profileKey = 'pilgrim_profile';
   static const String _passportKey = 'passport_no';
 

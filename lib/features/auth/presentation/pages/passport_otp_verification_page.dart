@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +24,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
   final _otpController = TextEditingController();
   int _countdown = 60;
   bool _canResend = false;
+  Timer? _countdownTimer;
 
   @override
   void initState() {
@@ -31,28 +34,32 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _otpController.dispose();
     super.dispose();
   }
 
   void _startCountdown() {
+    // Annule un éventuel timer en cours pour éviter des boucles concurrentes
+    // (ex: renvoi de l'OTP qui relance le compte à rebours).
+    _countdownTimer?.cancel();
     setState(() {
       _countdown = 60;
       _canResend = false;
     });
 
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) {
-        setState(() {
-          _countdown--;
-          if (_countdown <= 0) {
-            _canResend = true;
-          }
-        });
-        return _countdown > 0;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
       }
-      return false;
+      setState(() {
+        _countdown--;
+        if (_countdown <= 0) {
+          _canResend = true;
+          timer.cancel();
+        }
+      });
     });
   }
 
@@ -60,23 +67,20 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
     if (!_formKey.currentState!.validate()) return;
 
     final authNotifier = ref.read(authNotifierProvider.notifier);
-    await authNotifier.verifyOtp(widget.passportNo, _otpController.text.trim());
+    final success =
+        await authNotifier.verifyOtp(widget.passportNo, _otpController.text.trim());
 
-    // Attendre un peu pour que l'état soit bien mis à jour
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    final authState = ref.read(authNotifierProvider);
-    
     if (!mounted) return;
-    
-    if (authState.error != null) {
+
+    if (!success) {
+      final authState = ref.read(authNotifierProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${authState.error}'),
+          content: Text('Erreur: ${authState.error ?? 'Vérification échouée'}'),
           backgroundColor: Colors.red,
         ),
       );
-    } else if (authState.isAuthenticated) {
+    } else {
       // Afficher le message de succès
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -94,8 +98,6 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
         context.go('/home');
         AppLogger.info('Navigation vers /home après authentification réussie');
       }
-    } else {
-      AppLogger.warning('Authentification: isAuthenticated=${authState.isAuthenticated}, error=${authState.error}');
     }
   }
 

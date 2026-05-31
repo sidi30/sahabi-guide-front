@@ -8,7 +8,7 @@ abstract class PassportAuthRepository {
   Future<PassportAuthResponse> validateToken(String token);
   Future<PassportAuthResponse> resendOtp(String passportNo);
   Future<PassportAuthResponse> logout();
-  Future<PilgrimProfile?> getPilgrimProfile();
+  Future<PilgrimProfile?> getPilgrimProfile({bool forceRefresh = false});
   Future<bool> isLoggedIn();
   Future<void> clearSession();
 }
@@ -92,15 +92,17 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
   }
 
   @override
-  Future<PilgrimProfile?> getPilgrimProfile() async {
+  Future<PilgrimProfile?> getPilgrimProfile({bool forceRefresh = false}) async {
     try {
-      // Essayer d'abord le cache local
-      final localProfile = await localDataSource.getPilgrimProfile();
-      if (localProfile != null) {
-        return localProfile;
+      // Sauf rafraîchissement forcé, essayer d'abord le cache local.
+      if (!forceRefresh) {
+        final localProfile = await localDataSource.getPilgrimProfile();
+        if (localProfile != null) {
+          return localProfile;
+        }
       }
 
-      // Si pas de cache local, récupérer depuis le serveur
+      // Pas de cache (ou rafraîchissement forcé) : récupérer depuis le serveur
       final token = await localDataSource.getToken();
       if (token != null) {
         final profile = await remoteDataSource.getPilgrimProfile(token);

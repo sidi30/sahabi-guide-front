@@ -55,7 +55,7 @@ class HomePage extends ConsumerWidget {
               Text('Erreur: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(homeProvider),
+                onPressed: () => ref.invalidate(homeProvider),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -66,7 +66,12 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildHomeContent(BuildContext context, WidgetRef ref, Map<String, dynamic> data) {
-    final menuItems = data['menuItems'] as List<Map<String, dynamic>>;
+    // Cast défensif : tolère une valeur absente / d'un type inattendu
+    // (ex: réponse backend incomplète) au lieu de planter le rendu.
+    final rawMenuItems = data['menuItems'];
+    final menuItems = rawMenuItems is List
+        ? rawMenuItems.whereType<Map<String, dynamic>>().toList()
+        : <Map<String, dynamic>>[];
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(

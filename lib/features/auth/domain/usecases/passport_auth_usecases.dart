@@ -61,8 +61,8 @@ class GetPilgrimProfileUseCase {
 
   GetPilgrimProfileUseCase(this.repository);
 
-  Future<PilgrimProfile?> call() async {
-    return await repository.getPilgrimProfile();
+  Future<PilgrimProfile?> call({bool forceRefresh = false}) async {
+    return await repository.getPilgrimProfile(forceRefresh: forceRefresh);
   }
 }
 

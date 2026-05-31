@@ -1,6 +1,11 @@
+// TODO(auth-consolidation): Ce service duplique AuthNotifier
+// (lib/features/auth/presentation/providers/passport_auth_provider.dart).
+// Les deux systèmes d'auth devraient être consolidés en un seul. Ne pas
+// supprimer pour l'instant (utilisé par PassportLoginPage) — refactor à venir.
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import '../../core/network/dio_client.dart';
 import '../../core/utils/app_logger.dart';
 import '../../core/utils/constants.dart';
@@ -144,7 +149,11 @@ class AuthService {
     } on DioException catch (e) {
       _setState(AuthState.error);
       
-      AppLogger.error('DioException dans requestOtp: statusCode=${e.response?.statusCode}, data=${e.response?.data}');
+      // Le corps de réponse peut contenir des données sensibles (PII/token) :
+      // ne jamais le logger en release.
+      if (kDebugMode) {
+        AppLogger.error('DioException dans requestOtp: statusCode=${e.response?.statusCode}, data=${e.response?.data}');
+      }
       AppLogger.error('DioException type: ${e.type}, message: ${e.message}');
       
       // Vérifier si c'est une erreur de connexion
@@ -166,8 +175,10 @@ class AuthService {
         if (e.response?.data != null) {
           try {
             final responseData = e.response!.data;
-            AppLogger.info('Type de responseData: ${responseData.runtimeType}');
-            AppLogger.info('Contenu responseData: $responseData');
+            if (kDebugMode) {
+              AppLogger.info('Type de responseData: ${responseData.runtimeType}');
+              AppLogger.info('Contenu responseData: $responseData');
+            }
             
             if (responseData is Map<String, dynamic> && responseData['message'] != null) {
               // Utiliser notre message personnalisé au lieu du message backend

@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import '../utils/constants.dart';
 import '../../shared/services/storage_service.dart';
 import '../config/env_config.dart';
@@ -11,6 +8,11 @@ import '../utils/app_logger.dart';
 class DioClient {
   late final Dio _dio;
   final StorageService? _storageService;
+
+  /// Invoqué quand le serveur répond 401 (token réellement expiré/invalide).
+  /// Permet à la couche auth de basculer en session expirée et de forcer une
+  /// reconnexion, plutôt que de laisser des écrans muets en échec silencieux.
+  void Function()? onUnauthorized;
 
   DioClient(Dio dio, {StorageService? storageService}) : _storageService = storageService {
     _dio = dio;
@@ -52,12 +54,18 @@ class DioClient {
           handler.next(options);
         },
         onError: (error, handler) async {
-          // NE PAS supprimer le token automatiquement sur 401 : certains
-          // endpoints (ex: config Oidc vs mobile) renvoient 401 sans que
-          // le JWT mobile soit reellement invalide. Un effet en cascade
-          // deconnecte l'utilisateur sur des faux positifs.
-          // La reconnexion se fait uniquement via le flux de login OTP
-          // quand l'app detecte reellement un token expire.
+          // Sur un 401, on nettoie le token stocke et on notifie la couche
+          // auth (onUnauthorized) pour basculer en session expiree et forcer
+          // une reconnexion, au lieu de laisser des ecrans muets en echec
+          // silencieux. La reconnexion se fait ensuite via le flux OTP.
+          if (error.response?.statusCode == 401) {
+            try {
+              await _storageService?.deleteSecurely(AppConstants.authTokenKey);
+            } catch (_) {
+              // Best-effort : on continue meme si la suppression echoue.
+            }
+            onUnauthorized?.call();
+          }
           final apiException = _handleError(error);
           handler.reject(
             DioException(
@@ -71,18 +79,10 @@ class DioClient {
       ),
     );
 
-    // Accepte les certificats de sahabiguide.com meme si la chaine n'est
-    // pas validee par le store racine (ex : MITM antivirus en dev, proxy
-    // d'entreprise, emulateur sans CA recent). Restreint strictement au
-    // domaine de prod -> aucune autre cible n'est acceptee.
-    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final client = HttpClient();
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
-        return host.endsWith('sahabiguide.com');
-      };
-      return client;
-    };
+    // La validation TLS est laissee au trust store de l'OS. Le domaine de
+    // production possede un certificat CA valide : aucun override de
+    // badCertificateCallback n'est necessaire (et le desactiver exposerait
+    // tokens / passeport / GPS a une attaque MITM).
   }
 
   Dio get dio => _dio;
@@ -168,7 +168,7 @@ class DioClient {
     
     try {
       // Récupérer le token depuis le stockage sécurisé
-      final token = await _storageService!.getSecurely('auth_token');
+      final token = await _storageService!.getSecurely(AppConstants.authTokenKey);
       return token;
     } catch (e) {
       // En cas d'erreur, retourner null et laisser l'app gérer
