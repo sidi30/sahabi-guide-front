@@ -116,18 +116,10 @@ class ContextService {
         return false;
       }
 
-      // Vérifie la permission
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          logger.w('Location permission denied');
-          return false;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        logger.e('Location permission denied forever');
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        logger.w('Location permission not granted');
         return false;
       }
 

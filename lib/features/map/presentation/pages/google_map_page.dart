@@ -8,6 +8,7 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../data/models/poi_model.dart';
 import '../../data/services/poi_service.dart';
+import '../../../../shared/widgets/location_disclosure_dialog.dart';
 
 class GoogleMapPage extends StatefulWidget {
   const GoogleMapPage({super.key});
@@ -60,16 +61,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         throw Exception('Les services de localisation sont désactivés');
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception('Permission de localisation refusée');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception('Permission de localisation refusée définitivement');
+      if (!context.mounted) return;
+      final granted = await LocationDisclosureDialog.showAndRequest(context);
+      if (!granted) {
+        throw Exception('Permission de localisation refusée');
       }
 
       final position = await Geolocator.getCurrentPosition(
