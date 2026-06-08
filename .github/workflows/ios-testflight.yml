@@ -1,0 +1,48 @@
+name: iOS TestFlight
+
+# Manuel pour l'instant (Actions > iOS TestFlight > Run workflow).
+# Quand les secrets + l'app App Store Connect existent et qu'un 1er build passe,
+# tu peux décommenter le bloc `push` pour déployer à chaque push sur main.
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  #   paths: ['lib/**', 'ios/**', 'pubspec.yaml', '.github/workflows/ios-testflight.yml']
+
+jobs:
+  testflight:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Génère les artefacts Xcode (Generated.xcconfig) + compile Dart sans signer.
+      - name: Flutter build (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: CocoaPods
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Build & upload to TestFlight (Fastlane)
+        working-directory: ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: |
+          gem install fastlane --no-document
+          fastlane beta
