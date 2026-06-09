@@ -13,7 +13,8 @@ class PilgrimProfilePage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1D3557)),
-          onPressed: () => context.pop(),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/home'),
         ),
         title: const Text(
           'Pilgrim Profile',
@@ -339,7 +340,7 @@ class PilgrimProfilePage extends StatelessWidget {
             icon: Icons.home,
             label: 'Home',
             isActive: currentIndex == 0,
-            onTap: () => context.go('/menu'),
+            onTap: () => context.go('/home'),
           ),
           _buildNavItem(
             icon: Icons.map,

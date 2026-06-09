@@ -336,6 +336,20 @@ class BotService {
         await _saveMessage(message);
         return message;
       }
+      // Panne réelle du service IA (réseau/timeout/5xx) : on le distingue d'une
+      // réponse simplement vide pour afficher un message dédié + invitation à
+      // réessayer, au lieu du générique "je n'ai pas trouvé de réponse".
+      if (apiResponse != null && apiResponse['answer'] == null &&
+          apiResponse['source'] == 'error') {
+        final message = BotMessageModel.bot(
+          id: uuid.v4(),
+          content: _getServiceUnavailableMessage(language),
+          quickReplies: ['Réessayer', 'Continuer'],
+        );
+        _messageHistory.add(message);
+        await _saveMessage(message);
+        return message;
+      }
     } catch (e) {
       logger.w('API chat failed, falling back to local: $e');
     }
@@ -391,6 +405,16 @@ class BotService {
     return message;
   }
   
+  /// Message dédié quand le service IA est momentanément en panne (réseau /
+  /// timeout / 5xx), à distinguer d'une absence de réponse. Localisé dans le
+  /// même esprit que les autres messages (FR par défaut, variante Hausa).
+  String _getServiceUnavailableMessage(String language) {
+    if (language == 'ha') {
+      return '⚠️ Sabis na AI bai samu ba a yanzu. Da fatan a sake gwadawa.';
+    }
+    return '⚠️ Le service IA est momentanément indisponible. Réessayez.';
+  }
+
   /// Message par défaut quand aucune réponse n'est trouvée
   String _getDefaultNoAnswerMessage() {
     return '🤔 Je n\'ai pas trouvé de réponse exacte à votre question.\n\n'

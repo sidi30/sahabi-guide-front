@@ -59,7 +59,10 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       );
     }
 
-    if (state.error != null) {
+    // N'afficher l'erreur plein écran que si aucun contact n'est chargé.
+    // Une erreur de mutation (create/update/delete) ne doit pas remplacer la
+    // liste déjà affichée : la page la signale via un SnackBar à la place.
+    if (state.error != null && state.contacts.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -270,13 +273,17 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
     showDialog(
       context: context,
       builder: (context) => AddEmergencyContactDialog(
-        onSave: (name, phone, relation, isPrimary) {
-          ref.read(emergencyContactsNotifierProvider.notifier).createContact(
-            name: name,
-            phone: phone,
-            relation: relation,
-            isPrimary: isPrimary,
-          );
+        onSave: (name, phone, relation, isPrimary) async {
+          try {
+            await ref.read(emergencyContactsNotifierProvider.notifier).createContact(
+                  name: name,
+                  phone: phone,
+                  relation: relation,
+                  isPrimary: isPrimary,
+                );
+          } catch (e) {
+            _showSnackBar('Erreur lors de l\'ajout du contact', isError: true);
+          }
         },
       ),
     );
@@ -287,14 +294,18 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
       context: context,
       builder: (context) => AddEmergencyContactDialog(
         contact: contact,
-        onSave: (name, phone, relation, isPrimary) {
-          ref.read(emergencyContactsNotifierProvider.notifier).updateContact(
-            contact.id,
-            name: name,
-            phone: phone,
-            relation: relation,
-            isPrimary: isPrimary,
-          );
+        onSave: (name, phone, relation, isPrimary) async {
+          try {
+            await ref.read(emergencyContactsNotifierProvider.notifier).updateContact(
+                  contact.id,
+                  name: name,
+                  phone: phone,
+                  relation: relation,
+                  isPrimary: isPrimary,
+                );
+          } catch (e) {
+            _showSnackBar('Erreur lors de la modification du contact', isError: true);
+          }
         },
       ),
     );
@@ -403,9 +414,13 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage> {
             child: const Text('Annuler'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              ref.read(emergencyContactsNotifierProvider.notifier).deleteContact(contact.id);
+              try {
+                await ref.read(emergencyContactsNotifierProvider.notifier).deleteContact(contact.id);
+              } catch (e) {
+                _showSnackBar('Erreur lors de la suppression du contact', isError: true);
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Supprimer'),

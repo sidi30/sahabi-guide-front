@@ -55,6 +55,7 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
   int _tasbeehToday = 0;
   int _streak = 0;
   String _lastTasbeehDate = '';
+  String _lastCompletedDate = '';
 
   // ── Animations ──
   late AnimationController _tapAnimController;
@@ -72,6 +73,7 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
   static const _keyTasbeehToday = 'dhikr_tasbeeh_today';
   static const _keyStreak = 'dhikr_streak';
   static const _keyLastDate = 'dhikr_last_date';
+  static const _keyLastCompletedDate = 'dhikr_last_completed_date';
 
   @override
   void initState() {
@@ -115,6 +117,9 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
 
     final today = _todayKey();
     final savedDate = prefs.getString(_keyLastDate) ?? '';
+    // Date du dernier tasbeeh COMPLÉTÉ : base de la continuité du streak,
+    // indépendante de la date de sauvegarde glissante.
+    final lastCompletedDate = prefs.getString(_keyLastCompletedDate) ?? '';
 
     int streak = prefs.getInt(_keyStreak) ?? 0;
     int tasbeehToday = prefs.getInt(_keyTasbeehToday) ?? 0;
@@ -125,17 +130,27 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
     ];
     int currentIndex = prefs.getInt(_keyCurrentIndex) ?? 0;
 
-    // If last saved date is not today, reset daily counters
+    // Changement de jour : on réinitialise les compteurs quotidiens et on
+    // persiste immédiatement la date du jour comme date active (sinon
+    // _lastTasbeehDate resterait périmé jusqu'au prochain tasbeeh complet).
     if (savedDate != today) {
-      // Check if yesterday to keep streak
-      final yesterday = _dateKey(DateTime.now().subtract(const Duration(days: 1)));
-      if (savedDate != yesterday) {
-        // Streak broken (unless first time)
-        if (savedDate.isNotEmpty) streak = 0;
+      // Le streak se poursuit seulement si le dernier tasbeeh complété
+      // était hier ; sinon (trou d'au moins un jour) il est remis à zéro.
+      final yesterday =
+          _dateKey(DateTime.now().subtract(const Duration(days: 1)));
+      if (lastCompletedDate.isNotEmpty && lastCompletedDate != yesterday) {
+        streak = 0;
       }
       tasbeehToday = 0;
       counts = [0, 0, 0];
       currentIndex = 0;
+      await prefs.setString(_keyLastDate, today);
+      await prefs.setInt(_keyTasbeehToday, 0);
+      await prefs.setInt(_keyCount0, 0);
+      await prefs.setInt(_keyCount1, 0);
+      await prefs.setInt(_keyCount2, 0);
+      await prefs.setInt(_keyCurrentIndex, 0);
+      await prefs.setInt(_keyStreak, streak);
     }
 
     setState(() {
@@ -143,7 +158,8 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
       _currentDhikrIndex = currentIndex.clamp(0, 2);
       _tasbeehToday = tasbeehToday;
       _streak = streak;
-      _lastTasbeehDate = savedDate;
+      _lastTasbeehDate = (savedDate != today) ? today : savedDate;
+      _lastCompletedDate = lastCompletedDate;
     });
   }
 
@@ -156,6 +172,7 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
     await prefs.setInt(_keyTasbeehToday, _tasbeehToday);
     await prefs.setInt(_keyStreak, _streak);
     await prefs.setString(_keyLastDate, _lastTasbeehDate);
+    await prefs.setString(_keyLastCompletedDate, _lastCompletedDate);
   }
 
   String _todayKey() => _dateKey(DateTime.now());
@@ -193,12 +210,14 @@ class _DhikrPageState extends State<DhikrPage> with TickerProviderStateMixin {
   void _completeTasbeeh() {
     _tasbeehToday++;
 
-    // Update streak
+    // Update streak : on incrémente une seule fois par jour, en s'appuyant
+    // sur la date du dernier tasbeeh complété (et non la date glissante).
     final today = _todayKey();
-    if (_lastTasbeehDate != today) {
+    if (_lastCompletedDate != today) {
       _streak++;
-      _lastTasbeehDate = today;
+      _lastCompletedDate = today;
     }
+    _lastTasbeehDate = today;
 
     // Show celebration
     _showCelebration = true;

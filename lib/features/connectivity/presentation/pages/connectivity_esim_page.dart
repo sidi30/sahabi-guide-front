@@ -60,17 +60,30 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
           ],
         ),
       ),
-      body: connectivityState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : connectivityState.error != null
-              ? _buildErrorWidget(connectivityState.error!)
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildPlansTab(connectivityState.plans),
-                    _buildSubscriptionsTab(connectivityState.subscriptions),
-                  ],
-                ),
+      body: _buildBody(connectivityState),
+    );
+  }
+
+  Widget _buildBody(ConnectivityState state) {
+    final bothEmpty = state.plans.isEmpty && state.subscriptions.isEmpty;
+
+    // Spinner/erreur plein écran UNIQUEMENT quand aucune donnée n'est encore
+    // chargée. Si un onglet a des données, on rend toujours les deux onglets :
+    // un échec de chargement (ex: abonnements) ne doit pas masquer l'onglet
+    // Forfaits qui fonctionne. Chaque onglet gère son propre état vide/erreur.
+    if (state.isLoading && bothEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.error != null && bothEmpty) {
+      return _buildErrorWidget(state.error!);
+    }
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildPlansTab(state.plans),
+        _buildSubscriptionsTab(state.subscriptions),
+      ],
     );
   }
 
@@ -159,62 +172,32 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
   }
 
   void _showSubscribeDialog(ConnectivityPlanModel plan) {
-    final esimController = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Souscrire au forfait'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Forfait: ${plan.name}'),
-            Text('Données: ${plan.dataGb} GB'),
-            Text('Prix: ${plan.price.toStringAsFixed(2)} SAR'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: esimController,
-              decoration: const InputDecoration(
-                labelText: 'EID eSIM (optionnel)',
-                hintText: 'Ex: 89033023425479790123456',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
+      builder: (context) => _SubscribeDialog(
+        plan: plan,
+        onSubscribe: (esimEid) async {
+          final authState = ref.read(authNotifierProvider);
+          final userId = authState.pilgrimProfile?.id;
+          if (userId == null) {
+            _showSnackBar('Utilisateur non connecté', isError: true);
+            return;
+          }
 
-              final authState = ref.read(authNotifierProvider);
-              final userId = authState.pilgrimProfile?.id;
-              if (userId == null) {
-                _showSnackBar('Utilisateur non connecté', isError: true);
-                return;
-              }
+          final success = await ref.read(connectivityNotifierProvider.notifier).subscribeToPlan(
+                userId: userId,
+                planId: plan.id,
+                esimEid: esimEid,
+              );
 
-              final success = await ref.read(connectivityNotifierProvider.notifier).subscribeToPlan(
-                    userId: userId,
-                    planId: plan.id,
-                    esimEid: esimController.text.trim().isNotEmpty ? esimController.text.trim() : null,
-                  );
-
-              if (success) {
-                _showSnackBar('Abonnement créé avec succès !');
-                _tabController.animateTo(1);
-              } else {
-                final error = ref.read(connectivityNotifierProvider).error;
-                _showSnackBar(error ?? 'Erreur lors de l\'abonnement', isError: true);
-              }
-            },
-            child: const Text('Souscrire'),
-          ),
-        ],
+          if (success) {
+            _showSnackBar('Abonnement créé avec succès !');
+            _tabController.animateTo(1);
+          } else {
+            final error = ref.read(connectivityNotifierProvider).error;
+            _showSnackBar(error ?? 'Erreur lors de l\'abonnement', isError: true);
+          }
+        },
       ),
     );
   }
@@ -273,6 +256,70 @@ class _ConnectivityEsimPageState extends ConsumerState<ConnectivityEsimPage>
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
       ),
+    );
+  }
+}
+
+// Dialogue de souscription : StatefulWidget pour posséder et disposer
+// proprement le TextEditingController de l'EID eSIM.
+class _SubscribeDialog extends StatefulWidget {
+  final ConnectivityPlanModel plan;
+  final Future<void> Function(String? esimEid) onSubscribe;
+
+  const _SubscribeDialog({
+    required this.plan,
+    required this.onSubscribe,
+  });
+
+  @override
+  State<_SubscribeDialog> createState() => _SubscribeDialogState();
+}
+
+class _SubscribeDialogState extends State<_SubscribeDialog> {
+  final TextEditingController _esimController = TextEditingController();
+
+  @override
+  void dispose() {
+    _esimController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final plan = widget.plan;
+    return AlertDialog(
+      title: const Text('Souscrire au forfait'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Forfait: ${plan.name}'),
+          Text('Données: ${plan.dataGb} GB'),
+          Text('Prix: ${plan.price.toStringAsFixed(2)} SAR'),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _esimController,
+            decoration: const InputDecoration(
+              labelText: 'EID eSIM (optionnel)',
+              hintText: 'Ex: 89033023425479790123456',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final eid = _esimController.text.trim();
+            Navigator.of(context).pop();
+            widget.onSubscribe(eid.isNotEmpty ? eid : null);
+          },
+          child: const Text('Souscrire'),
+        ),
+      ],
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
@@ -24,13 +23,6 @@ class DuaPlayer extends ConsumerStatefulWidget {
 
 class _DuaPlayerState extends ConsumerState<DuaPlayer> {
   late final AudioService _audioService;
-  bool _isPlaying = false;
-  Duration _position = Duration.zero;
-  Duration _duration = Duration.zero;
-
-  StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<Duration?>? _durationSub;
-  StreamSubscription<PlayerState>? _stateSub;
 
   @override
   void initState() {
@@ -41,21 +33,13 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
 
   Future<void> _initAudio() async {
     try {
-      _positionSub = _audioService.positionStream.listen((position) {
-        if (mounted) setState(() => _position = position);
-      });
-
-      _durationSub = _audioService.durationStream.listen((duration) {
-        if (mounted && duration != null) setState(() => _duration = duration);
-      });
-
-      _stateSub = _audioService.playerStateStream.listen((state) {
-        if (mounted) setState(() => _isPlaying = state.playing);
-      });
-
-      // Démarrer la lecture automatiquement
-      if (widget.dua.audioPath.isNotEmpty) {
-        final audioLanguage = ref.read(settingsProvider).audioLanguage.code;
+      // Démarrer la lecture automatiquement.
+      // La lecture résout le chemin via dua.getAudioPath(language)
+      // (= audioPaths[language] ?? audioPath) : on garde donc l'auto-play
+      // dès que ce chemin résolu est non vide.
+      final audioLanguage = ref.read(settingsProvider).audioLanguage.code;
+      final resolvedPath = widget.dua.getAudioPath(audioLanguage);
+      if (resolvedPath.isNotEmpty) {
         await _audioService.playDua(widget.dua, language: audioLanguage);
       }
     } catch (e) {
@@ -65,10 +49,7 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
 
   @override
   void dispose() {
-    _positionSub?.cancel();
-    _durationSub?.cancel();
-    _stateSub?.cancel();
-    _audioService.stop();
+    _audioService.stop(widget.dua);
     super.dispose();
   }
 
@@ -89,26 +70,41 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Progress bar
-            if (_duration.inSeconds > 0)
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 2,
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 12),
-                ),
-                child: Slider(
-                  value: _position.inSeconds.toDouble(),
-                  max: _duration.inSeconds.toDouble(),
-                  activeColor: ref.colors.primary,
-                  inactiveColor: Colors.grey[300],
-                  onChanged: (value) {
-                    _audioService.seekTo(Duration(seconds: value.toInt()));
+            // Progress bar : rebuild localisé sur position/durée uniquement
+            StreamBuilder<Duration?>(
+              stream: _audioService.durationStream,
+              builder: (context, durationSnapshot) {
+                final duration = durationSnapshot.data ?? Duration.zero;
+                if (duration.inSeconds <= 0) return const SizedBox.shrink();
+                return StreamBuilder<Duration>(
+                  stream: _audioService.positionStream,
+                  builder: (context, positionSnapshot) {
+                    final position = positionSnapshot.data ?? Duration.zero;
+                    final clamped = position.inSeconds
+                        .clamp(0, duration.inSeconds)
+                        .toDouble();
+                    return SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 2,
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 6),
+                        overlayShape:
+                            const RoundSliderOverlayShape(overlayRadius: 12),
+                      ),
+                      child: Slider(
+                        value: clamped,
+                        max: duration.inSeconds.toDouble(),
+                        activeColor: ref.colors.primary,
+                        inactiveColor: Colors.grey[300],
+                        onChanged: (value) {
+                          _audioService.seekTo(Duration(seconds: value.toInt()));
+                        },
+                      ),
+                    );
                   },
-                ),
-              ),
+                );
+              },
+            ),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -129,12 +125,26 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                        StreamBuilder<Duration>(
+                          stream: _audioService.positionStream,
+                          builder: (context, positionSnapshot) {
+                            final position =
+                                positionSnapshot.data ?? Duration.zero;
+                            return StreamBuilder<Duration?>(
+                              stream: _audioService.durationStream,
+                              builder: (context, durationSnapshot) {
+                                final duration =
+                                    durationSnapshot.data ?? Duration.zero;
+                                return Text(
+                                  '${_formatDuration(position)} / ${_formatDuration(duration)}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -144,18 +154,26 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          _isPlaying ? Icons.pause_circle : Icons.play_circle,
-                          size: 48,
-                        ),
-                        color: ref.colors.primary,
-                        onPressed: () {
-                          if (_isPlaying) {
-                            _audioService.pause();
-                          } else {
-                            _audioService.resume();
-                          }
+                      StreamBuilder<PlayerState>(
+                        stream: _audioService.playerStateStream,
+                        builder: (context, snapshot) {
+                          final isPlaying = snapshot.data?.playing ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isPlaying
+                                  ? Icons.pause_circle
+                                  : Icons.play_circle,
+                              size: 48,
+                            ),
+                            color: ref.colors.primary,
+                            onPressed: () {
+                              if (isPlaying) {
+                                _audioService.pause();
+                              } else {
+                                _audioService.resume();
+                              }
+                            },
+                          );
                         },
                       ),
                       IconButton(

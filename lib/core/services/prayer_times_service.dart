@@ -11,11 +11,17 @@ class DailyPrayerSchedule {
   final double longitude;
   final List<PrayerEntry> prayers;
 
+  /// True when the schedule was computed from the Mecca fallback coordinates
+  /// because no device location was available. The UI can surface this so the
+  /// displayed times are not presented as authoritative for the user's place.
+  final bool isFallbackLocation;
+
   const DailyPrayerSchedule({
     required this.date,
     required this.latitude,
     required this.longitude,
     required this.prayers,
+    this.isFallbackLocation = false,
   });
 
   /// Returns the prayer occurring right now (or last passed today).
@@ -86,16 +92,18 @@ class PrayerTimesService {
     }
 
     final position = await _safeReadPosition();
+    final usedFallback = position == null;
     final lat = position?.latitude ?? _fallbackLat;
     final lng = position?.longitude ?? _fallbackLng;
 
-    final schedule = _computeSchedule(today, lat, lng);
+    final schedule = _computeSchedule(today, lat, lng, usedFallback);
     _cached = schedule;
     _cacheDay = today;
     return schedule;
   }
 
-  DailyPrayerSchedule _computeSchedule(DateTime day, double lat, double lng) {
+  DailyPrayerSchedule _computeSchedule(
+      DateTime day, double lat, double lng, bool usedFallback) {
     final coords = Coordinates(lat, lng);
     final params = CalculationMethod.muslim_world_league.getParameters();
     params.madhab = Madhab.shafi;
@@ -116,13 +124,31 @@ class PrayerTimesService {
       latitude: lat,
       longitude: lng,
       prayers: entries,
+      isFallbackLocation: usedFallback,
     );
   }
 
   Future<Position?> _safeReadPosition() async {
     try {
+      // Ne pas demander une position si la permission n'est pas accordée :
+      // getCurrentPosition lèverait, et on retomberait silencieusement sur la
+      // Mecque alors que la dernière position connue peut suffire.
+      final permission = await _locationService.checkLocationPermission();
+      final granted = permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
+
+      // Toujours préférer la dernière position connue (rapide, pas de fix GPS).
       final last = await _locationService.getLastKnownPosition();
       if (last != null) return last;
+
+      if (!granted) {
+        if (kDebugMode) {
+          debugPrint(
+              '[PrayerTimesService] permission $permission, fallback Mecca');
+        }
+        return null;
+      }
+
       final current = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.low,

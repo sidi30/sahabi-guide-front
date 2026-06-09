@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,12 +24,29 @@ class RitualDetailSection extends StatefulWidget {
 
 class _RitualDetailSectionState extends State<RitualDetailSection> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  StreamSubscription<PlayerState>? _playerStateSub;
   bool _isPlaying = false;
   bool _hasReadExplanation = false;
   bool _hasWatchedVideo = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Abonnement unique : remet le bouton sur "play" en fin de lecture.
+    _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        if (mounted) {
+          setState(() {
+            _isPlaying = false;
+          });
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _playerStateSub?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -42,15 +60,6 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         setState(() {
           _isPlaying = true;
           _hasReadExplanation = true;
-        });
-
-        // Écouter la fin de la lecture
-        _audioPlayer.playerStateStream.listen((state) {
-          if (state.processingState == ProcessingState.completed) {
-            setState(() {
-              _isPlaying = false;
-            });
-          }
         });
       } else {
         _showMessage('Aucun fichier audio disponible pour cette langue');

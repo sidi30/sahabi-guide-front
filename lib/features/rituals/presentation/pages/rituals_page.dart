@@ -24,7 +24,8 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
 
 // Provider pour les douas - utilise le bon type DuaModel
 final duasProvider = FutureProvider.autoDispose<List<DuaModel>>((ref) async {
-  ref.keepAlive(); // Keep data when switching tabs
+  // Pas de keepAlive ici : on laisse autoDispose jouer pour que les douas
+  // se rafraîchissent après une synchro (sinon le provider resterait épinglé).
   final repository = sl<DuasRepository>();
   final duas = await repository.getDuas();
   if (duas.isEmpty) {

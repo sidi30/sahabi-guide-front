@@ -137,7 +137,10 @@ class NotificationsSettingsNotifier extends StateNotifier<AsyncValue<Notificatio
       for (var entry in json.entries) {
         await prefs.setBool('notif_${entry.key}', entry.value as bool);
       }
-      
+      // Marquer la présence de réglages sauvegardés pour que _loadSettings
+      // les recharge au lieu de retomber sur les valeurs par défaut.
+      await prefs.setString(_storageKey, '1');
+
       state = AsyncValue.data(settings);
 
       // Déclencher la synchronisation backend avec un léger debounce
@@ -255,6 +258,12 @@ class NotificationsSettingsNotifier extends StateNotifier<AsyncValue<Notificatio
     final currentSettings = state.value;
     if (currentSettings == null) return;
     await _saveSettings(currentSettings.copyWith(doNotDisturb: value));
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }
 

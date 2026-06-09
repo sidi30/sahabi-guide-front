@@ -392,18 +392,18 @@ class _MyAppState extends ConsumerState<MyApp> {
                 : ThemeMode.light,
         };
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          child: MaterialApp.router(
-            key: ValueKey('${locale.languageCode}_${settings.colorTheme.name}'),
-            title: 'Sahabi Guide',
-            debugShowCheckedModeBanner: false,
-            locale: locale,
-            themeMode: themeMode,
-            theme: _buildLightTheme(colorScheme),
-            darkTheme: _buildDarkTheme(colorScheme),
+        // MaterialApp.router se reconstruit en place lors d'un changement de
+        // locale/thème : pas d'AnimatedSwitcher/ValueKey (qui forcerait un
+        // second MaterialApp.router → double Navigator/Overlay et risque de
+        // collision sur le navigatorKey partagé). L'instance GoRouter
+        // (`_router`, late final) reste stable, l'état de navigation survit.
+        return MaterialApp.router(
+          title: 'Sahabi Guide',
+          debugShowCheckedModeBanner: false,
+          locale: locale,
+          themeMode: themeMode,
+          theme: _buildLightTheme(colorScheme),
+          darkTheme: _buildDarkTheme(colorScheme),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -423,7 +423,6 @@ class _MyAppState extends ConsumerState<MyApp> {
               ),
             );
           },
-          ),
         );
       },
     );

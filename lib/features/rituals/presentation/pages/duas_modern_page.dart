@@ -70,6 +70,7 @@ class _DuasModernPageState extends ConsumerState<DuasModernPage> {
               ),
               if (_selectedDua != null)
                 DuaPlayer(
+                  key: ValueKey(_selectedDua!.id),
                   dua: _selectedDua!,
                   onClose: () => setState(() => _selectedDua = null),
                 ),

@@ -45,13 +45,16 @@ class LocationDisclosureDialog {
     }
 
     // Afficher disclosure avant la demande OS
-    if (context.mounted) {
-      final shouldShow = await _shouldShow();
-      if (shouldShow) {
-        final accepted = await _showDisclosure(context);
-        await _markShown();
-        if (!accepted) return false;
-      }
+    final shouldShow = await _shouldShow();
+    if (shouldShow) {
+      // Re-vérifier après l'await : le contexte peut avoir été démonté.
+      if (!context.mounted) return false;
+      final accepted = await _showDisclosure(context);
+      // Ne marquer comme affichée que si l'utilisateur a accepté : un refus
+      // doit réafficher la divulgation prominente la prochaine fois
+      // (politique Google Play).
+      if (!accepted) return false;
+      await _markShown();
     }
 
     // Demander permission OS

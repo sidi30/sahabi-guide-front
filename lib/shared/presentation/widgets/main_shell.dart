@@ -123,7 +123,11 @@ class _MainShellState extends ConsumerState<MainShell> {
     // (ShellRoute ne declenche pas didChangeDependencies sur chaque push).
     final router = GoRouter.of(context);
     if (_router != router) {
-      _router?.routerDelegate.removeListener(_routerListener ?? () {});
+      // Retirer l'ANCIEN listener par sa vraie identité (jamais un placeholder
+      // `() {}`, dont l'identité ne correspond à rien → fuite du vrai listener).
+      if (_routerListener != null) {
+        _router?.routerDelegate.removeListener(_routerListener!);
+      }
       _router = router;
       _routerListener = () {
         if (!mounted) return;

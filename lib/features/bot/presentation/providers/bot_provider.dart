@@ -74,7 +74,12 @@ final voiceRemoteApiProvider = Provider<VoiceRemoteApi>((ref) {
 final voiceServiceProvider = Provider<VoiceService>((ref) {
   final logger = ref.watch(loggerProvider);
   final remoteApi = ref.watch(voiceRemoteApiProvider);
-  return VoiceService(logger: logger, remoteApi: remoteApi);
+  final service = VoiceService(logger: logger, remoteApi: remoteApi);
+  // Le service n'est disposé que lorsque le provider lui-même est détruit,
+  // pas à chaque fermeture de la page chat (sinon AudioPlayer/TTS resteraient
+  // morts pour la session suivante).
+  ref.onDispose(() => service.dispose());
+  return service;
 });
 
 /// Provider pour BotService

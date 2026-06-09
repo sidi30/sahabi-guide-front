@@ -18,7 +18,17 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
-  final List<AnimationController> _animationControllers = [];
+  // Contrôleurs d'animation d'entrée indexés par id de message : le cycle de
+  // vie suit le message (pas l'index), donc restartConversation ne désynchronise
+  // plus rien et on peut purger les contrôleurs des messages disparus.
+  final Map<String, AnimationController> _animationControllers = {};
+  // Nombre de messages au dernier build : sert à ne déclencher l'auto-scroll
+  // que lorsqu'un message est réellement ajouté (évite la tempête de scroll).
+  int _lastMessageCount = 0;
+  // Animation des "points" de l'indicateur de saisie : un seul contrôleur en
+  // boucle plutôt qu'un TweenAnimationBuilder qui appelait setState à chaque
+  // cycle (rebuild ~2x/s -> tempête de scroll).
+  late final AnimationController _typingController;
 
   bool _isListening = false;
   String? _currentlySpeakingMessageId;
@@ -33,6 +43,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   @override
   void initState() {
     super.initState();
+    _typingController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final voice = ref.read(voiceServiceProvider);
       voice.onSttError = _showSttError;
@@ -119,10 +133,15 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   void dispose() {
     _scrollController.dispose();
     _textController.dispose();
-    for (var controller in _animationControllers) {
+    _typingController.dispose();
+    for (final controller in _animationControllers.values) {
       controller.dispose();
     }
-    ref.read(voiceServiceProvider).dispose();
+    // NE PAS disposer le VoiceService ici : il est partagé et détruit avec son
+    // provider. On coupe seulement l'audio/écoute en cours en quittant la page.
+    final voice = ref.read(voiceServiceProvider);
+    voice.stopSpeaking();
+    voice.stopListening();
     super.dispose();
   }
 
@@ -383,27 +402,42 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   }
 
   Widget _buildChatInterface(BotChatState state) {
-    // Crée les contrôleurs d'animation uniquement pour les nouveaux messages
-    while (_animationControllers.length < state.messages.length) {
-      final controller = AnimationController(
-        duration: const Duration(milliseconds: 300),
-        vsync: this,
+    // Crée un contrôleur d'animation d'entrée pour chaque message (clé = id).
+    final liveIds = <String>{};
+    for (final message in state.messages) {
+      liveIds.add(message.id);
+      final controller = _animationControllers.putIfAbsent(
+        message.id,
+        () => AnimationController(
+          duration: const Duration(milliseconds: 300),
+          vsync: this,
+        )..forward(),
       );
-      _animationControllers.add(controller);
-      controller.forward();
+      // Garantit que les messages restaurés/redémarrés sont visibles.
+      if (controller.status == AnimationStatus.dismissed) controller.forward();
     }
+    // Purge les contrôleurs des messages disparus (ex : restartConversation).
+    _animationControllers.removeWhere((id, controller) {
+      if (liveIds.contains(id)) return false;
+      controller.dispose();
+      return true;
+    });
 
-    // Scroll automatique vers le bas (une seule fois par build)
-    if (_scrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+    // Scroll automatique vers le bas UNIQUEMENT quand un message a été ajouté
+    // (sinon chaque rebuild — typing dots inclus — relancerait un animateTo).
+    if (state.messages.length != _lastMessageCount) {
+      _lastMessageCount = state.messages.length;
+      if (_scrollController.hasClients) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
     }
 
     return Column(
@@ -425,7 +459,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                     }
 
                     final message = state.messages[index];
-                    final animation = _animationControllers[index];
+                    final animation = _animationControllers[message.id] ??
+                        const AlwaysStoppedAnimation(1.0);
                     final isThisSpeaking = _currentlySpeakingMessageId == message.id;
 
                     return BotMessageBubble(
@@ -561,23 +596,25 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                 3,
                 (index) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: TweenAnimationBuilder(
-                    duration: const Duration(milliseconds: 600),
-                    tween: Tween<double>(begin: 0.3, end: 1.0),
-                    onEnd: () => setState(() {}),
-                    builder: (context, double value, child) {
+                  child: AnimatedBuilder(
+                    animation: _typingController,
+                    builder: (context, child) {
+                      // Décale la phase de chaque point pour l'effet de vague.
+                      final phase = (_typingController.value + index / 3) % 1.0;
+                      final opacity = 0.3 + 0.7 * (1 - (phase * 2 - 1).abs());
                       return Opacity(
-                        opacity: value,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[600],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                        opacity: opacity,
+                        child: child,
                       );
                     },
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[600],
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -729,6 +766,9 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     _lastInputWasVoice = false; // reset
 
     final voice = ref.read(voiceServiceProvider);
+    // Coupe toute lecture en cours avant de démarrer la nouvelle.
+    await voice.stopSpeaking();
+    if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = last.id);
     await voice.speak(last.content, lang: _voiceLang);
     if (!mounted) return;
@@ -741,6 +781,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   Future<void> _handleSpeak(String messageId, String content) async {
     final voice = ref.read(voiceServiceProvider);
+    // Coupe toute lecture en cours (ex : taper Écouter sur B pendant que A
+    // parle) avant de démarrer la nouvelle, sinon les deux se chevauchent.
+    await voice.stopSpeaking();
+    if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = messageId);
     await voice.speak(content, lang: _voiceLang);
     if (mounted) {

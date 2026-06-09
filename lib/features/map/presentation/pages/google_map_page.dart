@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -26,11 +28,11 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
 
   // Map state
   Set<Marker> _markers = {};
-  List<PoiModel> _filteredPois = [];
   String _selectedFilter = 'all';
   bool _isLoading = true;
   String? _error;
   Position? _currentPosition;
+  bool _locationGranted = false;
 
   // Map configuration
   static const LatLng _defaultLocation = LatLng(21.4225, 39.8262); // Masjid al-Haram
@@ -61,19 +63,34 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         throw Exception('Les services de localisation sont désactivés');
       }
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       final granted = await LocationDisclosureDialog.showAndRequest(context);
       if (!granted) {
         throw Exception('Permission de localisation refusée');
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-      );
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 8),
+          ),
+        );
+      } on TimeoutException {
+        // GPS lent (intérieur/foule) : retomber sur la dernière position connue.
+        AppLogger.warning('Géolocalisation expirée, position connue utilisée');
+        position = await Geolocator.getLastKnownPosition();
+      }
 
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _locationGranted = true;
+          if (position != null) {
+            _currentPosition = position;
+          }
+        });
+      }
     } catch (e) {
       AppLogger.warning('Erreur de géolocalisation', error: e);
       // Continue without current location
@@ -95,11 +112,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       }
 
       setState(() {
-        _filteredPois = pois;
+        _markers = _buildMarkers(pois);
         _isLoading = false;
       });
-
-      _updateMarkers();
     } catch (e) {
       setState(() {
         _error = 'Erreur de chargement des POI: $e';
@@ -108,7 +123,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     }
   }
 
-  void _updateMarkers() {
+  Set<Marker> _buildMarkers(List<PoiModel> pois) {
     final Set<Marker> markers = {};
 
     // Add current position marker
@@ -124,7 +139,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     }
 
     // Add POI markers
-    for (final poi in _filteredPois) {
+    for (final poi in pois) {
       markers.add(Marker(
         markerId: MarkerId('poi_${poi.id}'),
         position: poi.coordinates,
@@ -134,9 +149,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
       ));
     }
 
-    setState(() {
-      _markers = markers;
-    });
+    return markers;
   }
 
   void _changeFilter(String filter) {
@@ -371,7 +384,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
                   : _defaultLocation,
               zoom: _defaultZoom,
             ),
-            myLocationEnabled: true,
+            myLocationEnabled: _locationGranted,
             myLocationButtonEnabled: false,
             onMapCreated: (c) => _mapController = c,
             markers: _markers,

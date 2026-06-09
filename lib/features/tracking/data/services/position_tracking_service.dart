@@ -21,6 +21,7 @@ class PositionTrackingService extends ChangeNotifier {
   int _errorCount = 0;
   Position? _lastPosition;
   bool _isPausedLowBattery = false;
+  bool _sending = false;
 
   // Configuration
   TrackingConfig _config = const TrackingConfig();
@@ -92,18 +93,19 @@ class PositionTrackingService extends ChangeNotifier {
   }
 
   /// Change la configuration du tracking
-  void updateConfig(TrackingConfig newConfig) {
+  Future<void> updateConfig(TrackingConfig newConfig) async {
     _config = newConfig;
-    
+
     if (_isTracking) {
-      // Redémarrer avec la nouvelle config
+      // Redémarrer avec la nouvelle config. On attend startTracking pour
+      // éviter une course avec stopTracking (timer relancé avant arrêt).
       final userId = _userId;
       stopTracking();
       if (userId != null) {
-        startTracking(userId, config: newConfig);
+        await startTracking(userId, config: newConfig);
       }
     }
-    
+
     notifyListeners();
   }
 
@@ -113,6 +115,15 @@ class PositionTrackingService extends ChangeNotifier {
       debugPrint('❌ Pas d\'userId configuré');
       return;
     }
+
+    // Garde de ré-entrance : si un fix GPS précédent est encore en cours
+    // (réseau lent / GPS bloqué), on saute ce cycle pour éviter des lectures
+    // GPS qui se chevauchent et gardent la puce GPS allumée.
+    if (_sending) {
+      debugPrint('⏭️ Envoi déjà en cours - cycle ignoré');
+      return;
+    }
+    _sending = true;
 
     try {
       // Récupérer le niveau de batterie
@@ -187,8 +198,10 @@ class PositionTrackingService extends ChangeNotifier {
       debugPrint('Stack: $stackTrace');
       
       notifyListeners();
-      
+
       // Ne pas arrêter le tracking en cas d'erreur (réessayer au prochain cycle)
+    } finally {
+      _sending = false;
     }
   }
 

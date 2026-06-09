@@ -58,7 +58,8 @@ class DioClient {
           // auth (onUnauthorized) pour basculer en session expiree et forcer
           // une reconnexion, au lieu de laisser des ecrans muets en echec
           // silencieux. La reconnexion se fait ensuite via le flux OTP.
-          if (error.response?.statusCode == 401) {
+          if (error.response?.statusCode == 401 &&
+              !_isAuthEndpoint(error.requestOptions.path)) {
             try {
               await _storageService?.deleteSecurely(AppConstants.authTokenKey);
             } catch (_) {
@@ -159,6 +160,23 @@ class DioClient {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// Endpoints d'authentification où un 401 signifie « identifiants/OTP
+  /// invalides », et NON « session expirée ». On ne doit donc PAS y déclencher
+  /// onUnauthorized (qui effacerait le token et forcerait une reconnexion) :
+  /// ce serait un faux positif sur un mauvais code OTP ou un passeport inconnu.
+  /// `profile` (protégé par token) reste volontairement hors de la liste : un
+  /// 401 y est une vraie expiration de session.
+  static const List<String> _authEndpointsAllowlist = [
+    '/api/auth/passport/login',
+    '/api/auth/passport/verify',
+    '/api/auth/passport/validate',
+    '/api/auth/passport/resend',
+  ];
+
+  bool _isAuthEndpoint(String path) {
+    return _authEndpointsAllowlist.any((endpoint) => path.contains(endpoint));
   }
 
   Future<String?> _getAuthToken() async {

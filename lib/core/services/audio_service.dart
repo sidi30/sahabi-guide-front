@@ -135,11 +135,23 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  Future<void> stop() async {
+  /// Arrête la lecture courante.
+  ///
+  /// Si [dua] est fourni et qu'une autre doua est en cours de lecture
+  /// (cas d'un consommateur disposé alors qu'un autre joue déjà), on ne
+  /// touche pas à la lecture en cours. Sinon on arrête et on remet l'état
+  /// à [AudioState.stopped] pour que le getter [isPlaying] ne soit pas périmé.
+  Future<void> stop([DuaModel? dua]) async {
+    // Ne pas couper une lecture démarrée ailleurs.
+    if (dua != null && _currentDua != null && _currentDua!.id != dua.id) {
+      return;
+    }
     try {
       await _audioPlayer.stop();
+      _state = AudioState.stopped;
       _position = Duration.zero;
       _currentDua = null;
+      notifyListeners();
     } catch (e) {
       _state = AudioState.error;
       _errorMessage = 'Erreur lors de l\'arrêt: ${e.toString()}';

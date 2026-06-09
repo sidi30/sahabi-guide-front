@@ -60,7 +60,7 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () =>
-                    ref.refresh(ritualDetailProvider(widget.ritualId)),
+                    ref.invalidate(ritualDetailProvider(widget.ritualId)),
                 child: const Text('Réessayer'),
               ),
             ],

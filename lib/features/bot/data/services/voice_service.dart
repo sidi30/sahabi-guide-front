@@ -83,12 +83,15 @@ class VoiceService {
   bool get isSttAvailable => _sttInitialized;
   bool get isListening => _speech.isListening;
 
-  /// Locale pour STT selon la langue cible.
-  String _sttLocale(String lang) => switch (lang) {
+  /// Locale pour STT selon la langue cible. Renvoie `null` si aucune locale
+  /// on-device réelle n'existe pour cette langue (pour ne PAS écouter en
+  /// français par erreur sur une langue africaine non gérée).
+  String? _sttLocale(String lang) => switch (lang) {
         'ha' => 'ha-NG',
         'ar' => 'ar-SA',
         'en' => 'en-US',
-        _ => 'fr-FR',
+        'fr' => 'fr-FR',
+        _ => null,
       };
 
   /// Locale pour TTS on-device (uniquement pour {fr, ar, en}).
@@ -126,8 +129,19 @@ class VoiceService {
       onResult('', true);
       return;
     }
+    final localeId = _sttLocale(lang);
+    // Pas de locale on-device réelle (typiquement une langue africaine servie
+    // uniquement par le backend) : on NE capture PAS en français par défaut,
+    // on prévient l'utilisateur et on s'arrête.
+    if (localeId == null) {
+      logger.w('STT: no on-device locale for "$lang" — not falling back to fr-FR');
+      onSttError?.call(
+          'Reconnaissance vocale indisponible pour cette langue, saisissez votre question.');
+      onResult('', true);
+      return;
+    }
     await _speech.listen(
-      localeId: _sttLocale(lang),
+      localeId: localeId,
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 3),
       listenOptions: stt.SpeechListenOptions(partialResults: true),
@@ -253,13 +267,19 @@ class VoiceService {
     } catch (_) {}
   }
 
+  /// Ne garde que le corps principal à lire à voix haute : on coupe le bloc
+  /// arabe original (mal prononcé par une voix non-arabe) et le disclaimer.
+  /// Mêmes marqueurs que [BotMessageBubble._splitContent], avec `idx >= 0`
+  /// pour aussi couper un marqueur situé en tout début de chaîne.
   String _prepareForSpeech(String text) {
-    // Supprime la section "Texte arabe original" pour ne pas mal prononcer
-    final cutMarkers = ['— Texte arabe', '— Addu\'o\'i a Larabci', 'ℹ️'];
+    // Marqueurs de coupe alignés sur le découpage visuel de la bulle :
+    //  - bloc arabe original ('— Texte arabe' / "— Addu'o'i a Larabci")
+    //  - disclaimer ('ℹ️')
+    const cutMarkers = ['— Texte arabe', "— Addu'o'i a Larabci", 'ℹ️'];
     String s = text;
     for (final m in cutMarkers) {
       final idx = s.indexOf(m);
-      if (idx > 0) s = s.substring(0, idx);
+      if (idx >= 0) s = s.substring(0, idx);
     }
     return s.trim();
   }
@@ -289,7 +309,7 @@ class _BytesAudioSource extends StreamAudioSource {
       sourceLength: _bytes.length,
       contentLength: end - start,
       offset: start,
-      stream: Stream.value(_bytes.sublist(start, end)),
+      stream: Stream.value(Uint8List.sublistView(_bytes, start, end)),
       contentType: 'audio/wav',
     );
   }

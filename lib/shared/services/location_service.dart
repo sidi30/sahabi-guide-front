@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
@@ -22,10 +24,18 @@ class LocationService {
         throw Exception('Location permission not granted');
       }
 
-      // Get current position
+      // Get current position. Medium accuracy + a hard timeLimit keep the GPS
+      // chip from staying hot on slow/indoor fixes (periodic tracking).
       return await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
+        ),
       );
+    } on TimeoutException {
+      // Fix GPS trop lent : retomber sur la dernière position connue plutôt
+      // que de planter le cycle de tracking.
+      return await getLastKnownPosition();
     } catch (e) {
       throw Exception('Failed to get current location: $e');
     }

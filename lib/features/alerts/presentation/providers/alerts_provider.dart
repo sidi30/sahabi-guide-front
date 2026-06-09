@@ -32,12 +32,16 @@ class AlertsState {
     List<AlertModel>? alerts,
     bool? isLoading,
     String? error,
+    bool clearError = false,
     bool? hasUnread,
   }) {
     return AlertsState(
       alerts: alerts ?? this.alerts,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      // Sticky par défaut : une erreur n'est effacée que via clearError ou en
+      // passant explicitement une nouvelle erreur. Évite d'effacer
+      // silencieusement une erreur réelle avant que l'UI ne l'affiche.
+      error: clearError ? null : (error ?? this.error),
       hasUnread: hasUnread ?? this.hasUnread,
     );
   }
@@ -58,7 +62,7 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
 
   /// Charge les alertes d'un pèlerin
   Future<void> loadPilgrimAlerts(String pilgrimId) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final alerts = await _alertsService.getPilgrimAlerts(pilgrimId);
@@ -68,6 +72,7 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
         alerts: alerts,
         isLoading: false,
         hasUnread: hasUnread,
+        clearError: true,
       );
     } catch (e) {
       state = state.copyWith(
@@ -84,7 +89,7 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
     int page = 0,
     int size = 20,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final alerts = await _alertsService.getAlerts(
@@ -98,6 +103,7 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
         alerts: alerts,
         isLoading: false,
         hasUnread: alerts.any((alert) => !alert.isRead),
+        clearError: true,
       );
     } catch (e) {
       state = state.copyWith(
@@ -191,7 +197,7 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
 
   /// Efface l'erreur
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith(clearError: true);
   }
 }
 

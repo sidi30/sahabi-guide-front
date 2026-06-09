@@ -70,68 +70,63 @@ class EmergencyContactsNotifier extends StateNotifier<EmergencyContactsState> {
     }
   }
 
-  /// Crée un nouveau contact
-  Future<void> createContact({
+  /// Crée un nouveau contact.
+  ///
+  /// Retourne `true` en cas de succès. En cas d'échec, on NE touche PAS à
+  /// `state.error` (cela effacerait la liste affichée) : on relance l'exception
+  /// pour que la page affiche un SnackBar tout en conservant la liste chargée.
+  Future<bool> createContact({
     required String name,
     required String phone,
     String? relation,
     bool isPrimary = false,
   }) async {
-    try {
-      final newContact = await _service.createEmergencyContact(
-        name: name,
-        phone: phone,
-        relation: relation,
-        isPrimary: isPrimary,
-      );
+    final newContact = await _service.createEmergencyContact(
+      name: name,
+      phone: phone,
+      relation: relation,
+      isPrimary: isPrimary,
+    );
 
-      final updatedContacts = [...state.contacts, newContact];
-      state = state.copyWith(contacts: updatedContacts);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    final updatedContacts = [...state.contacts, newContact];
+    state = state.copyWith(contacts: updatedContacts);
+    return true;
   }
 
-  /// Met à jour un contact
-  Future<void> updateContact(
+  /// Met à jour un contact. Voir [createContact] pour la gestion d'erreur.
+  Future<bool> updateContact(
     String contactId, {
     required String name,
     required String phone,
     String? relation,
     bool isPrimary = false,
   }) async {
-    try {
-      final updatedContact = await _service.updateEmergencyContact(
-        contactId,
-        name: name,
-        phone: phone,
-        relation: relation,
-        isPrimary: isPrimary,
-      );
+    final updatedContact = await _service.updateEmergencyContact(
+      contactId,
+      name: name,
+      phone: phone,
+      relation: relation,
+      isPrimary: isPrimary,
+    );
 
-      final updatedContacts = state.contacts.map((contact) {
-        return contact.id == contactId ? updatedContact : contact;
-      }).toList();
+    final updatedContacts = state.contacts.map((contact) {
+      return contact.id == contactId ? updatedContact : contact;
+    }).toList();
 
-      state = state.copyWith(contacts: updatedContacts);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    state = state.copyWith(contacts: updatedContacts);
+    return true;
   }
 
-  /// Supprime un contact
-  Future<void> deleteContact(String contactId) async {
-    try {
-      await _service.deleteEmergencyContact(contactId);
+  /// Supprime un contact. Voir [createContact] pour la gestion d'erreur.
+  Future<bool> deleteContact(String contactId) async {
+    await _service.deleteEmergencyContact(contactId);
 
-      final updatedContacts = state.contacts
-          .where((contact) => contact.id != contactId)
-          .toList();
+    final updatedContacts = state.contacts
+        .where((contact) => contact.id != contactId)
+        .toList();
 
-      state = state.copyWith(contacts: updatedContacts);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    state = state.copyWith(contacts: updatedContacts);
+    return true;
   }
 
   /// Appelle un contact d'urgence
