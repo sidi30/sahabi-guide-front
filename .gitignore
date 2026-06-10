@@ -255,3 +255,6 @@ Icon
 *~
 .directory
 .Trash-*
+
+# Google Play service account (secret, never commit)
+play-service-account.json
