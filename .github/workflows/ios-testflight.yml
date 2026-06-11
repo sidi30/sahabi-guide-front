@@ -20,6 +20,10 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          # Pin exact version = local dev + version qui a buildé l'aab v1.2.0+107.
+          # 'channel: stable' seul dérive vers le dernier stable (3.44.x) qui casse
+          # google_fonts 6.3.0 (FontWeight const key) -> build iOS échoue.
+          flutter-version: 3.32.8
           channel: stable
           cache: true
 
