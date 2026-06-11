@@ -18,7 +18,9 @@ platform :ios do
       scheme: "Runner",
       configuration: "Release",
       export_method: "app-store",
-      api_key: api_key,
+      # NB: build_app (gym) n'accepte pas `api_key`. La cle posee par
+      # app_store_connect_api_key est deja dans le contexte fastlane : gym l'injecte
+      # automatiquement pour la signature auto via -allowProvisioningUpdates.
       xcargs: "-allowProvisioningUpdates",
       export_options: {
         signingStyle: "automatic",
