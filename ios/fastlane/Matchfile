@@ -1,0 +1,5 @@
+git_url(ENV["MATCH_GIT_URL"])
+storage_mode("git")
+type("appstore")
+app_identifier(["com.sahabiguide.app"])
+# La cle ASC (ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_P8_BASE64) est passee par le Fastfile.

@@ -1,9 +1,15 @@
 default_platform(:ios)
 
+APP_ID = "com.sahabiguide.app"
+TEAM_ID = "4SRJRX4N45"
+
 platform :ios do
   desc "Build the Flutter iOS app and upload it to TestFlight"
   lane :beta do
-    # Clé API App Store Connect (depuis les secrets GitHub, .p8 encodé en base64)
+    # Keychain temporaire sur le runner CI (requis pour importer le cert + signer headless).
+    setup_ci
+
+    # Cle API App Store Connect (.p8 base64 via secrets GitHub).
     api_key = app_store_connect_api_key(
       key_id: ENV["ASC_KEY_ID"],
       issuer_id: ENV["ASC_ISSUER_ID"],
@@ -11,24 +17,43 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    # Archive + signature automatique : Apple crée/renouvelle cert + profil via la clé API
-    # (-allowProvisioningUpdates), pas besoin de match ni de profil manuel.
+    # Certificat de distribution + provisioning app-store, stockes chiffres dans le repo
+    # certs (MATCH_GIT_URL). readonly:false -> 1re execution cree+pousse, suivantes reutilisent.
+    match(
+      type: "appstore",
+      api_key: api_key,
+      app_identifier: APP_ID,
+      readonly: false
+    )
+
+    profile_name = ENV["sigh_#{APP_ID}_appstore_profile-name"]
+
+    # Force la signature manuelle avec le profil match (sinon Xcode tente "automatic"
+    # et echoue: "No Accounts" / "No profiles for com.sahabiguide.app").
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: TEAM_ID,
+      code_sign_identity: "Apple Distribution",
+      bundle_identifier: APP_ID,
+      profile_name: profile_name
+    )
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       configuration: "Release",
       export_method: "app-store",
-      # NB: build_app (gym) n'accepte pas `api_key`. La cle posee par
-      # app_store_connect_api_key est deja dans le contexte fastlane : gym l'injecte
-      # automatiquement pour la signature auto via -allowProvisioningUpdates.
-      xcargs: "-allowProvisioningUpdates",
-      export_options: {
-        signingStyle: "automatic",
-        teamID: "4SRJRX4N45"
-      },
       output_directory: "build",
       output_name: "sahabi_guide.ipa",
-      clean: true
+      clean: true,
+      export_options: {
+        signingStyle: "manual",
+        teamID: TEAM_ID,
+        provisioningProfiles: {
+          APP_ID => profile_name
+        }
+      }
     )
 
     upload_to_testflight(
