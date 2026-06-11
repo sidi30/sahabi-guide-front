@@ -48,5 +48,15 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
         run: |
+          set -euo pipefail
+          # fastlane 2.236.1 -> spaceship token.rb fait OpenSSL::PKey::EC.new(key).
+          # Les cles Apple .p8 sont en PKCS#8 (BEGIN PRIVATE KEY) : sous OpenSSL 3
+          # EC.new ne sait pas les lire et leve "invalid curve name".
+          # On convertit PKCS#8 -> SEC1 (BEGIN EC PRIVATE KEY), format accepte par EC.new,
+          # puis on re-passe la cle convertie (base64, une ligne) a fastlane.
+          echo "$ASC_KEY_P8_BASE64" | base64 --decode > /tmp/asc_pkcs8.pem
+          openssl ec -in /tmp/asc_pkcs8.pem -out /tmp/asc_sec1.pem
+          ASC_KEY_P8_BASE64="$(base64 -i /tmp/asc_sec1.pem | tr -d '\n')"
+          export ASC_KEY_P8_BASE64
           gem install fastlane --no-document
           fastlane beta
