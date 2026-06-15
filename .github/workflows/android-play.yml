@@ -1,0 +1,153 @@
+name: Android Play
+
+# Build l'app Flutter en .aab signe (keystore release reconstruit depuis les
+# secrets) sur un runner Linux, puis (optionnel) l'upload sur Google Play via
+# scripts/play_upload.py (API Google Play Developer). Equivalent Android de
+# ios-testflight.yml. Aucun EAS (EAS ne build pas Flutter) — Gradle direct.
+#
+# Manuel (Actions > Android Play > Run workflow).
+#
+# Secrets requis pour BUILDER (signature release) :
+#   ANDROID_KEYSTORE_BASE64   -> base64 de android/app/sahabi-release.jks
+#   ANDROID_KEY_PROPERTIES    -> contenu de android/key.properties
+# Secret requis UNIQUEMENT pour SUBMIT (submit=true) :
+#   PLAY_SERVICE_ACCOUNT_JSON -> JSON complet du service account Google Play
+#                                (compte avec droit "Release to ... / internal").
+#
+# Versioning : versionCode/versionName viennent de pubspec.yaml. Google Play
+# refuse un versionCode deja uploade -> bump `version:` dans pubspec OU passe
+# l'input `build_number` pour surcharger (ex: 108 si 107 est deja en prod).
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit:
+        description: "Upload sur Google Play apres le build"
+        type: boolean
+        default: false
+      track:
+        description: "Track Google Play"
+        type: choice
+        default: internal
+        options: [internal, alpha, beta, production]
+      build_number:
+        description: "Surcharge du versionCode (vide = celui de pubspec.yaml)"
+        type: string
+        default: ""
+
+concurrency:
+  group: android-play-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Meme pin que iOS : 'stable' seul derive vers 3.44.x qui casse
+          # google_fonts 6.3.0. 3.32.8 = version qui a build l'aab 1.2.0+107.
+          flutter-version: 3.32.8
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      # Reconstruit le keystore release + key.properties depuis les secrets.
+      # key.properties pointe storeFile=app/sahabi-release.jks (relatif a android/).
+      - name: Restore signing config
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEY_PROPS: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEY_PROPS" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 / ANDROID_KEY_PROPERTIES manquant."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 --decode > android/app/sahabi-release.jks
+          printf '%s' "$KEY_PROPS" > android/key.properties
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build signed appbundle
+        run: |
+          set -euo pipefail
+          BN="${{ inputs.build_number }}"
+          if [ -n "$BN" ]; then
+            echo "versionCode surcharge -> $BN"
+            flutter build appbundle --release --build-number="$BN"
+          else
+            flutter build appbundle --release
+          fi
+
+      - name: Locate .aab
+        id: aab
+        run: |
+          AAB=$(ls build/app/outputs/bundle/release/*.aab | head -1)
+          echo "path=$AAB" >> "$GITHUB_OUTPUT"
+          echo "Built: $AAB"
+
+      - name: Upload .aab artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahabi-release-aab
+          path: build/app/outputs/bundle/release/*.aab
+          if-no-files-found: warn
+          retention-days: 7
+
+      # --- Submit Google Play (optionnel) ---
+      - name: Write Play service account
+        if: ${{ inputs.submit }}
+        env:
+          PLAY_SA: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PLAY_SA" ]; then
+            echo "::error::PLAY_SERVICE_ACCOUNT_JSON vide — impossible de submit. Cree le service account Google Play et ajoute le secret."
+            exit 1
+          fi
+          printf '%s' "$PLAY_SA" > play-service-account.json
+
+      - name: Setup Python
+        if: ${{ inputs.submit }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Submit to Google Play
+        if: ${{ inputs.submit }}
+        run: |
+          set -euo pipefail
+          pip install --quiet google-api-python-client google-auth
+          python scripts/play_upload.py "${{ steps.aab.outputs.path }}" "${{ inputs.track }}"
+
+      - name: Cleanup secrets on disk
+        if: always()
+        run: rm -f play-service-account.json android/key.properties android/app/sahabi-release.jks
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "## Android Play" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Built signed .aab on \`ubuntu-latest\` (Flutter 3.32.8, Gradle direct, no EAS)." >> "$GITHUB_STEP_SUMMARY"
+          echo "- versionCode override: \`${{ inputs.build_number }}\` (vide = pubspec)." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Submitted to Play: \`${{ inputs.submit }}\` (track \`${{ inputs.track }}\`)." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Artifact \`sahabi-release-aab\` (7-day retention)." >> "$GITHUB_STEP_SUMMARY"
