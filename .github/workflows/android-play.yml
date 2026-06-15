@@ -87,6 +87,9 @@ jobs:
         run: flutter pub get
 
       - name: Build signed appbundle
+        env:
+          # build.gradle.kts exige cette cle (local.properties est gitignore).
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           set -euo pipefail
           BN="${{ inputs.build_number }}"
