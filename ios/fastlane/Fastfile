@@ -17,19 +17,25 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    # L'App ID (Dev Portal) + la fiche App Store Connect doivent exister avant que match
-    # puisse generer le provisioning profile ("An app with that bundle ID needs to exist").
-    # produce cree les deux, non-interactif via l'API key, et NE PLANTE PAS si deja presents.
-    # produce ne prend pas d'option api_key : il reutilise le token pose par
-    # app_store_connect_api_key (lane context). On le passe quand meme via ENV
-    # pour Spaceship (Portal + ConnectAPI).
-    produce(
-      app_identifier: APP_ID,
-      app_name: "Sahabi Guide",
-      language: "French",
-      sku: APP_ID,
-      team_id: TEAM_ID
+    # L'App ID (bundle id) doit exister sur le Dev Portal pour que match cree le profil
+    # ("An app with that bundle ID needs to exist"). `produce` ne marche pas en CI : il
+    # passe par le login web Apple ID + 2FA (non-interactif => echec). On garantit donc
+    # le bundle id via l'API App Store Connect (meme cle ASC), idempotent.
+    # NB : la fiche App Store Connect (pour upload_to_testflight) n'est PAS creable par
+    # l'API Apple -> elle doit etre creee une fois a la main dans le portail web.
+    require "spaceship"
+    require "base64"
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key: Base64.decode64(ENV["ASC_KEY_P8_BASE64"])
     )
+    if Spaceship::ConnectAPI::BundleId.all(filter: { identifier: APP_ID }).empty?
+      UI.message("Bundle id #{APP_ID} absent du Dev Portal -> creation via ConnectAPI")
+      Spaceship::ConnectAPI::BundleId.create(name: "Sahabi Guide", identifier: APP_ID)
+    else
+      UI.message("Bundle id #{APP_ID} deja present sur le Dev Portal")
+    end
 
     # Certificat de distribution + provisioning app-store, stockes chiffres dans le repo
     # certs (MATCH_GIT_URL). readonly:false -> 1re execution cree+pousse, suivantes reutilisent.
