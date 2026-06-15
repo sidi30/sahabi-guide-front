@@ -17,6 +17,18 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    # L'App ID (Dev Portal) + la fiche App Store Connect doivent exister avant que match
+    # puisse generer le provisioning profile ("An app with that bundle ID needs to exist").
+    # produce cree les deux, non-interactif via l'API key, et NE PLANTE PAS si deja presents.
+    produce(
+      api_key: api_key,
+      app_identifier: APP_ID,
+      app_name: "Sahabi Guide",
+      language: "French",
+      sku: APP_ID,
+      team_id: TEAM_ID
+    )
+
     # Certificat de distribution + provisioning app-store, stockes chiffres dans le repo
     # certs (MATCH_GIT_URL). readonly:false -> 1re execution cree+pousse, suivantes reutilisent.
     match(
