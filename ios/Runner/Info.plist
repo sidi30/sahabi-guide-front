@@ -83,6 +83,10 @@
 		<!-- ============================================ -->
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Sahabi Guide peut utiliser votre microphone pour les appels d'urgence et l'assistance vocale.</string>
+		<!-- Reconnaissance vocale (SDK speech_to_text -> SFSpeechRecognizer). Exigee par
+		     Apple ITMS-90683 meme si la voix n'est pas utilisee directement. -->
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>Sahabi Guide utilise la reconnaissance vocale pour la recherche et l'assistance par la voix.</string>
 		<!-- ============================================ -->
 		<!-- PERMISSIONS - MOTION & FITNESS               -->
 		<!-- ============================================ -->
