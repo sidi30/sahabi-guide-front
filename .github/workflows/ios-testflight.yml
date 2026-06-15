@@ -11,11 +11,21 @@ on:
 
 jobs:
   testflight:
-    runs-on: macos-14
-    timeout-minutes: 45
+    # macos-15 embarque Xcode 26 (SDK iOS 26) requis par App Store Connect depuis 2026
+    # ("must be built with the iOS 26 SDK or later"). macos-14 = Xcode 15 (SDK 17.5) -> rejet upload.
+    runs-on: macos-15
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Selectionne le Xcode stable le plus recent installe (= 26.x) pour passer le gate SDK iOS 26.
+      - name: Select latest stable Xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -vi beta | sort -V | tail -1)
+          echo "Selecting $XC"
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
