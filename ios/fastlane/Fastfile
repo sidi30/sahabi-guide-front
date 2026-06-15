@@ -20,8 +20,10 @@ platform :ios do
     # L'App ID (Dev Portal) + la fiche App Store Connect doivent exister avant que match
     # puisse generer le provisioning profile ("An app with that bundle ID needs to exist").
     # produce cree les deux, non-interactif via l'API key, et NE PLANTE PAS si deja presents.
+    # produce ne prend pas d'option api_key : il reutilise le token pose par
+    # app_store_connect_api_key (lane context). On le passe quand meme via ENV
+    # pour Spaceship (Portal + ConnectAPI).
     produce(
-      api_key: api_key,
       app_identifier: APP_ID,
       app_name: "Sahabi Guide",
       language: "French",
