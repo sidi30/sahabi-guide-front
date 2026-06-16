@@ -74,17 +74,19 @@ class VoiceService {
         // iOS : categorie `playback` + instance partagee, sinon la voix est
         // coupee par l'interrupteur silencieux du telephone.
         if (Platform.isIOS) {
-          await _tts.setSharedInstance(true);
-          await _tts.setIosAudioCategory(
+          // `defaultToSpeaker` est INVALIDE avec `playback` (throw natif avale
+          // par le plugin -> session inactive -> aucun son). Garder seulement
+          // `mixWithOthers`.
+          final shared = await _tts.setSharedInstance(true);
+          final cat = await _tts.setIosAudioCategory(
             IosTextToSpeechAudioCategory.playback,
-            [
-              IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-              IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-              IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-              IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
-            ],
+            [IosTextToSpeechAudioCategoryOptions.mixWithOthers],
             IosTextToSpeechAudioMode.defaultMode,
           );
+          if (shared != 1 || cat != 1) {
+            logger.w('VoiceService iOS audio session NON applique '
+                '(shared=$shared, category=$cat)');
+          }
         }
         await _tts.awaitSpeakCompletion(true);
         await _tts.setSpeechRate(0.45);

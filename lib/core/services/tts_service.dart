@@ -58,17 +58,21 @@ class TtsService extends ChangeNotifier {
       // silencieux du telephone COUPE -> aucun son. On force playback +
       // partage de l'instance pour parler meme en mode silencieux.
       if (Platform.isIOS) {
-        await _tts.setSharedInstance(true);
-        await _tts.setIosAudioCategory(
+        // ATTENTION : ne PAS mettre `defaultToSpeaker` ici — cette option n'est
+        // valide qu'avec `playAndRecord` ; combinee a `playback` elle fait
+        // ECHOUER setCategory cote natif (le plugin avale l'erreur) -> la
+        // session reste inactive -> AUCUN son (toute l'app). On garde donc
+        // seulement `mixWithOthers`.
+        final shared = await _tts.setSharedInstance(true);
+        final cat = await _tts.setIosAudioCategory(
           IosTextToSpeechAudioCategory.playback,
-          [
-            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-            IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-            IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
-          ],
+          [IosTextToSpeechAudioCategoryOptions.mixWithOthers],
           IosTextToSpeechAudioMode.defaultMode,
         );
+        if (shared != 1 || cat != 1) {
+          debugPrint('TtsService iOS audio session NON applique '
+              '(shared=$shared, category=$cat)');
+        }
       }
       await _tts.awaitSpeakCompletion(true);
       await _tts.setSpeechRate(0.45);

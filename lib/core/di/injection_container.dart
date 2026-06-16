@@ -98,6 +98,8 @@ import '../../features/health/domain/usecases/update_health_profile_usecase.dart
 import '../../shared/services/storage_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
+import 'dart:io' show Platform;
+import 'package:audio_session/audio_session.dart';
 import '../services/audio_service.dart';
 import '../services/tts_service.dart';
 import '../../features/bot/data/services/voice_remote_api.dart';
@@ -164,6 +166,11 @@ Future<void> initializeDependencies() async {
       remoteApi: VoiceRemoteApi(sl<DioClient>(), logger: Logger()),
     ),
   );
+
+  // Session audio GLOBALE en catégorie `playback` : sans elle, sur iOS la voix
+  // (flutter_tts) et les fichiers (just_audio) ne sortent aucun son. Doit être
+  // configurée une fois au démarrage, partagée par tous les lecteurs.
+  await _configureAudioSession();
 
   sl.registerLazySingleton<NotificationService>(
     () => NotificationService(),
@@ -396,4 +403,25 @@ Future<void> initializeDependencies() async {
 
   // Initialize services
   await sl<NotificationService>().initialize();
+}
+
+/// Configure une session audio `playback` globale et l'active. Sur iOS, sans
+/// cela, AVAudioSession reste en catégorie par défaut (silencieuse en mode
+/// sonnerie / coupée par le mute switch) et NI flutter_tts NI just_audio ne
+/// produisent de son. Échec non bloquant (l'app démarre quand même).
+Future<void> _configureAudioSession() async {
+  try {
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+    ));
+    await session.setActive(true);
+  } catch (e) {
+    // Ne pas bloquer le démarrage si la session échoue (ex: plateforme web).
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    // ignore: avoid_print
+    print('Audio session configure failed: $e');
+  }
 }
