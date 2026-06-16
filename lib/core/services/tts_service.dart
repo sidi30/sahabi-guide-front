@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -52,6 +53,23 @@ class TtsService extends ChangeNotifier {
   Future<void> _ensureInit() async {
     if (_initialized) return;
     try {
+      // iOS : sans session audio en categorie `playback`, AVSpeechSynthesizer
+      // joue sous la categorie par defaut (ambient) que l'interrupteur
+      // silencieux du telephone COUPE -> aucun son. On force playback +
+      // partage de l'instance pour parler meme en mode silencieux.
+      if (Platform.isIOS) {
+        await _tts.setSharedInstance(true);
+        await _tts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playback,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+            IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+          ],
+          IosTextToSpeechAudioMode.defaultMode,
+        );
+      }
       await _tts.awaitSpeakCompletion(true);
       await _tts.setSpeechRate(0.45);
       await _tts.setPitch(1.0);

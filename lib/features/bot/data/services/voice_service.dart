@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:flutter_tts/flutter_tts.dart';
@@ -70,6 +71,21 @@ class VoiceService {
     }
     if (!_ttsInitialized) {
       try {
+        // iOS : categorie `playback` + instance partagee, sinon la voix est
+        // coupee par l'interrupteur silencieux du telephone.
+        if (Platform.isIOS) {
+          await _tts.setSharedInstance(true);
+          await _tts.setIosAudioCategory(
+            IosTextToSpeechAudioCategory.playback,
+            [
+              IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+              IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+              IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+              IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+            ],
+            IosTextToSpeechAudioMode.defaultMode,
+          );
+        }
         await _tts.awaitSpeakCompletion(true);
         await _tts.setSpeechRate(0.45);
         await _tts.setPitch(1.0);
