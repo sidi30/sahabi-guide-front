@@ -99,6 +99,9 @@ import '../../shared/services/storage_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
 import '../services/audio_service.dart';
+import '../services/tts_service.dart';
+import '../../features/bot/data/services/voice_remote_api.dart';
+import 'package:logger/logger.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_times_service.dart';
 
@@ -152,6 +155,14 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton<AudioService>(
     () => AudioService(),
+  );
+
+  // Synthèse vocale (TTS) on-device fr/ar/en + backend voix (langues
+  // africaines). Lit douas / explications de rituels / réponses assistant.
+  sl.registerLazySingleton<TtsService>(
+    () => TtsService(
+      remoteApi: VoiceRemoteApi(sl<DioClient>(), logger: Logger()),
+    ),
   );
 
   sl.registerLazySingleton<NotificationService>(

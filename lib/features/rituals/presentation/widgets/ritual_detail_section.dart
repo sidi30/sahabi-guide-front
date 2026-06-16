@@ -1,8 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/tts_service.dart';
 import '../../../../shared/models/ritual_model.dart';
+import '../../data/ritual_guidance.dart';
 
 class RitualDetailSection extends StatefulWidget {
   final RitualModel ritual;
@@ -23,62 +24,56 @@ class RitualDetailSection extends StatefulWidget {
 }
 
 class _RitualDetailSectionState extends State<RitualDetailSection> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  StreamSubscription<PlayerState>? _playerStateSub;
-  bool _isPlaying = false;
+  final TtsService _tts = sl<TtsService>();
   bool _hasReadExplanation = false;
   bool _hasWatchedVideo = false;
+
+  /// Guide détaillé PROPRE à ce rituel (4 axes), sinon null.
+  RitualGuidance? get _guidance =>
+      guidanceFor(widget.ritual.id, widget.ritual.name);
 
   @override
   void initState() {
     super.initState();
-    // Abonnement unique : remet le bouton sur "play" en fin de lecture.
-    _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        if (mounted) {
-          setState(() {
-            _isPlaying = false;
-          });
-        }
-      }
-    });
+    _tts.onError = _showMessage;
+    _tts.addListener(_onTtsChanged);
+  }
+
+  void _onTtsChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _playerStateSub?.cancel();
-    _audioPlayer.dispose();
+    _tts.removeListener(_onTtsChanged);
+    if (_tts.currentTag == widget.ritual.id) {
+      _tts.stop();
+    }
+    _tts.onError = null;
     super.dispose();
   }
 
+  bool get _isSpeaking =>
+      _tts.isSpeaking && _tts.currentTag == widget.ritual.id;
+
+  /// Lit l'explication détaillée du rituel à voix haute (synthèse vocale).
+  /// Remplace les anciens mp3 `assets/audio/...` absents du bundle.
   Future<void> _playExplanation() async {
-    try {
-      final audioPath = widget.ritual.getAudioPath(widget.audioLanguage);
-      if (audioPath != null && audioPath.isNotEmpty) {
-        await _setSource(audioPath);
-        await _audioPlayer.play();
-        setState(() {
-          _isPlaying = true;
-          _hasReadExplanation = true;
-        });
-      } else {
-        _showMessage('Aucun fichier audio disponible pour cette langue');
-      }
-    } catch (e) {
-      _showMessage('Erreur lors de la lecture audio: $e');
-    }
+    final guidance = _guidance;
+    final text = guidance != null
+        ? guidance.toSpeech(widget.ritual.name)
+        : '${widget.ritual.name}. ${_getDetailedExplanation()}';
+    setState(() => _hasReadExplanation = true);
+    await _tts.speak(text, lang: widget.audioLanguage, tag: widget.ritual.id);
   }
 
   Future<void> _pauseExplanation() async {
-    await _audioPlayer.pause();
-    setState(() {
-      _isPlaying = false;
-    });
+    await _tts.stop();
   }
 
   Future<void> _watchVideo() async {
     final videoUrl = widget.ritual.getVideoUrl(widget.audioLanguage);
-    
+
     if (videoUrl == null || videoUrl.isEmpty) {
       _showMessage('Aucune vidéo disponible pour ce rituel');
       return;
@@ -86,14 +81,14 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
     try {
       final uri = Uri.parse(videoUrl);
-      
+
       // Extraire l'ID YouTube
       final youtubeId = _extractYouTubeId(videoUrl);
-      
+
       // Essayer d'ouvrir dans l'app YouTube
       if (youtubeId != null) {
         final youtubeAppUri = Uri.parse('vnd.youtube:$youtubeId');
-        
+
         if (await canLaunchUrl(youtubeAppUri)) {
           await launchUrl(youtubeAppUri, mode: LaunchMode.externalApplication);
           setState(() {
@@ -103,22 +98,23 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           return;
         }
       }
-      
+
       // Fallback: ouvrir dans le navigateur
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-    setState(() {
-      _hasWatchedVideo = true;
-    });
-    widget.onWatchVideo?.call();
+        setState(() {
+          _hasWatchedVideo = true;
+        });
+        widget.onWatchVideo?.call();
       } else {
-        _showMessage('Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.');
+        _showMessage(
+            'Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.');
       }
     } catch (e) {
       _showMessage('Erreur lors de l\'ouverture de la vidéo: $e');
     }
   }
-  
+
   /// Extrait l'ID de la vidéo YouTube depuis l'URL
   String? _extractYouTubeId(String url) {
     final regex = RegExp(
@@ -133,6 +129,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   }
 
   void _showMessage(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -220,6 +217,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
   Widget _buildExplanationSection() {
     final steps = _getImportantSteps();
+    final howTo = _getHowTo();
+    final security = _getSecurity();
     final info = _getPracticalInfo();
 
     return Column(
@@ -237,172 +236,222 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ),
         const SizedBox(height: 20),
 
-        // Étapes importantes
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF0F9FF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.list_alt,
-                    color: Color(0xFF4FC3F7),
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Étapes importantes',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1D3557),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ...steps.asMap().entries.map((entry) {
-                final index = entry.key;
-                final step = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4FC3F7),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          step,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF374151),
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
+        // Étapes importantes (ce qui est important à faire)
+        _buildListBlock(
+          title: 'Étapes importantes',
+          icon: Icons.list_alt,
+          color: const Color(0xFF4FC3F7),
+          background: const Color(0xFFF0F9FF),
+          items: steps,
+          numbered: true,
         ),
-        const SizedBox(height: 16),
 
-        // Informations pratiques
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF7ED),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
-              width: 1,
-            ),
+        // Comment l'accomplir (possibilités / variantes)
+        if (howTo.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildListBlock(
+            title: 'Comment l\'accomplir',
+            icon: Icons.checklist_rtl,
+            color: const Color(0xFF10B981),
+            background: const Color(0xFFECFDF5),
+            items: howTo,
+            numbered: false,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: Color(0xFFF59E0B),
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Conseils pratiques',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1D3557),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ...info.entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          entry.key,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFF59E0B),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          entry.value,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
+        ],
+
+        // Sécurité
+        if (security.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildListBlock(
+            title: 'Sécurité',
+            icon: Icons.health_and_safety_outlined,
+            color: const Color(0xFFEF4444),
+            background: const Color(0xFFFEF2F2),
+            items: security,
+            numbered: false,
           ),
-        ),
+        ],
+
+        // Conseils pratiques
+        if (info.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildTipsBlock(info),
+        ],
       ],
     );
   }
 
+  /// Bloc générique « titre + liste » avec puces ou numéros.
+  Widget _buildListBlock({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required Color background,
+    required List<String> items,
+    required bool numbered,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1D3557),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final text = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  numbered
+                      ? Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Icon(Icons.circle, size: 8, color: color),
+                        ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF374151),
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipsBlock(Map<String, String> info) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.lightbulb_outline, color: Color(0xFFF59E0B), size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Conseils pratiques',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1D3557),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...info.entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      entry.key,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFF59E0B),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      entry.value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMediaButtons() {
+    final isLoading = _tts.state == TtsState.loading && _isSpeaking;
     return Row(
       children: [
-        // Bouton Audio
+        // Bouton Audio (synthèse vocale de l'explication)
         Expanded(
           child: _buildMediaButton(
-            icon: _isPlaying ? Icons.pause : Icons.play_arrow,
-            label: _isPlaying ? 'Pause' : 'Écouter l\'explication',
+            icon: isLoading
+                ? Icons.hourglass_top
+                : (_isSpeaking ? Icons.stop : Icons.play_arrow),
+            label: _isSpeaking ? 'Arrêter' : 'Écouter l\'explication',
             color: const Color(0xFF4FC3F7),
-            onPressed: _isPlaying ? _pauseExplanation : _playExplanation,
-            isEnabled: widget.ritual.hasAudio,
+            onPressed: _isSpeaking ? _pauseExplanation : _playExplanation,
+            isEnabled: true,
           ),
         ),
         const SizedBox(width: 12),
@@ -497,100 +546,45 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     );
   }
 
+  // --- Contenu : guide propre au rituel, sinon données du modèle, sinon
+  //     repli générique. ----------------------------------------------------
+
   String _getDetailedExplanation() {
-    // Retourne juste le texte, le formatage sera géré par _buildExplanationSection
-    switch (widget.ritual.name.toLowerCase()) {
-      case 'tawaf':
-        return 'Le Tawaf consiste à faire 7 tours complets autour de la Kaaba dans le sens inverse des aiguilles d\'une montre.';
-      case 'sa\'i':
-        return 'Le Sa\'i consiste à marcher 7 fois entre les collines de Safa et Marwa pour commémorer le parcours de Hajar.';
-      case 'wuquf à arafat':
-        return 'Le Wuquf à Arafat est le pilier principal du Hadj, obligatoire le 9ème jour de Dhul Hijjah.';
-      default:
-        return 'Ce rituel fait partie intégrante du Hadj. Suivez attentivement les instructions.';
-    }
+    final g = _guidance;
+    if (g != null) return g.explanation;
+    if (widget.ritual.description.isNotEmpty) return widget.ritual.description;
+    return 'Ce rituel fait partie intégrante du Hadj. Suivez attentivement les instructions.';
   }
 
   List<String> _getImportantSteps() {
-    switch (widget.ritual.name.toLowerCase()) {
-      case 'tawaf':
-        return [
-          'Commencer au niveau de la Pierre Noire (Hajar al-Aswad)',
-          'Faire 7 tours complets dans le sens inverse des aiguilles',
-          'Réciter "Bismillah Allahu Akbar" à chaque passage',
-          'Terminer chaque tour au niveau de la Pierre Noire',
-          'Maintenir la pureté rituelle (wudu) pendant tout le Tawaf',
-        ];
-      case 'sa\'i':
-        return [
-          'Commencer par la colline de Safa en récitant des invocations',
-          'Marcher vers Marwa en récitant "Subhan Allah"',
-          'Faire 7 allers-retours complets (Safa→Marwa = 1)',
-          'Courir légèrement entre les piliers verts (hommes uniquement)',
-          'Réciter des invocations spécifiques à chaque sommet',
-        ];
-      case 'wuquf à arafat':
-        return [
-          'Arriver à Arafat avant le coucher du soleil',
-          'Rester dans la plaine jusqu\'au coucher du soleil',
-          'Réciter des invocations, douas et istighfar',
-          'Éviter de dormir pendant cette période sacrée',
-          'Partir après le coucher du soleil vers Muzdalifah',
-        ];
-      default:
-        return [
-          'Maintenez votre pureté rituelle (wudu)',
-          'Récitez des invocations sincères',
-          'Respectez les autres pèlerins',
-          'Suivez les instructions des autorités religieuses',
-        ];
-    }
+    final g = _guidance;
+    if (g != null) return g.importantSteps;
+    if (widget.ritual.steps.isNotEmpty) return widget.ritual.steps;
+    return [
+      'Maintenez votre pureté rituelle (wudu)',
+      'Récitez des invocations sincères',
+      'Respectez les autres pèlerins',
+      'Suivez les instructions des autorités religieuses',
+    ];
+  }
+
+  List<String> _getHowTo() {
+    return _guidance?.howTo ?? const [];
+  }
+
+  List<String> _getSecurity() {
+    return _guidance?.security ?? const [];
   }
 
   Map<String, String> _getPracticalInfo() {
-    switch (widget.ritual.name.toLowerCase()) {
-      case 'tawaf':
-        return {
-          'Durée': '30-45 minutes',
-          'Conseil': 'Restez hydraté',
-          'Focus': 'Concentration sur les invocations',
-        };
-      case 'sa\'i':
-        return {
-          'Durée': '20-30 minutes',
-          'Distance': 'Environ 3,5 km',
-          'Conseil': 'Portez des chaussures confortables',
-        };
-      case 'wuquf à arafat':
-        return {
-          'Durée': 'Lever au coucher du soleil (~12h)',
-          'Importance': 'Pilier principal du Hadj',
-          'Conseil': 'Emportez eau et parasol',
-        };
-      default:
-        return {
-          'Conseil': 'Suivez votre guide',
-          'Focus': 'Sincérité et dévotion',
-        };
+    final g = _guidance;
+    if (g != null) return g.practicalTips;
+    if (widget.ritual.practicalTips.isNotEmpty) {
+      return widget.ritual.practicalTips;
     }
-  }
-
-  Future<void> _setSource(String path) async {
-    final source = path.trim();
-    if (source.startsWith('http')) {
-      await _audioPlayer.setUrl(source);
-    } else if (source.startsWith('gs://')) {
-      await _audioPlayer.setUrl(_convertGsToHttps(source));
-    } else {
-      await _audioPlayer.setAsset(source);
-    }
-  }
-
-  String _convertGsToHttps(String gsPath) {
-    final sanitized = gsPath.replaceFirst('gs://', '');
-    final parts = sanitized.split('/');
-    final bucket = parts.first;
-    final objectPath = parts.skip(1).join('/');
-    return 'https://storage.googleapis.com/$bucket/$objectPath';
+    return {
+      'Conseil': 'Suivez votre guide',
+      'Focus': 'Sincérité et dévotion',
+    };
   }
 }

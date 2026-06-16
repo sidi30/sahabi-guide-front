@@ -65,11 +65,74 @@ class _VideoPageState extends State<VideoPage> with SingleTickerProviderStateMix
     final videos = await _videoService.getActiveVideos(category: _selectedCategory);
     if (mounted) {
       setState(() {
-        _videos = videos;
+        // Si le backend ne renvoie rien (vide / injoignable / catégorie sans
+        // contenu), on retombe sur une liste locale curatée pour que « la partie
+        // vidéo » ne soit jamais vide.
+        _videos = videos.isNotEmpty ? videos : _fallbackFor(_selectedCategory);
         _isLoading = false;
       });
     }
   }
+
+  /// Vidéos locales de secours (YouTube) par catégorie. Garantit du contenu
+  /// même hors-ligne ou si l'API renvoie une liste vide.
+  List<Map<String, dynamic>> _fallbackFor(String? category) {
+    if (category == null) return _fallbackVideos;
+    return _fallbackVideos
+        .where((v) => v['category'] == category)
+        .toList();
+  }
+
+  static const List<Map<String, dynamic>> _fallbackVideos = [
+    {
+      'id': 'fb_prep_1',
+      'title': 'Préparation au Hajj — guide essentiel',
+      'description': 'Les étapes clés pour bien préparer son pèlerinage.',
+      'youtubeId': 'z7PM2I6sPZI',
+      'category': 'preparatifs',
+      'pilgrimageType': 'HAJJ',
+    },
+    {
+      'id': 'fb_prep_2',
+      'title': 'Préparation spirituelle et pratique au Hajj',
+      'description': 'Conseils pour le corps et le cœur avant le départ.',
+      'youtubeId': '505D3SYmN50',
+      'category': 'preparatifs',
+      'pilgrimageType': 'HAJJ',
+    },
+    {
+      'id': 'fb_rit_arafat',
+      'title': "Le jour d'Arafat",
+      'description': 'Le pilier majeur du Hajj expliqué.',
+      'youtubeId': 'ak8cf3U4BWo',
+      'category': 'rituels',
+      'pilgrimageType': 'HAJJ',
+    },
+    {
+      'id': 'fb_rit_pierre',
+      'title': 'La Pierre Noire (Hajar al-Aswad)',
+      'description': 'Signification et comportement lors du Tawaf.',
+      'youtubeId': 'pqaEx8lcPBs',
+      'category': 'rituels',
+      'pilgrimageType': 'HAJJ',
+    },
+    {
+      'id': 'fb_rit_talbiya',
+      'title': 'La Talbiya',
+      'description': "L'invocation du pèlerin en état d'Ihram.",
+      'youtubeId': 'azcEJ-atqt4',
+      'category': 'rituels',
+      'pilgrimageType': 'HAJJ',
+    },
+    {
+      'id': 'fb_conseil_medine',
+      'title': 'Visite de Médine',
+      'description': 'Adab et mérites de la visite de la mosquée du Prophète ﷺ.',
+      'youtubeId': 'IplqbYlfR6c',
+      'category': 'conseils',
+      'pilgrimageType': 'HAJJ',
+    },
+  ];
 
   List<Map<String, dynamic>> get _filteredVideos {
     if (_searchQuery.isEmpty) return _videos;
