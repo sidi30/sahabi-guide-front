@@ -152,18 +152,21 @@ class VoiceService {
     // uniquement par le backend) : on NE capture PAS en français par défaut,
     // on prévient l'utilisateur et on s'arrête.
     if (localeId == null) {
-      logger.w('STT: no on-device locale for "$lang" — not falling back to fr-FR');
+      logger.w(
+          'STT: no on-device locale for "$lang" — not falling back to fr-FR');
       onSttError?.call(
           'Reconnaissance vocale indisponible pour cette langue, saisissez votre question.');
       onResult('', true);
       return;
     }
     await _speech.listen(
-      localeId: localeId,
-      listenFor: const Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 3),
-      listenOptions: stt.SpeechListenOptions(partialResults: true),
       onResult: (r) => onResult(r.recognizedWords, r.finalResult),
+      listenOptions: stt.SpeechListenOptions(
+        partialResults: true,
+        localeId: localeId,
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
+      ),
     );
   }
 

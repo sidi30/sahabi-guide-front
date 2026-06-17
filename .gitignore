@@ -5,6 +5,9 @@
 # Miscellaneous
 *.class
 *.log
+# Build artefacts (jamais dans le repo — generes par CI/local)
+*.aab
+*.apk
 *.pyc
 *.swp
 .DS_Store
