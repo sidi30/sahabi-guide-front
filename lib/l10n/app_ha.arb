@@ -73,6 +73,8 @@
   "bot_listen": "Saurara",
   "bot_stop": "Tsaya",
   "bot_view_ritual": "Duba aikin",
+  "bot_source": "Tushe",
+  "bot_low_confidence": "Amsa mara tabbas — ka tabbatar da malami.",
   "bot_input_hint": "Yi tambaya ko danna makirafo",
   "bot_listening": "Ina saurara...",
   "bot_language": "Harshen mataimaki",

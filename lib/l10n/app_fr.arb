@@ -178,6 +178,8 @@
   "bot_listen": "Écouter",
   "bot_stop": "Stop",
   "bot_view_ritual": "Voir le rituel",
+  "bot_source": "Source",
+  "bot_low_confidence": "Réponse incertaine — vérifie auprès d'un savant.",
   "bot_input_hint": "Posez une question ou utilisez le micro",
   "bot_listening": "Écoute en cours...",
   "bot_language": "Langue de l'assistant",

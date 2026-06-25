@@ -8,11 +8,27 @@ class HajjChatApi {
 
   HajjChatApi(this._dioClient);
 
-  Future<Map<String, dynamic>> chat(String question, String language) async {
+  /// Appel chat RAG + LLM.
+  ///
+  /// [history] : derniers tours de conversation (mémoire multi-tours), du plus
+  /// ancien au plus récent, chaque élément `{role: "user"|"assistant", text}`.
+  /// Optionnel et rétro-compatible : si vide, on n'envoie pas le champ.
+  Future<Map<String, dynamic>> chat(
+    String question,
+    String language, {
+    List<Map<String, String>>? history,
+  }) async {
     try {
+      final data = <String, dynamic>{
+        'question': question,
+        'language': language,
+      };
+      if (history != null && history.isNotEmpty) {
+        data['history'] = history;
+      }
       final response = await _dioClient.post(
         '/api/v1/assistant/chat',
-        data: {'question': question, 'language': language},
+        data: data,
       );
       return response.data as Map<String, dynamic>;
     } catch (e) {

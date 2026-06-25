@@ -187,6 +187,14 @@
   "@bot_view_ritual": {
     "description": "Button that opens the related ritual detail page"
   },
+  "bot_source": "Source",
+  "@bot_source": {
+    "description": "Label preceding a RAG citation title under a bot answer"
+  },
+  "bot_low_confidence": "Uncertain answer — please verify with a scholar.",
+  "@bot_low_confidence": {
+    "description": "Subtle note shown when the bot answer is low confidence or abstained"
+  },
   "bot_input_hint": "Ask a question or use the mic",
   "@bot_input_hint": {
     "description": "Placeholder of the bot chat text field"

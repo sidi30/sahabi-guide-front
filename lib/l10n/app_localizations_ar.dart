@@ -492,6 +492,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bot_view_ritual => 'عرض المنسك';
 
   @override
+  String get bot_source => 'المصدر';
+
+  @override
+  String get bot_low_confidence => 'إجابة غير مؤكدة — يُرجى التحقق من عالم.';
+
+  @override
   String get bot_input_hint => 'اطرح سؤالاً أو استخدم الميكروفون';
 
   @override

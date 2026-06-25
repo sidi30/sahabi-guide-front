@@ -139,6 +139,17 @@ class BotMessageBubble extends StatelessWidget {
                         const SizedBox(height: 12),
                         _buildDisclaimerBlock(parts.disclaimer!),
                       ],
+                      // Note discrète "réponse incertaine" (abstention / low conf.)
+                      if (message.isLowConfidence) ...[
+                        const SizedBox(height: 10),
+                        _buildLowConfidenceNote(context),
+                      ],
+                      // Citations RAG : top 1-2 sources, ligne sobre.
+                      if (message.sources != null &&
+                          message.sources!.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildSources(context, message.sources!),
+                      ],
                     ],
                   ),
                 ),
@@ -279,6 +290,88 @@ class BotMessageBubble extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Note amber discrète sous une réponse incertaine (abstention / low conf.).
+  Widget _buildLowConfidenceNote(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(
+          Icons.warning_amber_rounded,
+          size: 15,
+          color: Color(0xFFB7791F),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context)!.bot_low_confidence,
+            textAlign: TextAlign.start,
+            style: const TextStyle(
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: Color(0xFFB7791F),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Affiche les 1-2 meilleures citations RAG sous forme de ligne sobre
+  /// "Source : <titre>". Si un ritualId est présent, le titre est cliquable et
+  /// ouvre la fiche rituel (route existante `/rituals/detail/:id`).
+  Widget _buildSources(BuildContext context, List<BotSource> sources) {
+    final label = AppLocalizations.of(context)!.bot_source;
+    final top = sources.take(2).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final s in top)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.menu_book_rounded,
+                  size: 13,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: s.ritualId != null
+                      ? InkWell(
+                          onTap: () => context
+                              .push('/rituals/detail/${s.ritualId}'),
+                          child: Text(
+                            '$label : ${s.title}',
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: Color(0xFF1D3557),
+                              decoration: TextDecoration.underline,
+                              height: 1.3,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          '$label : ${s.title}',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: Colors.grey[600],
+                            height: 1.3,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

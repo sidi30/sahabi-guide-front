@@ -178,6 +178,8 @@
   "bot_listen": "استماع",
   "bot_stop": "إيقاف",
   "bot_view_ritual": "عرض المنسك",
+  "bot_source": "المصدر",
+  "bot_low_confidence": "إجابة غير مؤكدة — يُرجى التحقق من عالم.",
   "bot_input_hint": "اطرح سؤالاً أو استخدم الميكروفون",
   "bot_listening": "جارٍ الاستماع...",
   "bot_language": "لغة المساعد",

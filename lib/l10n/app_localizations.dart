@@ -1065,6 +1065,18 @@ abstract class AppLocalizations {
   /// **'View ritual'**
   String get bot_view_ritual;
 
+  /// Label preceding a RAG citation title under a bot answer
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get bot_source;
+
+  /// Subtle note shown when the bot answer is low confidence or abstained
+  ///
+  /// In en, this message translates to:
+  /// **'Uncertain answer — please verify with a scholar.'**
+  String get bot_low_confidence;
+
   /// Placeholder of the bot chat text field
   ///
   /// In en, this message translates to:

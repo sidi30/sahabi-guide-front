@@ -1,3 +1,26 @@
+/// Citation RAG renvoyée par le backend sous `sources`.
+/// `score` = pertinence (0..1) ; `ritualId` peut être null (source hors rituel).
+class BotSource {
+  final String title;
+  final String? ritualId;
+  final double score;
+
+  const BotSource({
+    required this.title,
+    this.ritualId,
+    this.score = 0.0,
+  });
+
+  factory BotSource.fromJson(Map<String, dynamic> json) {
+    final raw = json['score'];
+    return BotSource(
+      title: (json['title'] as String?)?.trim() ?? '',
+      ritualId: json['ritualId'] as String?,
+      score: raw is num ? raw.toDouble() : 0.0,
+    );
+  }
+}
+
 /// Modèle de message du bot Hajj
 /// Support FR/AR, réponses rapides, métadonnées
 class BotMessageModel {
@@ -20,6 +43,16 @@ class BotMessageModel {
   /// Code 2 lettres (`fr|en|ar|ha`) de la langue de [originalContent].
   final String? originalLang;
 
+  /// Citations RAG renvoyées par le backend (peut être vide / null pour les
+  /// anciennes réponses ou les messages locaux).
+  final List<BotSource>? sources;
+
+  /// Confiance du backend : `high` (défaut) ou `low`.
+  final String? confidence;
+
+  /// Le backend a préféré s'abstenir (réponse incertaine).
+  final bool abstained;
+
   const BotMessageModel({
     required this.id,
     required this.content,
@@ -32,7 +65,13 @@ class BotMessageModel {
     this.metadata,
     this.originalContent,
     this.originalLang,
+    this.sources,
+    this.confidence,
+    this.abstained = false,
   });
+
+  /// Vrai s'il faut afficher la note "réponse incertaine".
+  bool get isLowConfidence => abstained || confidence == 'low';
 
   /// Texte source pour la traduction (retombe sur [content] si non renseigné).
   String get sourceContent => originalContent ?? content;
@@ -47,6 +86,9 @@ class BotMessageModel {
     String? relatedRitualId,
     String? originalContent,
     String? originalLang,
+    List<BotSource>? sources,
+    String? confidence,
+    bool abstained = false,
   }) {
     return BotMessageModel(
       id: id,
@@ -59,6 +101,9 @@ class BotMessageModel {
       relatedRitualId: relatedRitualId,
       originalContent: originalContent ?? content,
       originalLang: originalLang,
+      sources: sources,
+      confidence: confidence,
+      abstained: abstained,
     );
   }
 
@@ -92,6 +137,9 @@ class BotMessageModel {
     Map<String, dynamic>? metadata,
     String? originalContent,
     String? originalLang,
+    List<BotSource>? sources,
+    String? confidence,
+    bool? abstained,
   }) {
     return BotMessageModel(
       id: id ?? this.id,
@@ -105,6 +153,9 @@ class BotMessageModel {
       metadata: metadata ?? this.metadata,
       originalContent: originalContent ?? this.originalContent,
       originalLang: originalLang ?? this.originalLang,
+      sources: sources ?? this.sources,
+      confidence: confidence ?? this.confidence,
+      abstained: abstained ?? this.abstained,
     );
   }
 }

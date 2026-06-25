@@ -492,6 +492,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_view_ritual => 'View ritual';
 
   @override
+  String get bot_source => 'Source';
+
+  @override
+  String get bot_low_confidence => 'Uncertain answer — please verify with a scholar.';
+
+  @override
   String get bot_input_hint => 'Ask a question or use the mic';
 
   @override

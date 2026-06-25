@@ -492,6 +492,12 @@ class AppLocalizationsHa extends AppLocalizations {
   String get bot_view_ritual => 'Duba aikin';
 
   @override
+  String get bot_source => 'Tushe';
+
+  @override
+  String get bot_low_confidence => 'Amsa mara tabbas — ka tabbatar da malami.';
+
+  @override
   String get bot_input_hint => 'Yi tambaya ko danna makirafo';
 
   @override

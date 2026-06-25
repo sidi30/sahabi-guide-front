@@ -320,6 +320,10 @@ class BotService {
 
   /// Recherche dans les FAQs
   Future<BotMessageModel> searchFAQs(String query, {String language = 'fr'}) async {
+    // 0. Construire l'historique multi-tours AVANT d'ajouter la question courante
+    //    (les 6 derniers tours user+bot, du plus ancien au plus récent).
+    final history = _buildChatHistory();
+
     // 1. Ajouter la question de l'utilisateur dans l'historique (bulle "user")
     final userMessage = BotMessageModel.user(
       id: uuid.v4(),
@@ -329,21 +333,31 @@ class BotService {
     _messageHistory.add(userMessage);
     await _saveMessage(userMessage);
 
-    // 2. Appel API chat (RAG + LLM) avec la langue choisie
+    // 2. Appel API chat (RAG + LLM) avec la langue choisie + mémoire multi-tours
     try {
-      final apiResponse = await chatApi?.chat(query, language);
+      final apiResponse = await chatApi?.chat(query, language, history: history);
       if (apiResponse != null && apiResponse['answer'] != null) {
         final answer = apiResponse['answer'] as String;
         final source = apiResponse['source'] as String? ?? 'api';
         final ritualId = apiResponse['ritualId'] as String?;
+        final sources = _parseSources(apiResponse['sources']);
+        final confidence = apiResponse['confidence'] as String?;
+        final abstained = apiResponse['abstained'] == true;
         String apiContent = answer;
         if (source.startsWith('llm')) apiContent += '\n\n💡 Réponse IA';
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,
           quickReplies: [QuickReplyKeys.otherQuestion, QuickReplyKeys.continue_],
-          relatedRitualId: ritualId,
+          // Lien "voir le rituel" : ritualId direct sinon 1re source qui en a un.
+          relatedRitualId: ritualId ??
+              (sources
+                  .map((s) => s.ritualId)
+                  .firstWhere((id) => id != null, orElse: () => null)),
           originalLang: language,
+          sources: sources.isEmpty ? null : sources,
+          confidence: confidence,
+          abstained: abstained,
         );
         _messageHistory.add(message);
         await _saveMessage(message);
@@ -499,6 +513,46 @@ class BotService {
   /// Récupère l'historique des messages
   List<BotMessageModel> getMessageHistory() {
     return List.unmodifiable(_messageHistory);
+  }
+
+  /// Longueur max d'un texte de tour envoyé dans `history` (anti-payload géant).
+  static const int _historyTextCap = 1000;
+
+  /// Construit la mémoire multi-tours pour le backend : les 6 derniers tours
+  /// user/bot déjà présents dans l'historique, du plus ancien au plus récent,
+  /// au format `{role, text}`. Exclut les bulles vides. La question fraîchement
+  /// tapée n'est PAS incluse (appeler ce helper AVANT de l'ajouter).
+  List<Map<String, String>> _buildChatHistory() {
+    final turns = <Map<String, String>>[];
+    for (final m in _messageHistory) {
+      final text = m.content.trim();
+      if (text.isEmpty) continue;
+      turns.add({
+        'role': m.isBot ? 'assistant' : 'user',
+        'text': text.length > _historyTextCap
+            ? text.substring(0, _historyTextCap)
+            : text,
+      });
+    }
+    // Garde les 6 plus récents, ordre oldest -> newest.
+    if (turns.length > 6) {
+      return turns.sublist(turns.length - 6);
+    }
+    return turns;
+  }
+
+  /// Parse le champ `sources` de la réponse chat (rétro-compatible : absent ou
+  /// mal typé => liste vide).
+  List<BotSource> _parseSources(dynamic raw) {
+    if (raw is! List) return const [];
+    final out = <BotSource>[];
+    for (final item in raw) {
+      if (item is Map) {
+        final src = BotSource.fromJson(Map<String, dynamic>.from(item));
+        if (src.title.isNotEmpty) out.add(src);
+      }
+    }
+    return out;
   }
 
   /// Récupère l'étape actuelle
