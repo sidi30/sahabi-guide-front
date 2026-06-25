@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform;
 import 'dart:typed_data';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'voice_remote_api.dart';
@@ -51,6 +53,11 @@ class VoiceService {
 
   bool _sttInitialized = false;
   bool _ttsInitialized = false;
+
+  /// Chemin du dernier fichier WAV temporaire écrit pour la lecture serveur.
+  /// On le supprime au mieux avant d'en écrire un nouveau et dans [dispose]
+  /// pour éviter d'accumuler des fichiers dans le cache temporaire.
+  String? _lastTtsTempPath;
 
   /// Callback externe déclenché à chaque erreur STT (pour que l'UI affiche un
   /// message à l'utilisateur au lieu d'un échec silencieux).
@@ -254,28 +261,90 @@ class VoiceService {
   /// TTS distant via le backend voix (voix naturelle, toutes [kServerVoiceLangs]).
   ///
   /// Retourne `true` si la lecture a démarré, `false` si le serveur est
-  /// injoignable / a renvoyé un flux vide. En cas d'échec on NE notifie PAS
-  /// [onTtsError] ici : c'est l'appelant ([speak]) qui décide de retomber sur
-  /// le TTS on-device ou d'afficher un message d'indisponibilité hors-ligne.
+  /// injoignable / a renvoyé un flux vide. En cas d'échec réseau (octets vides)
+  /// on NE notifie PAS [onTtsError] ici : c'est l'appelant ([speak]) qui décide
+  /// de retomber sur le TTS on-device ou d'afficher un message d'indisponibilité.
+  /// En revanche, si on a bien REÇU des octets mais que la LECTURE plante, on
+  /// remonte l'erreur concrète via [onTtsError] pour diagnostic.
   Future<bool> _speakBackend(String cleaned, String lang) async {
     if (remoteApi == null) {
       logger.w('TTS backend: no remoteApi configured for "$lang"');
       return false;
     }
+    Uint8List? bytes;
     try {
       // Coupe une éventuelle lecture en cours (on-device ou distante).
       await stopSpeaking();
-      final bytes = await remoteApi!.tts(cleaned, lang);
-      if (bytes == null || bytes.isEmpty) {
-        logger.w('TTS backend returned empty audio for "$lang"');
-        return false;
-      }
-      await _player.setAudioSource(_BytesAudioSource(bytes));
-      await _player.play();
-      return true;
+      bytes = await remoteApi!.tts(cleaned, lang);
     } catch (e) {
-      logger.w('TTS backend speak failed ($lang): $e');
+      // Échec réseau / serveur -> repli géré par l'appelant.
+      logger.w('TTS backend fetch failed ($lang): $e');
       return false;
+    }
+    if (bytes == null || bytes.isEmpty) {
+      logger.w('TTS backend returned empty audio for "$lang"');
+      return false;
+    }
+    logger.d('TTS backend: received ${bytes.length} bytes for "$lang"');
+    try {
+      await _playWavBytes(bytes);
+      return true;
+    } catch (e, st) {
+      // On a de l'audio valide mais la LECTURE a échoué : c'est exactement le
+      // symptôme « son nul, pas d'erreur ». On remonte le message réel pour ne
+      // PAS rester silencieux, et on signale à l'appelant que ça a échoué afin
+      // qu'il tente le repli on-device si disponible.
+      logger.e('TTS backend playback failed ($lang)', error: e, stackTrace: st);
+      onTtsError?.call('Lecture audio échouée : $e');
+      return false;
+    }
+  }
+
+  /// Écrit les octets WAV dans un fichier temporaire et les joue via just_audio.
+  ///
+  /// La lecture en mémoire (`StreamAudioSource`) décode régulièrement en SILENCE
+  /// sur iOS pour du WAV PCM16 ; la lecture par fichier est la voie fiable.
+  /// On (re)active la session audio juste avant la lecture (iOS peut l'avoir
+  /// désactivée après une session STT / une interruption), sinon aucun son ne
+  /// sort même avec un fichier valide.
+  Future<void> _playWavBytes(Uint8List bytes) async {
+    // 1) Réactive la session audio (catégorie playback) juste avant de jouer.
+    try {
+      final session = await AudioSession.instance;
+      await session.setActive(true);
+    } catch (e) {
+      logger.w('AudioSession.setActive(true) failed (continuing): $e');
+    }
+
+    // 2) Nettoie le précédent fichier temporaire au mieux.
+    await _cleanupLastTtsTemp();
+
+    // 3) Écrit le WAV sur disque.
+    final dir = await getTemporaryDirectory();
+    final path =
+        '${dir.path}/tts_${DateTime.now().millisecondsSinceEpoch}.wav';
+    final file = File(path);
+    await file.writeAsBytes(bytes, flush: true);
+    _lastTtsTempPath = path;
+    logger.d('TTS playback: wrote ${bytes.length} bytes -> $path');
+
+    // 4) Charge le fichier puis joue. `play()` se résout à la FIN de la lecture.
+    await _player.setFilePath(path);
+    logger.d('TTS playback: player loaded, duration=${_player.duration}');
+    await _player.play();
+    logger.d('TTS playback: finished');
+  }
+
+  /// Supprime au mieux le dernier fichier WAV temporaire. N'échoue jamais.
+  Future<void> _cleanupLastTtsTemp() async {
+    final path = _lastTtsTempPath;
+    if (path == null) return;
+    _lastTtsTempPath = null;
+    try {
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+    } catch (_) {
+      // Best-effort : ignore (fichier verrouillé, déjà supprimé, etc.).
     }
   }
 
@@ -299,8 +368,7 @@ class VoiceService {
         onTtsError?.call('Conversion vocale indisponible (serveur).');
         return false;
       }
-      await _player.setAudioSource(_BytesAudioSource(bytes));
-      await _player.play();
+      await _playWavBytes(bytes);
       return true;
     } catch (e) {
       logger.w('speakToSpeak failed: $e');
@@ -342,26 +410,7 @@ class VoiceService {
     try {
       _player.dispose();
     } catch (_) {}
-  }
-}
-
-/// Source audio just_audio à partir d'octets en mémoire (WAV renvoyé par le
-/// backend /tts ou /s2s).
-class _BytesAudioSource extends StreamAudioSource {
-  final Uint8List _bytes;
-
-  _BytesAudioSource(this._bytes);
-
-  @override
-  Future<StreamAudioResponse> request([int? start, int? end]) async {
-    start ??= 0;
-    end ??= _bytes.length;
-    return StreamAudioResponse(
-      sourceLength: _bytes.length,
-      contentLength: end - start,
-      offset: start,
-      stream: Stream.value(Uint8List.sublistView(_bytes, start, end)),
-      contentType: 'audio/wav',
-    );
+    // Nettoyage best-effort du dernier fichier WAV temporaire.
+    unawaited(_cleanupLastTtsTemp());
   }
 }
