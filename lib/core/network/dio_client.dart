@@ -49,7 +49,10 @@ class DioClient {
           // Add auth token if available
           final token = await _getAuthToken();
           if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+            // Retirer tout espace/retour-ligne : un JWT compact n'en contient pas,
+            // sinon le backend rejette ("Compact JWT may not contain whitespace").
+            final cleanToken = token.replaceAll(RegExp(r'\s'), '');
+            options.headers['Authorization'] = 'Bearer $cleanToken';
           }
           handler.next(options);
         },
