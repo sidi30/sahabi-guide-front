@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
 import '../../data/models/bot_message_model.dart';
 
 /// Bulle de message du chat. Pour les messages bot, decoupe le contenu en
@@ -172,7 +173,10 @@ class BotMessageBubble extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  isSpeaking ? 'Stop' : 'Écouter',
+                                  isSpeaking
+                                      ? AppLocalizations.of(context)!.bot_stop
+                                      : AppLocalizations.of(context)!
+                                          .bot_listen,
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: isSpeaking
@@ -197,7 +201,7 @@ class BotMessageBubble extends StatelessWidget {
                         context.push('/rituals/detail/${message.relatedRitualId}');
                       },
                       icon: const Icon(Icons.book, size: 16),
-                      label: const Text('Voir le rituel'),
+                      label: Text(AppLocalizations.of(context)!.bot_view_ritual),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),

@@ -9,20 +9,31 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'voice_remote_api.dart';
 
-/// Langues prises en charge par le moteur TTS *embarqué* (flutter_tts) de
-/// façon fiable. Pour celles-ci on garde la synthèse on-device.
-const Set<String> kOnDeviceVoiceLangs = {'fr', 'ar', 'en'};
+/// Langues pour lesquelles un repli TTS *embarqué* (flutter_tts) existe et est
+/// fiable hors-ligne. Sert UNIQUEMENT de filet de secours quand le serveur de
+/// voix naturelle est injoignable (offline / timeout). Le Hausa n'en fait PAS
+/// partie : aucune voix on-device fiable → si le serveur échoue, on prévient
+/// l'utilisateur (voix indisponible hors-ligne) plutôt que de parler en fr.
+const Set<String> kOnDeviceFallbackLangs = {'fr', 'ar', 'en'};
 
-/// Langues africaines pour lesquelles l'appareil n'a (presque) jamais de voix
-/// TTS : on passe par le microservice backend (SeamlessM4T v2).
-const Set<String> kBackendVoiceLangs = {'ha', 'dje', 'yo', 'sw', 'wo', 'bm'};
+/// Langues servies en PRIORITÉ par le microservice voix backend (voix CPU
+/// naturelle : Piper pour fr/en/ar, MMS pour ha + langues africaines). On
+/// route ces langues vers le serveur ; pour fr/ar/en on retombe sur le TTS
+/// on-device si le serveur échoue (voir [kOnDeviceFallbackLangs]).
+const Set<String> kServerVoiceLangs = {
+  'fr', 'en', 'ar', 'ha', // les 4 langues principales -> voix serveur naturelle
+  'dje', 'yo', 'sw', 'wo', 'bm', // langues africaines (serveur uniquement)
+};
 
 /// Service voix pour le copilote Hajj : STT + TTS multilingue.
 ///
-/// - TTS langues {fr, ar, en} : flutter_tts (on-device), fiable.
-/// - TTS langues africaines {ha, dje, yo, sw, wo, bm} : backend /tts ->
-///   octets WAV joués via just_audio. PLUS de repli silencieux en français :
-///   si le backend échoue, on log + on notifie via [onTtsError].
+/// - TTS : « voix naturelle d'abord ». Toutes les [kServerVoiceLangs]
+///   (fr/en/ar/ha + langues africaines) passent par le backend /tts (voix CPU
+///   naturelle Piper/MMS) -> octets WAV joués via just_audio. Pour fr/ar/en, si
+///   le serveur est injoignable, on retombe sur flutter_tts on-device
+///   ([kOnDeviceFallbackLangs]) ; pour le Hausa (pas de voix on-device fiable),
+///   on notifie [onTtsError] (« voix indisponible hors-ligne ») au lieu de
+///   parler dans la mauvaise langue.
 /// - STT {fr, ar, en} : speech_to_text on-device.
 /// - STT langues africaines : préfère le backend /asr si une locale on-device
 ///   n'est pas disponible (nécessite l'enregistrement audio — voir TODO).
@@ -89,7 +100,9 @@ class VoiceService {
           }
         }
         await _tts.awaitSpeakCompletion(true);
-        await _tts.setSpeechRate(0.45);
+        // Débit du repli on-device relevé de 0.45 -> 0.52 : un poil plus
+        // rapide, moins « robotique ». Le pitch reste neutre (1.0).
+        await _tts.setSpeechRate(0.52);
         await _tts.setPitch(1.0);
         _ttsInitialized = true;
       } catch (e) {
@@ -192,19 +205,35 @@ class VoiceService {
 
   /// Lit un texte à voix haute. N'échoue jamais silencieusement.
   ///
-  /// - {fr, ar, en} -> flutter_tts on-device.
-  /// - {ha, dje, yo, sw, wo, bm} -> backend /tts (octets WAV) joués via
-  ///   just_audio. Si le backend échoue, on log + on notifie [onTtsError]
-  ///   (PLUS de repli silencieux en français).
+  /// Stratégie « voix naturelle d'abord » :
+  /// - {fr, en, ar, ha, dje, yo, sw, wo, bm} ([kServerVoiceLangs]) -> on tente
+  ///   d'abord le backend /tts (octets WAV, voix CPU naturelle Piper/MMS) joué
+  ///   via just_audio.
+  /// - Si le serveur échoue/est injoignable ET que la langue a un repli
+  ///   on-device fiable ({fr, ar, en} = [kOnDeviceFallbackLangs]), on bascule
+  ///   sur flutter_tts (hors-ligne).
+  /// - Sinon (ex : Hausa offline), on notifie [onTtsError] (« voix indisponible
+  ///   hors-ligne ») au lieu de rester muet ou de parler dans la mauvaise langue.
   Future<void> speak(String text, {String lang = 'fr'}) async {
     await initialize();
     final cleaned = _prepareForSpeech(text);
     if (cleaned.isEmpty) return;
 
-    if (kBackendVoiceLangs.contains(lang)) {
-      await _speakBackend(cleaned, lang);
+    if (kServerVoiceLangs.contains(lang)) {
+      final ok = await _speakBackend(cleaned, lang);
+      if (ok) return;
+      // Le serveur n'a pas pu jouer la voix naturelle : repli on-device si
+      // disponible pour cette langue.
+      if (kOnDeviceFallbackLangs.contains(lang)) {
+        await _speakOnDevice(cleaned, lang);
+      } else {
+        // Pas de repli (ex : Hausa) : message clair plutôt que muet.
+        onTtsError?.call(
+            'Voix indisponible hors-ligne pour cette langue. Réessayez en ligne.');
+      }
       return;
     }
+    // Langue sans route serveur connue : on tente le on-device.
     await _speakOnDevice(cleaned, lang);
   }
 
@@ -222,30 +251,31 @@ class VoiceService {
     }
   }
 
-  /// TTS distant via le backend voix ({ha, dje, yo, sw, wo, bm}).
-  Future<void> _speakBackend(String cleaned, String lang) async {
+  /// TTS distant via le backend voix (voix naturelle, toutes [kServerVoiceLangs]).
+  ///
+  /// Retourne `true` si la lecture a démarré, `false` si le serveur est
+  /// injoignable / a renvoyé un flux vide. En cas d'échec on NE notifie PAS
+  /// [onTtsError] ici : c'est l'appelant ([speak]) qui décide de retomber sur
+  /// le TTS on-device ou d'afficher un message d'indisponibilité hors-ligne.
+  Future<bool> _speakBackend(String cleaned, String lang) async {
     if (remoteApi == null) {
-      final msg = 'Voix « $lang » indisponible (service voix non configuré).';
-      logger.w(msg);
-      onTtsError?.call(msg);
-      return;
+      logger.w('TTS backend: no remoteApi configured for "$lang"');
+      return false;
     }
     try {
       // Coupe une éventuelle lecture en cours (on-device ou distante).
       await stopSpeaking();
       final bytes = await remoteApi!.tts(cleaned, lang);
       if (bytes == null || bytes.isEmpty) {
-        final msg =
-            'Synthèse vocale « $lang » indisponible pour le moment (serveur).';
-        logger.w(msg);
-        onTtsError?.call(msg);
-        return;
+        logger.w('TTS backend returned empty audio for "$lang"');
+        return false;
       }
       await _player.setAudioSource(_BytesAudioSource(bytes));
       await _player.play();
+      return true;
     } catch (e) {
       logger.w('TTS backend speak failed ($lang): $e');
-      onTtsError?.call(e.toString());
+      return false;
     }
   }
 

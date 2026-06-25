@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sahabi_guide/core/providers/language_provider.dart';
 import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
 import '../providers/bot_provider.dart';
 import '../widgets/bot_message_bubble.dart';
 import '../widgets/quick_reply_chip.dart';
@@ -32,11 +34,12 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   bool _isListening = false;
   String? _currentlySpeakingMessageId;
-  // Langue vocale / assistant. Initialisée depuis le réglage utilisateur
-  // (Paramètres > Langue audio) puis surchargeable via le bouton de l'AppBar.
-  String _voiceLang = 'fr';
-  bool _voiceLangInit = false; // a-t-on déjà résolu la langue depuis les réglages
   bool _conversationMode = false; // mode mains-libres (ecoute auto apres TTS)
+  // Surcharge de langue UNIQUEMENT pour les langues « audio-only » (servies par
+  // le backend voix mais sans traduction d'interface : dje/yo/sw/wo/bm). Les 4
+  // langues principales (fr/en/ar/ha) passent TOUJOURS par la source de vérité
+  // unique [languageProvider] (UI + réponse + voix). `null` => on suit l'UI.
+  String? _audioOnlyLangOverride;
   bool _lastInputWasVoice = false; // flag : derniere question envoyee par vocal
   int _processedVoiceCount = 0;
 
@@ -52,30 +55,16 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       voice.onSttError = _showSttError;
       voice.onTtsError = _showTtsError;
       voice.initialize();
-      // Initialise la langue vocale depuis le réglage utilisateur.
-      _syncVoiceLangFromSettings();
     });
   }
 
-  /// Récupère la langue choisie par l'utilisateur (Paramètres > Langue audio)
-  /// pour piloter le bot et la voix. N'écrase pas un choix déjà fait via le
-  /// bouton de l'AppBar pendant la session.
-  void _syncVoiceLangFromSettings() {
-    if (_voiceLangInit) return;
-    try {
-      final settings = ref.read(settingsProvider);
-      if (mounted) {
-        setState(() {
-          _voiceLang = settings.audioLanguage.code;
-          _voiceLangInit = true;
-        });
-      }
-    } catch (_) {
-      // settingsProvider peut ne pas être overridé dans certains contextes de
-      // test : on garde le défaut 'fr'.
-      _voiceLangInit = true;
-    }
-  }
+  /// Langue courante pilotant la réponse du bot ET la synthèse vocale.
+  /// Par défaut = source de vérité unique [languageCodeProvider] (alignée sur
+  /// la locale d'interface). Une langue « audio-only » sélectionnée dans
+  /// l'AppBar prend le pas le temps de la session (sans changer l'UI, faute de
+  /// traduction). Code canonique : `fr|en|ar|ha|dje|yo|sw|wo|bm`.
+  String get _currentLang =>
+      _audioOnlyLangOverride ?? ref.read(languageCodeProvider);
 
   /// Affiche un message clair quand la synthèse vocale échoue (ex : voix d'une
   /// langue africaine indisponible côté serveur) au lieu de rester muet.
@@ -203,7 +192,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   PreferredSizeWidget _buildAppBar() {
     final state = ref.watch(botChatProvider);
-    
+    // Source de vérité unique : on observe le code de langue partagé pour que
+    // le drapeau de l'AppBar suive le choix courant (et les rebuilds RTL/UI).
+    final currentLang = ref.watch(languageCodeProvider);
+
     return AppBar(
       title: Row(
         children: [
@@ -254,40 +246,19 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         ],
       ),
       actions: [
-        // Sélecteur de langue vocale / assistant (toutes les langues
-        // supportées, y compris les langues africaines servies par le backend).
+        // Sélecteur de langue de l'assistant.
+        //  - Les 4 langues PRINCIPALES (fr/en/ar/ha) pilotent la source de
+        //    vérité unique : UI + réponse du bot + voix changent ensemble.
+        //  - Les langues « audio-only » (dje/yo/sw/wo/bm) restent disponibles
+        //    pour la réponse + la voix, sans toucher l'UI (pas de traduction).
         PopupMenuButton<String>(
           icon: Text(
-            _flagFor(_voiceLang),
+            _flagFor(currentLang),
             style: const TextStyle(fontSize: 18),
           ),
           tooltip: 'Langue de l\'assistant',
-          onSelected: (code) {
-            setState(() {
-              _voiceLang = code;
-              _voiceLangInit = true;
-            });
-            final label = AudioLanguage.fromCode(code).label;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Langue : $label ${_flagFor(code)}'),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          },
-          itemBuilder: (_) => AudioLanguage.values.map((lang) {
-            return PopupMenuItem<String>(
-              value: lang.code,
-              child: Row(
-                children: [
-                  Text(_flagFor(lang.code),
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(width: 12),
-                  Text(lang.label),
-                ],
-              ),
-            );
-          }).toList(),
+          onSelected: _onLanguageSelected,
+          itemBuilder: (_) => _buildLanguageMenuItems(),
         ),
         // Toggle conversation continue (mains-libres)
         IconButton(
@@ -661,10 +632,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               enabled: !state.isTyping,
               decoration: InputDecoration(
                 hintText: _isListening
-                    ? (_voiceLang == 'ha' ? 'Ina saurara...' : 'Écoute en cours...')
-                    : (_voiceLang == 'ha'
-                        ? 'Tambayi tambaya ko danna makirafo'
-                        : 'Posez une question ou utilisez le micro'),
+                    ? AppLocalizations.of(context)!.bot_listening
+                    : AppLocalizations.of(context)!.bot_input_hint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: const BorderSide(color: Color(0xFF1D3557)),
@@ -731,7 +700,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     }
     setState(() => _isListening = true);
     await voice.startListening(
-      lang: _voiceLang,
+      lang: _currentLang,
       onResult: (text, isFinal) {
         if (!mounted) return;
         _textController.text = text;
@@ -770,7 +739,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     await voice.stopSpeaking();
     if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = last.id);
-    await voice.speak(last.content, lang: _voiceLang);
+    await voice.speak(last.content, lang: _currentLang);
     if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = null);
     // En mode conversation continue, reenclenche le micro apres la lecture
@@ -786,7 +755,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     await voice.stopSpeaking();
     if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = messageId);
-    await voice.speak(content, lang: _voiceLang);
+    await voice.speak(content, lang: _currentLang);
     if (mounted) {
       setState(() => _currentlySpeakingMessageId = null);
     }
@@ -960,7 +929,74 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     final text = _textController.text.trim();
     _textController.clear();
 
-    ref.read(botChatProvider.notifier).askQuestion(text, language: _voiceLang);
+    ref.read(botChatProvider.notifier).askQuestion(text, language: _currentLang);
+  }
+
+  /// Les 4 langues principales : elles changent l'UI + la réponse + la voix
+  /// ensemble (via la source de vérité unique [languageProvider]).
+  static const List<({String code, String label})> _coreLangs = [
+    (code: 'fr', label: 'Français'),
+    (code: 'en', label: 'English'),
+    (code: 'ar', label: 'العربية'),
+    (code: 'ha', label: 'Hausa'),
+  ];
+
+  /// Langues « audio-only » : réponse + voix uniquement (UI non traduite).
+  static const List<({String code, String label})> _audioOnlyLangs = [
+    (code: 'dje', label: 'Zarma'),
+    (code: 'yo', label: 'Yoruba'),
+    (code: 'sw', label: 'Kiswahili'),
+    (code: 'wo', label: 'Wolof'),
+    (code: 'bm', label: 'Bambara'),
+  ];
+
+  /// Applique le choix de langue depuis le sélecteur de l'AppBar.
+  Future<void> _onLanguageSelected(String code) async {
+    final isCore = _coreLangs.any((l) => l.code == code);
+    if (isCore) {
+      // Langue principale : pilote la source de vérité unique => l'UI, la
+      // réponse du bot et la voix basculent ensemble (+ RTL pour 'ar').
+      setState(() => _audioOnlyLangOverride = null);
+      await ref.read(languageProvider.notifier).changeLanguageByCode(code);
+      // Aligne aussi la langue audio (rituels/duas) sur ce même choix.
+      await ref
+          .read(settingsProvider.notifier)
+          .setAudioLanguage(AudioLanguage.fromCode(code));
+    } else {
+      // Langue audio-only : réponse + voix seulement, on laisse l'UI inchangée.
+      setState(() => _audioOnlyLangOverride = code);
+    }
+    if (!mounted) return;
+    final label = [..._coreLangs, ..._audioOnlyLangs]
+        .firstWhere((l) => l.code == code, orElse: () => (code: code, label: code))
+        .label;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${_flagFor(code)}  $label'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  List<PopupMenuEntry<String>> _buildLanguageMenuItems() {
+    PopupMenuItem<String> tile(({String code, String label}) l) {
+      return PopupMenuItem<String>(
+        value: l.code,
+        child: Row(
+          children: [
+            Text(_flagFor(l.code), style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 12),
+            Text(l.label),
+          ],
+        ),
+      );
+    }
+
+    return [
+      ..._coreLangs.map(tile),
+      const PopupMenuDivider(),
+      ..._audioOnlyLangs.map(tile),
+    ];
   }
 
   /// Emoji drapeau associé à un code de langue de l'assistant.

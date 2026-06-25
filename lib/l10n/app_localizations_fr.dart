@@ -483,6 +483,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get assistant_thinking => 'Je réfléchis...';
 
   @override
+  String get bot_listen => 'Écouter';
+
+  @override
+  String get bot_stop => 'Stop';
+
+  @override
+  String get bot_view_ritual => 'Voir le rituel';
+
+  @override
+  String get bot_input_hint => 'Posez une question ou utilisez le micro';
+
+  @override
+  String get bot_listening => 'Écoute en cours...';
+
+  @override
+  String get bot_language => 'Langue de l\'assistant';
+
+  @override
+  String get settings_language_hausa => 'Hausa';
+
+  @override
   String get map_title => 'Carte';
 
   @override

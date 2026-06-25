@@ -4,6 +4,7 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/constants/app_locale.dart';
+import '../providers/settings_provider.dart';
 
 class LanguageSettingsScreen extends ConsumerWidget {
   const LanguageSettingsScreen({super.key});
@@ -124,6 +125,13 @@ class LanguageSettingsScreen extends ConsumerWidget {
         onTap: () async {
           if (!isSelected) {
             await ref.read(languageProvider.notifier).changeLanguage(appLocale);
+            // La langue d'interface est la source de vérité unique : on aligne
+            // aussi la langue audio (rituels/duas) sur ce choix pour les 4
+            // langues principales (fr/en/ar/ha), afin que toute l'expérience
+            // suive la même langue.
+            await ref
+                .read(settingsProvider.notifier)
+                .setAudioLanguage(AudioLanguage.fromCode(appLocale.code));
 
             // Afficher un message de confirmation
             if (context.mounted) {
@@ -194,6 +202,8 @@ class LanguageSettingsScreen extends ConsumerWidget {
         return '\u{1F1EC}\u{1F1E7}';
       case AppLocale.ar:
         return '\u{1F1F8}\u{1F1E6}';
+      case AppLocale.ha:
+        return '\u{1F1F3}\u{1F1EA}'; // Hausa (Niger / Nigeria)
     }
   }
 
@@ -205,6 +215,8 @@ class LanguageSettingsScreen extends ConsumerWidget {
         return 'English';
       case AppLocale.ar:
         return 'العربية';
+      case AppLocale.ha:
+        return 'Hausa';
     }
   }
 
@@ -216,6 +228,8 @@ class LanguageSettingsScreen extends ConsumerWidget {
         return 'Language changed to English';
       case AppLocale.ar:
         return 'تم تغيير اللغة إلى العربية';
+      case AppLocale.ha:
+        return 'An canza harshe zuwa Hausa';
     }
   }
 }

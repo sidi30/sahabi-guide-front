@@ -174,7 +174,36 @@
   "assistant_input_placeholder": "Ask your question...",
   "assistant_send": "Send",
   "assistant_thinking": "Thinking...",
-  
+
+  "bot_listen": "Listen",
+  "@bot_listen": {
+    "description": "Label for the button that reads a bot message aloud"
+  },
+  "bot_stop": "Stop",
+  "@bot_stop": {
+    "description": "Label for the button that stops the voice playback"
+  },
+  "bot_view_ritual": "View ritual",
+  "@bot_view_ritual": {
+    "description": "Button that opens the related ritual detail page"
+  },
+  "bot_input_hint": "Ask a question or use the mic",
+  "@bot_input_hint": {
+    "description": "Placeholder of the bot chat text field"
+  },
+  "bot_listening": "Listening...",
+  "@bot_listening": {
+    "description": "Placeholder shown while the mic is capturing speech"
+  },
+  "bot_language": "Assistant language",
+  "@bot_language": {
+    "description": "Tooltip/label for the assistant language selector"
+  },
+  "settings_language_hausa": "Hausa",
+  "@settings_language_hausa": {
+    "description": "Hausa language display name"
+  },
+
   "map_title": "Map",
   "map_my_position": "My position",
   "map_group_position": "Group position",

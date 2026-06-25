@@ -174,7 +174,15 @@
   "assistant_input_placeholder": "Posez votre question...",
   "assistant_send": "Envoyer",
   "assistant_thinking": "Je réfléchis...",
-  
+
+  "bot_listen": "Écouter",
+  "bot_stop": "Stop",
+  "bot_view_ritual": "Voir le rituel",
+  "bot_input_hint": "Posez une question ou utilisez le micro",
+  "bot_listening": "Écoute en cours...",
+  "bot_language": "Langue de l'assistant",
+  "settings_language_hausa": "Hausa",
+
   "map_title": "Carte",
   "map_my_position": "Ma position",
   "map_group_position": "Position du groupe",

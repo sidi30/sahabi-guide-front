@@ -38,6 +38,7 @@ import 'shared/presentation/pages/splash_wrapper.dart';
 import 'shared/presentation/widgets/main_shell.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';
+import 'l10n/fallback_material_localizations.dart';
 
 // Simple placeholder widget for unimplemented screens
 class PlaceholderScreen extends StatelessWidget {
@@ -406,6 +407,10 @@ class _MyAppState extends ConsumerState<MyApp> {
           darkTheme: _buildDarkTheme(colorScheme),
           localizationsDelegates: const [
             AppLocalizations.delegate,
+            // Repli Material/Widgets/Cupertino en anglais POUR le haoussa (`ha`),
+            // non fourni par flutter_localizations. Placé AVANT les délégués
+            // globaux : pour `ha` il l'emporte, pour fr/en/ar il se désiste.
+            ...haFallbackLocalizationsDelegates,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,

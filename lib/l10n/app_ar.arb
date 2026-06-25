@@ -174,7 +174,15 @@
   "assistant_input_placeholder": "اطرح سؤالك...",
   "assistant_send": "إرسال",
   "assistant_thinking": "أفكر...",
-  
+
+  "bot_listen": "استماع",
+  "bot_stop": "إيقاف",
+  "bot_view_ritual": "عرض المنسك",
+  "bot_input_hint": "اطرح سؤالاً أو استخدم الميكروفون",
+  "bot_listening": "جارٍ الاستماع...",
+  "bot_language": "لغة المساعد",
+  "settings_language_hausa": "الهوسا",
+
   "map_title": "الخريطة",
   "map_my_position": "موقعي",
   "map_group_position": "موقع المجموعة",

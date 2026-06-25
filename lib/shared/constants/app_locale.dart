@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 enum AppLocale {
   en(Locale('en'), 'English'),
   fr(Locale('fr'), 'Français'),
-  ar(Locale('ar'), 'العربية');
+  ar(Locale('ar'), 'العربية'),
+  ha(Locale('ha'), 'Hausa');
 
   final Locale locale;
   final String displayName;

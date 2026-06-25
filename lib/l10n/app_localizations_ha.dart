@@ -4,108 +4,108 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for Hausa (`ha`).
+class AppLocalizationsHa extends AppLocalizations {
+  AppLocalizationsHa([String locale = 'ha']) : super(locale);
 
   @override
   String get appTitle => 'Sahabi Guide';
 
   @override
-  String get common_save => 'Save';
+  String get common_save => 'Ajiye';
 
   @override
-  String get common_cancel => 'Cancel';
+  String get common_cancel => 'Soke';
 
   @override
-  String get common_delete => 'Delete';
+  String get common_delete => 'Share';
 
   @override
-  String get common_edit => 'Edit';
+  String get common_edit => 'Gyara';
 
   @override
-  String get common_add => 'Add';
+  String get common_add => 'Ƙara';
 
   @override
-  String get common_close => 'Close';
+  String get common_close => 'Rufe';
 
   @override
-  String get common_back => 'Back';
+  String get common_back => 'Koma baya';
 
   @override
-  String get common_next => 'Next';
+  String get common_next => 'Na gaba';
 
   @override
-  String get common_previous => 'Previous';
+  String get common_previous => 'Na baya';
 
   @override
-  String get common_loading => 'Loading...';
+  String get common_loading => 'Ana lodi...';
 
   @override
-  String get common_error => 'Error';
+  String get common_error => 'Kuskure';
 
   @override
-  String get common_success => 'Success';
+  String get common_success => 'An yi nasara';
 
   @override
-  String get common_retry => 'Retry';
+  String get common_retry => 'Sake gwadawa';
 
   @override
-  String get common_ok => 'OK';
+  String get common_ok => 'To';
 
   @override
-  String get common_yes => 'Yes';
+  String get common_yes => 'Ee';
 
   @override
-  String get common_no => 'No';
+  String get common_no => 'A\'a';
 
   @override
-  String get nav_home => 'Home';
+  String get nav_home => 'Gida';
 
   @override
-  String get nav_rituals => 'Rituals';
+  String get nav_rituals => 'Ayyukan Hajji';
 
   @override
-  String get nav_map => 'Map';
+  String get nav_map => 'Taswira';
 
   @override
-  String get nav_videos => 'Videos';
+  String get nav_videos => 'Bidiyo';
 
   @override
-  String get nav_profile => 'Profile';
+  String get nav_profile => 'Bayanin ka';
 
   @override
-  String get nav_settings => 'Settings';
+  String get nav_settings => 'Saiti';
 
   @override
-  String get nav_health => 'Health';
+  String get nav_health => 'Lafiya';
 
   @override
-  String get nav_connectivity => 'Connectivity';
+  String get nav_connectivity => 'Haɗin yanar gizo';
 
   @override
-  String get home_greeting_morning => 'Good morning';
+  String get home_greeting_morning => 'Barka da safiya';
 
   @override
-  String get home_greeting_afternoon => 'Good afternoon';
+  String get home_greeting_afternoon => 'Barka da rana';
 
   @override
-  String get home_greeting_evening => 'Good evening';
+  String get home_greeting_evening => 'Barka da yamma';
 
   @override
-  String get home_peace_message => 'Peace be upon you';
+  String get home_peace_message => 'Assalamu alaikum';
 
   @override
-  String get home_prayers_title => 'Today\'s Prayers';
+  String get home_prayers_title => 'Sallolin yau';
 
   @override
-  String get home_current_prayer => 'Current prayer';
+  String get home_current_prayer => 'Sallar yanzu';
 
   @override
-  String get home_next_prayer => 'Next prayer';
+  String get home_next_prayer => 'Sallar gaba';
 
   @override
-  String get home_features_title => 'Features';
+  String get home_features_title => 'Abubuwan da ke ciki';
 
   @override
   String get auth_login_title => 'Login';
@@ -300,70 +300,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contact_category_other => 'Other';
 
   @override
-  String get settings_title => 'Settings';
+  String get settings_title => 'Saiti';
 
   @override
-  String get settings_notifications => 'Notifications';
+  String get settings_notifications => 'Sanarwa';
 
   @override
-  String get settings_notifications_description => 'Manage notifications';
+  String get settings_notifications_description => 'Sarrafa sanarwa';
 
   @override
-  String get settings_language_theme => 'Language & Theme';
+  String get settings_language_theme => 'Harshe da Kamanni';
 
   @override
-  String get settings_language_theme_description => 'Customize interface';
+  String get settings_language_theme_description => 'Daidaita yanayin app';
 
   @override
-  String get settings_privacy => 'Privacy';
+  String get settings_privacy => 'Sirri';
 
   @override
-  String get settings_privacy_description => 'Protect your data';
+  String get settings_privacy_description => 'Kare bayananka';
 
   @override
-  String get settings_help => 'Help';
+  String get settings_help => 'Taimako';
 
   @override
-  String get settings_help_description => 'Help center and FAQ';
+  String get settings_help_description => 'Cibiyar taimako da FAQ';
 
   @override
-  String get settings_contact => 'Contact';
+  String get settings_contact => 'Tuntuɓa';
 
   @override
-  String get settings_contact_description => 'Contact us';
+  String get settings_contact_description => 'Tuntuɓe mu';
 
   @override
-  String get settings_about => 'About';
+  String get settings_about => 'Game da mu';
 
   @override
-  String get settings_about_description => 'Application information';
+  String get settings_about_description => 'Bayani game da app';
 
   @override
-  String get settings_theme_mode => 'Display mode';
+  String get settings_theme_mode => 'Yanayin nuni';
 
   @override
-  String get settings_theme_system => 'System';
+  String get settings_theme_system => 'Na\'ura';
 
   @override
-  String get settings_theme_light => 'Light';
+  String get settings_theme_light => 'Haske';
 
   @override
-  String get settings_theme_dark => 'Dark';
+  String get settings_theme_dark => 'Duhu';
 
   @override
-  String get settings_language => 'Language';
+  String get settings_language => 'Harshe';
 
   @override
-  String get settings_audio_language => 'Audio language';
+  String get settings_audio_language => 'Harshen murya';
 
   @override
-  String get settings_language_french => 'Français';
+  String get settings_language_french => 'Faransanci';
 
   @override
-  String get settings_language_english => 'English';
+  String get settings_language_english => 'Turanci';
 
   @override
-  String get settings_language_arabic => 'العربية';
+  String get settings_language_arabic => 'Larabci';
 
   @override
   String get settings_audio_hausa => 'Hausa';
@@ -444,67 +444,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications_do_not_disturb_disabled => 'Disabled - Normal notifications';
 
   @override
-  String get error_network => 'Connection error';
+  String get error_network => 'Kuskuren haɗin yanar gizo';
 
   @override
-  String get error_server => 'Server error';
+  String get error_server => 'Kuskuren saba';
 
   @override
-  String get error_authentication => 'Authentication error';
+  String get error_authentication => 'Kuskuren shaida';
 
   @override
-  String get error_not_found => 'Resource not found';
+  String get error_not_found => 'Ba a sami abu ba';
 
   @override
-  String get error_unknown => 'Unknown error';
+  String get error_unknown => 'Kuskuren da ba a sani ba';
 
   @override
-  String get splash_loading => 'Loading...';
+  String get splash_loading => 'Ana lodi...';
 
   @override
-  String get splash_skip => 'Skip';
+  String get splash_skip => 'Tsallake';
 
   @override
-  String get splash_welcome => 'Welcome to Sahabi Guide';
+  String get splash_welcome => 'Barka da zuwa Sahabi Guide';
 
   @override
-  String get assistant_title => 'Sahabi Assistant';
+  String get assistant_title => 'Mataimakin Sahabi';
 
   @override
-  String get assistant_greeting => 'Hello! I\'m your Sahabi assistant. How can I help you?';
+  String get assistant_greeting => 'Sannu! Ni ne mataimakin ka na Sahabi. Yaya zan taimaka maka?';
 
   @override
-  String get assistant_input_placeholder => 'Ask your question...';
+  String get assistant_input_placeholder => 'Yi tambaya...';
 
   @override
-  String get assistant_send => 'Send';
+  String get assistant_send => 'Aika';
 
   @override
-  String get assistant_thinking => 'Thinking...';
+  String get assistant_thinking => 'Ina tunani...';
 
   @override
-  String get bot_listen => 'Listen';
+  String get bot_listen => 'Saurara';
 
   @override
-  String get bot_stop => 'Stop';
+  String get bot_stop => 'Tsaya';
 
   @override
-  String get bot_view_ritual => 'View ritual';
+  String get bot_view_ritual => 'Duba aikin';
 
   @override
-  String get bot_input_hint => 'Ask a question or use the mic';
+  String get bot_input_hint => 'Yi tambaya ko danna makirafo';
 
   @override
-  String get bot_listening => 'Listening...';
+  String get bot_listening => 'Ina saurara...';
 
   @override
-  String get bot_language => 'Assistant language';
+  String get bot_language => 'Harshen mataimaki';
 
   @override
   String get settings_language_hausa => 'Hausa';
 
   @override
-  String get map_title => 'Map';
+  String get map_title => 'Taswira';
 
   @override
   String get map_my_position => 'My position';
@@ -525,25 +525,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get map_center => 'Center';
 
   @override
-  String get rituals_title => 'Hajj Rituals';
+  String get rituals_title => 'Ayyukan Hajji';
 
   @override
-  String get rituals_in_progress => 'In progress';
+  String get rituals_in_progress => 'Ana ci gaba';
 
   @override
-  String get rituals_completed => 'Completed';
+  String get rituals_completed => 'An kammala';
 
   @override
-  String get rituals_pending => 'Pending';
+  String get rituals_pending => 'Ana jira';
 
   @override
-  String get rituals_mark_complete => 'Mark as complete';
+  String get rituals_mark_complete => 'Yi alama an kammala';
 
   @override
-  String get rituals_details => 'Ritual details';
+  String get rituals_details => 'Bayanin aiki';
 
   @override
-  String get videos_title => 'Videos';
+  String get videos_title => 'Bidiyo';
 
   @override
   String get videos_educational => 'Educational';
@@ -627,10 +627,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_location => 'Location';
 
   @override
-  String get emergency_title => 'Emergency';
+  String get emergency_title => 'Gaggawa';
 
   @override
-  String get emergency_call => 'Call';
+  String get emergency_call => 'Kira';
 
   @override
   String get emergency_sos => 'SOS';
@@ -642,16 +642,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergency_security => 'Security';
 
   @override
-  String get connectivity_title => 'Connectivity';
+  String get connectivity_title => 'Haɗin yanar gizo';
 
   @override
   String get connectivity_status => 'Status';
 
   @override
-  String get connectivity_connected => 'Connected';
+  String get connectivity_connected => 'An haɗa';
 
   @override
-  String get connectivity_disconnected => 'Disconnected';
+  String get connectivity_disconnected => 'Ba a haɗa ba';
 
   @override
   String get connectivity_esim => 'eSIM';

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_ha.dart';
 
 // ignore_for_file: type=lint
 
@@ -94,7 +95,8 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
     Locale('en'),
-    Locale('fr')
+    Locale('fr'),
+    Locale('ha')
   ];
 
   /// Application title
@@ -1045,6 +1047,48 @@ abstract class AppLocalizations {
   /// **'Thinking...'**
   String get assistant_thinking;
 
+  /// Label for the button that reads a bot message aloud
+  ///
+  /// In en, this message translates to:
+  /// **'Listen'**
+  String get bot_listen;
+
+  /// Label for the button that stops the voice playback
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get bot_stop;
+
+  /// Button that opens the related ritual detail page
+  ///
+  /// In en, this message translates to:
+  /// **'View ritual'**
+  String get bot_view_ritual;
+
+  /// Placeholder of the bot chat text field
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question or use the mic'**
+  String get bot_input_hint;
+
+  /// Placeholder shown while the mic is capturing speech
+  ///
+  /// In en, this message translates to:
+  /// **'Listening...'**
+  String get bot_listening;
+
+  /// Tooltip/label for the assistant language selector
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant language'**
+  String get bot_language;
+
+  /// Hausa language display name
+  ///
+  /// In en, this message translates to:
+  /// **'Hausa'**
+  String get settings_language_hausa;
+
   /// No description provided for @map_title.
   ///
   /// In en, this message translates to:
@@ -1367,7 +1411,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ar', 'en', 'fr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en', 'fr', 'ha'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1381,6 +1425,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
     case 'ar': return AppLocalizationsAr();
     case 'en': return AppLocalizationsEn();
     case 'fr': return AppLocalizationsFr();
+    case 'ha': return AppLocalizationsHa();
   }
 
   throw FlutterError(

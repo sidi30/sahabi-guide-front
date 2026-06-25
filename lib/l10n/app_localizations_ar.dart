@@ -483,6 +483,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assistant_thinking => 'أفكر...';
 
   @override
+  String get bot_listen => 'استماع';
+
+  @override
+  String get bot_stop => 'إيقاف';
+
+  @override
+  String get bot_view_ritual => 'عرض المنسك';
+
+  @override
+  String get bot_input_hint => 'اطرح سؤالاً أو استخدم الميكروفون';
+
+  @override
+  String get bot_listening => 'جارٍ الاستماع...';
+
+  @override
+  String get bot_language => 'لغة المساعد';
+
+  @override
+  String get settings_language_hausa => 'الهوسا';
+
+  @override
   String get map_title => 'الخريطة';
 
   @override

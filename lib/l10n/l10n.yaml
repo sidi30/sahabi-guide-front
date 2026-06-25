@@ -5,7 +5,7 @@ override-to-locale: true
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 synthetic-package: false
-preferred-supported-locales: ["en_US", "fr_FR", "ar_AE"]
+preferred-supported-locales: ["en_US", "fr_FR", "ar_AE", "ha"]
 nullable-getter: false
 format: true
 use-escaping: false
@@ -15,3 +15,4 @@ locale-map:
   en: English
   fr: Français
   ar: العربية
+  ha: Hausa
