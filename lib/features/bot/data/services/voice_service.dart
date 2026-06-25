@@ -400,6 +400,16 @@ class VoiceService {
       final idx = s.indexOf(m);
       if (idx >= 0) s = s.substring(0, idx);
     }
+    // Retire les emojis / icônes (🕋 💡 📿 ✅ ℹ️ …) pour que la voix ne les
+    // prononce PAS ("ampoule", "kaaba"...). On vise les blocs Unicode emoji,
+    // symboles divers, dingbats, drapeaux et sélecteurs de variation.
+    final emoji = RegExp(
+      r'[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{1F1E6}-\u{1F1FF}\u{FE00}-\u{FE0F}\u{2139}\u{20E3}\u{200D}]',
+      unicode: true,
+    );
+    s = s.replaceAll(emoji, '');
+    // Recompacte les espaces laissés par les icônes retirées.
+    s = s.replaceAll(RegExp(r'[ \t]{2,}'), ' ');
     return s.trim();
   }
 
