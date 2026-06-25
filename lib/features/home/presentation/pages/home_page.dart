@@ -434,7 +434,23 @@ class HomePage extends ConsumerWidget {
       child: InkWell(
         onTap: () {
           HapticFeedback.selectionClick();
-          context.go(item['route']);
+          final route = item['route'] as String;
+          // Pages de détail (drill-down depuis l'accueil) : push() pour
+          // obtenir une flèche retour automatique. Les routes-onglets de la
+          // bottom nav (rituels, carte…) restent en go() (remplacement).
+          const detailRoutes = {
+            '/health',
+            '/connectivity',
+            '/profile',
+            '/rituals/duas',
+            '/dhikr',
+            '/bot',
+          };
+          if (detailRoutes.contains(route)) {
+            context.push(route);
+          } else {
+            context.go(route);
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
