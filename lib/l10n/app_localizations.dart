@@ -1089,6 +1089,156 @@ abstract class AppLocalizations {
   /// **'Hausa'**
   String get settings_language_hausa;
 
+  /// Header above the quick-reply chips in the bot chat
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested replies'**
+  String get bot_suggested_replies;
+
+  /// Subtle banner shown while the chat history is being translated after a language switch
+  ///
+  /// In en, this message translates to:
+  /// **'Translating the conversation...'**
+  String get bot_translating;
+
+  /// Quick reply: ask another question
+  ///
+  /// In en, this message translates to:
+  /// **'Another question'**
+  String get qr_other_question;
+
+  /// Quick reply: continue the conversation
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get qr_continue;
+
+  /// Quick reply: acknowledge a help message
+  ///
+  /// In en, this message translates to:
+  /// **'Understood'**
+  String get qr_understood;
+
+  /// Quick reply: retry after a service error
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get qr_retry;
+
+  /// Quick reply: praise at the end of the Hajj flow
+  ///
+  /// In en, this message translates to:
+  /// **'Alhamdulillah'**
+  String get qr_alhamdulillah;
+
+  /// Quick reply: restart the conversation from the beginning
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get qr_restart;
+
+  /// Notification title when a ritual is due to start
+  ///
+  /// In en, this message translates to:
+  /// **'Hajj Ritual'**
+  String get notif_ritual_title;
+
+  /// Notification body when a ritual is due
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time to begin: {name}'**
+  String notif_ritual_start_body(String name);
+
+  /// Notification title for the 30-minute-before reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder - Hajj Ritual'**
+  String get notif_ritual_reminder_title;
+
+  /// Notification body for the 30-minute-before reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Get ready for: {name} in 30 minutes'**
+  String notif_ritual_reminder_body(String name);
+
+  /// Notification title when a ritual is overdue
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue ritual'**
+  String get notif_ritual_overdue_title;
+
+  /// Notification body when a ritual is overdue
+  ///
+  /// In en, this message translates to:
+  /// **'You missed: {name}. Mark it as done if completed.'**
+  String notif_ritual_overdue_body(String name);
+
+  /// Immediate notification title when a ritual is active
+  ///
+  /// In en, this message translates to:
+  /// **'Active ritual'**
+  String get notif_ritual_active_title;
+
+  /// Immediate notification body when a ritual is active
+  ///
+  /// In en, this message translates to:
+  /// **'You are performing: {name}'**
+  String notif_ritual_active_body(String name);
+
+  /// Title of the proactive reminder scheduled after a ritual step's estimated duration
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder: {name}'**
+  String notif_ritual_step_reminder_title(String name);
+
+  /// Body of the proactive reminder scheduled after a ritual step's estimated duration
+  ///
+  /// In en, this message translates to:
+  /// **'{name} - Have you completed this ritual? Open the assistant to confirm.'**
+  String notif_ritual_step_reminder_body(String name);
+
+  /// Notification title for daily prayer reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer time'**
+  String get notif_prayer_title;
+
+  /// Notification body for daily prayer reminders
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — {time}. Have you prayed?'**
+  String notif_prayer_body(String name, String time);
+
+  /// Notification title for the morning dua reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Morning dua'**
+  String get notif_dua_morning_title;
+
+  /// Notification title for the evening dua reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Evening dua'**
+  String get notif_dua_evening_title;
+
+  /// Notification body for daily dua reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to recite: {name}'**
+  String notif_dua_body(String name);
+
+  /// Immediate notification title for a recommended dua
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended dua'**
+  String get notif_dua_recommended_title;
+
+  /// Immediate notification body for a recommended dua
+  ///
+  /// In en, this message translates to:
+  /// **'Recite now: {name}'**
+  String notif_dua_recommended_body(String name);
+
   /// No description provided for @map_title.
   ///
   /// In en, this message translates to:

@@ -11,6 +11,15 @@ class BotMessageModel {
   final String? relatedRitualId;
   final Map<String, dynamic>? metadata;
 
+  /// Texte tel que produit la PREMIÈRE fois (langue d'origine). Sert de SOURCE
+  /// pour la traduction au changement de langue : on traduit toujours depuis
+  /// [originalContent] -> nouvelle langue (jamais la traduction d'une
+  /// traduction), pour qu'un re-switch reste fidèle. `null` => égal à [content].
+  final String? originalContent;
+
+  /// Code 2 lettres (`fr|en|ar|ha`) de la langue de [originalContent].
+  final String? originalLang;
+
   const BotMessageModel({
     required this.id,
     required this.content,
@@ -21,7 +30,12 @@ class BotMessageModel {
     this.relatedStepId,
     this.relatedRitualId,
     this.metadata,
+    this.originalContent,
+    this.originalLang,
   });
+
+  /// Texte source pour la traduction (retombe sur [content] si non renseigné).
+  String get sourceContent => originalContent ?? content;
 
   // Factory constructeur pour message du bot
   factory BotMessageModel.bot({
@@ -31,6 +45,8 @@ class BotMessageModel {
     List<String>? quickReplies,
     String? relatedStepId,
     String? relatedRitualId,
+    String? originalContent,
+    String? originalLang,
   }) {
     return BotMessageModel(
       id: id,
@@ -41,6 +57,8 @@ class BotMessageModel {
       quickReplies: quickReplies,
       relatedStepId: relatedStepId,
       relatedRitualId: relatedRitualId,
+      originalContent: originalContent ?? content,
+      originalLang: originalLang,
     );
   }
 
@@ -48,12 +66,16 @@ class BotMessageModel {
   factory BotMessageModel.user({
     required String id,
     required String content,
+    String? originalContent,
+    String? originalLang,
   }) {
     return BotMessageModel(
       id: id,
       content: content,
       isBot: false,
       timestamp: DateTime.now(),
+      originalContent: originalContent ?? content,
+      originalLang: originalLang,
     );
   }
 
@@ -68,6 +90,8 @@ class BotMessageModel {
     String? relatedStepId,
     String? relatedRitualId,
     Map<String, dynamic>? metadata,
+    String? originalContent,
+    String? originalLang,
   }) {
     return BotMessageModel(
       id: id ?? this.id,
@@ -79,7 +103,8 @@ class BotMessageModel {
       relatedStepId: relatedStepId ?? this.relatedStepId,
       relatedRitualId: relatedRitualId ?? this.relatedRitualId,
       metadata: metadata ?? this.metadata,
+      originalContent: originalContent ?? this.originalContent,
+      originalLang: originalLang ?? this.originalLang,
     );
   }
 }
-

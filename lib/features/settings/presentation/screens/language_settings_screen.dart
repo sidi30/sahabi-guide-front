@@ -4,6 +4,7 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/constants/app_locale.dart';
+import '../../../home/presentation/pages/home_page.dart' show prayerScheduleProvider;
 import '../providers/settings_provider.dart';
 
 class LanguageSettingsScreen extends ConsumerWidget {
@@ -132,6 +133,11 @@ class LanguageSettingsScreen extends ConsumerWidget {
             await ref
                 .read(settingsProvider.notifier)
                 .setAudioLanguage(AudioLanguage.fromCode(appLocale.code));
+
+            // Re-planifie les notifications de prière dans la nouvelle langue :
+            // invalider le provider force un re-fetch du planning qui rappelle
+            // schedulePrayerNotifications (lequel lit la langue persistée).
+            ref.invalidate(prayerScheduleProvider);
 
             // Afficher un message de confirmation
             if (context.mounted) {

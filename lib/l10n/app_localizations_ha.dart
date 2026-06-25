@@ -504,6 +504,99 @@ class AppLocalizationsHa extends AppLocalizations {
   String get settings_language_hausa => 'Hausa';
 
   @override
+  String get bot_suggested_replies => 'Amsoshin da aka ba da shawara';
+
+  @override
+  String get bot_translating => 'Ana fassara tattaunawar...';
+
+  @override
+  String get qr_other_question => 'Wata tambaya';
+
+  @override
+  String get qr_continue => 'Ci gaba';
+
+  @override
+  String get qr_understood => 'Na gane';
+
+  @override
+  String get qr_retry => 'Sake gwadawa';
+
+  @override
+  String get qr_alhamdulillah => 'Alhamdulillah';
+
+  @override
+  String get qr_restart => 'Sake farawa';
+
+  @override
+  String get notif_ritual_title => 'Aikin Hajji';
+
+  @override
+  String notif_ritual_start_body(String name) {
+    return 'Lokaci ya yi da za a fara: $name';
+  }
+
+  @override
+  String get notif_ritual_reminder_title => 'Tunatarwa - Aikin Hajji';
+
+  @override
+  String notif_ritual_reminder_body(String name) {
+    return 'Ka shirya don: $name cikin minti 30';
+  }
+
+  @override
+  String get notif_ritual_overdue_title => 'Aikin da ya wuce lokaci';
+
+  @override
+  String notif_ritual_overdue_body(String name) {
+    return 'Ka rasa: $name. Yi masa alama an kammala idan ka yi shi.';
+  }
+
+  @override
+  String get notif_ritual_active_title => 'Aikin da ake yi';
+
+  @override
+  String notif_ritual_active_body(String name) {
+    return 'Kana yin: $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_title(String name) {
+    return 'Tunatarwa: $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_body(String name) {
+    return '$name - Ka kammala wannan aikin? Buɗe mataimaki don tabbatarwa.';
+  }
+
+  @override
+  String get notif_prayer_title => 'Lokacin sallah';
+
+  @override
+  String notif_prayer_body(String name, String time) {
+    return '$name — $time. Ka yi sallah?';
+  }
+
+  @override
+  String get notif_dua_morning_title => 'Addu\'ar safiya';
+
+  @override
+  String get notif_dua_evening_title => 'Addu\'ar yamma';
+
+  @override
+  String notif_dua_body(String name) {
+    return 'Kada ka manta ka karanta: $name';
+  }
+
+  @override
+  String get notif_dua_recommended_title => 'Addu\'ar da aka ba da shawara';
+
+  @override
+  String notif_dua_recommended_body(String name) {
+    return 'Karanta yanzu: $name';
+  }
+
+  @override
   String get map_title => 'Taswira';
 
   @override

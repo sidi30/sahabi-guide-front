@@ -504,6 +504,99 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settings_language_hausa => 'الهوسا';
 
   @override
+  String get bot_suggested_replies => 'ردود مقترحة';
+
+  @override
+  String get bot_translating => 'جارٍ ترجمة المحادثة...';
+
+  @override
+  String get qr_other_question => 'سؤال آخر';
+
+  @override
+  String get qr_continue => 'متابعة';
+
+  @override
+  String get qr_understood => 'فهمت';
+
+  @override
+  String get qr_retry => 'إعادة المحاولة';
+
+  @override
+  String get qr_alhamdulillah => 'الحمد لله';
+
+  @override
+  String get qr_restart => 'إعادة البدء';
+
+  @override
+  String get notif_ritual_title => 'شعيرة الحج';
+
+  @override
+  String notif_ritual_start_body(String name) {
+    return 'حان وقت البدء: $name';
+  }
+
+  @override
+  String get notif_ritual_reminder_title => 'تذكير - شعيرة الحج';
+
+  @override
+  String notif_ritual_reminder_body(String name) {
+    return 'استعدّ لـ: $name خلال 30 دقيقة';
+  }
+
+  @override
+  String get notif_ritual_overdue_title => 'شعيرة متأخرة';
+
+  @override
+  String notif_ritual_overdue_body(String name) {
+    return 'فاتتك: $name. ضع علامة مكتمل إن أديتها.';
+  }
+
+  @override
+  String get notif_ritual_active_title => 'شعيرة جارية';
+
+  @override
+  String notif_ritual_active_body(String name) {
+    return 'أنت تؤدي الآن: $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_title(String name) {
+    return 'تذكير: $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_body(String name) {
+    return '$name - هل أتممت هذه الشعيرة؟ افتح المساعد للتأكيد.';
+  }
+
+  @override
+  String get notif_prayer_title => 'وقت الصلاة';
+
+  @override
+  String notif_prayer_body(String name, String time) {
+    return '$name — $time. هل صلّيت؟';
+  }
+
+  @override
+  String get notif_dua_morning_title => 'دعاء الصباح';
+
+  @override
+  String get notif_dua_evening_title => 'دعاء المساء';
+
+  @override
+  String notif_dua_body(String name) {
+    return 'لا تنسَ أن تقرأ: $name';
+  }
+
+  @override
+  String get notif_dua_recommended_title => 'دعاء موصى به';
+
+  @override
+  String notif_dua_recommended_body(String name) {
+    return 'اقرأ الآن: $name';
+  }
+
+  @override
   String get map_title => 'الخريطة';
 
   @override

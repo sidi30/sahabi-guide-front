@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sahabi_guide/core/providers/language_provider.dart';
 import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
+import 'package:sahabi_guide/features/home/presentation/pages/home_page.dart'
+    show prayerScheduleProvider;
 import 'package:sahabi_guide/l10n/app_localizations.dart';
 import '../providers/bot_provider.dart';
 import '../widgets/bot_message_bubble.dart';
@@ -143,6 +145,16 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     ref.listen(botChatProvider, (previous, next) {
       if (previous?.messages.length != next.messages.length) {
         _maybeAutoSpeak(next);
+      }
+    });
+
+    // Source de vérité unique : quand la langue change (sélecteur AppBar ou
+    // écran Paramètres), on traduit l'historique du chat existant vers la
+    // nouvelle langue. Les langues « audio-only » ne changent pas la locale
+    // d'interface, donc ce listener ne se déclenche que pour fr/en/ar/ha.
+    ref.listen(languageCodeProvider, (previous, next) {
+      if (previous != null && previous != next) {
+        ref.read(botChatProvider.notifier).translateHistoryTo(next);
       }
     });
 
@@ -415,7 +427,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       children: [
         // Badge de progression
         if (state.conversationStarted) _buildProgressBadge(state),
-        
+
+        // Indicateur discret de traduction de l'historique (changement de langue)
+        if (state.isTranslating) _buildTranslatingBanner(),
+
         // Messages
         Expanded(
           child: state.messages.isEmpty
@@ -454,6 +469,37 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         // Zone de saisie
         _buildInputArea(state),
       ],
+    );
+  }
+
+  Widget _buildTranslatingBanner() {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: const Color(0xFF06D6A0).withValues(alpha: 0.08),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D3557)),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            l10n.bot_translating,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1D3557),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -536,7 +582,9 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () => ref.read(botChatProvider.notifier).startConversation(),
+            onPressed: () => ref
+                .read(botChatProvider.notifier)
+                .startConversation(locale: _currentLang),
             icon: const Icon(Icons.play_arrow_rounded),
             label: const Text('Commencer'),
             style: ElevatedButton.styleFrom(
@@ -606,7 +654,12 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
     return QuickReplyList(
       replies: lastMessage.quickReplies!,
-      onReplySelected: (reply) => ref.read(botChatProvider.notifier).sendAnswer(reply),
+      // `reply` est la valeur ENVOYÉE au bot : pour une clé fixe (`qr:*`) c'est
+      // déjà le libellé FR canonique mappé dans QuickReplyList ; pour une
+      // réponse dynamique c'est la valeur brute. On suit la langue courante.
+      onReplySelected: (reply) => ref
+          .read(botChatProvider.notifier)
+          .sendAnswer(reply, locale: _currentLang),
       isEnabled: !state.isTyping,
     );
   }
@@ -962,6 +1015,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       await ref
           .read(settingsProvider.notifier)
           .setAudioLanguage(AudioLanguage.fromCode(code));
+      // Re-planifie les notifications de prière dans la nouvelle langue.
+      ref.invalidate(prayerScheduleProvider);
     } else {
       // Langue audio-only : réponse + voix seulement, on laisse l'UI inchangée.
       setState(() => _audioOnlyLangOverride = code);
@@ -1059,7 +1114,9 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     );
 
     if (confirmed == true) {
-      await ref.read(botChatProvider.notifier).restartConversation();
+      await ref
+          .read(botChatProvider.notifier)
+          .restartConversation(locale: _currentLang);
     }
   }
 

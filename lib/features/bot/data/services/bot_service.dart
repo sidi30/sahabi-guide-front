@@ -1,9 +1,11 @@
 import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
+import 'package:sahabi_guide/core/localization/notification_l10n.dart';
 import '../models/bot_message_model.dart';
 import '../models/hajj_step_model.dart';
 import '../models/ritual_context_model.dart';
 import 'hajj_chat_api.dart';
+import '../../presentation/widgets/quick_reply_keys.dart';
 import 'knowledge_base_service.dart';
 import 'context_service.dart';
 import 'notification_service.dart';
@@ -139,6 +141,7 @@ class BotService {
       id: uuid.v4(),
       content: welcomeContent,
       contentAr: 'السلام عليكم! أنا مساعدك الشخصي للحج.',
+      originalLang: 'fr',
     );
     
     _messageHistory.add(welcomeMessage);
@@ -195,6 +198,10 @@ class BotService {
       quickReplies: _currentStep!.quickReplies,
       relatedStepId: _currentStep!.id,
       relatedRitualId: _currentStep!.relatedRitualId,
+      // Le corps de la question est en FR (ou en AR si locale=='ar') ; les
+      // enrichissements ajoutés restent FR. On marque la langue d'origine pour
+      // permettre la traduction fidèle au changement de langue.
+      originalLang: locale == 'ar' ? 'ar' : 'fr',
     );
     
     _messageHistory.add(message);
@@ -239,6 +246,7 @@ class BotService {
     final userMessage = BotMessageModel.user(
       id: uuid.v4(),
       content: answer,
+      originalLang: locale,
     );
     _messageHistory.add(userMessage);
     await _saveMessage(userMessage);
@@ -272,10 +280,12 @@ class BotService {
     // Schedule proactive reminder after estimated ritual duration
     final estimatedMinutes = _ritualEstimatedMinutes[_currentStep!.id] ?? 120;
     if (notificationService != null) {
+      // Corps du rappel localisé dans la langue courante (context-free).
+      final l10n = await NotificationL10n.loadForCode(locale);
       await notificationService!.scheduleRitualReminder(
         stepName: _currentStep!.name,
         delayMinutes: estimatedMinutes,
-        message: '${_currentStep!.name} - Avez-vous terminé ce rituel ? Ouvrez l\'assistant pour confirmer.',
+        message: l10n.notif_ritual_step_reminder_body(_currentStep!.name),
       );
     }
 
@@ -300,7 +310,8 @@ class BotService {
     final helpMessage = BotMessageModel.bot(
       id: uuid.v4(),
       content: helpContent,
-      quickReplies: ['Compris', 'Autre question'],
+      quickReplies: [QuickReplyKeys.understood, QuickReplyKeys.otherQuestion],
+      originalLang: 'fr',
     );
     
     _messageHistory.add(helpMessage);
@@ -313,6 +324,7 @@ class BotService {
     final userMessage = BotMessageModel.user(
       id: uuid.v4(),
       content: query,
+      originalLang: language,
     );
     _messageHistory.add(userMessage);
     await _saveMessage(userMessage);
@@ -329,8 +341,9 @@ class BotService {
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,
-          quickReplies: ['Autre question', 'Continuer'],
+          quickReplies: [QuickReplyKeys.otherQuestion, QuickReplyKeys.continue_],
           relatedRitualId: ritualId,
+          originalLang: language,
         );
         _messageHistory.add(message);
         await _saveMessage(message);
@@ -344,7 +357,8 @@ class BotService {
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: _getServiceUnavailableMessage(language),
-          quickReplies: ['Réessayer', 'Continuer'],
+          quickReplies: [QuickReplyKeys.retry, QuickReplyKeys.continue_],
+          originalLang: language == 'ha' ? 'ha' : 'fr',
         );
         _messageHistory.add(message);
         await _saveMessage(message);
@@ -397,9 +411,10 @@ class BotService {
     final message = BotMessageModel.bot(
       id: uuid.v4(),
       content: content,
-      quickReplies: ['Autre question', 'Continuer'],
+      quickReplies: [QuickReplyKeys.otherQuestion, QuickReplyKeys.continue_],
+      originalLang: 'fr',
     );
-    
+
     _messageHistory.add(message);
     await _saveMessage(message);
     return message;
@@ -434,7 +449,8 @@ class BotService {
                'N\'hésitez pas à revenir si vous avez des questions. 🤲',
       contentAr: '🎉 ماشاء الله! لقد أتممت جميع خطوات الحج!\n\n'
                  '✨ حج مبرور وسعي مشكور!',
-      quickReplies: ['Alhamdulillah', 'Recommencer'],
+      quickReplies: [QuickReplyKeys.alhamdulillah, QuickReplyKeys.restart],
+      originalLang: 'fr',
     );
     
     _messageHistory.add(endMessage);

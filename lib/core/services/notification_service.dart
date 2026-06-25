@@ -5,6 +5,8 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import '../../shared/models/ritual_model.dart';
 import '../../shared/models/dua_model.dart';
+import '../../l10n/app_localizations.dart';
+import '../localization/notification_l10n.dart';
 import 'prayer_times_service.dart';
 
 class NotificationService extends ChangeNotifier {
@@ -88,6 +90,9 @@ class NotificationService extends ChangeNotifier {
   /// prayer notifications (id range 3000-3099) before scheduling.
   /// Each prayer becomes a daily recurring notification at its time.
   Future<void> schedulePrayerNotifications(DailyPrayerSchedule schedule) async {
+    // Localise dans la langue persistée (source : languageProvider).
+    final l10n = await NotificationL10n.load();
+
     // Cancel existing prayer notifs first
     for (int id = 3000; id < 3100; id++) {
       await _notifications.cancel(id);
@@ -122,8 +127,8 @@ class NotificationService extends ChangeNotifier {
       try {
         await _notifications.zonedSchedule(
           id,
-          'Heure de la prière',
-          '${p.displayName} — ${p.formattedTime}. Aurez-vous prié ?',
+          l10n.notif_prayer_title,
+          l10n.notif_prayer_body(p.displayName, p.formattedTime),
           tz.TZDateTime.from(scheduled, tz.local),
           details,
           payload: 'prayer:${p.name}',
@@ -142,23 +147,25 @@ class NotificationService extends ChangeNotifier {
 
   // Schedule ritual notifications
   Future<void> scheduleRitualNotifications(List<RitualModel> rituals) async {
+    final l10n = await NotificationL10n.load();
     await _clearAllNotifications();
 
     for (final ritual in rituals) {
       if (ritual.scheduledTime != null && ritual.status != RitualStatus.completed) {
-        await _scheduleRitualNotification(ritual);
+        await _scheduleRitualNotification(ritual, l10n);
       }
     }
   }
 
-  Future<void> _scheduleRitualNotification(RitualModel ritual) async {
+  Future<void> _scheduleRitualNotification(
+      RitualModel ritual, AppLocalizations l10n) async {
     final scheduledTime = ritual.scheduledTime!;
-    
+
     // Schedule main notification
     await _scheduleNotification(
       id: ritual.order,
-      title: 'Rituel du Hadj',
-      body: 'Il est temps de commencer: ${ritual.name}',
+      title: l10n.notif_ritual_title,
+      body: l10n.notif_ritual_start_body(ritual.name),
       scheduledTime: scheduledTime,
       payload: 'ritual:${ritual.id}',
     );
@@ -168,8 +175,8 @@ class NotificationService extends ChangeNotifier {
     if (reminderTime.isAfter(DateTime.now())) {
       await _scheduleNotification(
         id: ritual.order + 1000, // Different ID for reminder
-        title: 'Rappel - Rituel du Hadj',
-        body: 'Préparez-vous pour: ${ritual.name} dans 30 minutes',
+        title: l10n.notif_ritual_reminder_title,
+        body: l10n.notif_ritual_reminder_body(ritual.name),
         scheduledTime: reminderTime,
         payload: 'ritual_reminder:${ritual.id}',
       );
@@ -179,8 +186,8 @@ class NotificationService extends ChangeNotifier {
     final overdueTime = scheduledTime.add(const Duration(hours: 1));
     await _scheduleNotification(
       id: ritual.order + 2000, // Different ID for overdue
-      title: 'Rituel en retard',
-      body: 'Vous avez manqué: ${ritual.name}. Marquez-le comme terminé si effectué.',
+      title: l10n.notif_ritual_overdue_title,
+      body: l10n.notif_ritual_overdue_body(ritual.name),
       scheduledTime: overdueTime,
       payload: 'ritual_overdue:${ritual.id}',
     );
@@ -188,24 +195,26 @@ class NotificationService extends ChangeNotifier {
 
   // Schedule dua notifications
   Future<void> scheduleDuaNotifications(List<DuaModel> duas) async {
+    final l10n = await NotificationL10n.load();
     for (final dua in duas) {
       if (dua.type == DuaType.daily && dua.isActive) {
-        await _scheduleDailyDuaNotification(dua);
+        await _scheduleDailyDuaNotification(dua, l10n);
       }
     }
   }
 
-  Future<void> _scheduleDailyDuaNotification(DuaModel dua) async {
+  Future<void> _scheduleDailyDuaNotification(
+      DuaModel dua, AppLocalizations l10n) async {
     // Schedule for morning (6 AM) and evening (6 PM)
     final now = DateTime.now();
-    
+
     // Morning notification
     final morningTime = DateTime(now.year, now.month, now.day, 6, 0);
     if (morningTime.isAfter(now)) {
       await _scheduleNotification(
         id: dua.hashCode,
-        title: 'Doua du matin',
-        body: 'N\'oubliez pas de réciter: ${dua.title}',
+        title: l10n.notif_dua_morning_title,
+        body: l10n.notif_dua_body(dua.title),
         scheduledTime: morningTime,
         payload: 'dua:${dua.id}',
       );
@@ -216,8 +225,8 @@ class NotificationService extends ChangeNotifier {
     if (eveningTime.isAfter(now)) {
       await _scheduleNotification(
         id: dua.hashCode + 1,
-        title: 'Doua du soir',
-        body: 'N\'oubliez pas de réciter: ${dua.title}',
+        title: l10n.notif_dua_evening_title,
+        body: l10n.notif_dua_body(dua.title),
         scheduledTime: eveningTime,
         payload: 'dua:${dua.id}',
       );
@@ -275,19 +284,21 @@ class NotificationService extends ChangeNotifier {
 
   // Immediate notifications
   Future<void> showRitualReminder(RitualModel ritual) async {
+    final l10n = await NotificationL10n.load();
     await _showNotification(
       id: ritual.order,
-      title: 'Rituel actif',
-      body: 'Vous êtes en train d\'effectuer: ${ritual.name}',
+      title: l10n.notif_ritual_active_title,
+      body: l10n.notif_ritual_active_body(ritual.name),
       payload: 'ritual_active:${ritual.id}',
     );
   }
 
   Future<void> showDuaReminder(DuaModel dua) async {
+    final l10n = await NotificationL10n.load();
     await _showNotification(
       id: dua.hashCode,
-      title: 'Doua recommandée',
-      body: 'Récitez maintenant: ${dua.title}',
+      title: l10n.notif_dua_recommended_title,
+      body: l10n.notif_dua_recommended_body(dua.title),
       payload: 'dua_recommended:${dua.id}',
     );
   }
@@ -339,6 +350,19 @@ class NotificationService extends ChangeNotifier {
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
+  }
+
+  /// Re-planifie les notifications de prière (récurrentes quotidiennes) dans la
+  /// langue ACTUELLEMENT persistée. À appeler après un changement de langue pour
+  /// que les prochaines notifications de prière soient affichées dans la
+  /// nouvelle langue. Les rappels de rituels/duas, eux, sont re-planifiés à leur
+  /// prochaine programmation (et utilisent déjà la langue courante).
+  ///
+  /// `schedulePrayerNotifications` annule d'abord les anciennes (id 3000-3099),
+  /// donc rappeler avec le même horaire ne crée pas de doublon.
+  Future<void> reschedulePrayerNotifications(
+      DailyPrayerSchedule schedule) async {
+    await schedulePrayerNotifications(schedule);
   }
 
   Future<void> requestPermissions() async {

@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:logger/logger.dart';
+import 'package:sahabi_guide/core/localization/notification_l10n.dart';
 import 'context_service.dart';
 
 /// Service de notifications locales pour le bot Hajj
@@ -339,10 +340,11 @@ class NotificationService {
     }
 
     try {
+      final l10n = await NotificationL10n.load();
       final scheduledTime = DateTime.now().add(Duration(minutes: delayMinutes));
       await scheduleNotification(
         id: DateTime.now().millisecondsSinceEpoch % 100000,
-        title: '🕋 Rappel : $stepName',
+        title: '🕋 ${l10n.notif_ritual_step_reminder_title(stepName)}',
         body: message,
         scheduledTime: scheduledTime,
         payload: 'ritual_reminder:$stepName',

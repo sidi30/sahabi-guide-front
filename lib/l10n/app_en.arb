@@ -204,6 +204,118 @@
     "description": "Hausa language display name"
   },
 
+  "bot_suggested_replies": "Suggested replies",
+  "@bot_suggested_replies": {
+    "description": "Header above the quick-reply chips in the bot chat"
+  },
+  "bot_translating": "Translating the conversation...",
+  "@bot_translating": {
+    "description": "Subtle banner shown while the chat history is being translated after a language switch"
+  },
+
+  "qr_other_question": "Another question",
+  "@qr_other_question": {
+    "description": "Quick reply: ask another question"
+  },
+  "qr_continue": "Continue",
+  "@qr_continue": {
+    "description": "Quick reply: continue the conversation"
+  },
+  "qr_understood": "Understood",
+  "@qr_understood": {
+    "description": "Quick reply: acknowledge a help message"
+  },
+  "qr_retry": "Retry",
+  "@qr_retry": {
+    "description": "Quick reply: retry after a service error"
+  },
+  "qr_alhamdulillah": "Alhamdulillah",
+  "@qr_alhamdulillah": {
+    "description": "Quick reply: praise at the end of the Hajj flow"
+  },
+  "qr_restart": "Restart",
+  "@qr_restart": {
+    "description": "Quick reply: restart the conversation from the beginning"
+  },
+
+  "notif_ritual_title": "Hajj Ritual",
+  "@notif_ritual_title": {
+    "description": "Notification title when a ritual is due to start"
+  },
+  "notif_ritual_start_body": "It's time to begin: {name}",
+  "@notif_ritual_start_body": {
+    "description": "Notification body when a ritual is due",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_ritual_reminder_title": "Reminder - Hajj Ritual",
+  "@notif_ritual_reminder_title": {
+    "description": "Notification title for the 30-minute-before reminder"
+  },
+  "notif_ritual_reminder_body": "Get ready for: {name} in 30 minutes",
+  "@notif_ritual_reminder_body": {
+    "description": "Notification body for the 30-minute-before reminder",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_ritual_overdue_title": "Overdue ritual",
+  "@notif_ritual_overdue_title": {
+    "description": "Notification title when a ritual is overdue"
+  },
+  "notif_ritual_overdue_body": "You missed: {name}. Mark it as done if completed.",
+  "@notif_ritual_overdue_body": {
+    "description": "Notification body when a ritual is overdue",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_ritual_active_title": "Active ritual",
+  "@notif_ritual_active_title": {
+    "description": "Immediate notification title when a ritual is active"
+  },
+  "notif_ritual_active_body": "You are performing: {name}",
+  "@notif_ritual_active_body": {
+    "description": "Immediate notification body when a ritual is active",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_ritual_step_reminder_title": "Reminder: {name}",
+  "@notif_ritual_step_reminder_title": {
+    "description": "Title of the proactive reminder scheduled after a ritual step's estimated duration",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_ritual_step_reminder_body": "{name} - Have you completed this ritual? Open the assistant to confirm.",
+  "@notif_ritual_step_reminder_body": {
+    "description": "Body of the proactive reminder scheduled after a ritual step's estimated duration",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_prayer_title": "Prayer time",
+  "@notif_prayer_title": {
+    "description": "Notification title for daily prayer reminders"
+  },
+  "notif_prayer_body": "{name} — {time}. Have you prayed?",
+  "@notif_prayer_body": {
+    "description": "Notification body for daily prayer reminders",
+    "placeholders": { "name": { "type": "String" }, "time": { "type": "String" } }
+  },
+  "notif_dua_morning_title": "Morning dua",
+  "@notif_dua_morning_title": {
+    "description": "Notification title for the morning dua reminder"
+  },
+  "notif_dua_evening_title": "Evening dua",
+  "@notif_dua_evening_title": {
+    "description": "Notification title for the evening dua reminder"
+  },
+  "notif_dua_body": "Don't forget to recite: {name}",
+  "@notif_dua_body": {
+    "description": "Notification body for daily dua reminders",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notif_dua_recommended_title": "Recommended dua",
+  "@notif_dua_recommended_title": {
+    "description": "Immediate notification title for a recommended dua"
+  },
+  "notif_dua_recommended_body": "Recite now: {name}",
+  "@notif_dua_recommended_body": {
+    "description": "Immediate notification body for a recommended dua",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
   "map_title": "Map",
   "map_my_position": "My position",
   "map_group_position": "Group position",

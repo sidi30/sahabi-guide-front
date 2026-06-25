@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
+import 'quick_reply_keys.dart';
 
 /// Chip pour les réponses rapides
 class QuickReplyChip extends StatelessWidget {
@@ -42,7 +44,15 @@ class QuickReplyChip extends StatelessWidget {
   }
 }
 
-/// Liste de boutons de réponse rapide
+/// Liste de boutons de réponse rapide.
+///
+/// Chaque entrée de [replies] est soit :
+///   - une CLÉ FIXE `qr:*` (vocabulaire fixe) -> affichée localisée via l10n,
+///     et la réponse ENVOYÉE est le libellé FR canonique (le matching du bot
+///     est basé sur le FR). Le libellé se met à jour automatiquement avec la
+///     locale (re-render).
+///   - une valeur DYNAMIQUE (issue des données d'étape) -> affichée et envoyée
+///     telle quelle.
 class QuickReplyList extends StatelessWidget {
   final List<String> replies;
   final Function(String) onReplySelected;
@@ -61,6 +71,8 @@ class QuickReplyList extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -77,9 +89,9 @@ class QuickReplyList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Réponses suggérées',
-            style: TextStyle(
+          Text(
+            l10n.bot_suggested_replies,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.grey,
@@ -90,13 +102,17 @@ class QuickReplyList extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: replies
-                  .map((reply) => QuickReplyChip(
-                        text: reply,
-                        onTap: () => onReplySelected(reply),
-                        isEnabled: isEnabled,
-                      ))
-                  .toList(),
+              children: replies.map((reply) {
+                // Clé fixe -> libellé localisé + envoi du FR canonique.
+                final label = QuickReplyKeys.localizedLabel(l10n, reply);
+                final sendValue =
+                    QuickReplyKeys.canonicalFr(reply) ?? reply;
+                return QuickReplyChip(
+                  text: label ?? reply,
+                  onTap: () => onReplySelected(sendValue),
+                  isEnabled: isEnabled,
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -104,5 +120,3 @@ class QuickReplyList extends StatelessWidget {
     );
   }
 }
-
-

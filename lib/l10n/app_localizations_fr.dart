@@ -504,6 +504,99 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_language_hausa => 'Hausa';
 
   @override
+  String get bot_suggested_replies => 'Réponses suggérées';
+
+  @override
+  String get bot_translating => 'Traduction de la conversation...';
+
+  @override
+  String get qr_other_question => 'Autre question';
+
+  @override
+  String get qr_continue => 'Continuer';
+
+  @override
+  String get qr_understood => 'Compris';
+
+  @override
+  String get qr_retry => 'Réessayer';
+
+  @override
+  String get qr_alhamdulillah => 'Alhamdulillah';
+
+  @override
+  String get qr_restart => 'Recommencer';
+
+  @override
+  String get notif_ritual_title => 'Rituel du Hadj';
+
+  @override
+  String notif_ritual_start_body(String name) {
+    return 'Il est temps de commencer : $name';
+  }
+
+  @override
+  String get notif_ritual_reminder_title => 'Rappel - Rituel du Hadj';
+
+  @override
+  String notif_ritual_reminder_body(String name) {
+    return 'Préparez-vous pour : $name dans 30 minutes';
+  }
+
+  @override
+  String get notif_ritual_overdue_title => 'Rituel en retard';
+
+  @override
+  String notif_ritual_overdue_body(String name) {
+    return 'Vous avez manqué : $name. Marquez-le comme terminé si effectué.';
+  }
+
+  @override
+  String get notif_ritual_active_title => 'Rituel actif';
+
+  @override
+  String notif_ritual_active_body(String name) {
+    return 'Vous êtes en train d\'effectuer : $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_title(String name) {
+    return 'Rappel : $name';
+  }
+
+  @override
+  String notif_ritual_step_reminder_body(String name) {
+    return '$name - Avez-vous terminé ce rituel ? Ouvrez l\'assistant pour confirmer.';
+  }
+
+  @override
+  String get notif_prayer_title => 'Heure de la prière';
+
+  @override
+  String notif_prayer_body(String name, String time) {
+    return '$name — $time. Aurez-vous prié ?';
+  }
+
+  @override
+  String get notif_dua_morning_title => 'Doua du matin';
+
+  @override
+  String get notif_dua_evening_title => 'Doua du soir';
+
+  @override
+  String notif_dua_body(String name) {
+    return 'N\'oubliez pas de réciter : $name';
+  }
+
+  @override
+  String get notif_dua_recommended_title => 'Doua recommandée';
+
+  @override
+  String notif_dua_recommended_body(String name) {
+    return 'Récitez maintenant : $name';
+  }
+
+  @override
   String get map_title => 'Carte';
 
   @override
