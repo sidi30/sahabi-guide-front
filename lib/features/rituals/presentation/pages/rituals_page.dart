@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/theme_extensions.dart';
 
 import '../../../../core/di/injection_container.dart';
@@ -20,7 +21,19 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
   // Récupérer l'ID utilisateur depuis le profil pour filtrer par type de pèlerinage (Hajj/Omra)
   final profile = ref.watch(pilgrimProfileProvider);
   final userId = profile?.id;
-  return await useCase(userId: userId);
+
+  // Genre : pour un compte, le backend le déduit du userId. Pour un anonyme (pas de
+  // compte), on l'envoie depuis le choix fait à la connexion (SharedPreferences).
+  String? gender = profile?.gender;
+  if ((gender == null || gender.isEmpty || gender == 'UNSPECIFIED') && userId == null) {
+    final prefs = await SharedPreferences.getInstance();
+    gender = prefs.getString('pilgrim_gender');
+  }
+
+  // Langue d'affichage des étapes (résolues côté serveur).
+  final lang = ref.watch(settingsProvider).locale.locale.languageCode;
+
+  return await useCase(userId: userId, gender: gender, lang: lang);
 });
 
 // Provider pour les douas - utilise le bon type DuaModel

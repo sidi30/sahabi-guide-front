@@ -91,6 +91,8 @@ class PilgrimProfile {
   final String? role;
   final bool? enabled;
   final String? pilgrimageType; // HAJJ ou OMRA
+  final String? gender; // MALE | FEMALE | UNSPECIFIED (axe de personnalisation des rites)
+  final String? madhhab; // ecole juridique (dormant)
 
   PilgrimProfile({
     this.id,
@@ -103,6 +105,8 @@ class PilgrimProfile {
     this.role,
     this.enabled,
     this.pilgrimageType,
+    this.gender,
+    this.madhhab,
   });
 
   factory PilgrimProfile.fromJson(Map<String, dynamic> json) {
@@ -117,6 +121,8 @@ class PilgrimProfile {
       role: json['role']?.toString(),
       enabled: json['enabled'] as bool?,
       pilgrimageType: json['pilgrimageType']?.toString(),
+      gender: json['gender']?.toString(),
+      madhhab: json['madhhab']?.toString(),
     );
   }
 
@@ -132,6 +138,8 @@ class PilgrimProfile {
       'role': role,
       'enabled': enabled,
       'pilgrimageType': pilgrimageType,
+      'gender': gender,
+      'madhhab': madhhab,
     };
   }
 }

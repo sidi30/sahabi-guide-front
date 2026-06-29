@@ -16,6 +16,7 @@ class AuthChoicePage extends ConsumerStatefulWidget {
 class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
   String _selectedRole = 'pilgrim'; // 'pilgrim' ou 'visitor'
   String _selectedLanguage = 'hausa'; // 'hausa' ou 'djerma'
+  String? _selectedGender; // 'MALE' ou 'FEMALE' — obligatoire (rites differents)
 
   @override
   void initState() {
@@ -28,14 +29,30 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     setState(() {
       _selectedRole = prefs.getString('user_role') ?? 'pilgrim';
       _selectedLanguage = prefs.getString('audio_language') ?? 'hausa';
+      _selectedGender = prefs.getString('pilgrim_gender');
     });
   }
 
+  bool _requireGenderOrWarn() {
+    if (_selectedGender == null) {
+      HapticFeedback.lightImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez indiquer si vous êtes un homme ou une femme : les rites diffèrent.'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _saveAndContinue() async {
+    if (!_requireGenderOrWarn()) return;
     HapticFeedback.selectionClick();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_role', _selectedRole);
     await prefs.setString('audio_language', _selectedLanguage);
+    await prefs.setString('pilgrim_gender', _selectedGender!);
 
     if (_selectedRole == 'pilgrim') {
       // Les pèlerins vont vers la connexion par passeport
@@ -117,6 +134,47 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               ),
 
               const SizedBox(height: 48),
+
+              // Genre — obligatoire (les rites diffèrent entre homme et femme).
+              Text(
+                'Pour vous montrer les bons rites',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: ref.colors.primary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Vous pourrez le modifier dans les Réglages.',
+                style: TextStyle(fontSize: 13, color: ref.colors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildGenderOption(
+                      icon: Icons.man,
+                      label: 'Pèlerin',
+                      subtitle: 'Homme',
+                      value: 'MALE',
+                      isSelected: _selectedGender == 'MALE',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildGenderOption(
+                      icon: Icons.woman,
+                      label: 'Pèlerine',
+                      subtitle: 'Femme',
+                      value: 'FEMALE',
+                      isSelected: _selectedGender == 'FEMALE',
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
 
               // Je suis un...
               Text(
@@ -219,6 +277,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               // Les autres pages (Accueil, Videos, Profil) restent fermees.
               TextButton(
                 onPressed: () async {
+                  if (!_requireGenderOrWarn()) return;
                   HapticFeedback.selectionClick();
                   await _savePreferences();
                   final prefs = await SharedPreferences.getInstance();
@@ -249,6 +308,9 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_role', _selectedRole);
     await prefs.setString('audio_language', _selectedLanguage);
+    if (_selectedGender != null) {
+      await prefs.setString('pilgrim_gender', _selectedGender!);
+    }
   }
 
   Widget _buildRoleOption({
@@ -304,6 +366,79 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                     fontSize: 16,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? ref.colors.primary : inactiveFg,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isSelected
+                          ? ref.colors.primary.withValues(alpha: 0.75)
+                          : inactiveFg.withValues(alpha: 0.85),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenderOption({
+    required IconData icon,
+    required String label,
+    String? subtitle,
+    required String value,
+    required bool isSelected,
+  }) {
+    final inactiveBg = ref.colors.surfaceVariant;
+    final inactiveFg = ref.colors.textSecondary;
+    return Semantics(
+      label: subtitle != null ? '$label, $subtitle' : label,
+      button: true,
+      selected: isSelected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() {
+              _selectedGender = value;
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(minHeight: 120),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? ref.colors.primary.withValues(alpha: 0.1)
+                  : inactiveBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? ref.colors.primary : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 40, color: isSelected ? ref.colors.primary : inactiveFg),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     color: isSelected ? ref.colors.primary : inactiveFg,
                   ),
                   textAlign: TextAlign.center,

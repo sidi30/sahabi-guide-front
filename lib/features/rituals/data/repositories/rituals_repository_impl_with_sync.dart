@@ -54,7 +54,18 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
   }
 
   @override
-  Future<List<RitualModel>> getRituals({bool forceRefresh = false, String? userId}) async {
+  Future<List<RitualModel>> getRituals({
+    bool forceRefresh = false,
+    String? userId,
+    String? gender,
+    String? states,
+    String? lang,
+  }) async {
+    // Un etat transitoire (ex. menses) ne doit jamais servir un cache generique :
+    // on force le rafraichissement pour obtenir le contenu adapte du serveur.
+    if (states != null && states.isNotEmpty) {
+      forceRefresh = true;
+    }
     // Stratégie offline-first avec synchronisation intelligente:
     // 1. Charger depuis le cache immédiatement (UI rapide)
     // 2. Si connecté et forceRefresh ou cache obsolète, fetch depuis API
@@ -83,7 +94,12 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
       // Étape 2: Synchroniser avec le backend si nécessaire
       if (remoteDataSource != null && (forceRefresh || cachedRituals.isEmpty)) {
         developer.log('Fetching rituals from API', name: 'RitualsRepository');
-        final freshRituals = await _fetchAndCacheRituals(userId: userId);
+        final freshRituals = await _fetchAndCacheRituals(
+          userId: userId,
+          gender: gender,
+          states: states,
+          lang: lang,
+        );
         return freshRituals;
       }
 
@@ -102,13 +118,23 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
   }
 
   /// Récupère les rituels depuis l'API et les met en cache
-  Future<List<RitualModel>> _fetchAndCacheRituals({String? userId}) async {
+  Future<List<RitualModel>> _fetchAndCacheRituals({
+    String? userId,
+    String? gender,
+    String? states,
+    String? lang,
+  }) async {
     if (remoteDataSource == null) {
       return await localDataSource.getRituals();
     }
 
     try {
-      final remoteData = await remoteDataSource!.getRituals(userId: userId);
+      final remoteData = await remoteDataSource!.getRituals(
+        userId: userId,
+        gender: gender,
+        states: states,
+        lang: lang,
+      );
       final rituals = remoteData.map((data) => RitualModel.fromJson(data)).toList();
 
       // Déterminer la version de contenu maximale

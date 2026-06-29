@@ -8,7 +8,12 @@ class RitualsRemoteDataSource {
 
   RitualsRemoteDataSource(this._dioClient, this._storageService);
 
-  Future<List<Map<String, dynamic>>> getRituals({String? userId}) async {
+  Future<List<Map<String, dynamic>>> getRituals({
+    String? userId,
+    String? gender,
+    String? states,
+    String? lang,
+  }) async {
     try {
       // Get auth token if available
       final token = await _storageService.getSecurely('auth_token');
@@ -18,15 +23,25 @@ class RitualsRemoteDataSource {
         options.headers = {'Authorization': 'Bearer $token'};
       }
 
-      // Build query parameters for filtering by pilgrimage type
-      Map<String, dynamic>? queryParameters;
+      // Query params : userId (compte) sinon gender (anonyme) pour personnaliser les
+      // rites selon le genre. states (ex. "menses") n'est jamais persiste cote serveur.
+      final Map<String, dynamic> queryParameters = {};
       if (userId != null && userId.isNotEmpty) {
-        queryParameters = {'userId': userId};
+        queryParameters['userId'] = userId;
+      }
+      if (gender != null && gender.isNotEmpty) {
+        queryParameters['gender'] = gender;
+      }
+      if (states != null && states.isNotEmpty) {
+        queryParameters['states'] = states;
+      }
+      if (lang != null && lang.isNotEmpty) {
+        queryParameters['lang'] = lang;
       }
 
       final response = await _dioClient.get(
         '/api/v1/rituals',
-        queryParameters: queryParameters,
+        queryParameters: queryParameters.isEmpty ? null : queryParameters,
         options: options,
       );
 
