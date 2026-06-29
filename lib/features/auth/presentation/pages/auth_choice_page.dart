@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../settings/presentation/providers/settings_provider.dart';
 
 class AuthChoicePage extends ConsumerStatefulWidget {
   const AuthChoicePage({super.key});
@@ -53,6 +54,8 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     await prefs.setString('user_role', _selectedRole);
     await prefs.setString('audio_language', _selectedLanguage);
     await prefs.setString('pilgrim_gender', _selectedGender!);
+    // Applique la palette par défaut du genre (repère visuel) dès maintenant.
+    await ref.read(settingsProvider.notifier).setGender(_selectedGender!);
 
     if (_selectedRole == 'pilgrim') {
       // Les pèlerins vont vers la connexion par passeport
@@ -280,6 +283,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                   if (!_requireGenderOrWarn()) return;
                   HapticFeedback.selectionClick();
                   await _savePreferences();
+                  await ref.read(settingsProvider.notifier).setGender(_selectedGender!);
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.setBool('is_visitor', true);
                   if (!context.mounted) return;

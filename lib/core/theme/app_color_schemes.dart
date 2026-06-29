@@ -17,6 +17,10 @@ enum AppColorTheme {
 
   /// Thème Minéral - Tons neutres et élégants
   mineral,
+
+  /// Thème Rawdah - Aubergine/prune noble + or doux + teal
+  /// Défaut du profil Pèlerine (femme) : distinct de l'émeraude (anti-erreur)
+  rawdah,
 }
 
 /// Extension pour obtenir les informations sur chaque thème
@@ -34,6 +38,8 @@ extension AppColorThemeExtension on AppColorTheme {
         return 'Nuit Étoilée';
       case AppColorTheme.mineral:
         return 'Minéral';
+      case AppColorTheme.rawdah:
+        return 'Rawdah';
     }
   }
 
@@ -50,6 +56,8 @@ extension AppColorThemeExtension on AppColorTheme {
         return 'Bleu nuit profond et mystique';
       case AppColorTheme.mineral:
         return 'Tons neutres élégants et modernes';
+      case AppColorTheme.rawdah:
+        return 'Aubergine noble, doux et élégant';
     }
   }
 
@@ -66,6 +74,8 @@ extension AppColorThemeExtension on AppColorTheme {
         return const Color(0xFF1D3557);
       case AppColorTheme.mineral:
         return const Color(0xFF5D6D7E);
+      case AppColorTheme.rawdah:
+        return const Color(0xFF5E2750);
     }
   }
 
@@ -82,6 +92,8 @@ extension AppColorThemeExtension on AppColorTheme {
         return AppColorScheme.starryNight();
       case AppColorTheme.mineral:
         return AppColorScheme.mineral();
+      case AppColorTheme.rawdah:
+        return AppColorScheme.rawdah();
     }
   }
 }
@@ -228,6 +240,64 @@ class AppColorScheme {
 
       // Dégradé principal
       primaryGradient: [Color(0xFF1D5D4E), Color(0xFF2D7D6E)],
+    );
+  }
+
+  // ===== THÈME RAWDAH (DÉFAUT PROFIL FEMME) =====
+  /// Aubergine/prune noble + Or doux + Teal. Volontairement très distinct de
+  /// l'émeraude du profil homme (repère anti-erreur). Contraste élevé sur blanc.
+  factory AppColorScheme.rawdah() {
+    return const AppColorScheme(
+      // Couleurs principales - Aubergine / prune profond
+      primary: Color(0xFF5E2750),
+      primaryLight: Color(0xFF7A3A68),
+      primaryDark: Color(0xFF421739),
+
+      // Couleurs secondaires - Or doux (partagé)
+      secondary: Color(0xFFC9A227),
+      secondaryLight: Color(0xFFDDB84A),
+      secondaryDark: Color(0xFFA68B1F),
+
+      // Couleurs d'accent - Teal
+      accent: Color(0xFF0E7C7B),
+      accentLight: Color(0xFF2E9C9B),
+      accentDark: Color(0xFF06504F),
+
+      // Couleurs de fond (mode clair)
+      background: Color(0xFFFAF7F9),
+      surface: Color(0xFFFFFFFF),
+      surfaceVariant: Color(0xFFF3EEF2),
+
+      // Couleurs de fond (mode sombre) - plum profond
+      darkBackground: Color(0xFF1A0E18),
+      darkSurface: Color(0xFF261522),
+      darkSurfaceVariant: Color(0xFF33203A),
+
+      // Couleurs de texte (mode clair)
+      textPrimary: Color(0xFF3A1F33),
+      textSecondary: Color(0xFF6C757D),
+      textLight: Color(0xFF9CA3AF),
+      textOnPrimary: Color(0xFFFFFFFF),
+      textOnSecondary: Color(0xFF3A1F33),
+
+      // Couleurs de texte (mode sombre)
+      darkTextPrimary: Color(0xFFF0E8EE),
+      darkTextSecondary: Color(0xFFC2B2BD),
+      darkTextLight: Color(0xFF8A7A85),
+
+      // Couleurs d'état
+      success: Color(0xFF2E7D32),
+      error: Color(0xFFD32F2F),
+      warning: Color(0xFFF9A825),
+      info: Color(0xFF1976D2),
+
+      // Couleurs utilitaires
+      border: Color(0xFFE6DCE3),
+      divider: Color(0xFFEDE4EA),
+      shadow: Color(0x1A000000),
+
+      // Dégradé principal
+      primaryGradient: [Color(0xFF5E2750), Color(0xFF7A3A68)],
     );
   }
 

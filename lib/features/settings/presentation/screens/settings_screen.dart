@@ -24,9 +24,98 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          _buildGenderSection(context, ref, settings),
           _buildColorThemeSection(context, ref, settings),
           _buildThemeModeSection(context, ref, settings),
           _buildLanguageSection(context, ref, settings),
+        ],
+      ),
+    );
+  }
+
+  /// Section pour choisir le genre (pilote le contenu des rites + thème par défaut)
+  Widget _buildGenderSection(
+      BuildContext context, WidgetRef ref, SettingsState settings) {
+    Widget option(String value, IconData icon, String label) {
+      final selected = settings.gender == value;
+      final color = Theme.of(context).colorScheme.primary;
+      return Expanded(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            await ref.read(settingsProvider.notifier).setGender(value);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Profil "$label" appliqué'),
+                  duration: const Duration(milliseconds: 1500),
+                ),
+              );
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: selected ? color.withValues(alpha: 0.10) : null,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? color : Theme.of(context).dividerColor,
+                width: selected ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(icon, size: 32, color: selected ? color : null),
+                const SizedBox(height: 6),
+                Text(label,
+                    style: TextStyle(
+                      fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                      color: selected ? color : null,
+                    )),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.person_outline,
+                    color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 12),
+                Text('Profil', style: Theme.of(context).textTheme.titleLarge),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Les rites affichés diffèrent entre un homme et une femme.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    option('MALE', Icons.man, 'Pèlerin'),
+                    const SizedBox(width: 12),
+                    option('FEMALE', Icons.woman, 'Pèlerine'),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

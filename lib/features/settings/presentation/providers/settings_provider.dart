@@ -85,6 +85,12 @@ extension AudioLanguageX on AudioLanguage {
 final List<Locale> supportedLocales =
     AppLocale.values.map((e) => e.locale).toList();
 
+/// Palette par défaut associée à un genre (repère visuel anti-erreur).
+/// Femme → Rawdah (aubergine) ; sinon → Sérénité (émeraude).
+AppColorTheme genderDefaultColorTheme(String? gender) {
+  return gender == 'FEMALE' ? AppColorTheme.rawdah : AppColorTheme.serenity;
+}
+
 // State class
 class SettingsState {
   final AppThemeMode themeMode;
@@ -92,29 +98,44 @@ class SettingsState {
   final AudioLanguage audioLanguage;
   final AppLocale locale;
 
+  /// Genre du pèlerin (MALE/FEMALE/null) — pilote la palette par défaut.
+  final String? gender;
+
+  /// L'utilisateur a-t-il choisi une palette manuellement ? Si oui, on respecte
+  /// son choix ; sinon on applique la palette par défaut du genre.
+  final bool colorThemeExplicit;
+
   const SettingsState({
     this.themeMode = AppThemeMode.system,
     this.colorTheme = AppColorTheme.serenity, // Thème par défaut
     this.audioLanguage = AudioLanguage.english,
     this.locale = AppLocale.fr, // Default to French
+    this.gender,
+    this.colorThemeExplicit = false,
   });
 
   factory SettingsState.initial() => const SettingsState();
 
-  /// Obtenir le schéma de couleurs actuel
-  AppColorScheme get currentColorScheme => colorTheme.scheme;
+  /// Obtenir le schéma de couleurs actuel : choix manuel sinon défaut du genre.
+  AppColorScheme get currentColorScheme => colorThemeExplicit
+      ? colorTheme.scheme
+      : genderDefaultColorTheme(gender).scheme;
 
   SettingsState copyWith({
     AppThemeMode? themeMode,
     AppColorTheme? colorTheme,
     AudioLanguage? audioLanguage,
     AppLocale? locale,
+    String? gender,
+    bool? colorThemeExplicit,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       colorTheme: colorTheme ?? this.colorTheme,
       audioLanguage: audioLanguage ?? this.audioLanguage,
       locale: locale ?? this.locale,
+      gender: gender ?? this.gender,
+      colorThemeExplicit: colorThemeExplicit ?? this.colorThemeExplicit,
     );
   }
 
@@ -125,11 +146,14 @@ class SettingsState {
         other.themeMode == themeMode &&
         other.colorTheme == colorTheme &&
         other.audioLanguage == audioLanguage &&
-        other.locale == locale;
+        other.locale == locale &&
+        other.gender == gender &&
+        other.colorThemeExplicit == colorThemeExplicit;
   }
 
   @override
-  int get hashCode => Object.hash(themeMode, colorTheme, audioLanguage, locale);
+  int get hashCode =>
+      Object.hash(themeMode, colorTheme, audioLanguage, locale, gender, colorThemeExplicit);
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -139,6 +163,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _colorThemeKey = 'color_theme';
   static const _languageKey = 'audio_language';
   static const _localeKey = 'app_locale';
+  static const _genderKey = 'pilgrim_gender';
+  static const _colorThemeExplicitKey = 'color_theme_explicit';
 
   SettingsNotifier({required this.prefs}) : super(SettingsState.initial()) {
     loadSettings();
@@ -150,6 +176,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final colorThemeIndex = prefs.getInt(_colorThemeKey) ?? 0;
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
+      final gender = prefs.getString(_genderKey);
+      // Un utilisateur ayant deja choisi une palette (cle presente) est considere
+      // comme explicite -> on ne lui impose pas la palette par defaut du genre.
+      final colorThemeExplicit =
+          prefs.getBool(_colorThemeExplicitKey) ?? prefs.containsKey(_colorThemeKey);
 
       // Default to system locale if available, otherwise French
       AppLocale defaultLocale = AppLocale.fr;
@@ -177,6 +208,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
                 orElse: () => defaultLocale,
               )
             : defaultLocale,
+        gender: gender,
+        colorThemeExplicit: colorThemeExplicit,
       );
     } catch (e) {
       // Reset to default settings if loading fails
@@ -192,9 +225,18 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   Future<void> setColorTheme(AppColorTheme theme) async {
-    if (state.colorTheme == theme) return; // No change needed
+    // Choix manuel : on le memorise comme explicite (prioritaire sur le defaut genre).
     await prefs.setInt(_colorThemeKey, theme.index);
-    state = state.copyWith(colorTheme: theme);
+    await prefs.setBool(_colorThemeExplicitKey, true);
+    state = state.copyWith(colorTheme: theme, colorThemeExplicit: true);
+  }
+
+  /// Définit le genre (MALE/FEMALE). Met à jour la palette par défaut si
+  /// l'utilisateur n'a pas explicitement choisi une autre palette.
+  Future<void> setGender(String gender) async {
+    if (state.gender == gender) return;
+    await prefs.setString(_genderKey, gender);
+    state = state.copyWith(gender: gender);
   }
 
   Future<void> setAudioLanguage(AudioLanguage language) async {

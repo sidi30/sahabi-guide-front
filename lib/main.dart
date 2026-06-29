@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart'
+    hide pilgrimProfileProvider;
 import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
@@ -379,6 +380,16 @@ class _MyAppState extends ConsumerState<MyApp> {
     final currentThemeMode = settings.themeMode;
     final colorScheme = settings.currentColorScheme;
     final locale = ref.watch(languageProvider);
+
+    // Compte agence : on synchronise le genre du profil vers les réglages pour que
+    // le badge + la palette par défaut reflètent le profil dès la connexion.
+    ref.listen(pilgrimProfileProvider, (prev, next) {
+      final g = next?.gender;
+      if ((g == 'MALE' || g == 'FEMALE') &&
+          ref.read(settingsProvider).gender != g) {
+        ref.read(settingsProvider.notifier).setGender(g!);
+      }
+    });
 
     // Use a Builder to ensure the theme updates without rebuilding the entire app
     return Builder(

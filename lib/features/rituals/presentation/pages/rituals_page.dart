@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/theme_extensions.dart';
 
 import '../../../../core/di/injection_container.dart';
@@ -13,25 +12,27 @@ import '../../../../features/settings/presentation/providers/settings_provider.d
 import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
+import '../../../../shared/presentation/widgets/profile_gender_badge.dart';
 import 'dua_detail_page.dart';
 
 final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) async {
   ref.keepAlive(); // Keep data when switching tabs
   final useCase = sl<GetRitualsUseCase>();
+  final settings = ref.watch(settingsProvider);
   // Récupérer l'ID utilisateur depuis le profil pour filtrer par type de pèlerinage (Hajj/Omra)
   final profile = ref.watch(pilgrimProfileProvider);
   final userId = profile?.id;
 
   // Genre : pour un compte, le backend le déduit du userId. Pour un anonyme (pas de
-  // compte), on l'envoie depuis le choix fait à la connexion (SharedPreferences).
+  // compte), on l'envoie depuis le choix fait à la connexion (settings.gender, qui
+  // reflète la préférence 'pilgrim_gender'). Réactif : un changement déclenche un refetch.
   String? gender = profile?.gender;
-  if ((gender == null || gender.isEmpty || gender == 'UNSPECIFIED') && userId == null) {
-    final prefs = await SharedPreferences.getInstance();
-    gender = prefs.getString('pilgrim_gender');
+  if (gender == null || gender.isEmpty || gender == 'UNSPECIFIED') {
+    gender = settings.gender;
   }
 
   // Langue d'affichage des étapes (résolues côté serveur).
-  final lang = ref.watch(settingsProvider).locale.locale.languageCode;
+  final lang = settings.locale.locale.languageCode;
 
   return await useCase(userId: userId, gender: gender, lang: lang);
 });
@@ -121,10 +122,17 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
   Widget _buildRitualsTab() {
     final ritualsAsync = ref.watch(ritualsProvider);
 
-    return ritualsAsync.when(
-      data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => _buildErrorWidget(error),
+    return Column(
+      children: [
+        const ProfileGenderBadge(),
+        Expanded(
+          child: ritualsAsync.when(
+            data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => _buildErrorWidget(error),
+          ),
+        ),
+      ],
     );
   }
 
