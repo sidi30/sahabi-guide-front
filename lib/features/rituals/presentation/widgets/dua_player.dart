@@ -6,6 +6,7 @@ import '../../../../shared/models/dua_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/audio_service.dart';
 import '../../../../core/services/tts_service.dart';
+import '../../../../core/utils/app_logger.dart';
 import 'package:sahabi_guide/features/settings/presentation/providers/settings_provider.dart';
 
 /// Lecteur de doua.
@@ -60,7 +61,7 @@ class _DuaPlayerState extends ConsumerState<DuaPlayer> {
         await _audioService.playDua(widget.dua, language: audioLanguage);
       }
     } catch (e) {
-      debugPrint('Erreur lors de l\'initialisation de l\'audio: $e');
+      AppLogger.error('Erreur lors de l\'initialisation de l\'audio', error: e);
     }
   }
 

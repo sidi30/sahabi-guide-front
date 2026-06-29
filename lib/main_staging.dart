@@ -3,8 +3,8 @@
 // Utilisation :
 // flutter run -t lib/main_staging.dart --dart-define=API_BASE_URL=https://api-staging.sahabi.com
 
-import 'package:flutter/material.dart';
 import 'core/config/env_config.dart';
+import 'core/utils/app_logger.dart';
 import 'main.dart' as app;
 
 void main() {
@@ -12,14 +12,14 @@ void main() {
   EnvConfig.init(Environment.staging);
 
   // Message de démarrage
-  debugPrint('');
-  debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('SAHABI GUIDE - ENVIRONNEMENT: STAGING');
-  debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('API URL: ${EnvConfig.apiFullUrl}');
-  debugPrint('Mode: ${EnvConfig.isStaging ? "STAGING" : "PROD"}');
-  debugPrint('═══════════════════════════════════════════════════');
-  debugPrint('');
+  AppLogger.debug('');
+  AppLogger.debug('═══════════════════════════════════════════════════');
+  AppLogger.debug('SAHABI GUIDE - ENVIRONNEMENT: STAGING');
+  AppLogger.debug('═══════════════════════════════════════════════════');
+  AppLogger.debug('API URL: ${EnvConfig.apiFullUrl}');
+  AppLogger.debug('Mode: ${EnvConfig.isStaging ? "STAGING" : "PROD"}');
+  AppLogger.debug('═══════════════════════════════════════════════════');
+  AppLogger.debug('');
 
   // Lancer l'application
   app.main();

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../shared/services/location_service.dart';
+import '../utils/app_logger.dart';
 
 /// Computed Islamic prayer schedule for a given day & location.
 class DailyPrayerSchedule {
@@ -143,7 +144,7 @@ class PrayerTimesService {
 
       if (!granted) {
         if (kDebugMode) {
-          debugPrint(
+          AppLogger.debug(
               '[PrayerTimesService] permission $permission, fallback Mecca');
         }
         return null;
@@ -158,7 +159,7 @@ class PrayerTimesService {
       return current;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('[PrayerTimesService] geo unavailable, fallback Mecca: $e');
+        AppLogger.error('[PrayerTimesService] geo unavailable, fallback Mecca', error: e);
       }
       return null;
     }

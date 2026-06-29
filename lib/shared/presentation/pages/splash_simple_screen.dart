@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/injection_container.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../shared/services/storage_service.dart';
 
 /// Écran de splash avec animation élégante
@@ -151,7 +152,7 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
 
     if (!mounted) return;
 
-    debugPrint('✅ Animation splash terminée, navigation...');
+    AppLogger.debug('✅ Animation splash terminée, navigation...');
 
     // Navigation vers l'écran approprié
     final storageService = sl<StorageService>();

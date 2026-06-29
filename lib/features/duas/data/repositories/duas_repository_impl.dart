@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../domain/repositories/duas_repository.dart';
 import '../datasources/duas_local_data_source.dart';
@@ -23,17 +24,14 @@ class DuasRepositoryImpl implements DuasRepository {
     // basculé à tort sur le cache local vide.
     try {
       final remoteDuas = await remoteDataSource.getDuas(tag: tag);
-      // ignore: avoid_print
-      print('[DUAS-REPO] remote returned ${remoteDuas.length} duas');
+      AppLogger.debug('[DUAS-REPO] remote returned ${remoteDuas.length} duas');
       await localDataSource.cacheDuas(remoteDuas);
       return remoteDuas;
     } on ServerException catch (e) {
-      // ignore: avoid_print
-      print('[DUAS-REPO] ServerException -> local fallback: $e');
+      AppLogger.error('[DUAS-REPO] ServerException -> local fallback', error: e);
       return _getLocalDuas();
     } catch (e) {
-      // ignore: avoid_print
-      print('[DUAS-REPO] catch-all -> local fallback: $e');
+      AppLogger.error('[DUAS-REPO] catch-all -> local fallback', error: e);
       return _getLocalDuas();
     }
   }

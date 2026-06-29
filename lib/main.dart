@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/di/injection_container.dart';
 import 'core/router/auth_guard.dart';
+import 'core/utils/app_logger.dart';
 import 'core/providers/language_provider.dart';
 import 'core/services/language_service.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
@@ -117,17 +118,17 @@ Future<void> main() async {
   //    ⚠️ Hive.initFlutter() est appelé dans initializeDependencies()
   try {
     await initializeDependencies();
-    debugPrint('✅ Dépendances GetIt initialisées (Hive inclus)');
+    AppLogger.debug('✅ Dépendances GetIt initialisées (Hive inclus)');
   } catch (e) {
-    debugPrint('❌ Erreur initialisation GetIt: $e');
+    AppLogger.error('❌ Erreur initialisation GetIt', error: e);
   }
 
   // 4. Charger les settings
   try {
     await settingsNotifier.loadSettings();
-    debugPrint('✅ Settings chargés');
+    AppLogger.debug('✅ Settings chargés');
   } catch (e) {
-    debugPrint('⚠️ Erreur chargement settings: $e');
+    AppLogger.error('⚠️ Erreur chargement settings', error: e);
   }
 
   // Lancer l'app

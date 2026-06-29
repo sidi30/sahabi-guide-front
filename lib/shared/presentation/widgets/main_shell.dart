@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/theme_extensions.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../features/bot/presentation/widgets/floating_bot_button.dart';
 
 class NavigationItem {
@@ -81,7 +82,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     } catch (e) {
       // Safely handle cases where router state is not yet available
       // This can happen during hot reload or initial widget build
-      debugPrint('⚠️ Router state not available: $e');
+      AppLogger.error('⚠️ Router state not available', error: e);
     }
   }
 
@@ -355,7 +356,7 @@ class _MainShellState extends ConsumerState<MainShell> {
               .path;
           const mainTabs = {'/home', '/rituals', '/map', '/videos'};
           final visible = mainTabs.contains(path);
-          debugPrint('[MainShell] path="$path" fab=$visible');
+          AppLogger.debug('[MainShell] path="$path" fab=$visible');
           return visible ? const FloatingBotButton() : const SizedBox.shrink();
         },
       ),

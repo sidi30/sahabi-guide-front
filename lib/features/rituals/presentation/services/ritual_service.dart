@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../core/utils/app_logger.dart';
 
 String _normalizeLanguage(String? code) {
   if (code == null || code.isEmpty) return 'en';
@@ -135,7 +136,7 @@ class RitualService extends ChangeNotifier {
         );
       }
     } catch (e) {
-      debugPrint('Erreur lors de la planification de notification: $e');
+      AppLogger.error('Erreur lors de la planification de notification', error: e);
     }
   }
 
@@ -176,7 +177,7 @@ class RitualService extends ChangeNotifier {
         );
       }
     } catch (e) {
-      debugPrint('Erreur lors de la planification de notification: $e');
+      AppLogger.error('Erreur lors de la planification de notification', error: e);
     }
   }
 

@@ -7,6 +7,7 @@ import '../../shared/models/ritual_model.dart';
 import '../../shared/models/dua_model.dart';
 import '../../l10n/app_localizations.dart';
 import '../localization/notification_l10n.dart';
+import '../utils/app_logger.dart';
 import 'prayer_times_service.dart';
 
 class NotificationService extends ChangeNotifier {
@@ -80,7 +81,7 @@ class NotificationService extends ChangeNotifier {
     final payload = response.payload;
     if (payload != null) {
       // Navigate to specific ritual or dua
-      debugPrint('Notification tapped: $payload');
+      AppLogger.debug('Notification tapped: $payload');
     }
   }
 
@@ -136,10 +137,10 @@ class NotificationService extends ChangeNotifier {
               UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
         );
-        debugPrint(
+        AppLogger.debug(
             '[NotificationService] scheduled ${p.displayName} at ${p.formattedTime} (id=$id, future=${scheduled.isAfter(now)})');
       } catch (e) {
-        debugPrint('[NotificationService] failed to schedule ${p.displayName}: $e');
+        AppLogger.error('[NotificationService] failed to schedule ${p.displayName}', error: e);
       }
       id++;
     }

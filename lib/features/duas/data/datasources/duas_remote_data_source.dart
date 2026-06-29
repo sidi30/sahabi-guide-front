@@ -37,12 +37,10 @@ class DuasRemoteDataSourceImpl implements DuasRemoteDataSource {
       AppLogger.debug('DUAS STATUS: ${response.statusCode}');
       AppLogger.verbose('DUAS BODY: ${response.data.toString().substring(0, response.data.toString().length > 500 ? 500 : response.data.toString().length)}');
 
-      // ignore: avoid_print
-      print('[DUAS-REMOTE] HTTP ${response.statusCode}, data type=${response.data.runtimeType}');
+      AppLogger.debug('[DUAS-REMOTE] HTTP ${response.statusCode}, data type=${response.data.runtimeType}');
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data as List;
-        // ignore: avoid_print
-        print('[DUAS-REMOTE] parsed list len=${jsonList.length}');
+        AppLogger.debug('[DUAS-REMOTE] parsed list len=${jsonList.length}');
         return jsonList
             .map((json) => DuaModel.fromJson(json as Map<String, dynamic>))
             .toList();

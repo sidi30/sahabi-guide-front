@@ -108,6 +108,7 @@ import '../services/notification_service.dart';
 import '../services/prayer_times_service.dart';
 
 import '../network/dio_client.dart';
+import '../utils/app_logger.dart';
 import '../cache/cache_service.dart';
 import '../cache/hive_cache_service.dart';
 import '../network/connectivity_service.dart';
@@ -421,7 +422,6 @@ Future<void> _configureAudioSession() async {
   } catch (e) {
     // Ne pas bloquer le démarrage si la session échoue (ex: plateforme web).
     if (!Platform.isAndroid && !Platform.isIOS) return;
-    // ignore: avoid_print
-    print('Audio session configure failed: $e');
+    AppLogger.error('Audio session configure failed', error: e);
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../features/bot/data/services/voice_remote_api.dart';
+import '../utils/app_logger.dart';
 
 /// État de lecture vocale exposé à l'UI.
 enum TtsState { idle, loading, speaking, error }
@@ -70,7 +71,7 @@ class TtsService extends ChangeNotifier {
           IosTextToSpeechAudioMode.defaultMode,
         );
         if (shared != 1 || cat != 1) {
-          debugPrint('TtsService iOS audio session NON applique '
+          AppLogger.debug('TtsService iOS audio session NON applique '
               '(shared=$shared, category=$cat)');
         }
       }
@@ -100,7 +101,7 @@ class TtsService extends ChangeNotifier {
       });
       _initialized = true;
     } catch (e) {
-      debugPrint('TtsService init failed: $e');
+      AppLogger.error('TtsService init failed', error: e);
     }
   }
 

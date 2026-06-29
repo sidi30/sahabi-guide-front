@@ -4,6 +4,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
 import '../repositories/position_repository.dart';
 import '../../../../shared/services/location_service.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/tracking_config_model.dart';
 
 /// Service pour gérer le tracking automatique de la position GPS
@@ -47,7 +48,7 @@ class PositionTrackingService extends ChangeNotifier {
   /// Démarre le tracking automatique de position
   Future<void> startTracking(String userId, {TrackingConfig? config}) async {
     if (_isTracking) {
-      debugPrint('⚠️ Le tracking est déjà actif');
+      AppLogger.debug('⚠️ Le tracking est déjà actif');
       return;
     }
 
@@ -59,10 +60,10 @@ class PositionTrackingService extends ChangeNotifier {
     _errorCount = 0;
     _isPausedLowBattery = false;
 
-    debugPrint('🚀 Démarrage du tracking GPS pour utilisateur $userId');
-    debugPrint('📍 Mode: ${_config.mode.label}');
-    debugPrint('⏱️ Intervalle: ${_config.mode.interval.inMinutes} minute(s)');
-    debugPrint('🔋 Pause batterie faible: ${_config.pauseOnLowBattery ? "Oui (<${_config.lowBatteryThreshold}%)" : "Non"}');
+    AppLogger.debug('🚀 Démarrage du tracking GPS pour utilisateur $userId');
+    AppLogger.debug('📍 Mode: ${_config.mode.label}');
+    AppLogger.debug('⏱️ Intervalle: ${_config.mode.interval.inMinutes} minute(s)');
+    AppLogger.debug('🔋 Pause batterie faible: ${_config.pauseOnLowBattery ? "Oui (<${_config.lowBatteryThreshold}%)" : "Non"}');
 
     // Envoyer immédiatement la première position
     await _sendCurrentPosition();
@@ -78,11 +79,11 @@ class PositionTrackingService extends ChangeNotifier {
   /// Arrête le tracking automatique
   void stopTracking() {
     if (!_isTracking) {
-      debugPrint('⚠️ Le tracking n\'est pas actif');
+      AppLogger.debug('⚠️ Le tracking n\'est pas actif');
       return;
     }
 
-    debugPrint('🛑 Arrêt du tracking GPS');
+    AppLogger.debug('🛑 Arrêt du tracking GPS');
     
     _trackingTimer?.cancel();
     _trackingTimer = null;
@@ -112,7 +113,7 @@ class PositionTrackingService extends ChangeNotifier {
   /// Envoie la position actuelle au serveur
   Future<void> _sendCurrentPosition() async {
     if (_userId == null) {
-      debugPrint('❌ Pas d\'userId configuré');
+      AppLogger.debug('❌ Pas d\'userId configuré');
       return;
     }
 
@@ -120,7 +121,7 @@ class PositionTrackingService extends ChangeNotifier {
     // (réseau lent / GPS bloqué), on saute ce cycle pour éviter des lectures
     // GPS qui se chevauchent et gardent la puce GPS allumée.
     if (_sending) {
-      debugPrint('⏭️ Envoi déjà en cours - cycle ignoré');
+      AppLogger.debug('⏭️ Envoi déjà en cours - cycle ignoré');
       return;
     }
     _sending = true;
@@ -133,17 +134,17 @@ class PositionTrackingService extends ChangeNotifier {
       if (_config.pauseOnLowBattery && batteryLevel <= _config.lowBatteryThreshold) {
         if (!_isPausedLowBattery) {
           _isPausedLowBattery = true;
-          debugPrint('⚠️ Batterie faible ($batteryLevel%) - Tracking en pause');
+          AppLogger.debug('⚠️ Batterie faible ($batteryLevel%) - Tracking en pause');
           notifyListeners();
         }
         return;
       } else if (_isPausedLowBattery) {
         _isPausedLowBattery = false;
-        debugPrint('✅ Batterie suffisante ($batteryLevel%) - Reprise du tracking');
+        AppLogger.debug('✅ Batterie suffisante ($batteryLevel%) - Reprise du tracking');
         notifyListeners();
       }
 
-      debugPrint('📡 Envoi de la position...');
+      AppLogger.debug('📡 Envoi de la position...');
 
       // Récupérer la position GPS
       final position = await _locationService.getCurrentPosition();
@@ -162,7 +163,7 @@ class PositionTrackingService extends ChangeNotifier {
         );
 
         if (distance < _config.mode.distanceFilter) {
-          debugPrint('⏭️ Position inchangée - Pas d\'envoi');
+          AppLogger.debug('⏭️ Position inchangée - Pas d\'envoi');
           return;
         }
       }
@@ -184,18 +185,17 @@ class PositionTrackingService extends ChangeNotifier {
       _successCount++;
       _lastError = null;
 
-      debugPrint('✅ Position envoyée avec succès');
-      debugPrint('   🔋 Batterie: $batteryLevel%');
-      debugPrint('   🎯 Mode: ${_config.mode.label}');
-      debugPrint('   📊 Succès: $_successCount, Erreurs: $_errorCount');
+      AppLogger.debug('✅ Position envoyée avec succès');
+      AppLogger.debug('   🔋 Batterie: $batteryLevel%');
+      AppLogger.debug('   🎯 Mode: ${_config.mode.label}');
+      AppLogger.debug('   📊 Succès: $_successCount, Erreurs: $_errorCount');
 
       notifyListeners();
     } catch (e, stackTrace) {
       _errorCount++;
       _lastError = e.toString();
       
-      debugPrint('❌ Erreur lors de l\'envoi de position: $e');
-      debugPrint('Stack: $stackTrace');
+      AppLogger.error('❌ Erreur lors de l\'envoi de position', error: e, stackTrace: stackTrace);
       
       notifyListeners();
 

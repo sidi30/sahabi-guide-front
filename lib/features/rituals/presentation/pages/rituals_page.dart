@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/theme_extensions.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../duas/domain/repositories/duas_repository.dart';
@@ -29,7 +30,7 @@ final duasProvider = FutureProvider.autoDispose<List<DuaModel>>((ref) async {
   final repository = sl<DuasRepository>();
   final duas = await repository.getDuas();
   if (duas.isEmpty) {
-    debugPrint('DuasProvider: backend returned empty list');
+    AppLogger.debug('DuasProvider: backend returned empty list');
   }
   return duas;
 });

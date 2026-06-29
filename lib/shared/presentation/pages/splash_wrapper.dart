@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/injection_container.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../shared/services/storage_service.dart';
 import 'splash_simple_screen.dart';
 
@@ -42,7 +43,7 @@ class _SplashWrapperState extends State<SplashWrapper> {
         });
       }
     } catch (e) {
-      debugPrint('❌ Erreur vérification première connexion: $e');
+      AppLogger.error('❌ Erreur vérification première connexion', error: e);
       // En cas d'erreur, rediriger directement
       if (mounted) {
         await _navigateToNextScreen();
@@ -68,7 +69,7 @@ class _SplashWrapperState extends State<SplashWrapper> {
       if (!mounted) return;
       context.go('/home');
     } catch (e) {
-      debugPrint('❌ Erreur navigation: $e');
+      AppLogger.error('❌ Erreur navigation', error: e);
       if (mounted) {
         context.go('/auth-choice');
       }

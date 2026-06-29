@@ -2,7 +2,7 @@ name: sahabi_guide
 description: Compagnon de pèlerinage intelligent pour le Hajj avec suivi GPS en temps réel, guide des rituels et système d'alertes.
 publish_to: "none"
 
-version: 1.2.10+120
+version: 1.2.11+121
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -135,15 +135,15 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  # Utiliser web-app-manifest-logo-192x192 pour l'icône de l'app
-  image_path: "assets/favicon/web-app-manifest-logo-192x192.png"
-  
+  # Icône carrée 1024x1024, fond beige plein, pin centré agrandi
+  image_path: "assets/icon/app_icon.png"
+
   # Configuration Android - Adaptive Icon
-  adaptive_icon_background: "#FFFFFF"  # Fond blanc
-  adaptive_icon_foreground: "assets/favicon/web-app-manifest-logo-192x192.png"
-  
+  adaptive_icon_background: "#FEFDFB"  # Fond beige
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+
   # Configuration iOS
-  remove_alpha_ios: false  # Garder la transparence pour iOS
+  remove_alpha_ios: true  # Supprime l'alpha — exigé par Apple (sinon rejet)
   
 
 # ============================================
