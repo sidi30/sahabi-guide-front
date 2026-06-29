@@ -113,6 +113,20 @@ class SettingsScreen extends ConsumerWidget {
                     option('FEMALE', Icons.woman, 'Pèlerine'),
                   ],
                 ),
+                if (settings.gender == 'FEMALE') ...[
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: settings.menses,
+                    onChanged: (v) =>
+                        ref.read(settingsProvider.notifier).setMenses(v),
+                    title: const Text('Je suis actuellement empêchée'),
+                    subtitle: const Text(
+                      'Menstrues ou lochies. Adapte le guidage (Tawaf/Sa\'i reportés). '
+                      'Reste sur votre téléphone, n\'est jamais partagé.',
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

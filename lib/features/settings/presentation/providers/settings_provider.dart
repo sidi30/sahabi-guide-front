@@ -105,6 +105,11 @@ class SettingsState {
   /// son choix ; sinon on applique la palette par défaut du genre.
   final bool colorThemeExplicit;
 
+  /// État de menstruation/lochies — DONNÉE DE SANTÉ : strictement on-device,
+  /// jamais envoyée à l'API/agence. Visible uniquement pour le profil FEMALE.
+  /// Adapte le guidage côté client (Tawaf/Sa'i reportés, actes alternatifs).
+  final bool menses;
+
   const SettingsState({
     this.themeMode = AppThemeMode.system,
     this.colorTheme = AppColorTheme.serenity, // Thème par défaut
@@ -112,6 +117,7 @@ class SettingsState {
     this.locale = AppLocale.fr, // Default to French
     this.gender,
     this.colorThemeExplicit = false,
+    this.menses = false,
   });
 
   factory SettingsState.initial() => const SettingsState();
@@ -128,6 +134,7 @@ class SettingsState {
     AppLocale? locale,
     String? gender,
     bool? colorThemeExplicit,
+    bool? menses,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -136,6 +143,7 @@ class SettingsState {
       locale: locale ?? this.locale,
       gender: gender ?? this.gender,
       colorThemeExplicit: colorThemeExplicit ?? this.colorThemeExplicit,
+      menses: menses ?? this.menses,
     );
   }
 
@@ -148,12 +156,13 @@ class SettingsState {
         other.audioLanguage == audioLanguage &&
         other.locale == locale &&
         other.gender == gender &&
-        other.colorThemeExplicit == colorThemeExplicit;
+        other.colorThemeExplicit == colorThemeExplicit &&
+        other.menses == menses;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(themeMode, colorTheme, audioLanguage, locale, gender, colorThemeExplicit);
+  int get hashCode => Object.hash(
+      themeMode, colorTheme, audioLanguage, locale, gender, colorThemeExplicit, menses);
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -165,6 +174,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _localeKey = 'app_locale';
   static const _genderKey = 'pilgrim_gender';
   static const _colorThemeExplicitKey = 'color_theme_explicit';
+  static const _mensesKey = 'pilgrim_menses'; // on-device uniquement (donnée santé)
 
   SettingsNotifier({required this.prefs}) : super(SettingsState.initial()) {
     loadSettings();
@@ -210,6 +220,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
             : defaultLocale,
         gender: gender,
         colorThemeExplicit: colorThemeExplicit,
+        menses: prefs.getBool(_mensesKey) ?? false,
       );
     } catch (e) {
       // Reset to default settings if loading fails
@@ -236,7 +247,18 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> setGender(String gender) async {
     if (state.gender == gender) return;
     await prefs.setString(_genderKey, gender);
-    state = state.copyWith(gender: gender);
+    // Sortir d'un état menses qui n'a aucun sens hors profil féminin.
+    final clearMenses = gender != 'FEMALE' && state.menses;
+    if (clearMenses) await prefs.setBool(_mensesKey, false);
+    state = state.copyWith(gender: gender, menses: clearMenses ? false : null);
+  }
+
+  /// Active/désactive l'état de menstruation. DONNÉE DE SANTÉ : reste strictement
+  /// sur l'appareil (SharedPreferences), jamais transmise.
+  Future<void> setMenses(bool value) async {
+    if (state.menses == value) return;
+    await prefs.setBool(_mensesKey, value);
+    state = state.copyWith(menses: value);
   }
 
   Future<void> setAudioLanguage(AudioLanguage language) async {

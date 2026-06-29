@@ -13,6 +13,7 @@ import '../../../../features/auth/presentation/providers/passport_auth_provider.
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
 import '../../../../shared/presentation/widgets/profile_gender_badge.dart';
+import '../widgets/menses_guidance_banner.dart';
 import 'dua_detail_page.dart';
 
 final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) async {
@@ -125,6 +126,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     return Column(
       children: [
         const ProfileGenderBadge(),
+        const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(
             data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
