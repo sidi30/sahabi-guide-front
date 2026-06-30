@@ -67,6 +67,12 @@ class _SplashWrapperState extends State<SplashWrapper> {
         await prefs.setBool('is_visitor', true);
       }
       if (!mounted) return;
+      // Genre non encore choisi -> ecran de selection (one-time). Indispensable :
+      // les rites different homme/femme. Ensuite tout passe par /home.
+      if (prefs.getString('pilgrim_gender') == null) {
+        context.go('/gender-setup');
+        return;
+      }
       context.go('/home');
     } catch (e) {
       AppLogger.error('❌ Erreur navigation', error: e);

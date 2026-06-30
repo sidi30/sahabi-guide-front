@@ -8,12 +8,14 @@ class GetRitualsUseCase {
   GetRitualsUseCase(this.repository);
 
   Future<List<RitualModel>> call({
+    bool forceRefresh = false,
     String? userId,
     String? gender,
     String? states,
     String? lang,
   }) async {
     return await repository.getRituals(
+      forceRefresh: forceRefresh,
       userId: userId,
       gender: gender,
       states: states,

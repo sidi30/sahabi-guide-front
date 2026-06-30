@@ -35,7 +35,16 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
   // Langue d'affichage des étapes (résolues côté serveur).
   final lang = settings.locale.locale.languageCode;
 
-  return await useCase(userId: userId, gender: gender, lang: lang);
+  // Le cache Hive n'est pas indexé par genre : si un genre est connu, on force le
+  // refetch pour ne pas servir un contenu commun mis en cache avant le choix.
+  final hasGender = gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED';
+
+  return await useCase(
+    forceRefresh: hasGender,
+    userId: userId,
+    gender: gender,
+    lang: lang,
+  );
 });
 
 // Provider pour les douas - utilise le bon type DuaModel

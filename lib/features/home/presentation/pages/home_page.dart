@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:sahabi_guide/shared/presentation/widgets/profile_gender_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,6 +82,11 @@ class HomePage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Badge de profil (homme/femme) — repère visible dès l'accueil
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: ProfileGenderBadge(),
+          ),
           // Welcome Section - Différent selon authentification
           Consumer(
             builder: (context, ref, _) {

@@ -19,6 +19,7 @@ import 'core/utils/app_logger.dart';
 import 'core/providers/language_provider.dart';
 import 'core/services/language_service.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
+import 'features/auth/presentation/pages/gender_setup_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
 import 'features/auth/presentation/pages/visitor_registration_page.dart';
@@ -72,6 +73,7 @@ class AppRoutes {
 
   // Authentication routes
   static const String authChoice = '/auth-choice';
+  static const String genderSetup = '/gender-setup';
   static const String passportLogin = '/passport-login';
   static const String passportOtp = '/passport-otp';
   static const String testPassportLogin = '/test-passport-login';
@@ -229,6 +231,12 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
         path: AppRoutes.authChoice,
         builder: (context, state) => const AuthChoicePage(),
+      ),
+
+      // Choix du genre (one-time, premier lancement) — pilote rites/thème/badge
+      GoRoute(
+        path: AppRoutes.genderSetup,
+        builder: (context, state) => const GenderSetupPage(),
       ),
 
       // Authentication routes

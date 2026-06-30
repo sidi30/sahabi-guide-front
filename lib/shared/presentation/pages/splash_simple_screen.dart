@@ -164,6 +164,11 @@ class _SplashSimpleScreenState extends State<SplashSimpleScreen>
       await prefs.setBool('is_visitor', true);
     }
     if (!mounted) return;
+    // Premier lancement : choix du genre avant tout (rites differents homme/femme).
+    if (prefs.getString('pilgrim_gender') == null) {
+      context.go('/gender-setup');
+      return;
+    }
     context.go('/home');
   }
 

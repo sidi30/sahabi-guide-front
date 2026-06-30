@@ -187,10 +187,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
       final gender = prefs.getString(_genderKey);
-      // Un utilisateur ayant deja choisi une palette (cle presente) est considere
-      // comme explicite -> on ne lui impose pas la palette par defaut du genre.
-      final colorThemeExplicit =
-          prefs.getBool(_colorThemeExplicitKey) ?? prefs.containsKey(_colorThemeKey);
+      // Explicite UNIQUEMENT si l'utilisateur a choisi une palette APRES la refonte
+      // genre (drapeau dedie). On ne se base PAS sur la simple presence d'une cle
+      // color_theme historique, sinon la palette par defaut du genre (ex. aubergine
+      // pour la femme) ne s'appliquerait jamais sur les installs existantes.
+      final colorThemeExplicit = prefs.getBool(_colorThemeExplicitKey) ?? false;
 
       // Default to system locale if available, otherwise French
       AppLocale defaultLocale = AppLocale.fr;
