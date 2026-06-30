@@ -12,6 +12,7 @@ import '../../../../features/settings/presentation/providers/settings_provider.d
 import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
+import '../providers/local_progress_provider.dart';
 import '../../../../shared/presentation/widgets/profile_gender_badge.dart';
 import '../widgets/menses_guidance_banner.dart';
 import 'dua_detail_page.dart';
@@ -194,11 +195,13 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           final isLast = index == sortedRituals.length - 1;
           final settings = ref.watch(settingsProvider);
           final audioLanguage = settings.audioLanguage.code;
+          final isDone = ref.watch(localProgressProvider).isRitualDone(ritual.id);
 
           return RitualTimelineItem(
             ritual: ritual,
             isLast: isLast,
             audioLanguage: audioLanguage,
+            isDone: isDone,
             onMarkAsCompleted: () => _markAsCompleted(ritual),
           );
         },
@@ -236,11 +239,16 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
         itemCount: duas.length,
         itemBuilder: (context, index) {
           final dua = duas[index];
+          final isRead = ref.watch(localProgressProvider).isDuaRead(dua.id);
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 2,
+            color: isRead ? const Color(0xFFECFDF5) : null,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
+              side: isRead
+                  ? const BorderSide(color: Color(0xFF10B981), width: 1.5)
+                  : BorderSide.none,
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.all(16),
@@ -248,19 +256,21 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: ref.colors.primary.withValues(alpha: 0.1),
+                  color: (isRead ? const Color(0xFF10B981) : ref.colors.primary)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  Icons.menu_book,
-                  color: ref.colors.primary,
+                  isRead ? Icons.check_circle : Icons.menu_book,
+                  color: isRead ? const Color(0xFF10B981) : ref.colors.primary,
                 ),
               ),
               title: Text(
                 dua.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: isRead ? const Color(0xFF065F46) : null,
                 ),
               ),
               subtitle: Text(
@@ -268,8 +278,19 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: const Icon(Icons.chevron_right),
+              // Bascule rapide "lu / non lu" sans ouvrir le détail.
+              trailing: IconButton(
+                icon: Icon(
+                  isRead ? Icons.check_circle : Icons.radio_button_unchecked,
+                  color: isRead ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
+                ),
+                tooltip: isRead ? 'Marquer non lu' : 'Marquer lu',
+                onPressed: () =>
+                    ref.read(localProgressProvider.notifier).toggleDua(dua.id),
+              ),
               onTap: () {
+                // Ouvrir le détail marque la doua comme lue.
+                ref.read(localProgressProvider.notifier).setDuaRead(dua.id, true);
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => DuaDetailPage(dua: dua),
@@ -285,13 +306,21 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
   Future<void> _markAsCompleted(RitualModel ritual) async {
     try {
-      await _ritualService.markAsCompleted(ritual);
+      // Bascule l'état local (persistant, marche aussi pour les visiteurs).
+      final wasDone = ref.read(localProgressProvider).isRitualDone(ritual.id);
+      await ref.read(localProgressProvider.notifier).toggleRitual(ritual.id);
+      if (!wasDone) {
+        await _ritualService.markAsCompleted(ritual); // notif prochain rite
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ ${ritual.name} marqué comme accompli'),
-            backgroundColor: const Color(0xFF10B981),
+            content: Text(wasDone
+                ? '↩️ ${ritual.name} : marquage annulé'
+                : '✅ ${ritual.name} marqué comme accompli'),
+            backgroundColor:
+                wasDone ? const Color(0xFF6B7280) : const Color(0xFF10B981),
             duration: const Duration(seconds: 2),
           ),
         );

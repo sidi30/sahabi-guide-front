@@ -60,9 +60,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   /// Remplace les anciens mp3 `assets/audio/...` absents du bundle.
   Future<void> _playExplanation() async {
     final guidance = _guidance;
-    final text = guidance != null
+    final text = (guidance != null && !_isServerGendered)
         ? guidance.toSpeech(widget.ritual.name)
-        : '${widget.ritual.name}. ${_getDetailedExplanation()}';
+        : '${widget.ritual.name}. ${_getDetailedExplanation()}. '
+            '${_getImportantSteps().join('. ')}';
     setState(() => _hasReadExplanation = true);
     await _tts.speak(text, lang: widget.audioLanguage, tag: widget.ritual.id);
   }
@@ -549,7 +550,17 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   // --- Contenu : guide propre au rituel, sinon données du modèle, sinon
   //     repli générique. ----------------------------------------------------
 
+  /// Le serveur a-t-il fourni un contenu d'étapes déjà filtré/varié par genre ?
+  /// Si oui, il fait AUTORITÉ : la guidance statique (prose mixte homme/femme,
+  /// codée en dur) ne doit plus s'afficher, sinon une femme verrait p.ex. la
+  /// tenue blanche réservée aux hommes et le changement de profil n'aurait aucun
+  /// effet visible.
+  bool get _isServerGendered => widget.ritual.steps.isNotEmpty;
+
   String _getDetailedExplanation() {
+    if (_isServerGendered && widget.ritual.description.isNotEmpty) {
+      return widget.ritual.description;
+    }
     final g = _guidance;
     if (g != null) return g.explanation;
     if (widget.ritual.description.isNotEmpty) return widget.ritual.description;
@@ -557,9 +568,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   }
 
   List<String> _getImportantSteps() {
+    // Priorité au contenu gendré du serveur.
+    if (_isServerGendered) return widget.ritual.steps;
     final g = _guidance;
     if (g != null) return g.importantSteps;
-    if (widget.ritual.steps.isNotEmpty) return widget.ritual.steps;
     return [
       'Maintenez votre pureté rituelle (wudu)',
       'Récitez des invocations sincères',
@@ -569,6 +581,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   }
 
   List<String> _getHowTo() {
+    // Pour un rite gendré, on n'affiche pas le "comment" statique mixte
+    // (il contiendrait des actes de l'autre genre).
+    if (_isServerGendered) return const [];
     return _guidance?.howTo ?? const [];
   }
 
@@ -577,6 +592,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   }
 
   Map<String, String> _getPracticalInfo() {
+    if (_isServerGendered && widget.ritual.practicalTips.isNotEmpty) {
+      return widget.ritual.practicalTips;
+    }
     final g = _guidance;
     if (g != null) return g.practicalTips;
     if (widget.ritual.practicalTips.isNotEmpty) {

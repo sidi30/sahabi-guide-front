@@ -8,6 +8,9 @@ class RitualTimelineItem extends StatefulWidget {
   final bool isLast;
   final String audioLanguage;
   final VoidCallback? onMarkAsCompleted;
+  /// Override local de l'état « accompli » (suivi on-device), prioritaire sur
+  /// le statut serveur pour que le marquage soit immédiatement visible.
+  final bool isDone;
 
   const RitualTimelineItem({
     super.key,
@@ -15,6 +18,7 @@ class RitualTimelineItem extends StatefulWidget {
     required this.isLast,
     required this.audioLanguage,
     this.onMarkAsCompleted,
+    this.isDone = false,
   });
 
   @override
@@ -23,6 +27,9 @@ class RitualTimelineItem extends StatefulWidget {
 
 class _RitualTimelineItemState extends State<RitualTimelineItem> {
   bool _showDetails = false;
+
+  bool get _completed =>
+      widget.isDone || widget.ritual.status == RitualStatus.completed;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +83,12 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
     Color indicatorColor;
     IconData indicatorIcon;
 
+    if (_completed) {
+      indicatorColor = const Color(0xFF10B981);
+      indicatorIcon = Icons.check_circle;
+      return _indicatorColumn(indicatorColor, indicatorIcon);
+    }
+
     switch (widget.ritual.status) {
       case RitualStatus.completed:
         indicatorColor = const Color(0xFF10B981); // Vert
@@ -95,6 +108,10 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
         break;
     }
 
+    return _indicatorColumn(indicatorColor, indicatorIcon);
+  }
+
+  Widget _indicatorColumn(Color indicatorColor, IconData indicatorIcon) {
     return Column(
       children: [
         Container(
@@ -123,7 +140,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             height: 80,
             margin: const EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
-              color: widget.ritual.status == RitualStatus.completed
+              color: _completed
                   ? const Color(0xFF10B981)
                   : const Color(0xFFE5E7EB),
               borderRadius: BorderRadius.circular(1),
@@ -134,11 +151,17 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
   }
 
   Widget _buildRitualContent() {
+    final isCompleted = _completed;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Repère glanceable : un rite accompli a un fond vert clair + bordure verte,
+        // pour ne pas se tromper d'un coup d'oeil pendant la marche.
+        color: isCompleted ? const Color(0xFFECFDF5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: isCompleted
+            ? Border.all(color: const Color(0xFF10B981), width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -153,13 +176,22 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
           // Titre et statut
           Row(
             children: [
+              if (isCompleted) ...[
+                const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 22),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: Text(
                   widget.ritual.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1D3557),
+                    color: isCompleted
+                        ? const Color(0xFF065F46)
+                        : const Color(0xFF1D3557),
+                    decoration:
+                        isCompleted ? TextDecoration.lineThrough : null,
+                    decorationColor: const Color(0xFF10B981),
                   ),
                 ),
               ),
@@ -190,6 +222,19 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
     String statusText;
     Color backgroundColor;
     Color textColor;
+
+    if (_completed) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFD1FAE5),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Text('✅ Fait',
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF065F46))),
+      );
+    }
 
     switch (widget.ritual.status) {
       case RitualStatus.completed:
@@ -232,20 +277,21 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
   }
 
   Widget _buildMainActionButton() {
-    final isCompleted = widget.ritual.status == RitualStatus.completed;
+    final isCompleted = _completed;
     final isOverdue = widget.ritual.status == RitualStatus.overdue;
     final isActive = widget.ritual.status == RitualStatus.active;
 
     if (isCompleted) {
+      // Tappable pour annuler en cas d'erreur de marquage.
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: null,
+          onPressed: widget.onMarkAsCompleted,
           icon: const Icon(Icons.check_circle, size: 20),
-          label: const Text('✅ Rituel accompli'),
+          label: const Text('✅ Accompli — appuyez pour annuler'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
-            foregroundColor: const Color(0xFF10B981),
+            backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.12),
+            foregroundColor: const Color(0xFF065F46),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

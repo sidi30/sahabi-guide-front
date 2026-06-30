@@ -237,6 +237,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   Future<void> setColorTheme(AppColorTheme theme) async {
+    // No-op si deja ce theme ET deja explicite (evite une reconstruction inutile).
+    if (state.colorTheme == theme && state.colorThemeExplicit) return;
     // Choix manuel : on le memorise comme explicite (prioritaire sur le defaut genre).
     await prefs.setInt(_colorThemeKey, theme.index);
     await prefs.setBool(_colorThemeExplicitKey, true);
