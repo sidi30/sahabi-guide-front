@@ -394,22 +394,24 @@ class AppTheme {
       textTheme: _buildTextTheme(Brightness.dark, colors),
 
       // Configuration de la barre d'application
+      // Teinte dérivée du genre (primaryDark) même en mode sombre, sinon les deux
+      // palettes donneraient une barre quasi-noire identique (changement invisible).
       appBarTheme: AppBarTheme(
-        backgroundColor: colors.darkSurface,
-        foregroundColor: colors.darkTextPrimary,
+        backgroundColor: colors.primaryDark,
+        foregroundColor: colors.textOnPrimary,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colors.darkSurface,
+          statusBarColor: colors.primaryDark,
           statusBarIconBrightness: Brightness.light,
         ),
         titleTextStyle: GoogleFonts.notoSans(
           fontSize: _extraLargeFontSize,
           fontWeight: FontWeight.w600,
-          color: colors.darkTextPrimary,
+          color: colors.textOnPrimary,
         ),
         iconTheme: IconThemeData(
-          color: colors.darkTextPrimary,
+          color: colors.textOnPrimary,
           size: 24,
         ),
       ),

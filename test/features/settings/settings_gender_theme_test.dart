@@ -57,4 +57,30 @@ void main() {
     await n.setGender('MALE');
     expect(n.state.menses, false);
   });
+
+  test('migration: flag explicite figé (tests) débloqué au chargement -> genre pilote',
+      () async {
+    // Install ayant tapé un thème : color_theme_explicit=true persisté, sans
+    // marqueur de migration. Au chargement, la migration le lève -> FEMALE=aubergine.
+    final n = await build({
+      'pilgrim_gender': 'FEMALE',
+      'color_theme_explicit': true,
+      'color_theme': AppColorTheme.starryNight.index,
+    });
+    expect(n.state.colorThemeExplicit, false);
+    expect(n.state.currentColorScheme.primary, AppColorTheme.rawdah.scheme.primary);
+  });
+
+  test('re-sélectionner le même genre ré-applique sa palette (Gap A)', () async {
+    // Déjà FEMALE mais bloqué sur un choix manuel explicite (déjà migré).
+    final n = await build({
+      'pilgrim_gender': 'FEMALE',
+      'gender_color_migrated_v1': true,
+      'color_theme_explicit': true,
+      'color_theme': AppColorTheme.starryNight.index,
+    });
+    expect(n.state.currentColorScheme.primary, AppColorTheme.starryNight.scheme.primary);
+    await n.setGender('FEMALE'); // même valeur -> doit quand même ré-appliquer
+    expect(n.state.currentColorScheme.primary, AppColorTheme.rawdah.scheme.primary);
+  });
 }

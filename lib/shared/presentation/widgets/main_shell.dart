@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../../../core/utils/app_logger.dart';
-import '../../../features/bot/presentation/widgets/floating_bot_button.dart';
+import '../../../features/bot/presentation/widgets/draggable_bot_button.dart';
 
 class NavigationItem {
   final IconData icon;
@@ -209,7 +209,9 @@ class _MainShellState extends ConsumerState<MainShell> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Row(
+      body: Stack(
+        children: [
+          Row(
         children: [
           // Navigation Rail for larger screens
           if (isLargeScreen)
@@ -249,6 +251,24 @@ class _MainShellState extends ConsumerState<MainShell> {
                 thickness: 1, width: 1, color: ref.colors.divider),
           // Main content
           Expanded(child: widget.child),
+        ],
+          ),
+          // Assistant flottant déplaçable/rangeable, uniquement sur les
+          // onglets principaux.
+          ListenableBuilder(
+            listenable: GoRouter.of(context).routeInformationProvider,
+            builder: (context, _) {
+              final path = GoRouter.of(context)
+                  .routeInformationProvider
+                  .value
+                  .uri
+                  .path;
+              const mainTabs = {'/home', '/rituals', '/map', '/videos'};
+              return mainTabs.contains(path)
+                  ? const DraggableBotButton()
+                  : const SizedBox.shrink();
+            },
+          ),
         ],
       ),
       // Bottom Navigation for mobile
@@ -343,24 +363,6 @@ class _MainShellState extends ConsumerState<MainShell> {
                 ),
               ),
             ),
-      // Bouton flottant du bot : visible UNIQUEMENT sur les onglets
-      // principaux (Accueil/Rituels/Carte/Videos/Profil). Cache partout
-      // ailleurs — y compris /bot, /settings, /profile/details, etc.
-      floatingActionButton: ListenableBuilder(
-        listenable: GoRouter.of(context).routeInformationProvider,
-        builder: (context, _) {
-          final path = GoRouter.of(context)
-              .routeInformationProvider
-              .value
-              .uri
-              .path;
-          const mainTabs = {'/home', '/rituals', '/map', '/videos'};
-          final visible = mainTabs.contains(path);
-          AppLogger.debug('[MainShell] path="$path" fab=$visible');
-          return visible ? const FloatingBotButton() : const SizedBox.shrink();
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

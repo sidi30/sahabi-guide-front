@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -175,6 +176,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _genderKey = 'pilgrim_gender';
   static const _colorThemeExplicitKey = 'color_theme_explicit';
   static const _mensesKey = 'pilgrim_menses'; // on-device uniquement (donnée santé)
+  static const _genderColorMigratedKey = 'gender_color_migrated_v1';
 
   SettingsNotifier({required this.prefs}) : super(SettingsState.initial()) {
     loadSettings();
@@ -187,11 +189,17 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
       final gender = prefs.getString(_genderKey);
-      // Explicite UNIQUEMENT si l'utilisateur a choisi une palette APRES la refonte
-      // genre (drapeau dedie). On ne se base PAS sur la simple presence d'une cle
-      // color_theme historique, sinon la palette par defaut du genre (ex. aubergine
-      // pour la femme) ne s'appliquerait jamais sur les installs existantes.
-      final colorThemeExplicit = prefs.getBool(_colorThemeExplicitKey) ?? false;
+      // Migration one-shot : débloque une fois pour toutes les installs où le
+      // drapeau « choix manuel » est resté figé (tests), afin que la couleur suive
+      // le genre. Après ça, un nouveau choix manuel persiste normalement.
+      // Écriture non bloquante (ne pas retarder loadSettings).
+      final migrated = prefs.getBool(_genderColorMigratedKey) ?? false;
+      final colorThemeExplicit =
+          migrated ? (prefs.getBool(_colorThemeExplicitKey) ?? false) : false;
+      if (!migrated) {
+        unawaited(prefs.setBool(_colorThemeExplicitKey, false));
+        unawaited(prefs.setBool(_genderColorMigratedKey, true));
+      }
 
       // Default to system locale if available, otherwise French
       AppLocale defaultLocale = AppLocale.fr;
@@ -245,15 +253,28 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = state.copyWith(colorTheme: theme, colorThemeExplicit: true);
   }
 
-  /// Définit le genre (MALE/FEMALE). Met à jour la palette par défaut si
-  /// l'utilisateur n'a pas explicitement choisi une autre palette.
+  /// Définit le genre (MALE/FEMALE). Le genre PILOTE la palette : choisir un
+  /// genre ré-applique sa palette par défaut (homme=émeraude, femme=aubergine)
+  /// et réinitialise le drapeau « choix manuel », sinon une palette choisie
+  /// auparavant resterait figée et la couleur ne changerait jamais avec le genre.
   Future<void> setGender(String gender) async {
-    if (state.gender == gender) return;
+    // Pas d'early-return : sélectionner un genre doit TOUJOURS ré-appliquer sa
+    // palette et lever un éventuel choix manuel figé (sinon la couleur ne suit
+    // jamais le genre pour qui a déjà tapé un thème).
     await prefs.setString(_genderKey, gender);
     // Sortir d'un état menses qui n'a aucun sens hors profil féminin.
     final clearMenses = gender != 'FEMALE' && state.menses;
     if (clearMenses) await prefs.setBool(_mensesKey, false);
-    state = state.copyWith(gender: gender, menses: clearMenses ? false : null);
+    // Réaffirmer la palette du genre.
+    await prefs.setBool(_colorThemeExplicitKey, false);
+    final genderTheme = genderDefaultColorTheme(gender);
+    await prefs.setInt(_colorThemeKey, genderTheme.index);
+    state = state.copyWith(
+      gender: gender,
+      menses: clearMenses ? false : null,
+      colorTheme: genderTheme,
+      colorThemeExplicit: false,
+    );
   }
 
   /// Active/désactive l'état de menstruation. DONNÉE DE SANTÉ : reste strictement
