@@ -123,8 +123,31 @@ Vous pouvez desactiver la geolocalisation, mais cela limitera certaines fonction
           _buildSection(
             context,
             ref,
+            icon: Icons.smart_toy_outlined,
+            title: "7. Assistant IA",
+            content: '''
+L'assistant conversationnel repond uniquement aux questions liees au Hajj, a la Omra et a l'Islam. Un filtre en amont ecarte les sujets hors de ce perimetre.
+
+Donnees transmises a notre serveur :
+- Texte de la question
+- Langue choisie (FR / EN / AR / HA)
+- Derniers messages de la conversation en cours
+
+Aucune donnee d'identite (nom, passeport, telephone, email, position GPS, sante) n'est envoyee a l'assistant.
+
+Service IA tiers utilise :
+Pour generer la reponse, notre serveur transmet la question, via une connexion chiffree HTTPS, a Google Gemini (Google LLC, USA). Google traite la requete uniquement pour produire la reponse et ne la conserve pas pour entrainer ses modeles (engagement Google pour l'API Gemini payante).
+
+Notre systeme applique en amont un filtre thematique (perimetre Hajj / Omra / Islam) et un ancrage sur des sources authentifiees (Coran, Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, Ibn Majah, Ibn Hanbal) avant d'appeler l'IA.
+
+Vous pouvez refuser cet usage : l'assistant fonctionnera alors en mode local limite (reponses preenregistrees, sans IA).
+''',
+          ),
+          _buildSection(
+            context,
+            ref,
             icon: Icons.update,
-            title: '7. Modifications',
+            title: '8. Modifications',
             content: '''
 Cette politique peut etre mise a jour occasionnellement. Nous vous informerons de tout changement important par notification dans l'application.
 

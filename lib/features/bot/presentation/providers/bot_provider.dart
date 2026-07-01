@@ -14,6 +14,7 @@ import '../../data/services/voice_service.dart';
 import '../../data/services/voice_remote_api.dart';
 import 'package:sahabi_guide/core/network/dio_client.dart';
 import 'package:sahabi_guide/core/di/injection_container.dart';
+import '../widgets/ai_consent_dialog.dart';
 
 /// Provider pour le logger
 final loggerProvider = Provider<Logger>((ref) => Logger());
@@ -341,6 +342,14 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
     // Première application : on mémorise juste la langue d'affichage courante.
     _displayLang ??= targetLang;
     if (_displayLang == targetLang) {
+      _displayLang = targetLang;
+      return;
+    }
+
+    // Consent IA requis : la traduction transite par Gemini côté serveur.
+    // Si l'utilisateur n'a pas consenti, on met à jour la langue d'affichage
+    // sans envoyer le contenu au service IA.
+    if (!await AiConsentDialog.hasConsent()) {
       _displayLang = targetLang;
       return;
     }

@@ -216,8 +216,10 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
             SwitchListTile(
               title: const Text('Activer l\'IA enrichie'),
               subtitle: const Text(
-                'Le copilote utilise l\'IA du serveur Sahabi (Ollama + RAG) '
-                'pour les questions hors de la base de connaissances. Actif par défaut.',
+                "Le copilote transmet votre question à Google Gemini "
+                "(Google LLC, USA) via notre serveur, en HTTPS, pour "
+                "générer la réponse. Aucune donnée d'identité n'est "
+                "envoyée. Voir la politique de confidentialité.",
               ),
               value: _llmEnabled,
               onChanged: (value) async {
@@ -239,9 +241,10 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'L\'IA tourne côté serveur avec des sources authentifiées '
-                      '(Bukhari, Muslim, Tirmidhi). Aucune configuration requise, '
-                      'aucune clé API à fournir.',
+                      "Sources authentifiées ancrées côté serveur : "
+                      "Coran, Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, "
+                      "Ibn Majah, Ibn Hanbal. Filtre thématique Islam/Hajj "
+                      "en amont. Google ne conserve pas la requête.",
                       style: TextStyle(fontSize: 12),
                     ),
                   ),

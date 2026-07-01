@@ -6,6 +6,7 @@ import 'package:sahabi_guide/features/home/presentation/pages/home_page.dart'
     show prayerScheduleProvider;
 import 'package:sahabi_guide/l10n/app_localizations.dart';
 import '../providers/bot_provider.dart';
+import '../widgets/ai_consent_dialog.dart';
 import '../widgets/bot_message_bubble.dart';
 import '../widgets/quick_reply_chip.dart';
 import 'bot_settings_page.dart';
@@ -657,9 +658,13 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
       // `reply` est la valeur ENVOYÉE au bot : pour une clé fixe (`qr:*`) c'est
       // déjà le libellé FR canonique mappé dans QuickReplyList ; pour une
       // réponse dynamique c'est la valeur brute. On suit la langue courante.
-      onReplySelected: (reply) => ref
-          .read(botChatProvider.notifier)
-          .sendAnswer(reply, locale: _currentLang),
+      onReplySelected: (reply) async {
+        final consent = await AiConsentDialog.ensureConsent(context);
+        if (!consent) return;
+        ref
+            .read(botChatProvider.notifier)
+            .sendAnswer(reply, locale: _currentLang);
+      },
       isEnabled: !state.isTyping,
     );
   }
@@ -976,12 +981,16 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     );
   }
 
-  void _handleTextInput() {
+  void _handleTextInput() async {
     if (_textController.text.trim().isEmpty) return;
 
     final text = _textController.text.trim();
-    _textController.clear();
 
+    // Consentement explicite avant envoi à l'IA tierce (Apple 5.1.1(i)/5.1.2(i))
+    final consent = await AiConsentDialog.ensureConsent(context);
+    if (!consent) return;
+
+    _textController.clear();
     ref.read(botChatProvider.notifier).askQuestion(text, language: _currentLang);
   }
 

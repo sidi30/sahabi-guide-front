@@ -128,11 +128,6 @@ class LocationDisclosureDialog {
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Refuser',
-                    style: TextStyle(color: Colors.grey)),
-              ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
@@ -141,7 +136,7 @@ class LocationDisclosureDialog {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Autoriser'),
+                child: const Text('Continuer'),
               ),
             ],
           ),
