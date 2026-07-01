@@ -42,11 +42,7 @@
 		<!-- PERMISSIONS - LOCALISATION                   -->
 		<!-- ============================================ -->
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Sahabi Guide a besoin de votre localisation pour vous guider pendant votre pèlerinage et vous afficher sur la carte interactive.</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Sahabi Guide nécessite l'accès continu à votre localisation pour partager votre position en temps réel avec votre groupe et assurer votre sécurité.</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Sahabi Guide utilise votre localisation en arrière-plan pour suivre votre position même quand l'application n'est pas active, garantissant ainsi votre sécurité.</string>
+		<string>Sahabi Guide utilise votre position, uniquement lorsque l'application est ouverte, pour vous guider vers les lieux saints, permettre la fonction SOS et le regroupement avec votre caravane, et calculer les heures de prière. Aucune collecte en arrière-plan.</string>
 		<!-- ============================================ -->
 		<!-- PERMISSIONS - CAMÉRA & PHOTOS                -->
 		<!-- ============================================ -->
@@ -90,7 +86,6 @@
 		<!-- ============================================ -->
 		<key>UIBackgroundModes</key>
 		<array>
-			<string>location</string>
 			<string>fetch</string>
 			<string>remote-notification</string>
 		</array>
