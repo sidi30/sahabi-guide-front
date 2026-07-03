@@ -2,7 +2,7 @@ name: sahabi_guide
 description: Compagnon de pèlerinage intelligent pour le Hajj avec suivi GPS en temps réel, guide des rituels et système d'alertes.
 publish_to: "none"
 
-version: 1.2.18+134
+version: 1.3.0+135
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
