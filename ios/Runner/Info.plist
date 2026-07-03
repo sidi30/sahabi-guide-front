@@ -43,6 +43,11 @@
 		<!-- ============================================ -->
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Sahabi Guide utilise votre position, uniquement lorsque l'application est ouverte, pour vous guider vers les lieux saints, permettre la fonction SOS et le regroupement avec votre caravane, et calculer les heures de prière. Aucune collecte en arrière-plan.</string>
+		<!-- Exigee par Apple ITMS-90683 : un SDK de localisation reference l'API
+		     "Always" meme si l'app n'utilise la position QUE lorsqu'elle est ouverte
+		     (pas de mode "location" dans UIBackgroundModes). Description alignee. -->
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Sahabi Guide utilise votre position uniquement lorsque l'application est ouverte, pour vous guider vers les lieux saints, permettre la fonction SOS et le regroupement avec votre caravane, et calculer les heures de prière. Aucune collecte en arrière-plan.</string>
 		<!-- ============================================ -->
 		<!-- PERMISSIONS - CAMÉRA & PHOTOS                -->
 		<!-- ============================================ -->
