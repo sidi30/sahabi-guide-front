@@ -10,6 +10,14 @@ abstract class PassportAuthRemoteDataSource {
   Future<PassportAuthResponse> resendOtp(String passportNo);
   Future<PassportAuthResponse> logout(String token);
   Future<PilgrimProfile> getPilgrimProfile(String token);
+
+  // Auth par email (self-signup passwordless)
+  Future<PassportAuthResponse> requestEmailCode(String email);
+  Future<PassportAuthResponse> verifyEmailCode(String email, String otpCode);
+  Future<PassportAuthResponse> resendEmailCode(String email);
+
+  // Suppression de compte (JWT requis)
+  Future<PassportAuthResponse> deleteAccount(String token);
 }
 
 class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
@@ -137,6 +145,76 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
       }
     } catch (e) {
       throw Exception('Erreur de déconnexion: $e');
+    }
+  }
+
+  @override
+  Future<PassportAuthResponse> requestEmailCode(String email) async {
+    try {
+      final response = await dioClient.post(
+        '/api/auth/email/request',
+        data: {'email': email},
+      );
+      return PassportAuthResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      String msg = 'Impossible d\'envoyer le code';
+      if (e.response?.data is Map) {
+        msg = (e.response!.data as Map)['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Erreur de connexion: $e');
+    }
+  }
+
+  @override
+  Future<PassportAuthResponse> verifyEmailCode(String email, String otpCode) async {
+    try {
+      final response = await dioClient.post(
+        '/api/auth/email/verify',
+        data: {'email': email, 'otpCode': otpCode},
+      );
+      return PassportAuthResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      String msg = 'Code invalide';
+      if (e.response?.data is Map) {
+        msg = (e.response!.data as Map)['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Erreur de vérification: $e');
+    }
+  }
+
+  @override
+  Future<PassportAuthResponse> resendEmailCode(String email) async {
+    try {
+      final response = await dioClient.post(
+        '/api/auth/email/resend',
+        data: {'email': email},
+      );
+      return PassportAuthResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Erreur de renvoi du code: $e');
+    }
+  }
+
+  @override
+  Future<PassportAuthResponse> deleteAccount(String token) async {
+    try {
+      final response = await dioClient.delete(
+        '/api/auth/account',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      return PassportAuthResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      String msg = 'Suppression impossible';
+      if (e.response?.data is Map) {
+        msg = (e.response!.data as Map)['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Erreur de suppression: $e');
     }
   }
 

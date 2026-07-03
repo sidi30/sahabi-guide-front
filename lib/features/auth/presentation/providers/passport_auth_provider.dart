@@ -91,6 +91,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final PassportLogoutUseCase logoutUseCase;
   final GetPilgrimProfileUseCase getPilgrimProfileUseCase;
   final CheckAuthStatusUseCase checkAuthStatusUseCase;
+  // Repository injecte pour les chemins telephone + suppression de compte
+  // (pas de use case dedie : meme flux, on reste minimal).
+  final PassportAuthRepository repository;
 
   AuthNotifier({
     required this.loginUseCase,
@@ -99,6 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required this.logoutUseCase,
     required this.getPilgrimProfileUseCase,
     required this.checkAuthStatusUseCase,
+    required this.repository,
   }) : super(const AuthState()) {
     _checkAuthStatus();
   }
@@ -238,6 +242,82 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(error: null);
   }
 
+  // ── Auth par email (self-signup passwordless) ────────────────────────────
+
+  /// Demande un code OTP par email. Retourne `true` si le code a été envoyé
+  /// (crée le compte à la volée si l'email est nouveau).
+  Future<bool> requestEmailCode(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final response = await repository.requestEmailCode(email);
+      if (response.success) {
+        state = state.copyWith(isLoading: false, passportNo: null);
+        return true;
+      }
+      state = state.copyWith(isLoading: false, error: response.message);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      return false;
+    }
+  }
+
+  /// Vérifie le code email et authentifie. Retourne `true` en cas de succès.
+  Future<bool> verifyEmailCode(String email, String otpCode) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final response = await repository.verifyEmailCode(email, otpCode);
+      if (response.success && response.token != null) {
+        state = state.copyWith(
+          isLoading: false,
+          isAuthenticated: true,
+          token: response.token,
+        );
+        try {
+          final profile = await getPilgrimProfileUseCase(forceRefresh: true);
+          state = state.copyWith(pilgrimProfile: profile);
+        } catch (e) {
+          AppLogger.warning('[AuthNotifier] Profil indisponible après login email: $e');
+        }
+        return true;
+      }
+      state = state.copyWith(isLoading: false, error: response.message);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      return false;
+    }
+  }
+
+  Future<void> resendEmailCode(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final response = await repository.resendEmailCode(email);
+      state = state.copyWith(
+        isLoading: false,
+        error: response.success ? null : response.message,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  // ── Suppression de compte in-app ─────────────────────────────────────────
+
+  /// Supprime définitivement le compte du porteur du token, puis réinitialise
+  /// l'état local (déconnexion). Retourne `true` si la suppression a réussi.
+  Future<bool> deleteAccount() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await repository.deleteAccount();
+      state = const AuthState(); // non authentifié, session nettoyée
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      return false;
+    }
+  }
+
   /// Appelé sur un 401 réseau : le token a déjà été effacé par DioClient.
   /// On bascule l'état en non authentifié + session expirée pour que le
   /// routeur force une reconnexion (au lieu d'écrans muets en échec).
@@ -256,6 +336,7 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref
     logoutUseCase: ref.watch(passportLogoutUseCaseProvider),
     getPilgrimProfileUseCase: ref.watch(getPilgrimProfileUseCaseProvider),
     checkAuthStatusUseCase: ref.watch(checkAuthStatusUseCaseProvider),
+    repository: ref.watch(passportAuthRepositoryProvider),
   );
 
   // Recovery sur 401 : DioClient efface le token puis nous notifie afin de

@@ -22,6 +22,8 @@ import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/gender_setup_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
 import 'features/auth/presentation/pages/passport_otp_verification_page.dart';
+import 'features/auth/presentation/pages/email_login_page.dart';
+import 'features/auth/presentation/pages/email_otp_verification_page.dart';
 import 'features/auth/presentation/pages/visitor_registration_page.dart';
 import 'features/auth/presentation/providers/passport_auth_provider.dart';
 import 'features/health/presentation/pages/health_page.dart';
@@ -76,6 +78,8 @@ class AppRoutes {
   static const String genderSetup = '/gender-setup';
   static const String passportLogin = '/passport-login';
   static const String passportOtp = '/passport-otp';
+  static const String emailLogin = '/email-login';
+  static const String emailOtp = '/email-otp';
   static const String testPassportLogin = '/test-passport-login';
   static const String visitorRegistration = '/visitor-registration';
 
@@ -253,6 +257,18 @@ class _MyAppState extends ConsumerState<MyApp> {
         builder: (context, state) {
           final passportNo = state.extra as String? ?? '';
           return PassportOtpVerificationPage(passportNo: passportNo);
+        },
+      ),
+      // Auth par email (self-signup passwordless)
+      GoRoute(
+        path: AppRoutes.emailLogin,
+        builder: (context, state) => const EmailLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailOtp,
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          return EmailOtpVerificationPage(email: email);
         },
       ),
       GoRoute(

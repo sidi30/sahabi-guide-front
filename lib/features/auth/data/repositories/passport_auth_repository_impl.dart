@@ -11,6 +11,14 @@ abstract class PassportAuthRepository {
   Future<PilgrimProfile?> getPilgrimProfile({bool forceRefresh = false});
   Future<bool> isLoggedIn();
   Future<void> clearSession();
+
+  // Auth par email (self-signup passwordless)
+  Future<PassportAuthResponse> requestEmailCode(String email);
+  Future<PassportAuthResponse> verifyEmailCode(String email, String otpCode);
+  Future<PassportAuthResponse> resendEmailCode(String email);
+
+  // Suppression de compte in-app
+  Future<PassportAuthResponse> deleteAccount();
 }
 
 class PassportAuthRepositoryImpl implements PassportAuthRepository {
@@ -135,5 +143,36 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
     await localDataSource.deleteToken();
     await localDataSource.deletePilgrimProfile();
     await localDataSource.deletePassportNo();
+  }
+
+  @override
+  Future<PassportAuthResponse> requestEmailCode(String email) async {
+    return await remoteDataSource.requestEmailCode(email);
+  }
+
+  @override
+  Future<PassportAuthResponse> verifyEmailCode(String email, String otpCode) async {
+    final response = await remoteDataSource.verifyEmailCode(email, otpCode);
+    if (response.success && response.token != null) {
+      await localDataSource.saveToken(response.token!);
+    }
+    return response;
+  }
+
+  @override
+  Future<PassportAuthResponse> resendEmailCode(String email) async {
+    return await remoteDataSource.resendEmailCode(email);
+  }
+
+  @override
+  Future<PassportAuthResponse> deleteAccount() async {
+    final token = await localDataSource.getToken();
+    if (token == null) {
+      throw Exception('Aucune session active');
+    }
+    final response = await remoteDataSource.deleteAccount(token);
+    // Quelle que soit la réponse, on nettoie la session locale.
+    await clearSession();
+    return response;
   }
 }

@@ -34,16 +34,11 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     });
   }
 
+  /// Le genre est OPTIONNEL (préférence d'affichage du contenu, pas une donnée
+  /// de compte) : sans choix, on affiche le contenu commun (UNSPECIFIED).
+  /// Modifiable à tout moment dans les Réglages.
   bool _requireGenderOrWarn() {
-    if (_selectedGender == null) {
-      HapticFeedback.lightImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez indiquer si vous êtes un homme ou une femme : les rites diffèrent.'),
-        ),
-      );
-      return false;
-    }
+    _selectedGender ??= 'UNSPECIFIED';
     return true;
   }
 
@@ -58,9 +53,10 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
     await ref.read(settingsProvider.notifier).setGender(_selectedGender!);
 
     if (_selectedRole == 'pilgrim') {
-      // Les pèlerins vont vers la connexion par passeport
+      // Les pèlerins créent un compte / se connectent par email (self-signup).
+      // Le login par passeport (comptes agence) reste accessible depuis cet écran.
       if (!mounted) return;
-      context.push('/passport-login');
+      context.push('/email-login');
     } else {
       // Les visiteurs vont vers l'inscription newsletter
       if (!mounted) return;
@@ -138,9 +134,10 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
 
               const SizedBox(height: 48),
 
-              // Genre — obligatoire (les rites diffèrent entre homme et femme).
+              // Genre — OPTIONNEL : simple préférence d'affichage des rites
+              // (homme/femme), jamais exigée. « Voir tout » = contenu commun.
               Text(
-                'Pour vous montrer les bons rites',
+                'Pour vous montrer les bons rites (optionnel)',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -149,7 +146,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Vous pourrez le modifier dans les Réglages.',
+                'Facultatif. Vous pourrez le modifier dans les Réglages.',
                 style: TextStyle(fontSize: 13, color: ref.colors.textSecondary),
               ),
               const SizedBox(height: 16),
@@ -176,6 +173,14 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              _buildGenderOption(
+                icon: Icons.visibility_outlined,
+                label: 'Voir tout',
+                subtitle: 'Ne pas préciser',
+                value: 'UNSPECIFIED',
+                isSelected: _selectedGender == 'UNSPECIFIED',
+              ),
 
               const SizedBox(height: 32),
 
@@ -197,7 +202,7 @@ class _AuthChoicePageState extends ConsumerState<AuthChoicePage> {
                     child: _buildRoleOption(
                       icon: Icons.person,
                       label: 'Pèlerin',
-                      subtitle: 'Avec passeport',
+                      subtitle: 'Créer un compte',
                       value: 'pilgrim',
                       isSelected: _selectedRole == 'pilgrim',
                     ),

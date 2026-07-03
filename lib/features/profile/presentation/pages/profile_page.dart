@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/injection_container.dart';
@@ -157,7 +158,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Passeport: ${profile?.passportNo ?? 'N/A'}',
+                          profile?.passportNo != null
+                              ? 'Passeport: ${profile!.passportNo}'
+                              : (profile?.phone != null
+                                  ? profile!.phone!
+                                  : 'Compte'),
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: ref.colors.secondary,
@@ -213,7 +218,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               _buildInfoRow('Passeport', profile?.passportNo ?? 'Non renseigné'),
               if (profile?.phone != null)
                 _buildInfoRow('Téléphone', profile!.phone!),
-              if (profile?.email != null && profile!.email!.isNotEmpty)
+              // Masquer les emails techniques générés pour les comptes
+              // sans email (self-signup par téléphone).
+              if (profile?.email != null &&
+                  profile!.email!.isNotEmpty &&
+                  !profile.email!.endsWith('.sahabi.local'))
                 _buildInfoRow('Email', profile.email!),
               if (profile?.role != null)
                 _buildInfoRow('Rôle', profile!.role!),
@@ -348,6 +357,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: ref.colors.accent),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Delete Account Button (conformité Apple 5.1.1(v))
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: () => _deleteAccount(context),
+              icon: const Icon(Icons.delete_forever, color: Colors.red),
+              label: const Text(
+                'Supprimer mon compte',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -505,7 +529,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               final authNotifier = ref.read(authNotifierProvider.notifier);
               await authNotifier.logout();
               if (context.mounted) {
-                context.go('/passport-login');
+                context.go('/auth-choice');
               }
             },
             style: ElevatedButton.styleFrom(
@@ -516,6 +540,115 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Suppression de compte in-app : avertissement + confirmation par saisie du
+  /// mot « SUPPRIMER », puis appel serveur (anonymisation + désactivation) et
+  /// retour à l'écran d'accueil. Conformité Apple 5.1.1(v).
+  void _deleteAccount(BuildContext context) {
+    final confirmController = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        bool canDelete = false;
+        bool isDeleting = false;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red),
+                  SizedBox(width: 8),
+                  Expanded(child: Text('Supprimer mon compte')),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Cette action est définitive. Vos données personnelles '
+                    '(profil, historique, suivi) seront supprimées et vous serez '
+                    'déconnecté. Cette action est irréversible.',
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Tapez SUPPRIMER pour confirmer :',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: confirmController,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: const InputDecoration(
+                      hintText: 'SUPPRIMER',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (v) => setDialogState(
+                      () => canDelete = v.trim().toUpperCase() == 'SUPPRIMER',
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isDeleting ? null : () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Annuler'),
+                ),
+                ElevatedButton(
+                  onPressed: (!canDelete || isDeleting)
+                      ? null
+                      : () async {
+                          setDialogState(() => isDeleting = true);
+                          final ok = await ref
+                              .read(authNotifierProvider.notifier)
+                              .deleteAccount();
+                          if (ok) {
+                            // Nettoie l'état local (évite un classement visiteur
+                            // périmé au prochain lancement).
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.remove('is_visitor');
+                          }
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop();
+                          }
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(ok
+                                    ? 'Votre compte a été supprimé.'
+                                    : 'Suppression impossible. Réessayez.'),
+                                backgroundColor: ok ? Colors.green : Colors.red,
+                              ),
+                            );
+                          }
+                          if (ok && context.mounted) {
+                            context.go('/auth-choice');
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: isDeleting
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Supprimer définitivement'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
