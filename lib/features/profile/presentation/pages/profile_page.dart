@@ -243,6 +243,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 _buildInfoRow('Ville', profile.city!),
               if (profile?.nationality != null && profile!.nationality!.isNotEmpty)
                 _buildInfoRow('Nationalité', profile.nationality!),
+              if (profile?.address != null && profile!.address!.isNotEmpty)
+                _buildInfoRow('Adresse', profile.address!),
+              if (profile?.emergencyPhone != null && profile!.emergencyPhone!.isNotEmpty)
+                _buildInfoRow("Numéro d'urgence", profile.emergencyPhone!),
               // Passeport affiché uniquement s'il existe (comptes agence). Un
               // compte email n'en a pas -> on masque la ligne (pas de "Non
               // renseigné" qui ressemble à un champ manquant/obligatoire).

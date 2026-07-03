@@ -20,6 +20,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _firstName;
   late final TextEditingController _lastName;
+  late final TextEditingController _passport;
+  late final TextEditingController _address;
+  late final TextEditingController _emergency;
   late final TextEditingController _city;
   late final TextEditingController _nationality;
   String? _gender; // MALE | FEMALE | UNSPECIFIED
@@ -32,6 +35,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final p = widget.initial;
     _firstName = TextEditingController(text: p?.firstName ?? '');
     _lastName = TextEditingController(text: p?.lastName ?? '');
+    _passport = TextEditingController(text: p?.passportNo ?? '');
+    _address = TextEditingController(text: p?.address ?? '');
+    _emergency = TextEditingController(text: p?.emergencyPhone ?? '');
     _city = TextEditingController(text: p?.city ?? '');
     _nationality = TextEditingController(text: p?.nationality ?? '');
     _gender = p?.gender;
@@ -44,6 +50,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   void dispose() {
     _firstName.dispose();
     _lastName.dispose();
+    _passport.dispose();
+    _address.dispose();
+    _emergency.dispose();
     _city.dispose();
     _nationality.dispose();
     super.dispose();
@@ -56,6 +65,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final data = <String, dynamic>{
       'firstName': _firstName.text.trim(),
       'lastName': _lastName.text.trim(),
+      'passportNo': _passport.text.trim(),
+      'address': _address.text.trim(),
+      'emergencyPhone': _emergency.text.trim(),
       'city': _city.text.trim(),
       'nationality': _nationality.text.trim(),
       if (_gender != null) 'gender': _gender,
@@ -143,6 +155,33 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 ),
                 const SizedBox(height: 16),
 
+                TextFormField(
+                  controller: _passport,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'Numéro de passeport (optionnel)',
+                    prefixIcon: Icon(Icons.document_scanner_outlined),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _address,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    labelText: 'Adresse',
+                    prefixIcon: Icon(Icons.home_outlined),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _emergency,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: "Numéro d'urgence",
+                    prefixIcon: Icon(Icons.emergency_outlined),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _city,
                   textCapitalization: TextCapitalization.words,

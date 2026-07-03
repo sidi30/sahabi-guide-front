@@ -96,6 +96,8 @@ class PilgrimProfile {
   final String? city;
   final String? nationality;
   final String? dateOfBirth; // ISO yyyy-MM-dd
+  final String? address;
+  final String? emergencyPhone;
 
   PilgrimProfile({
     this.id,
@@ -113,6 +115,8 @@ class PilgrimProfile {
     this.city,
     this.nationality,
     this.dateOfBirth,
+    this.address,
+    this.emergencyPhone,
   });
 
   factory PilgrimProfile.fromJson(Map<String, dynamic> json) {
@@ -132,6 +136,8 @@ class PilgrimProfile {
       city: json['city']?.toString(),
       nationality: json['nationality']?.toString(),
       dateOfBirth: json['dateOfBirth']?.toString(),
+      address: json['address']?.toString(),
+      emergencyPhone: json['emergencyPhone']?.toString(),
     );
   }
 
@@ -152,6 +158,8 @@ class PilgrimProfile {
       'city': city,
       'nationality': nationality,
       'dateOfBirth': dateOfBirth,
+      'address': address,
+      'emergencyPhone': emergencyPhone,
     };
   }
 }
