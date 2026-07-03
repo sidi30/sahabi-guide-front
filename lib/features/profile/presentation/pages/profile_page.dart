@@ -215,7 +215,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               _buildInfoRow('Nom complet', profile?.fullName ?? 'Non renseigné'),
               _buildInfoRow('Prénom', profile?.firstName ?? 'Non renseigné'),
               _buildInfoRow('Nom', profile?.lastName ?? 'Non renseigné'),
-              _buildInfoRow('Passeport', profile?.passportNo ?? 'Non renseigné'),
+              // Passeport affiché uniquement s'il existe (comptes agence). Un
+              // compte email n'en a pas -> on masque la ligne (pas de "Non
+              // renseigné" qui ressemble à un champ manquant/obligatoire).
+              if (profile?.passportNo != null && profile!.passportNo!.isNotEmpty)
+                _buildInfoRow('Passeport', profile.passportNo!),
               if (profile?.phone != null)
                 _buildInfoRow('Téléphone', profile!.phone!),
               // Masquer les emails techniques générés pour les comptes

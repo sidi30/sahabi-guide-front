@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart'
     hide pilgrimProfileProvider;
-import 'package:sahabi_guide/features/profile/presentation/pages/pilgrim_profile_page.dart';
 import 'package:sahabi_guide/features/video/presentation/pages/video_page.dart'
     show VideoPage;
 import 'package:sahabi_guide/features/bot/presentation/pages/bot_chat_page.dart';
@@ -208,11 +207,12 @@ class _MyAppState extends ConsumerState<MyApp> {
         final isAuthenticated = authState.isAuthenticated;
         final currentLocation = state.matchedLocation;
 
-        // Session expirée (401) : renvoyer vers le login passeport pour
-        // permettre une reconnexion plutôt qu'un écran muet.
+        // Session expirée (401) : renvoyer vers le login EMAIL (chemin par défaut)
+        // pour permettre une reconnexion. NE PAS renvoyer vers le passeport : un
+        // compte email n'a pas de passeport -> impasse ("2e niveau de connexion").
         if (authState.sessionExpired &&
             AuthGuard.isProtectedRoute(currentLocation)) {
-          return AppRoutes.passportLogin;
+          return AppRoutes.emailLogin;
         }
 
         // Phase pre-Hajj : login desactive. Toutes les pages publiques sauf
@@ -276,10 +276,11 @@ class _MyAppState extends ConsumerState<MyApp> {
         builder: (context, state) => const VisitorRegistrationPage(),
       ),
 
-      // Pilgrim Profile Screen (outside shell) - PROTÉGÉ
+      // Ancienne page profil mock (données fictives + passeport codé en dur) :
+      // redirigée vers le vrai profil pour ne plus jamais l'afficher.
       GoRoute(
         path: AppRoutes.pilgrimProfile,
-        builder: (context, state) => const PilgrimProfilePage(),
+        redirect: (context, state) => AppRoutes.profile,
       ),
 
       // Main Shell with Bottom Navigation - Wraps all main screens including home

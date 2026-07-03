@@ -66,11 +66,13 @@ class _DraggableBotButtonState extends State<DraggableBotButton> {
     top = top.clamp(padding.top + 8, size.height - _size - padding.bottom - 8);
 
     if (_collapsed) {
-      // Rangé : petite poignée semi-transparente collée au bord droit.
-      const handleW = 22.0;
+      // Rangé : poignée VISIBLE collée au bord droit (chevron + robot) que l'on
+      // touche pour ressortir l'assistant. Assez grande pour ne pas être ratée.
+      const handleW = 40.0;
+      const handleH = 68.0;
       return Positioned(
         right: 0,
-        top: top.clamp(padding.top + 8, size.height - 56 - padding.bottom - 8),
+        top: top.clamp(padding.top + 8, size.height - handleH - padding.bottom - 8),
         child: GestureDetector(
           onTap: () async {
             setState(() => _collapsed = false);
@@ -78,15 +80,29 @@ class _DraggableBotButtonState extends State<DraggableBotButton> {
           },
           child: Container(
             width: handleW,
-            height: 56,
+            height: handleH,
             decoration: const BoxDecoration(
               color: Color(0xFF1D3557),
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(28),
-                bottomLeft: Radius.circular(28),
+                topLeft: Radius.circular(34),
+                bottomLeft: Radius.circular(34),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x4D1D3557),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                  offset: Offset(-2, 3),
+                ),
+              ],
             ),
-            child: const Icon(Icons.smart_toy_rounded, color: Colors.white, size: 16),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.chevron_left, color: Colors.white70, size: 16),
+                Icon(Icons.smart_toy_rounded, color: Colors.white, size: 26),
+              ],
+            ),
           ),
         ),
       );
@@ -95,62 +111,99 @@ class _DraggableBotButtonState extends State<DraggableBotButton> {
     return Positioned(
       left: left,
       top: top,
-      child: GestureDetector(
-        onPanUpdate: (d) {
-          setState(() {
-            _left = (left + d.delta.dx);
-            _top = (top + d.delta.dy);
-          });
-        },
-        onPanEnd: (_) => _persist(),
-        onLongPress: () async {
-          // Ranger sur le bord.
-          final messenger = ScaffoldMessenger.of(context);
-          setState(() => _collapsed = true);
-          await _persist();
-          messenger.showSnackBar(
-            const SnackBar(
-              content: Text('Assistant rangé. Touchez la poignée pour le ressortir.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        },
-        onTap: () {
-          if (_navigating) return;
-          _navigating = true;
-          context.push('/bot').then((_) {
-            if (mounted) _navigating = false;
-          });
-        },
-        child: Container(
-          width: _size,
-          height: _size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFF1D3557),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF1D3557).withValues(alpha: 0.3),
-                blurRadius: 12,
-                spreadRadius: 2,
-                offset: const Offset(0, 4),
+      // SizedBox un peu plus grand que le bouton pour loger le badge "×" masquer.
+      child: SizedBox(
+        width: _size + 10,
+        height: _size + 10,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: 0,
+              top: 10,
+              child: GestureDetector(
+                onPanUpdate: (d) {
+                  setState(() {
+                    _left = (left + d.delta.dx);
+                    _top = (top + d.delta.dy);
+                  });
+                },
+                onPanEnd: (_) => _persist(),
+                onLongPress: _collapse,
+                onTap: () {
+                  if (_navigating) return;
+                  _navigating = true;
+                  context.push('/bot').then((_) {
+                    if (mounted) _navigating = false;
+                  });
+                },
+                child: Container(
+                  width: _size,
+                  height: _size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF1D3557),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1D3557).withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/bot.jpeg',
+                      width: _size,
+                      height: _size,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.smart_toy_rounded,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
-          child: ClipOval(
-            child: Image.asset(
-              'assets/images/bot.jpeg',
-              width: _size,
-              height: _size,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.smart_toy_rounded,
-                color: Colors.white,
-                size: 30,
+            ),
+            // Badge "×" pour masquer l'assistant (le ranger sur le bord).
+            Positioned(
+              right: 0,
+              top: 0,
+              child: GestureDetector(
+                onTap: _collapse,
+                child: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFF1D3557), width: 1),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 1)),
+                    ],
+                  ),
+                  child: const Icon(Icons.close, size: 15, color: Color(0xFF1D3557)),
+                ),
               ),
             ),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  /// Range l'assistant sur le bord droit (poignée). Réversible en touchant la poignée.
+  Future<void> _collapse() async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _collapsed = true);
+    await _persist();
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('Assistant rangé. Touchez la poignée à droite pour le ressortir.'),
+        duration: Duration(seconds: 2),
       ),
     );
   }
