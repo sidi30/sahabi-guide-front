@@ -7,6 +7,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../auth/data/models/passport_auth_models.dart';
 import '../../../auth/domain/usecases/passport_auth_usecases.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
+import 'edit_profile_page.dart';
 import '../../../settings/presentation/screens/notifications_settings_screen.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../settings/presentation/screens/privacy_screen.dart';
@@ -208,6 +209,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
           const SizedBox(height: 24),
 
+          // Bouton d'édition : le pèlerin complète/modifie ses infos lui-même.
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () async {
+                final changed = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => EditProfilePage(initial: profile),
+                  ),
+                );
+                if (changed == true) {
+                  ref.invalidate(pilgrimProfileProvider);
+                }
+              },
+              icon: const Icon(Icons.edit_outlined),
+              label: const Text('Modifier mon profil'),
+              style: FilledButton.styleFrom(backgroundColor: ref.colors.primary),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
           // Personal Information
           _buildSectionCard(
             'Informations Personnelles',
@@ -215,6 +238,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               _buildInfoRow('Nom complet', profile?.fullName ?? 'Non renseigné'),
               _buildInfoRow('Prénom', profile?.firstName ?? 'Non renseigné'),
               _buildInfoRow('Nom', profile?.lastName ?? 'Non renseigné'),
+              _buildInfoRow('Genre', _genderLabel(profile?.gender)),
+              if (profile?.city != null && profile!.city!.isNotEmpty)
+                _buildInfoRow('Ville', profile.city!),
+              if (profile?.nationality != null && profile!.nationality!.isNotEmpty)
+                _buildInfoRow('Nationalité', profile.nationality!),
               // Passeport affiché uniquement s'il existe (comptes agence). Un
               // compte email n'en a pas -> on masque la ligne (pas de "Non
               // renseigné" qui ressemble à un champ manquant/obligatoire).
@@ -228,8 +256,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profile!.email!.isNotEmpty &&
                   !profile.email!.endsWith('.sahabi.local'))
                 _buildInfoRow('Email', profile.email!),
-              if (profile?.role != null)
-                _buildInfoRow('Rôle', profile!.role!),
             ],
           ),
 
@@ -405,6 +431,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
       ),
     );
+  }
+
+  String _genderLabel(String? gender) {
+    switch (gender) {
+      case 'MALE':
+        return 'Homme';
+      case 'FEMALE':
+        return 'Femme';
+      default:
+        return 'Non précisé';
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {

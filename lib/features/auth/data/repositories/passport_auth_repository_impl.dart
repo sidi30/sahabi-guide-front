@@ -19,6 +19,9 @@ abstract class PassportAuthRepository {
 
   // Suppression de compte in-app
   Future<PassportAuthResponse> deleteAccount();
+
+  // Mise à jour du profil (self-service)
+  Future<PilgrimProfile> updatePilgrimProfile(Map<String, dynamic> data);
 }
 
 class PassportAuthRepositoryImpl implements PassportAuthRepository {
@@ -162,6 +165,18 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
   @override
   Future<PassportAuthResponse> resendEmailCode(String email) async {
     return await remoteDataSource.resendEmailCode(email);
+  }
+
+  @override
+  Future<PilgrimProfile> updatePilgrimProfile(Map<String, dynamic> data) async {
+    final token = await localDataSource.getToken();
+    if (token == null) {
+      throw Exception('Aucune session active');
+    }
+    final updated = await remoteDataSource.updatePilgrimProfile(token, data);
+    // Rafraîchir le cache local du profil.
+    await localDataSource.savePilgrimProfile(updated);
+    return updated;
   }
 
   @override

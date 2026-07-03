@@ -18,6 +18,9 @@ abstract class PassportAuthRemoteDataSource {
 
   // Suppression de compte (JWT requis)
   Future<PassportAuthResponse> deleteAccount(String token);
+
+  // Mise à jour du profil par le pèlerin (self-service, JWT requis)
+  Future<PilgrimProfile> updatePilgrimProfile(String token, Map<String, dynamic> data);
 }
 
 class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
@@ -215,6 +218,29 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
       throw Exception(msg);
     } catch (e) {
       throw Exception('Erreur de suppression: $e');
+    }
+  }
+
+  @override
+  Future<PilgrimProfile> updatePilgrimProfile(String token, Map<String, dynamic> data) async {
+    try {
+      final response = await dioClient.put(
+        '/api/auth/passport/profile',
+        data: data,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        return PilgrimProfile.fromJson(response.data);
+      }
+      throw Exception('Réponse invalide du serveur (${response.statusCode})');
+    } on DioException catch (e) {
+      String msg = 'Mise à jour du profil impossible';
+      if (e.response?.data is Map) {
+        msg = (e.response!.data as Map)['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Erreur de mise à jour du profil: $e');
     }
   }
 

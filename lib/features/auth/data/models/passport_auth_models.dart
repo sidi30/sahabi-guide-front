@@ -93,6 +93,9 @@ class PilgrimProfile {
   final String? pilgrimageType; // HAJJ ou OMRA
   final String? gender; // MALE | FEMALE | UNSPECIFIED (axe de personnalisation des rites)
   final String? madhhab; // ecole juridique (dormant)
+  final String? city;
+  final String? nationality;
+  final String? dateOfBirth; // ISO yyyy-MM-dd
 
   PilgrimProfile({
     this.id,
@@ -107,6 +110,9 @@ class PilgrimProfile {
     this.pilgrimageType,
     this.gender,
     this.madhhab,
+    this.city,
+    this.nationality,
+    this.dateOfBirth,
   });
 
   factory PilgrimProfile.fromJson(Map<String, dynamic> json) {
@@ -123,6 +129,9 @@ class PilgrimProfile {
       pilgrimageType: json['pilgrimageType']?.toString(),
       gender: json['gender']?.toString(),
       madhhab: json['madhhab']?.toString(),
+      city: json['city']?.toString(),
+      nationality: json['nationality']?.toString(),
+      dateOfBirth: json['dateOfBirth']?.toString(),
     );
   }
 
@@ -140,6 +149,9 @@ class PilgrimProfile {
       'pilgrimageType': pilgrimageType,
       'gender': gender,
       'madhhab': madhhab,
+      'city': city,
+      'nationality': nationality,
+      'dateOfBirth': dateOfBirth,
     };
   }
 }

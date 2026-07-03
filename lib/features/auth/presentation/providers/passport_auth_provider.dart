@@ -169,6 +169,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (response.success && response.token != null) {
         if (kDebugMode) AppLogger.info('[AuthNotifier] Authentification réussie ! Token présent.');
+        _lastAuthAt = DateTime.now();
         // Authentification réussie - on définit l'état même si le profil échoue
         state = state.copyWith(
           isLoading: false,
@@ -238,8 +239,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Horodatage de la dernière authentification réussie. Sert de fenêtre de
+  /// grâce : un 401 réseau juste après le login (endpoint annexe mal autorisé)
+  /// ne doit pas éjecter l'utilisateur fraîchement connecté.
+  DateTime? _lastAuthAt;
+
   void clearError() {
     state = state.copyWith(error: null);
+  }
+
+  /// Met à jour le profil du pèlerin (self-service). Retourne true si OK.
+  Future<bool> updateProfile(Map<String, dynamic> data) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final updated = await repository.updatePilgrimProfile(data);
+      state = state.copyWith(isLoading: false, pilgrimProfile: updated);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      return false;
+    }
   }
 
   // ── Auth par email (self-signup passwordless) ────────────────────────────
@@ -268,6 +287,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final response = await repository.verifyEmailCode(email, otpCode);
       if (response.success && response.token != null) {
+        _lastAuthAt = DateTime.now();
         state = state.copyWith(
           isLoading: false,
           isAuthenticated: true,
@@ -322,6 +342,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// On bascule l'état en non authentifié + session expirée pour que le
   /// routeur force une reconnexion (au lieu d'écrans muets en échec).
   void handleSessionExpired() {
+    // Fenêtre de grâce : ignorer un 401 survenu juste après une connexion
+    // réussie (endpoint annexe mal autorisé) pour ne pas éjecter un utilisateur
+    // fraîchement connecté vers l'écran de login ("2e niveau de connexion").
+    if (_lastAuthAt != null &&
+        DateTime.now().difference(_lastAuthAt!) < const Duration(seconds: 12)) {
+      return;
+    }
     if (!state.isAuthenticated && state.sessionExpired) return;
     state = const AuthState(sessionExpired: true);
   }

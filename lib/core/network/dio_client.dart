@@ -176,6 +176,12 @@ class DioClient {
     '/api/auth/passport/verify',
     '/api/auth/passport/validate',
     '/api/auth/passport/resend',
+    // Auth email (self-signup) : un 401 = mauvais code / email, PAS une session
+    // expirée. Ne pas déclencher onUnauthorized (l'utilisateur n'est pas encore
+    // connecté ; le faire mettrait l'app en "session expirée" à tort).
+    '/api/auth/email/request',
+    '/api/auth/email/verify',
+    '/api/auth/email/resend',
   ];
 
   bool _isAuthEndpoint(String path) {
