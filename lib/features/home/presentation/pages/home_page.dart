@@ -199,7 +199,7 @@ class HomePage extends ConsumerWidget {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () => context.push('/passport-login'),
+                  onPressed: () => context.push('/email-login'),
                   icon: const Icon(Icons.login, size: 18),
                   label: const Text('Se connecter'),
                   style: ElevatedButton.styleFrom(

@@ -192,7 +192,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Entrez le code à 6 chiffres envoyé au numéro associé au passeport ${widget.passportNo}',
+                        'Entrez le code à 6 chiffres envoyé pour le passeport ${widget.passportNo}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
@@ -322,7 +322,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Le code OTP expire dans 5 minutes. Si vous ne l\'avez pas reçu, vérifiez vos SMS ou contactez le support.',
+                          'Le code expire dans quelques minutes. Si vous ne l\'avez pas reçu, vérifiez vos messages/emails ou contactez le support.',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.orange.shade700,

@@ -89,7 +89,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const Text('Non connecté'),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => context.go('/passport-login'),
+              onPressed: () => context.go('/email-login'),
               child: const Text('Se connecter'),
             ),
           ],

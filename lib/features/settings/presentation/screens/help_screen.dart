@@ -94,27 +94,30 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
       _FAQItem(
         question: 'Comment me connecter a l\'application ?',
         answer: '''
-Pour vous connecter :
+Pour creer un compte ou vous connecter :
 
 1. Ouvrez l'application Sahabi Guide
 2. Appuyez sur "Se connecter"
-3. Entrez votre numero de passeport
-4. Vous recevrez un code OTP par SMS
+3. Entrez votre adresse email
+4. Vous recevrez un code par email
 5. Entrez le code a 6 chiffres
 6. Vous etes connecte !
 
-Le code OTP expire apres 5 minutes.
+(Si vous etes inscrit par une agence, vous pouvez aussi vous connecter avec
+votre numero de passeport.)
+
+Le code expire apres quelques minutes.
 ''',
         primaryColor: ref.colors.primary,
       ),
       _FAQItem(
         question: 'Je n\'ai pas recu le code OTP, que faire ?',
         answer: '''
-Si vous ne recevez pas le code OTP :
+Si vous ne recevez pas le code :
 
-1. Verifiez que votre numero de telephone est correct
-2. Verifiez votre reseau mobile
-3. Attendez quelques minutes (delai SMS)
+1. Verifiez que votre adresse email est correcte
+2. Regardez dans vos courriers indesirables (spam)
+3. Attendez quelques minutes
 4. Appuyez sur "Renvoyer le code"
 5. Si le probleme persiste, contactez le support
 

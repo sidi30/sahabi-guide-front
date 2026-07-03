@@ -199,7 +199,7 @@ class _PassportLoginPageState extends ConsumerState<PassportLoginPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Un code de vérification sera envoyé par SMS après la saisie de votre numéro de passeport.',
+                        'Un code de vérification vous sera envoyé après la saisie de votre numéro de passeport.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
