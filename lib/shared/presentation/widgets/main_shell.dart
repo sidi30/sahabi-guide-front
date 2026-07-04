@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/theme_extensions.dart';
-import '../../../core/utils/app_logger.dart';
 import '../../../features/bot/presentation/widgets/draggable_bot_button.dart';
 
 class NavigationItem {
@@ -21,23 +20,16 @@ class NavigationItem {
   });
 }
 
-class MainShell extends ConsumerStatefulWidget {
-  final Widget child;
+/// Coquille principale (bottom nav + rail) au-dessus d'un
+/// [StatefulNavigationShell] : chaque onglet est une branche dont le Navigator
+/// reste vivant (IndexedStack). Passer de la Carte à l'Accueil puis revenir ne
+/// réinitialise donc plus GoogleMap / le GPS ni ne refetch l'Accueil.
+class MainShell extends ConsumerWidget {
+  final StatefulNavigationShell navigationShell;
 
-  const MainShell({super.key, required this.child});
+  const MainShell({super.key, required this.navigationShell});
 
-  @override
-  ConsumerState<MainShell> createState() => _MainShellState();
-}
-
-class _MainShellState extends ConsumerState<MainShell> {
-  int _selectedIndex = 0;
-  // ignore: unused_field
-  String _currentRoute = '';
-  GoRouter? _router;
-  VoidCallback? _routerListener;
-
-  final List<NavigationItem> _navigationItems = const [
+  static const List<NavigationItem> _navigationItems = [
     NavigationItem(
       icon: Icons.home_outlined,
       selectedIcon: Icons.home,
@@ -66,33 +58,16 @@ class _MainShellState extends ConsumerState<MainShell> {
     // que le login passeport n'est pas reactive.
   ];
 
-  void _updateSelectedIndex() {
-    try {
-      // Use GoRouter.of instead of GoRouterState.of to avoid hot reload issues
-      final router = GoRouter.of(context);
-      final currentRoute = router.routerDelegate.currentConfiguration.uri.toString();
-      
-      final index = _navigationItems.indexWhere((item) => currentRoute.startsWith(item.route));
-      
-      if (index != -1 && index != _selectedIndex) {
-        setState(() {
-          _selectedIndex = index;
-        });
-      }
-    } catch (e) {
-      // Safely handle cases where router state is not yet available
-      // This can happen during hot reload or initial widget build
-      AppLogger.error('⚠️ Router state not available', error: e);
-    }
-  }
-
   void _onDestinationSelected(int index) {
-    if (index == _selectedIndex) return;
-    HapticFeedback.selectionClick();
-    setState(() {
-      _selectedIndex = index;
-    });
-    context.go(_navigationItems[index].route);
+    if (index != navigationShell.currentIndex) {
+      HapticFeedback.selectionClick();
+    }
+    // goBranch conserve l'état de chaque branche. Re-toucher l'onglet courant
+    // (initialLocation:true) le ramène à sa racine, comportement standard.
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 
   String getTitleByIndex(BuildContext context, int index) {
@@ -114,52 +89,8 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _refreshCurrentRoute();
-    _updateSelectedIndex();
-
-    // S'abonner une fois au routerDelegate pour rebuild a chaque navigation.
-    // Sans cela, MainShell ne "voit" pas les changements de route interne
-    // (ShellRoute ne declenche pas didChangeDependencies sur chaque push).
-    final router = GoRouter.of(context);
-    if (_router != router) {
-      // Retirer l'ANCIEN listener par sa vraie identité (jamais un placeholder
-      // `() {}`, dont l'identité ne correspond à rien → fuite du vrai listener).
-      if (_routerListener != null) {
-        _router?.routerDelegate.removeListener(_routerListener!);
-      }
-      _router = router;
-      _routerListener = () {
-        if (!mounted) return;
-        setState(_refreshCurrentRoute);
-      };
-      router.routerDelegate.addListener(_routerListener!);
-    }
-  }
-
-  void _refreshCurrentRoute() {
-    try {
-      _currentRoute = GoRouter.of(context)
-          .routerDelegate
-          .currentConfiguration
-          .uri
-          .path;
-    } catch (_) {
-      _currentRoute = '';
-    }
-  }
-
-  @override
-  void dispose() {
-    if (_router != null && _routerListener != null) {
-      _router!.routerDelegate.removeListener(_routerListener!);
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = navigationShell.currentIndex;
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
 
     return Scaffold(
@@ -193,7 +124,7 @@ class _MainShellState extends ConsumerState<MainShell> {
             const SizedBox(width: 12),
             // Titre
             Expanded(
-              child: Text(getTitleByIndex(context, _selectedIndex)),
+              child: Text(getTitleByIndex(context, selectedIndex)),
             ),
           ],
         ),
@@ -203,7 +134,8 @@ class _MainShellState extends ConsumerState<MainShell> {
             button: true,
             child: IconButton(
               icon: const Icon(Icons.settings_outlined),
-              onPressed: () => context.go('/settings'),
+              // Écran plein (navigateur racine) avec flèche retour automatique.
+              onPressed: () => context.push('/settings'),
             ),
           ),
           const SizedBox(width: 8),
@@ -216,7 +148,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           // Navigation Rail for larger screens
           if (isLargeScreen)
             NavigationRail(
-              selectedIndex: _selectedIndex,
+              selectedIndex: selectedIndex,
               onDestinationSelected: _onDestinationSelected,
               labelType: NavigationRailLabelType.all,
               backgroundColor: ref.colors.surface,
@@ -249,26 +181,13 @@ class _MainShellState extends ConsumerState<MainShell> {
           if (isLargeScreen)
             VerticalDivider(
                 thickness: 1, width: 1, color: ref.colors.divider),
-          // Main content
-          Expanded(child: widget.child),
+          // Main content — branche active (Navigator conservé par branche)
+          Expanded(child: navigationShell),
         ],
           ),
-          // Assistant flottant déplaçable/rangeable, uniquement sur les
-          // onglets principaux.
-          ListenableBuilder(
-            listenable: GoRouter.of(context).routeInformationProvider,
-            builder: (context, _) {
-              final path = GoRouter.of(context)
-                  .routeInformationProvider
-                  .value
-                  .uri
-                  .path;
-              const mainTabs = {'/home', '/rituals', '/map', '/videos'};
-              return mainTabs.contains(path)
-                  ? const DraggableBotButton()
-                  : const SizedBox.shrink();
-            },
-          ),
+          // Assistant flottant déplaçable/rangeable : présent sur les 4 onglets
+          // principaux (les pages plein écran poussées au-dessus le masquent).
+          const DraggableBotButton(),
         ],
       ),
       // Bottom Navigation for mobile
@@ -301,7 +220,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: List.generate(_navigationItems.length, (index) {
                         final item = _navigationItems[index];
-                        final isSelected = _selectedIndex == index;
+                        final isSelected = selectedIndex == index;
 
                         return Expanded(
                           child: Semantics(
@@ -365,5 +284,4 @@ class _MainShellState extends ConsumerState<MainShell> {
             ),
     );
   }
-
 }

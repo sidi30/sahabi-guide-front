@@ -283,99 +283,105 @@ class _MyAppState extends ConsumerState<MyApp> {
         redirect: (context, state) => AppRoutes.profile,
       ),
 
-      // Main Shell with Bottom Navigation - Wraps all main screens including home
-      ShellRoute(
-        builder: (context, state, child) => MainShell(child: child),
-        routes: [
-          // Home Screen - Now wrapped in MainShell
-          GoRoute(
-            path: AppRoutes.home,
-            builder: (context, state) => const HomePage(),
-          ),
+      // Pages « détail » plein écran : servies par le navigateur RACINE (hors
+      // shell) → poussées AU-DESSUS de la barre d'onglets, chacune avec son
+      // propre Scaffold/AppBar + flèche retour. Elles sont ouvertes via push()
+      // (grille d'accueil, bouton assistant, bouton réglages…).
+      GoRoute(
+        path: AppRoutes.duas,
+        builder: (context, state) => const DuasModernPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.ritualDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return RitualDetailPage(ritualId: id);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.health,
+        builder: (context, state) => const HealthPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.connectivity,
+        builder: (context, state) => const ConnectivityEsimPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.alerts,
+        builder: (context, state) => const AlertsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.emergencyContacts,
+        builder: (context, state) => const EmergencyContactsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.dhikr,
+        builder: (context, state) => const DhikrPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.bot,
+        builder: (context, state) => const BotChatPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.botDebug,
+        builder: (context, state) => const BotDebugPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
 
-          // Rituals Section
-          GoRoute(
-            path: AppRoutes.rituals,
-            redirect: (context, state) => AppRoutes.timeline,
+      // Coquille principale (bottom nav) : 4 onglets « chauds ». Chaque branche
+      // possède son propre Navigator conservé dans un IndexedStack, donc passer
+      // Carte → Accueil → Carte ne réinitialise plus GoogleMap/GPS ni l'Accueil.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
+        branches: [
+          // Onglet Accueil
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
           ),
-
-          // Data-backed timeline and duas
-          GoRoute(
-            path: AppRoutes.timeline,
-            builder: (context, state) => const RitualsPage(),
+          // Onglet Rituels (racine = timeline ; /rituals redirige dedans)
+          StatefulShellBranch(
+            initialLocation: AppRoutes.timeline,
+            routes: [
+              GoRoute(
+                path: AppRoutes.rituals,
+                redirect: (context, state) => AppRoutes.timeline,
+              ),
+              GoRoute(
+                path: AppRoutes.timeline,
+                builder: (context, state) => const RitualsPage(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.duas,
-            builder: (context, state) => const DuasModernPage(),
+          // Onglet Carte
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.map,
+                builder: (context, state) => const GoogleMapPage(),
+              ),
+            ],
           ),
-
-          // Ritual detail page
-          GoRoute(
-            path: AppRoutes.ritualDetail,
-            builder: (context, state) {
-              final id = state.pathParameters['id']!;
-              return RitualDetailPage(ritualId: id);
-            },
-          ),
-
-          // Other sections - PROTÉGÉES
-          GoRoute(
-            path: AppRoutes.health,
-            builder: (context, state) => const HealthPage(),
-          ),
-          GoRoute(
-            path: AppRoutes.connectivity,
-            builder: (context, state) => const ConnectivityEsimPage(),
-          ),
-          GoRoute(
-            path: AppRoutes.alerts,
-            builder: (context, state) => const AlertsPage(),
-          ),
-          GoRoute(
-            path: AppRoutes.emergencyContacts,
-            builder: (context, state) => const EmergencyContactsPage(),
-          ),
-
-          // Map Screen - PROTÉGÉE
-          GoRoute(
-            path: AppRoutes.map,
-            builder: (context, state) => const GoogleMapPage(),
-          ),
-
-          // Videos Screen
-          GoRoute(
-            path: AppRoutes.videos,
-            builder: (context, state) => const VideoPage(),
-          ),
-
-          // Dhikr Counter Screen
-          GoRoute(
-            path: AppRoutes.dhikr,
-            builder: (context, state) => const DhikrPage(),
-          ),
-
-          // Bot Screen
-          GoRoute(
-            path: AppRoutes.bot,
-            builder: (context, state) => const BotChatPage(),
-          ),
-          
-          // Bot Debug Screen (pour diagnostics)
-          GoRoute(
-            path: AppRoutes.botDebug,
-            builder: (context, state) => const BotDebugPage(),
-          ),
-
-          // Profile Screen - PROTÉGÉE
-          GoRoute(
-            path: AppRoutes.profile,
-            builder: (context, state) => const ProfilePage(),
-          ),
-
-          // Settings Screen
-          GoRoute(
-            path: AppRoutes.settings,
-            builder: (context, state) => const SettingsScreen(),
+          // Onglet Vidéos
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.videos,
+                builder: (context, state) => const VideoPage(),
+              ),
+            ],
           ),
         ],
       ),

@@ -10,6 +10,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/prayer_times_service.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../../../shared/presentation/widgets/skeleton_loader.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
@@ -46,7 +47,7 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       body: homeData.when(
         data: (data) => _buildHomeContent(context, ref, data),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _buildHomeSkeleton(context),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -74,14 +75,22 @@ class HomePage extends ConsumerWidget {
         ? rawMenuItems.whereType<Map<String, dynamic>>().toList()
         : <Map<String, dynamic>>[];
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Recharge l'accueil + les horaires de prière ; on attend le refetch
+        // pour garder l'indicateur visible jusqu'à la fin.
+        ref.invalidate(prayerScheduleProvider);
+        ref.invalidate(homeProvider);
+        await ref.read(homeProvider.future);
+      },
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Badge de profil (homme/femme) — repère visible dès l'accueil
           const Align(
             alignment: Alignment.centerLeft,
@@ -123,10 +132,57 @@ class HomePage extends ConsumerWidget {
                 ),
           ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          _buildMenuGrid(context, ref, menuItems),
-        ],
+            _buildMenuGrid(context, ref, menuItems),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Squelette de chargement de l'accueil (carte prière + grille) — remplace le
+  /// spinner plein écran pour un ressenti plus fluide.
+  Widget _buildHomeSkeleton(BuildContext context) {
+    return Shimmer(
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Bandeau de bienvenue
+            const SkeletonBox(
+              height: 120,
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            const SizedBox(height: 24),
+            // Carte des horaires de prière
+            const SkeletonBox(
+              height: 150,
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            const SizedBox(height: 24),
+            const SkeletonBox(width: 180, height: 24),
+            const SizedBox(height: 16),
+            // Grille de fonctionnalités
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.95,
+              children: List.generate(
+                6,
+                (_) => const SkeletonBox(
+                  height: double.infinity,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

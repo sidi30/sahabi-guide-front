@@ -14,6 +14,7 @@ import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
 import '../providers/local_progress_provider.dart';
 import '../../../../shared/presentation/widgets/profile_gender_badge.dart';
+import '../../../../shared/presentation/widgets/skeleton_loader.dart';
 import '../widgets/menses_guidance_banner.dart';
 import 'dua_detail_page.dart';
 
@@ -140,7 +141,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
         Expanded(
           child: ritualsAsync.when(
             data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const SkeletonList(),
             error: (error, stack) => _buildErrorWidget(error),
           ),
         ),
@@ -153,7 +154,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
     return duasAsync.when(
       data: (duas) => _buildDuasList(duas, 'Aucune dua trouvée'),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const SkeletonList(),
       error: (error, stack) => _buildErrorWidget(error),
     );
   }
@@ -185,7 +186,12 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
     final sortedRituals = List<RitualModel>.from(rituals)
       ..sort((a, b) => a.order.compareTo(b.order));
 
-    return Container(
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(ritualsProvider);
+        await ref.read(ritualsProvider.future);
+      },
+      child: Container(
       color: const Color(0xFFF8F9FA),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -205,6 +211,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             onMarkAsCompleted: () => _markAsCompleted(ritual),
           );
         },
+      ),
       ),
     );
   }
