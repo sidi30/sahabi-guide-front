@@ -108,196 +108,196 @@ class AppLocalizationsHa extends AppLocalizations {
   String get home_features_title => 'Abubuwan da ke ciki';
 
   @override
-  String get auth_login_title => 'Login';
+  String get auth_login_title => 'Shiga';
 
   @override
-  String get auth_passport_number => 'Passport number';
+  String get auth_passport_number => 'Lambar fasfo';
 
   @override
-  String get auth_otp_code => 'OTP code';
+  String get auth_otp_code => 'Lambar OTP';
 
   @override
-  String get auth_verify => 'Verify';
+  String get auth_verify => 'Tabbatar';
 
   @override
-  String get auth_resend_code => 'Resend code';
+  String get auth_resend_code => 'Sake aika lamba';
 
   @override
-  String get auth_logout => 'Logout';
+  String get auth_logout => 'Fita';
 
   @override
-  String get auth_login_success => 'Login successful!';
+  String get auth_login_success => 'Shiga ya yi nasara!';
 
   @override
-  String get auth_error => 'Authentication error';
+  String get auth_error => 'Kuskuren tantancewa';
 
   @override
-  String get profile_title => 'Profile';
+  String get profile_title => 'Bayanin martaba';
 
   @override
-  String get profile_personal_info => 'Personal information';
+  String get profile_personal_info => 'Bayanan kai';
 
   @override
-  String get profile_qr_code => 'My QR Code';
+  String get profile_qr_code => 'Lambar QR ta';
 
   @override
-  String get profile_qr_share => 'Share my information';
+  String get profile_qr_share => 'Raba bayanaina';
 
   @override
-  String get profile_emergency_contact => 'Emergency contact';
+  String get profile_emergency_contact => 'Lambar gaggawa';
 
   @override
-  String get health_title => 'Health Profile';
+  String get health_title => 'Bayanan Lafiya';
 
   @override
-  String get health_medical_profile => 'Medical Profile';
+  String get health_medical_profile => 'Bayanan Lafiya';
 
   @override
-  String get health_secured_info => 'Secured medical information';
+  String get health_secured_info => 'Bayanan lafiya masu tsaro';
 
   @override
-  String get health_encrypted_data => 'Encrypted and synchronized data';
+  String get health_encrypted_data => 'Bayanan da aka ɓoye kuma aka daidaita';
 
   @override
-  String get health_blood_group => 'Blood group';
+  String get health_blood_group => 'Rukunin jini';
 
   @override
-  String get health_blood_group_required => 'Blood group required';
+  String get health_blood_group_required => 'Ana buƙatar rukunin jini';
 
   @override
-  String get health_allergies => 'Allergies';
+  String get health_allergies => 'Alerji';
 
   @override
-  String get health_allergies_hint => 'List your known allergies';
+  String get health_allergies_hint => 'Jera alerjin da kuka sani';
 
   @override
-  String get health_conditions => 'Medical conditions';
+  String get health_conditions => 'Yanayin lafiya';
 
   @override
-  String get health_medications => 'Current medications';
+  String get health_medications => 'Magungunan yanzu';
 
   @override
-  String get health_medications_hint => 'List your current medications';
+  String get health_medications_hint => 'Jera magungunan da kuke sha';
 
   @override
-  String get health_emergency_contact => 'Emergency contact';
+  String get health_emergency_contact => 'Lambar gaggawa';
 
   @override
-  String get health_emergency_contact_required => 'Emergency contact required';
+  String get health_emergency_contact_required => 'Ana buƙatar lambar gaggawa';
 
   @override
-  String get health_emergency_name => 'Contact name';
+  String get health_emergency_name => 'Sunan mai lamba';
 
   @override
-  String get health_emergency_phone => 'Phone number';
+  String get health_emergency_phone => 'Lambar waya';
 
   @override
-  String get health_emergency_phone_required => 'Phone number required';
+  String get health_emergency_phone_required => 'Ana buƙatar lambar waya';
 
   @override
-  String get health_notes => 'Medical notes';
+  String get health_notes => 'Bayanan likita';
 
   @override
-  String get health_notes_hint => 'Additional medical information';
+  String get health_notes_hint => 'Ƙarin bayanan lafiya';
 
   @override
-  String get health_qr_code => 'QR Code';
+  String get health_qr_code => 'Lambar QR';
 
   @override
-  String get health_qr_share => 'Share';
+  String get health_qr_share => 'Raba';
 
   @override
-  String get health_emergency_call => 'Emergency';
+  String get health_emergency_call => 'Gaggawa';
 
   @override
-  String get health_call => 'Call';
+  String get health_call => 'Kira';
 
   @override
-  String get health_save_success => 'Medical profile saved successfully';
+  String get health_save_success => 'An ajiye bayanan lafiya cikin nasara';
 
   @override
-  String get health_save_error => 'Error while saving';
+  String get health_save_error => 'Kuskure yayin ajiyewa';
 
   @override
-  String get health_qr_code_title => 'Medical QR Code';
+  String get health_qr_code_title => 'Lambar QR ta Lafiya';
 
   @override
-  String get health_qr_code_description => 'This QR code contains your essential medical information for emergencies.';
+  String get health_qr_code_description => 'Wannan lambar QR na ɗauke da muhimman bayanan lafiyar ku don gaggawa.';
 
   @override
-  String get health_emergency_dialog_title => 'Emergency Call';
+  String get health_emergency_dialog_title => 'Kiran Gaggawa';
 
   @override
-  String get health_emergency_dialog_message => 'Do you want to call emergency services?\n\nNumber: 15 (SAMU)';
+  String get health_emergency_dialog_message => 'Kuna son kiran ma\'aikatan gaggawa?\n\nLamba: 15 (SAMU)';
 
   @override
-  String get health_add_allergy => 'Add an allergy';
+  String get health_add_allergy => 'Ƙara alerji';
 
   @override
-  String get health_add_condition => 'Add a condition';
+  String get health_add_condition => 'Ƙara yanayin lafiya';
 
   @override
-  String get health_add_medication => 'Add a medication';
+  String get health_add_medication => 'Ƙara magani';
 
   @override
-  String get health_no_items => 'No items added';
+  String get health_no_items => 'Babu abin da aka ƙara';
 
   @override
-  String get health_privacy_title => 'Privacy';
+  String get health_privacy_title => 'Sirri';
 
   @override
-  String get health_privacy_message => 'Your medical information is stored securely and encrypted. It is only shared in emergencies with your consent.';
+  String get health_privacy_message => 'Ana adana bayanan lafiyar ku cikin aminci kuma a ɓoye. Ana raba su ne kawai a lokacin gaggawa da izininku.';
 
   @override
-  String get contact_title => 'Contact Us';
+  String get contact_title => 'Tuntuɓe Mu';
 
   @override
-  String get contact_full_name => 'Full name';
+  String get contact_full_name => 'Cikakken suna';
 
   @override
-  String get contact_email => 'Email';
+  String get contact_email => 'Imel';
 
   @override
-  String get contact_category => 'Category';
+  String get contact_category => 'Rukuni';
 
   @override
-  String get contact_subject => 'Subject';
+  String get contact_subject => 'Batu';
 
   @override
-  String get contact_message => 'Message';
+  String get contact_message => 'Saƙo';
 
   @override
-  String get contact_send => 'Send';
+  String get contact_send => 'Aika';
 
   @override
-  String get contact_sending => 'Sending...';
+  String get contact_sending => 'Ana aikawa...';
 
   @override
-  String get contact_success_title => 'Message sent!';
+  String get contact_success_title => 'An aika saƙo!';
 
   @override
-  String get contact_success_message => 'We have received your message. Our team will respond to you as soon as possible.';
+  String get contact_success_message => 'Mun karɓi saƙonku. Ƙungiyarmu za ta amsa muku da wuri-wuri.';
 
   @override
-  String get contact_category_general => 'General';
+  String get contact_category_general => 'Gaba ɗaya';
 
   @override
-  String get contact_category_technical => 'Technical issue';
+  String get contact_category_technical => 'Matsalar fasaha';
 
   @override
-  String get contact_category_account => 'My account';
+  String get contact_category_account => 'Asusuna';
 
   @override
-  String get contact_category_rituals => 'Hajj rituals';
+  String get contact_category_rituals => 'Ayyukan Hajji';
 
   @override
-  String get contact_category_health => 'Health & Emergency';
+  String get contact_category_health => 'Lafiya & Gaggawa';
 
   @override
-  String get contact_category_group => 'My group';
+  String get contact_category_group => 'Ƙungiyata';
 
   @override
-  String get contact_category_other => 'Other';
+  String get contact_category_other => 'Wani';
 
   @override
   String get settings_title => 'Saiti';
@@ -372,76 +372,76 @@ class AppLocalizationsHa extends AppLocalizations {
   String get settings_audio_zarma => 'Zarma';
 
   @override
-  String get notifications_title => 'Notifications';
+  String get notifications_title => 'Sanarwa';
 
   @override
-  String get notifications_all_enabled => 'All notifications';
+  String get notifications_all_enabled => 'Dukkan sanarwa';
 
   @override
-  String get notifications_all_enabled_description => 'Enable/disable all notifications';
+  String get notifications_all_enabled_description => 'Kunna/kashe dukkan sanarwa';
 
   @override
-  String get notifications_push => 'Push notifications';
+  String get notifications_push => 'Sanarwar turawa';
 
   @override
-  String get notifications_push_description => 'Receive notifications on your device';
+  String get notifications_push_description => 'Karɓar sanarwa a na\'urar ku';
 
   @override
-  String get notifications_sound => 'Sounds';
+  String get notifications_sound => 'Sautuna';
 
   @override
-  String get notifications_sound_description => 'Play sound on receipt';
+  String get notifications_sound_description => 'Kunna sauti lokacin karɓa';
 
   @override
-  String get notifications_vibration => 'Vibrations';
+  String get notifications_vibration => 'Girgiza';
 
   @override
-  String get notifications_vibration_description => 'Vibrate on receipt';
+  String get notifications_vibration_description => 'Girgiza lokacin karɓa';
 
   @override
-  String get notifications_emergency => 'Emergency alerts';
+  String get notifications_emergency => 'Faɗakarwar gaggawa';
 
   @override
-  String get notifications_emergency_description => 'Important and urgent alerts';
+  String get notifications_emergency_description => 'Faɗakarwa masu muhimmanci da gaggawa';
 
   @override
-  String get notifications_prayer => 'Prayer reminders';
+  String get notifications_prayer => 'Tunatarwar sallah';
 
   @override
-  String get notifications_prayer_description => 'Prayer time notifications';
+  String get notifications_prayer_description => 'Sanarwar lokutan sallah';
 
   @override
-  String get notifications_ritual => 'Ritual reminders';
+  String get notifications_ritual => 'Tunatarwar ayyuka';
 
   @override
-  String get notifications_ritual_description => 'Hajj ritual notifications';
+  String get notifications_ritual_description => 'Sanarwar ayyukan Hajji';
 
   @override
-  String get notifications_group => 'Group messages';
+  String get notifications_group => 'Saƙonnin ƙungiya';
 
   @override
-  String get notifications_group_description => 'Group message notifications';
+  String get notifications_group_description => 'Sanarwar saƙonnin ƙungiyar ku';
 
   @override
-  String get notifications_health => 'Health alerts';
+  String get notifications_health => 'Faɗakarwar lafiya';
 
   @override
-  String get notifications_health_description => 'Health-related notifications';
+  String get notifications_health_description => 'Sanarwar da suka shafi lafiyar ku';
 
   @override
-  String get notifications_updates => 'Updates';
+  String get notifications_updates => 'Sabuntawa';
 
   @override
-  String get notifications_updates_description => 'Application update notifications';
+  String get notifications_updates_description => 'Sanarwar sabuntawar manhaja';
 
   @override
-  String get notifications_do_not_disturb => 'Do Not Disturb Mode';
+  String get notifications_do_not_disturb => 'Yanayin Kada A Dame Ni';
 
   @override
-  String get notifications_do_not_disturb_enabled => 'Enabled - Silent notifications';
+  String get notifications_do_not_disturb_enabled => 'An kunna - Sanarwa shiru';
 
   @override
-  String get notifications_do_not_disturb_disabled => 'Disabled - Normal notifications';
+  String get notifications_do_not_disturb_disabled => 'An kashe - Sanarwa na yau da kullun';
 
   @override
   String get error_network => 'Kuskuren haɗin yanar gizo';
@@ -606,22 +606,22 @@ class AppLocalizationsHa extends AppLocalizations {
   String get map_title => 'Taswira';
 
   @override
-  String get map_my_position => 'My position';
+  String get map_my_position => 'Wurina';
 
   @override
-  String get map_group_position => 'Group position';
+  String get map_group_position => 'Wurin ƙungiya';
 
   @override
-  String get map_poi => 'Points of interest';
+  String get map_poi => 'Wuraren sha\'awa';
 
   @override
-  String get map_zoom_in => 'Zoom in';
+  String get map_zoom_in => 'Kusanta';
 
   @override
-  String get map_zoom_out => 'Zoom out';
+  String get map_zoom_out => 'Nesanta';
 
   @override
-  String get map_center => 'Center';
+  String get map_center => 'Tsakiya';
 
   @override
   String get rituals_title => 'Ayyukan Hajji';
@@ -645,85 +645,85 @@ class AppLocalizationsHa extends AppLocalizations {
   String get videos_title => 'Bidiyo';
 
   @override
-  String get videos_educational => 'Educational';
+  String get videos_educational => 'Ilimantarwa';
 
   @override
-  String get videos_tutorials => 'Tutorials';
+  String get videos_tutorials => 'Koyarwa';
 
   @override
-  String get videos_play => 'Play';
+  String get videos_play => 'Kunna';
 
   @override
-  String get videos_pause => 'Pause';
+  String get videos_pause => 'Dakata';
 
   @override
-  String get accessibility_logo => 'Sahabi Guide logo';
+  String get accessibility_logo => 'Tambarin Sahabi Guide';
 
   @override
-  String get accessibility_bot_avatar => 'Assistant avatar';
+  String get accessibility_bot_avatar => 'Hoton mataimaki';
 
   @override
-  String get accessibility_user_avatar => 'User avatar';
+  String get accessibility_user_avatar => 'Hoton mai amfani';
 
   @override
-  String get accessibility_close_button => 'Close button';
+  String get accessibility_close_button => 'Maballin rufewa';
 
   @override
-  String get accessibility_back_button => 'Back button';
+  String get accessibility_back_button => 'Maballin baya';
 
   @override
-  String get accessibility_menu_button => 'Menu button';
+  String get accessibility_menu_button => 'Maballin menu';
 
   @override
-  String get accessibility_settings_button => 'Settings button';
+  String get accessibility_settings_button => 'Maballin saituna';
 
   @override
-  String get accessibility_navigation_home => 'Go to home';
+  String get accessibility_navigation_home => 'Je zuwa gida';
 
   @override
-  String get accessibility_navigation_rituals => 'Go to rituals';
+  String get accessibility_navigation_rituals => 'Je zuwa ayyukan Hajji';
 
   @override
-  String get accessibility_navigation_map => 'Go to map';
+  String get accessibility_navigation_map => 'Je zuwa taswira';
 
   @override
-  String get accessibility_navigation_videos => 'Go to videos';
+  String get accessibility_navigation_videos => 'Je zuwa bidiyo';
 
   @override
-  String get accessibility_navigation_profile => 'Go to profile';
+  String get accessibility_navigation_profile => 'Je zuwa bayanin martaba';
 
   @override
-  String get accessibility_open_assistant => 'Open assistant';
+  String get accessibility_open_assistant => 'Buɗe mataimaki';
 
   @override
-  String get accessibility_loading => 'Loading';
+  String get accessibility_loading => 'Ana lodi';
 
   @override
-  String get accessibility_image_loading => 'Image loading';
+  String get accessibility_image_loading => 'Ana loda hoto';
 
   @override
-  String get accessibility_video_player => 'Video player';
+  String get accessibility_video_player => 'Na\'urar kunna bidiyo';
 
   @override
-  String get accessibility_qr_code => 'QR code';
+  String get accessibility_qr_code => 'Lambar QR';
 
   @override
-  String get accessibility_notification_toggle => 'Toggle notifications';
+  String get accessibility_notification_toggle => 'Kunna/kashe sanarwa';
 
   @override
-  String get group_title => 'My Group';
+  String get group_title => 'Ƙungiyata';
 
   @override
-  String get group_members => 'Members';
+  String get group_members => 'Mambobi';
 
   @override
-  String get group_guide => 'Guide';
+  String get group_guide => 'Jagora';
 
   @override
-  String get group_status => 'Status';
+  String get group_status => 'Matsayi';
 
   @override
-  String get group_location => 'Location';
+  String get group_location => 'Wuri';
 
   @override
   String get emergency_title => 'Gaggawa';
@@ -735,16 +735,16 @@ class AppLocalizationsHa extends AppLocalizations {
   String get emergency_sos => 'SOS';
 
   @override
-  String get emergency_medical => 'Medical emergency';
+  String get emergency_medical => 'Gaggawar lafiya';
 
   @override
-  String get emergency_security => 'Security';
+  String get emergency_security => 'Tsaro';
 
   @override
   String get connectivity_title => 'Haɗin yanar gizo';
 
   @override
-  String get connectivity_status => 'Status';
+  String get connectivity_status => 'Matsayi';
 
   @override
   String get connectivity_connected => 'An haɗa';
@@ -756,5 +756,5 @@ class AppLocalizationsHa extends AppLocalizations {
   String get connectivity_esim => 'eSIM';
 
   @override
-  String get connectivity_plans => 'Plans';
+  String get connectivity_plans => 'Shirye-shirye';
 }
