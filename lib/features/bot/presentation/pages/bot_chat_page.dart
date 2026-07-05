@@ -74,9 +74,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   void _showTtsError(String errorMsg) {
     if (!mounted) return;
     setState(() => _currentlySpeakingMessageId = null);
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('🔊 Lecture vocale indisponible : $errorMsg'),
+        content: Text(l10n.bot_tts_unavailable(errorMsg)),
         backgroundColor: Colors.deepOrange,
         duration: const Duration(seconds: 4),
       ),
@@ -87,26 +88,18 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   void _showSttError(String errorMsg) {
     if (!mounted) return;
     setState(() => _isListening = false);
+    final l10n = AppLocalizations.of(context)!;
     final friendly = switch (errorMsg) {
-      'error_network' =>
-        '📡 Pas d\'internet — la reconnaissance vocale nécessite une connexion (même sur émulateur)',
-      'error_network_timeout' =>
-        '⏱️ Réseau trop lent pour la reconnaissance vocale',
-      'error_no_match' =>
-        '🤔 Je n\'ai pas compris, réessayez en parlant plus clairement',
-      'error_speech_timeout' =>
-        '⏱️ Aucune voix détectée. Réessayez en parlant après avoir tapé le micro',
-      'error_audio' =>
-        '🎙️ Problème micro. Vérifiez les permissions dans Paramètres Android',
-      'error_client' =>
-        '❌ Erreur client de reconnaissance vocale',
-      'error_server' =>
-        '❌ Serveur Google Speech indisponible',
-      'error_recognizer_busy' =>
-        'Reconnaissance déjà en cours, patience...',
-      'error_permission' =>
-        '🔒 Permission micro refusée. Autorisez dans Paramètres Android',
-      _ => 'Erreur vocale : $errorMsg',
+      'error_network' => l10n.bot_stt_no_internet,
+      'error_network_timeout' => l10n.bot_stt_network_slow,
+      'error_no_match' => l10n.bot_stt_no_match,
+      'error_speech_timeout' => l10n.bot_stt_speech_timeout,
+      'error_audio' => l10n.bot_stt_audio,
+      'error_client' => l10n.bot_stt_client,
+      'error_server' => l10n.bot_stt_server,
+      'error_recognizer_busy' => l10n.bot_stt_busy,
+      'error_permission' => l10n.bot_stt_permission,
+      _ => l10n.bot_stt_generic(errorMsg),
     };
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -140,6 +133,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(botChatProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     // Ecoute les changements de messages pour declencher l'auto-TTS
     // quand la derniere question provenait du micro.
@@ -155,14 +149,43 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     // d'interface, donc ce listener ne se déclenche que pour fr/en/ar/ha.
     ref.listen(languageCodeProvider, (previous, next) {
       if (previous != null && previous != next) {
-        ref.read(botChatProvider.notifier).translateHistoryTo(next);
+        // Traduit l'historique vers la nouvelle langue. Si le consentement IA
+        // manque, on ne reste pas silencieux : on propose de l'activer.
+        () async {
+          // Capturé avant l'await pour éviter tout usage de context post-gap.
+          final messenger = ScaffoldMessenger.of(context);
+          final l = AppLocalizations.of(context)!;
+          final outcome = await ref
+              .read(botChatProvider.notifier)
+              .translateHistoryTo(next);
+          if (!mounted) return;
+          if (outcome == TranslateHistoryOutcome.consentRequired) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(l.bot_translate_consent_note),
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: l.bot_translate_enable_ai,
+                  onPressed: () async {
+                    final ok = await AiConsentDialog.ensureConsent(context);
+                    if (ok && mounted) {
+                      ref
+                          .read(botChatProvider.notifier)
+                          .translateHistoryTo(next);
+                    }
+                  },
+                ),
+              ),
+            );
+          }
+        }();
       }
     });
 
     // Affiche l'erreur si présente
     if (state.error != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Assistant Hajj')),
+        appBar: AppBar(title: Text(l10n.bot_app_title)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -172,7 +195,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 Text(
-                  'Erreur d\'initialisation',
+                  l10n.bot_init_error,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -186,7 +209,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                   onPressed: () {
                     ref.read(botChatProvider.notifier).initialize();
                   },
-                  child: const Text('Réessayer'),
+                  child: Text(l10n.common_retry),
                 ),
               ],
             ),
@@ -205,6 +228,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   PreferredSizeWidget _buildAppBar() {
     final state = ref.watch(botChatProvider);
+    final l10n = AppLocalizations.of(context)!;
     // Source de vérité unique : on observe le code de langue partagé pour que
     // le drapeau de l'AppBar suive le choix courant (et les rebuilds RTL/UI).
     final currentLang = ref.watch(languageCodeProvider);
@@ -239,13 +263,13 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Assistant Hajj',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Text(
+                  l10n.bot_app_title,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'Guide pas à pas',
+                  l10n.bot_app_subtitle,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
@@ -269,7 +293,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
             _flagFor(currentLang),
             style: const TextStyle(fontSize: 18),
           ),
-          tooltip: 'Langue de l\'assistant',
+          tooltip: l10n.bot_language,
           onSelected: _onLanguageSelected,
           itemBuilder: (_) => _buildLanguageMenuItems(),
         ),
@@ -284,15 +308,15 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                 : Colors.white,
           ),
           tooltip: _conversationMode
-              ? 'Mode mains-libres activé (désactiver)'
-              : 'Activer conversation vocale continue',
+              ? l10n.bot_handsfree_on_tooltip
+              : l10n.bot_handsfree_off_tooltip,
           onPressed: () {
             setState(() => _conversationMode = !_conversationMode);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(_conversationMode
-                    ? '🎙️ Mode conversation continue activé'
-                    : 'Mode conversation continue désactivé'),
+                    ? l10n.bot_handsfree_on
+                    : l10n.bot_handsfree_off),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -301,12 +325,12 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         IconButton(
           icon: const Icon(Icons.history_rounded),
           onPressed: _showHistoryDialog,
-          tooltip: 'Mes questions',
+          tooltip: l10n.bot_my_questions,
         ),
         // Toutes les autres actions regroupees dans un menu pour eviter l'overflow
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert_rounded),
-          tooltip: 'Plus',
+          tooltip: l10n.bot_more,
           onSelected: (v) {
             switch (v) {
               case 'settings':
@@ -320,14 +344,14 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                 break;
             }
           },
-          itemBuilder: (_) => const [
+          itemBuilder: (_) => [
             PopupMenuItem(
               value: 'settings',
               child: ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.settings_rounded),
-                title: Text('Paramètres'),
+                leading: const Icon(Icons.settings_rounded),
+                title: Text(l10n.nav_settings),
               ),
             ),
             PopupMenuItem(
@@ -335,8 +359,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               child: ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.refresh_rounded),
-                title: Text('Recommencer'),
+                leading: const Icon(Icons.refresh_rounded),
+                title: Text(l10n.bot_restart),
               ),
             ),
             PopupMenuItem(
@@ -344,8 +368,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               child: ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.info_outline_rounded),
-                title: Text('Statistiques'),
+                leading: const Icon(Icons.info_outline_rounded),
+                title: Text(l10n.bot_statistics),
               ),
             ),
           ],
@@ -370,15 +394,16 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
           Text(
-            'Initialisation du bot...',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            l10n.bot_initializing,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ],
       ),
@@ -506,7 +531,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   Widget _buildProgressBadge(BotChatState state) {
     final progress = state.progressPercentage;
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -530,8 +556,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
           const SizedBox(width: 8),
           Text(
             progress >= 100
-                ? '🎉 Félicitations ! Hajj terminé'
-                : 'Progression : $progress%',
+                ? l10n.bot_hajj_completed
+                : l10n.bot_progress_percent(progress),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -544,6 +570,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -562,10 +589,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Bienvenue dans votre\nguide du Hajj ! 🕋',
+          Text(
+            l10n.bot_welcome_title,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1D3557),
@@ -573,7 +600,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
           ),
           const SizedBox(height: 12),
           Text(
-            'Je vais vous accompagner étape par étape\ntout au long de votre pèlerinage',
+            l10n.bot_welcome_subtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -587,7 +614,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                 .read(botChatProvider.notifier)
                 .startConversation(locale: _currentLang),
             icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Commencer'),
+            label: Text(l10n.bot_start),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1D3557),
               foregroundColor: Colors.white,
@@ -743,8 +770,8 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
     if (!voice.isSttAvailable) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Reconnaissance vocale indisponible sur cet appareil'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.bot_stt_device_unavailable),
             backgroundColor: Colors.orange,
           ),
         );
@@ -829,6 +856,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   void _showHistoryDialog() {
     final state = ref.read(botChatProvider);
     final userQuestions = state.messages.where((m) => !m.isBot).toList();
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -853,10 +881,10 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                   children: [
                     const Icon(Icons.history_rounded, color: Colors.white),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Mes questions précédentes',
-                        style: TextStyle(
+                        l10n.bot_history_title,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -875,17 +903,17 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
               ),
               Flexible(
                 child: userQuestions.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(32),
+                    ? Padding(
+                        padding: const EdgeInsets.all(32),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.chat_bubble_outline,
+                            const Icon(Icons.chat_bubble_outline,
                                 size: 48, color: Colors.grey),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Text(
-                              'Aucune question posée pour le moment.',
-                              style: TextStyle(color: Colors.grey),
+                              l10n.bot_history_empty,
+                              style: const TextStyle(color: Colors.grey),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -970,7 +998,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Fermer'),
+                    child: Text(l10n.common_close),
                   ),
                 ),
               ),
@@ -1099,24 +1127,25 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
   }
 
   Future<void> _showRestartDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Recommencer ?'),
-        content: const Text(
-          'Voulez-vous vraiment recommencer la conversation depuis le début ?',
+        title: Text(l10n.bot_restart_title),
+        content: Text(
+          l10n.bot_restart_message,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1D3557),
             ),
-            child: const Text('Recommencer'),
+            child: Text(l10n.bot_restart),
           ),
         ],
       ),
@@ -1131,49 +1160,50 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
   void _showStatsDialog() {
     final stats = ref.read(botChatProvider.notifier).getStats();
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('📊 Statistiques'),
+        title: Text(l10n.bot_stats_title),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '📈 Progression',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              Text(
+                l10n.bot_stats_progress,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 8),
-              _buildStatRow('Étape actuelle', stats['current_step']),
-              _buildStatRow('Étape', '${stats['current_order']} / ${stats['total_steps']}'),
-              _buildStatRow('Progression', '${stats['progress_percentage']}%'),
-              _buildStatRow('Messages', '${stats['messages_count']}'),
-              
+              _buildStatRow(l10n.bot_stats_current_step, stats['current_step']),
+              _buildStatRow(l10n.bot_stats_step, '${stats['current_order']} / ${stats['total_steps']}'),
+              _buildStatRow(l10n.bot_stats_progress_row, '${stats['progress_percentage']}%'),
+              _buildStatRow(l10n.bot_stats_messages, '${stats['messages_count']}'),
+
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 8),
-              
-              const Text(
-                '📍 Localisation GPS',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+
+              Text(
+                l10n.bot_stats_gps,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 8),
               _buildStatRow(
-                'Lieu actuel',
-                stats['current_location'] ?? 'Non détecté',
+                l10n.bot_stats_current_location,
+                stats['current_location'] ?? l10n.bot_stats_not_detected,
               ),
               _buildStatRow(
-                'Dans lieu saint',
-                stats['is_in_holy_place'] == true ? 'Oui ✅' : 'Non',
+                l10n.bot_stats_in_holy_place,
+                stats['is_in_holy_place'] == true ? l10n.bot_stats_yes : l10n.common_no,
               ),
               _buildStatRow(
-                'Duas suggérées',
+                l10n.bot_stats_suggested_duas,
                 '${stats['suggested_duas_count'] ?? 0}',
               ),
               _buildStatRow(
-                'Rappels urgents',
+                l10n.bot_stats_urgent_reminders,
                 '${stats['urgent_reminders_count'] ?? 0}',
               ),
             ],
@@ -1182,7 +1212,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: Text(l10n.common_close),
           ),
         ],
       ),

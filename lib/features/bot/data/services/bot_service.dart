@@ -115,6 +115,16 @@ class BotService {
     }
   }
 
+  /// Langues d'interface réellement traduites (parité .arb). Toute autre valeur
+  /// (langue « audio-only ») retombe sur `fr` pour le texte scripté du bot.
+  static const List<String> _l10nSupported = ['fr', 'en', 'ar', 'ha'];
+
+  /// Langue effective du texte scripté produit pour [locale] : la locale
+  /// elle-même si traduite, sinon `fr`. Sert aussi de `originalLang` du message
+  /// pour que la traduction au changement de langue reste fidèle.
+  String _contentLang(String locale) =>
+      _l10nSupported.contains(locale) ? locale : 'fr';
+
   /// Démarre la conversation
   Future<BotMessageModel> startConversation({String locale = 'fr'}) async {
     if (_currentStep == null) {
@@ -122,26 +132,29 @@ class BotService {
     }
 
     _conversationStarted = true;
-    
+
     // Récupère le contexte GPS
     _lastContext = await contextService.getCurrentContext();
-    
+
+    // Textes scriptés localisés dans la langue courante (context-free).
+    final l10n = await NotificationL10n.loadForCode(locale);
+
     // Message de bienvenue contextuel
-    String welcomeContent = '🕋 As-salamu alaykum ! Je suis votre assistant personnel pour le Hajj.\n\n';
-    
+    String welcomeContent = '${l10n.bot_svc_welcome_intro}\n\n';
+
     // Ajoute info de localisation si disponible
     if (_lastContext?.isInHolyPlace == true) {
-      welcomeContent += '📍 Je vois que vous êtes à ${_lastContext!.currentLocation} !\n\n';
+      welcomeContent +=
+          '${l10n.bot_svc_welcome_location(_lastContext!.currentLocation ?? '')}\n\n';
     }
-    
-    welcomeContent += 'Je vais vous guider étape par étape à travers tous les rituels. '
-                      'Répondez simplement aux questions et je vous accompagnerai ! 🤲';
-    
+
+    welcomeContent += l10n.bot_svc_welcome_guide;
+
     final welcomeMessage = BotMessageModel.bot(
       id: uuid.v4(),
       content: welcomeContent,
       contentAr: 'السلام عليكم! أنا مساعدك الشخصي للحج.',
-      originalLang: 'fr',
+      originalLang: _contentLang(locale),
     );
     
     _messageHistory.add(welcomeMessage);
@@ -170,27 +183,30 @@ class BotService {
     // Met à jour le contexte GPS
     _lastContext = await contextService.getCurrentContext();
 
+    // Libellés d'enrichissement localisés (context-free).
+    final l10n = await NotificationL10n.loadForCode(locale);
+
     String content = _currentStep!.getLocalizedQuestion(locale);
-    
+
     // Ajoute les rappels urgents du contexte GPS si présents
     if (_lastContext != null && _lastContext!.urgentReminders.isNotEmpty) {
-      content += '\n\n⚠️ RAPPELS URGENTS :\n${_lastContext!.urgentReminders.join('\n')}';
+      content += '\n\n${l10n.bot_svc_urgent_reminders}\n${_lastContext!.urgentReminders.join('\n')}';
     }
-    
+
     // Ajoute les rappels urgents de la base de connaissances
     final urgentReminders = knowledgeBase.getUrgentReminders(_currentStep!.id);
     if (urgentReminders.isNotEmpty) {
       content += '\n\n${urgentReminders.join('\n')}';
     }
-    
+
     // Ajoute les duas suggérées si présentes
     if (_lastContext != null && _lastContext!.suggestedDuas.isNotEmpty) {
-      content += '\n\n🤲 DUAS RECOMMANDÉES :\n${_lastContext!.suggestedDuas.take(3).join('\n')}';
+      content += '\n\n${l10n.bot_svc_recommended_duas}\n${_lastContext!.suggestedDuas.take(3).join('\n')}';
     }
-    
+
     // Ajoute la description
     content += '\n\n💡 ${_currentStep!.description}';
-    
+
     final message = BotMessageModel.bot(
       id: uuid.v4(),
       content: content,
@@ -198,10 +214,10 @@ class BotService {
       quickReplies: _currentStep!.quickReplies,
       relatedStepId: _currentStep!.id,
       relatedRitualId: _currentStep!.relatedRitualId,
-      // Le corps de la question est en FR (ou en AR si locale=='ar') ; les
-      // enrichissements ajoutés restent FR. On marque la langue d'origine pour
-      // permettre la traduction fidèle au changement de langue.
-      originalLang: locale == 'ar' ? 'ar' : 'fr',
+      // Le corps de la question suit `locale` (question + libellés localisés) ;
+      // les items d'enrichissement (data) peuvent rester FR. On marque la langue
+      // d'origine pour permettre la traduction fidèle au changement de langue.
+      originalLang: _contentLang(locale),
     );
     
     _messageHistory.add(message);
@@ -253,7 +269,7 @@ class BotService {
 
     // Si "Besoin d'aide", cherche dans les FAQs
     if (_isHelpRequest(answer)) {
-      return await _handleHelpRequest(_currentStep!.id);
+      return await _handleHelpRequest(_currentStep!.id, locale: locale);
     }
 
     // Si "Recommencer"
@@ -266,7 +282,7 @@ class BotService {
     
     // Si c'était la dernière étape
     if (nextStep == null || _currentStep!.isFinal == true) {
-      return await _handleConversationEnd();
+      return await _handleConversationEnd(locale: locale);
     }
     
     // Passe à l'étape suivante
@@ -294,24 +310,28 @@ class BotService {
   }
 
   /// Traite une demande d'aide
-  Future<BotMessageModel> _handleHelpRequest(String currentStepId) async {
+  Future<BotMessageModel> _handleHelpRequest(
+    String currentStepId, {
+    String locale = 'fr',
+  }) async {
+    final l10n = await NotificationL10n.loadForCode(locale);
     final relatedFAQs = knowledgeBase.searchFAQs(currentStepId, limit: 1);
-    
+
     String helpContent;
-    
+
     if (relatedFAQs.isNotEmpty) {
       final faq = relatedFAQs.first;
       helpContent = '❓ ${faq.question}\n\n${faq.answer}';
     } else {
-      helpContent = '💡 Voici quelques informations supplémentaires :\n\n'
-                    '${_currentStep?.description ?? 'Consultez la section Rituels pour plus de détails.'}';
+      helpContent = '${l10n.bot_svc_help_more}\n\n'
+                    '${_currentStep?.description ?? l10n.bot_svc_help_see_rituals}';
     }
-    
+
     final helpMessage = BotMessageModel.bot(
       id: uuid.v4(),
       content: helpContent,
       quickReplies: [QuickReplyKeys.understood, QuickReplyKeys.otherQuestion],
-      originalLang: 'fr',
+      originalLang: _contentLang(locale),
     );
     
     _messageHistory.add(helpMessage);
@@ -320,6 +340,9 @@ class BotService {
 
   /// Recherche dans les FAQs
   Future<BotMessageModel> searchFAQs(String query, {String language = 'fr'}) async {
+    // Libellés scriptés (IA / indisponible / sans réponse) localisés.
+    final l10n = await NotificationL10n.loadForCode(language);
+
     // 0. Construire l'historique multi-tours AVANT d'ajouter la question courante
     //    (les 6 derniers tours user+bot, du plus ancien au plus récent).
     final history = _buildChatHistory();
@@ -344,7 +367,7 @@ class BotService {
         final confidence = apiResponse['confidence'] as String?;
         final abstained = apiResponse['abstained'] == true;
         String apiContent = answer;
-        if (source.startsWith('llm')) apiContent += '\n\n💡 Réponse IA';
+        if (source.startsWith('llm')) apiContent += '\n\n${l10n.bot_svc_ai_response}';
         final message = BotMessageModel.bot(
           id: uuid.v4(),
           content: apiContent,
@@ -370,9 +393,9 @@ class BotService {
           apiResponse['source'] == 'error') {
         final message = BotMessageModel.bot(
           id: uuid.v4(),
-          content: _getServiceUnavailableMessage(language),
+          content: l10n.bot_svc_ai_unavailable,
           quickReplies: [QuickReplyKeys.retry, QuickReplyKeys.continue_],
-          originalLang: language == 'ha' ? 'ha' : 'fr',
+          originalLang: _contentLang(language),
         );
         _messageHistory.add(message);
         await _saveMessage(message);
@@ -400,7 +423,7 @@ class BotService {
         
         if (enrichedContent != null && enrichedContent != content) {
           content = enrichedContent;
-          content += '\n\n💡 Réponse enrichie par IA';
+          content += '\n\n${l10n.bot_svc_ai_enriched}';
         }
       }
     } else {
@@ -413,20 +436,20 @@ class BotService {
         );
         
         if (llmResponse != null) {
-          content = '🤖 $llmResponse\n\n💡 Réponse générée par IA';
+          content = '🤖 $llmResponse\n\n${l10n.bot_svc_ai_generated}';
         } else {
-          content = _getDefaultNoAnswerMessage();
+          content = l10n.bot_svc_no_answer;
         }
       } else {
-        content = _getDefaultNoAnswerMessage();
+        content = l10n.bot_svc_no_answer;
       }
     }
-    
+
     final message = BotMessageModel.bot(
       id: uuid.v4(),
       content: content,
       quickReplies: [QuickReplyKeys.otherQuestion, QuickReplyKeys.continue_],
-      originalLang: 'fr',
+      originalLang: _contentLang(language),
     );
 
     _messageHistory.add(message);
@@ -434,37 +457,16 @@ class BotService {
     return message;
   }
   
-  /// Message dédié quand le service IA est momentanément en panne (réseau /
-  /// timeout / 5xx), à distinguer d'une absence de réponse. Localisé dans le
-  /// même esprit que les autres messages (FR par défaut, variante Hausa).
-  String _getServiceUnavailableMessage(String language) {
-    if (language == 'ha') {
-      return '⚠️ Sabis na AI bai samu ba a yanzu. Da fatan a sake gwadawa.';
-    }
-    return '⚠️ Le service IA est momentanément indisponible. Réessayez.';
-  }
-
-  /// Message par défaut quand aucune réponse n'est trouvée
-  String _getDefaultNoAnswerMessage() {
-    return '🤔 Je n\'ai pas trouvé de réponse exacte à votre question.\n\n'
-           'Vous pouvez :\n'
-           '- Reformuler votre question\n'
-           '- Consulter la section "Rituels"\n'
-           '- Poser une question plus générale';
-  }
-
   /// Gère la fin de la conversation
-  Future<BotMessageModel> _handleConversationEnd() async {
+  Future<BotMessageModel> _handleConversationEnd({String locale = 'fr'}) async {
+    final l10n = await NotificationL10n.loadForCode(locale);
     final endMessage = BotMessageModel.bot(
       id: uuid.v4(),
-      content: '🎉 Masha\'Allah ! Vous avez terminé toutes les étapes du Hajj !\n\n'
-               '✨ Hajj Mabrour wa Sa\'y Mashkour !\n\n'
-               'Qu\'Allah accepte votre Hajj et vos bonnes actions. '
-               'N\'hésitez pas à revenir si vous avez des questions. 🤲',
+      content: l10n.bot_svc_end,
       contentAr: '🎉 ماشاء الله! لقد أتممت جميع خطوات الحج!\n\n'
                  '✨ حج مبرور وسعي مشكور!',
       quickReplies: [QuickReplyKeys.alhamdulillah, QuickReplyKeys.restart],
-      originalLang: 'fr',
+      originalLang: _contentLang(locale),
     );
     
     _messageHistory.add(endMessage);

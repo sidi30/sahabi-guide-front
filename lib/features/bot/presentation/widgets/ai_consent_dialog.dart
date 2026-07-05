@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
 
 /// Consentement explicite avant d'utiliser l'assistant IA.
 /// Requis par App Store Review Guideline 5.1.1(i) + 5.1.2(i).
@@ -21,6 +22,7 @@ class AiConsentDialog {
     if (await hasConsent()) return true;
     if (!context.mounted) return false;
 
+    final l10n = AppLocalizations.of(context)!;
     final accepted = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
@@ -32,10 +34,10 @@ class AiConsentDialog {
                 Icon(Icons.smart_toy_outlined,
                     color: Theme.of(ctx).primaryColor, size: 28),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "Assistant IA du Hajj",
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    l10n.bot_consent_title,
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -44,44 +46,33 @@ class AiConsentDialog {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    "L'assistant répond uniquement aux questions liées au "
-                    "Hajj, à la Omra et à l'Islam. Les autres sujets sont "
-                    "filtrés en amont.",
-                    style: TextStyle(fontSize: 14),
+                    l10n.bot_consent_intro,
+                    style: const TextStyle(fontSize: 14),
                   ),
-                  SizedBox(height: 12),
-                  Text("Données envoyées à notre serveur :",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  SizedBox(height: 4),
-                  Text("• Le texte de votre question\n"
-                      "• La langue choisie (FR / EN / AR / HA)\n"
-                      "• Les derniers messages de la conversation en cours"),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 12),
+                  Text(l10n.bot_consent_data_sent,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(l10n.bot_consent_data_list),
+                  const SizedBox(height: 4),
                   Text(
-                    "Aucune donnée d'identité (nom, passeport, téléphone, "
-                    "email, position GPS, santé) n'est envoyée.",
-                    style: TextStyle(fontSize: 12),
+                    l10n.bot_consent_no_identity,
+                    style: const TextStyle(fontSize: 12),
                   ),
-                  SizedBox(height: 12),
-                  Text("Traitement par un service IA tiers :",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 12),
+                  Text(l10n.bot_consent_third_party,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
                   Text(
-                    "Pour générer la réponse, notre serveur transmet la "
-                    "question, via une connexion chiffrée HTTPS, à "
-                    "Google Gemini (Google LLC, USA). Google traite la "
-                    "requête uniquement pour produire la réponse et ne la "
-                    "conserve pas pour entraîner ses modèles "
-                    "(engagement Google pour l'API Gemini).",
-                    style: TextStyle(fontSize: 12),
+                    l10n.bot_consent_third_party_desc,
+                    style: const TextStyle(fontSize: 12),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
-                    "En refusant, l'assistant fonctionnera en mode local "
-                    "limité (réponses préchargées, sans IA).",
-                    style: TextStyle(fontSize: 12, color: Colors.black87),
+                    l10n.bot_consent_refuse_note,
+                    style: const TextStyle(fontSize: 12, color: Colors.black87),
                   ),
                 ],
               ),
@@ -89,8 +80,8 @@ class AiConsentDialog {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: const Text('Refuser',
-                    style: TextStyle(color: Colors.grey)),
+                child: Text(l10n.bot_consent_refuse,
+                    style: const TextStyle(color: Colors.grey)),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
@@ -100,7 +91,7 @@ class AiConsentDialog {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text("J'accepte"),
+                child: Text(l10n.bot_consent_accept),
               ),
             ],
           ),

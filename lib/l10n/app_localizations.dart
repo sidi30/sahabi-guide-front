@@ -1562,6 +1562,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plans'**
   String get connectivity_plans;
+
+  /// No description provided for @bot_app_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hajj Assistant'**
+  String get bot_app_title;
+
+  /// No description provided for @bot_app_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step-by-step guide'**
+  String get bot_app_subtitle;
+
+  /// No description provided for @bot_init_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialization error'**
+  String get bot_init_error;
+
+  /// No description provided for @bot_initializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing assistant...'**
+  String get bot_initializing;
+
+  /// Progress badge above the chat
+  ///
+  /// In en, this message translates to:
+  /// **'Progress: {percent}%'**
+  String bot_progress_percent(int percent);
+
+  /// No description provided for @bot_hajj_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'🎉 Congratulations! Hajj completed'**
+  String get bot_hajj_completed;
+
+  /// No description provided for @bot_welcome_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to your\nHajj guide! 🕋'**
+  String get bot_welcome_title;
+
+  /// No description provided for @bot_welcome_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll guide you step by step\nthroughout your pilgrimage'**
+  String get bot_welcome_subtitle;
+
+  /// No description provided for @bot_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get bot_start;
+
+  /// No description provided for @bot_restart_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart?'**
+  String get bot_restart_title;
+
+  /// No description provided for @bot_restart_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to restart the conversation from the beginning?'**
+  String get bot_restart_message;
+
+  /// No description provided for @bot_restart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get bot_restart;
+
+  /// No description provided for @bot_statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get bot_statistics;
+
+  /// No description provided for @bot_stats_title.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 Statistics'**
+  String get bot_stats_title;
+
+  /// No description provided for @bot_stats_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'📈 Progress'**
+  String get bot_stats_progress;
+
+  /// No description provided for @bot_stats_current_step.
+  ///
+  /// In en, this message translates to:
+  /// **'Current step'**
+  String get bot_stats_current_step;
+
+  /// No description provided for @bot_stats_step.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get bot_stats_step;
+
+  /// No description provided for @bot_stats_progress_row.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get bot_stats_progress_row;
+
+  /// No description provided for @bot_stats_messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get bot_stats_messages;
+
+  /// No description provided for @bot_stats_gps.
+  ///
+  /// In en, this message translates to:
+  /// **'📍 GPS location'**
+  String get bot_stats_gps;
+
+  /// No description provided for @bot_stats_current_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location'**
+  String get bot_stats_current_location;
+
+  /// No description provided for @bot_stats_not_detected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not detected'**
+  String get bot_stats_not_detected;
+
+  /// No description provided for @bot_stats_in_holy_place.
+  ///
+  /// In en, this message translates to:
+  /// **'In a holy place'**
+  String get bot_stats_in_holy_place;
+
+  /// No description provided for @bot_stats_yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes ✅'**
+  String get bot_stats_yes;
+
+  /// No description provided for @bot_stats_suggested_duas.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested duas'**
+  String get bot_stats_suggested_duas;
+
+  /// No description provided for @bot_stats_urgent_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent reminders'**
+  String get bot_stats_urgent_reminders;
+
+  /// No description provided for @bot_history_title.
+  ///
+  /// In en, this message translates to:
+  /// **'My previous questions'**
+  String get bot_history_title;
+
+  /// No description provided for @bot_history_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions asked yet.'**
+  String get bot_history_empty;
+
+  /// No description provided for @bot_my_questions.
+  ///
+  /// In en, this message translates to:
+  /// **'My questions'**
+  String get bot_my_questions;
+
+  /// No description provided for @bot_more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get bot_more;
+
+  /// No description provided for @bot_handsfree_on_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Hands-free mode on (disable)'**
+  String get bot_handsfree_on_tooltip;
+
+  /// No description provided for @bot_handsfree_off_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable continuous voice conversation'**
+  String get bot_handsfree_off_tooltip;
+
+  /// No description provided for @bot_handsfree_on.
+  ///
+  /// In en, this message translates to:
+  /// **'🎙️ Continuous conversation mode enabled'**
+  String get bot_handsfree_on;
+
+  /// No description provided for @bot_handsfree_off.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous conversation mode disabled'**
+  String get bot_handsfree_off;
+
+  /// Snackbar shown when TTS fails
+  ///
+  /// In en, this message translates to:
+  /// **'🔊 Voice playback unavailable: {error}'**
+  String bot_tts_unavailable(String error);
+
+  /// No description provided for @bot_stt_no_internet.
+  ///
+  /// In en, this message translates to:
+  /// **'📡 No internet — voice recognition requires a connection (even on an emulator)'**
+  String get bot_stt_no_internet;
+
+  /// No description provided for @bot_stt_network_slow.
+  ///
+  /// In en, this message translates to:
+  /// **'⏱️ Network too slow for voice recognition'**
+  String get bot_stt_network_slow;
+
+  /// No description provided for @bot_stt_no_match.
+  ///
+  /// In en, this message translates to:
+  /// **'🤔 I didn\'t understand, please try speaking more clearly'**
+  String get bot_stt_no_match;
+
+  /// No description provided for @bot_stt_speech_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'⏱️ No voice detected. Try again by speaking after tapping the mic'**
+  String get bot_stt_speech_timeout;
+
+  /// No description provided for @bot_stt_audio.
+  ///
+  /// In en, this message translates to:
+  /// **'🎙️ Mic problem. Check permissions in Android Settings'**
+  String get bot_stt_audio;
+
+  /// No description provided for @bot_stt_client.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Voice recognition client error'**
+  String get bot_stt_client;
+
+  /// No description provided for @bot_stt_server.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Google Speech server unavailable'**
+  String get bot_stt_server;
+
+  /// No description provided for @bot_stt_busy.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognition already in progress, please wait...'**
+  String get bot_stt_busy;
+
+  /// No description provided for @bot_stt_permission.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Mic permission denied. Allow it in Android Settings'**
+  String get bot_stt_permission;
+
+  /// Fallback STT error message
+  ///
+  /// In en, this message translates to:
+  /// **'Voice error: {error}'**
+  String bot_stt_generic(String error);
+
+  /// No description provided for @bot_stt_device_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice recognition unavailable on this device'**
+  String get bot_stt_device_unavailable;
+
+  /// No description provided for @bot_svc_welcome_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'🕋 As-salamu alaykum! I am your personal Hajj assistant.'**
+  String get bot_svc_welcome_intro;
+
+  /// Welcome line shown when the pilgrim is at a holy place
+  ///
+  /// In en, this message translates to:
+  /// **'📍 I see that you are at {location}!'**
+  String bot_svc_welcome_location(String location);
+
+  /// No description provided for @bot_svc_welcome_guide.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll guide you step by step through all the rituals. Just answer the questions and I\'ll be with you! 🤲'**
+  String get bot_svc_welcome_guide;
+
+  /// No description provided for @bot_svc_urgent_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ URGENT REMINDERS:'**
+  String get bot_svc_urgent_reminders;
+
+  /// No description provided for @bot_svc_recommended_duas.
+  ///
+  /// In en, this message translates to:
+  /// **'🤲 RECOMMENDED DUAS:'**
+  String get bot_svc_recommended_duas;
+
+  /// No description provided for @bot_svc_ai_response.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 AI answer'**
+  String get bot_svc_ai_response;
+
+  /// No description provided for @bot_svc_ai_enriched.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Answer enriched by AI'**
+  String get bot_svc_ai_enriched;
+
+  /// No description provided for @bot_svc_ai_generated.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Answer generated by AI'**
+  String get bot_svc_ai_generated;
+
+  /// No description provided for @bot_svc_help_more.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Here is some additional information:'**
+  String get bot_svc_help_more;
+
+  /// No description provided for @bot_svc_help_see_rituals.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the Rituals section for more details.'**
+  String get bot_svc_help_see_rituals;
+
+  /// No description provided for @bot_svc_end.
+  ///
+  /// In en, this message translates to:
+  /// **'🎉 Masha\'Allah! You have completed all the steps of the Hajj!\n\n✨ Hajj Mabrour wa Sa\'y Mashkour!\n\nMay Allah accept your Hajj and your good deeds. Feel free to come back if you have any questions. 🤲'**
+  String get bot_svc_end;
+
+  /// No description provided for @bot_svc_ai_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ The AI service is temporarily unavailable. Please try again.'**
+  String get bot_svc_ai_unavailable;
+
+  /// No description provided for @bot_svc_no_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'🤔 I couldn\'t find an exact answer to your question.\n\nYou can:\n- Rephrase your question\n- Check the \"Rituals\" section\n- Ask a more general question'**
+  String get bot_svc_no_answer;
+
+  /// No description provided for @bot_settings_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Settings'**
+  String get bot_settings_title;
+
+  /// Generic error snackbar in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String bot_settings_error(String error);
+
+  /// No description provided for @bot_settings_llm_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ AI settings saved'**
+  String get bot_settings_llm_saved;
+
+  /// No description provided for @bot_settings_notif_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Notification settings saved'**
+  String get bot_settings_notif_saved;
+
+  /// No description provided for @bot_settings_clear_title.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Confirm'**
+  String get bot_settings_clear_title;
+
+  /// No description provided for @bot_settings_clear_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to erase all conversation history?\n\nThis action is irreversible.'**
+  String get bot_settings_clear_message;
+
+  /// No description provided for @bot_settings_clear_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase'**
+  String get bot_settings_clear_action;
+
+  /// No description provided for @bot_settings_history_cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ History erased'**
+  String get bot_settings_history_cleared;
+
+  /// No description provided for @bot_settings_section_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'🤖 Artificial Intelligence (optional)'**
+  String get bot_settings_section_ai;
+
+  /// No description provided for @bot_settings_section_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'🔔 Notifications'**
+  String get bot_settings_section_notifications;
+
+  /// No description provided for @bot_settings_section_storage.
+  ///
+  /// In en, this message translates to:
+  /// **'💾 Storage'**
+  String get bot_settings_section_storage;
+
+  /// No description provided for @bot_settings_enable_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable enriched AI'**
+  String get bot_settings_enable_ai;
+
+  /// No description provided for @bot_settings_enable_ai_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'The copilot sends your question to Google Gemini (Google LLC, USA) via our server, over HTTPS, to generate the answer. No identity data is sent. See the privacy policy.'**
+  String get bot_settings_enable_ai_desc;
+
+  /// No description provided for @bot_settings_sources_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticated sources grounded on the server: Quran, Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, Ibn Majah, Ibn Hanbal. Islam/Hajj topic filter applied upstream. Google does not retain the request.'**
+  String get bot_settings_sources_info;
+
+  /// No description provided for @bot_settings_enable_notifs.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get bot_settings_enable_notifs;
+
+  /// No description provided for @bot_settings_enable_notifs_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive reminders based on your GPS location'**
+  String get bot_settings_enable_notifs_desc;
+
+  /// No description provided for @bot_settings_clear_history.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase history'**
+  String get bot_settings_clear_history;
+
+  /// No description provided for @bot_settings_clear_history_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all saved conversations'**
+  String get bot_settings_clear_history_desc;
+
+  /// No description provided for @bot_settings_messages_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved messages'**
+  String get bot_settings_messages_saved;
+
+  /// No description provided for @bot_settings_preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get bot_settings_preferences;
+
+  /// No description provided for @bot_consent_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hajj AI Assistant'**
+  String get bot_consent_title;
+
+  /// No description provided for @bot_consent_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant only answers questions related to Hajj, Umrah and Islam. Other topics are filtered upstream.'**
+  String get bot_consent_intro;
+
+  /// No description provided for @bot_consent_data_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Data sent to our server:'**
+  String get bot_consent_data_sent;
+
+  /// No description provided for @bot_consent_data_list.
+  ///
+  /// In en, this message translates to:
+  /// **'• The text of your question\n• The chosen language (FR / EN / AR / HA)\n• The last messages of the current conversation'**
+  String get bot_consent_data_list;
+
+  /// No description provided for @bot_consent_no_identity.
+  ///
+  /// In en, this message translates to:
+  /// **'No identity data (name, passport, phone, email, GPS location, health) is sent.'**
+  String get bot_consent_no_identity;
+
+  /// No description provided for @bot_consent_third_party.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing by a third-party AI service:'**
+  String get bot_consent_third_party;
+
+  /// No description provided for @bot_consent_third_party_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'To generate the answer, our server sends the question, over an encrypted HTTPS connection, to Google Gemini (Google LLC, USA). Google processes the request only to produce the answer and does not retain it to train its models (Google\'s commitment for the Gemini API).'**
+  String get bot_consent_third_party_desc;
+
+  /// No description provided for @bot_consent_refuse_note.
+  ///
+  /// In en, this message translates to:
+  /// **'If you refuse, the assistant will run in limited local mode (preloaded answers, no AI).'**
+  String get bot_consent_refuse_note;
+
+  /// No description provided for @bot_consent_refuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Refuse'**
+  String get bot_consent_refuse;
+
+  /// No description provided for @bot_consent_accept.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept'**
+  String get bot_consent_accept;
+
+  /// No description provided for @bot_collapsed_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant tucked away. Tap the handle on the right to bring it back.'**
+  String get bot_collapsed_hint;
+
+  /// No description provided for @bot_translate_consent_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable the AI assistant to translate the conversation.'**
+  String get bot_translate_consent_note;
+
+  /// No description provided for @bot_translate_enable_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get bot_translate_enable_ai;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

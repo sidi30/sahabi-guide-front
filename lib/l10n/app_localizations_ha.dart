@@ -757,4 +757,290 @@ class AppLocalizationsHa extends AppLocalizations {
 
   @override
   String get connectivity_plans => 'Shirye-shirye';
+
+  @override
+  String get bot_app_title => 'Mataimakin Hajji';
+
+  @override
+  String get bot_app_subtitle => 'Jagora mataki-mataki';
+
+  @override
+  String get bot_init_error => 'Kuskuren farawa';
+
+  @override
+  String get bot_initializing => 'Ana shirya mataimaki...';
+
+  @override
+  String bot_progress_percent(int percent) {
+    return 'Ci gaba: $percent%';
+  }
+
+  @override
+  String get bot_hajj_completed => '🎉 Barka! An kammala Hajji';
+
+  @override
+  String get bot_welcome_title => 'Barka da zuwa\njagoran Hajji! 🕋';
+
+  @override
+  String get bot_welcome_subtitle => 'Zan raka ka mataki-mataki\na duk tsawon aikin hajjinka';
+
+  @override
+  String get bot_start => 'Fara';
+
+  @override
+  String get bot_restart_title => 'Sake farawa?';
+
+  @override
+  String get bot_restart_message => 'Kana so ka sake tattaunawar daga farko?';
+
+  @override
+  String get bot_restart => 'Sake farawa';
+
+  @override
+  String get bot_statistics => 'Ƙididdiga';
+
+  @override
+  String get bot_stats_title => '📊 Ƙididdiga';
+
+  @override
+  String get bot_stats_progress => '📈 Ci gaba';
+
+  @override
+  String get bot_stats_current_step => 'Matakin yanzu';
+
+  @override
+  String get bot_stats_step => 'Mataki';
+
+  @override
+  String get bot_stats_progress_row => 'Ci gaba';
+
+  @override
+  String get bot_stats_messages => 'Saƙonni';
+
+  @override
+  String get bot_stats_gps => '📍 Wurin GPS';
+
+  @override
+  String get bot_stats_current_location => 'Wurin yanzu';
+
+  @override
+  String get bot_stats_not_detected => 'Ba a gano ba';
+
+  @override
+  String get bot_stats_in_holy_place => 'A wuri mai tsarki';
+
+  @override
+  String get bot_stats_yes => 'Ee ✅';
+
+  @override
+  String get bot_stats_suggested_duas => 'Addu\'o\'in da aka ba da shawara';
+
+  @override
+  String get bot_stats_urgent_reminders => 'Tunatarwa masu gaggawa';
+
+  @override
+  String get bot_history_title => 'Tambayoyina na baya';
+
+  @override
+  String get bot_history_empty => 'Ba a yi wata tambaya ba tukuna.';
+
+  @override
+  String get bot_my_questions => 'Tambayoyina';
+
+  @override
+  String get bot_more => 'Ƙari';
+
+  @override
+  String get bot_handsfree_on_tooltip => 'Yanayin hannu-kyauta yana kunne (kashe)';
+
+  @override
+  String get bot_handsfree_off_tooltip => 'Kunna tattaunawar murya mai ci gaba';
+
+  @override
+  String get bot_handsfree_on => '🎙️ An kunna yanayin tattaunawa mai ci gaba';
+
+  @override
+  String get bot_handsfree_off => 'An kashe yanayin tattaunawa mai ci gaba';
+
+  @override
+  String bot_tts_unavailable(String error) {
+    return '🔊 Ba a iya kunna murya ba: $error';
+  }
+
+  @override
+  String get bot_stt_no_internet => '📡 Babu intanet — gane murya na buƙatar haɗi (ko a kan emulator)';
+
+  @override
+  String get bot_stt_network_slow => '⏱️ Yanar gizo na da jinkiri sosai don gane murya';
+
+  @override
+  String get bot_stt_no_match => '🤔 Ban gane ba, sake gwadawa ka yi magana a fili';
+
+  @override
+  String get bot_stt_speech_timeout => '⏱️ Ba a gano murya ba. Sake gwadawa ka yi magana bayan ka danna makirafo';
+
+  @override
+  String get bot_stt_audio => '🎙️ Matsalar makirafo. Duba izini a Saitunan Android';
+
+  @override
+  String get bot_stt_client => '❌ Kuskuren abokin ciniki na gane murya';
+
+  @override
+  String get bot_stt_server => '❌ Sabar Google Speech ba ta samu ba';
+
+  @override
+  String get bot_stt_busy => 'Ana gane murya, ka yi haƙuri...';
+
+  @override
+  String get bot_stt_permission => '🔒 An ƙi izinin makirafo. Ka ba da izini a Saitunan Android';
+
+  @override
+  String bot_stt_generic(String error) {
+    return 'Kuskuren murya: $error';
+  }
+
+  @override
+  String get bot_stt_device_unavailable => 'Gane murya ba ya samuwa a wannan na\'urar';
+
+  @override
+  String get bot_svc_welcome_intro => '🕋 Assalamu alaikum! Ni ne mataimakinka na sirri don Hajji.';
+
+  @override
+  String bot_svc_welcome_location(String location) {
+    return '📍 Na ga kana $location!';
+  }
+
+  @override
+  String get bot_svc_welcome_guide => 'Zan bishe ka mataki-mataki cikin dukkan ayyukan. Ka amsa tambayoyin kawai zan kuma kasance tare da kai! 🤲';
+
+  @override
+  String get bot_svc_urgent_reminders => '⚠️ TUNATARWA MASU GAGGAWA:';
+
+  @override
+  String get bot_svc_recommended_duas => '🤲 ADDU\'O\'IN DA AKA BA DA SHAWARA:';
+
+  @override
+  String get bot_svc_ai_response => '💡 Amsar AI';
+
+  @override
+  String get bot_svc_ai_enriched => '💡 Amsar da AI ya wadata';
+
+  @override
+  String get bot_svc_ai_generated => '💡 Amsar da AI ya samar';
+
+  @override
+  String get bot_svc_help_more => '💡 Ga wasu ƙarin bayanai:';
+
+  @override
+  String get bot_svc_help_see_rituals => 'Duba sashen Ayyukan Hajji don ƙarin bayani.';
+
+  @override
+  String get bot_svc_end => '🎉 Masha\'Allah! Ka kammala dukkan matakan Hajji!\n\n✨ Hajji Mabrur wa Sa\'yi Mashkur!\n\nAllah ya karɓi hajjinka da ayyukanka na kirki. Kada ka yi shakka ka dawo idan kana da tambayoyi. 🤲';
+
+  @override
+  String get bot_svc_ai_unavailable => '⚠️ Sabis na AI bai samu ba a yanzu. Da fatan a sake gwadawa.';
+
+  @override
+  String get bot_svc_no_answer => '🤔 Ban sami cikakkiyar amsar tambayarka ba.\n\nZaka iya:\n- Sake tsara tambayarka\n- Duba sashen \"Ayyukan Hajji\"\n- Yin tambaya mai fa\'ida';
+
+  @override
+  String get bot_settings_title => 'Saitunan Bot';
+
+  @override
+  String bot_settings_error(String error) {
+    return 'Kuskure: $error';
+  }
+
+  @override
+  String get bot_settings_llm_saved => '✅ An ajiye saitunan AI';
+
+  @override
+  String get bot_settings_notif_saved => '✅ An ajiye saitunan sanarwa';
+
+  @override
+  String get bot_settings_clear_title => '⚠️ Tabbatar';
+
+  @override
+  String get bot_settings_clear_message => 'Kana so ka share duk tarihin tattaunawa?\n\nWannan aikin ba ya juyawa.';
+
+  @override
+  String get bot_settings_clear_action => 'Share';
+
+  @override
+  String get bot_settings_history_cleared => '✅ An share tarihi';
+
+  @override
+  String get bot_settings_section_ai => '🤖 Basirar Ƙwaƙwalwa (na zaɓi)';
+
+  @override
+  String get bot_settings_section_notifications => '🔔 Sanarwa';
+
+  @override
+  String get bot_settings_section_storage => '💾 Ajiya';
+
+  @override
+  String get bot_settings_enable_ai => 'Kunna AI mai wadata';
+
+  @override
+  String get bot_settings_enable_ai_desc => 'Mataimaki na aika tambayarka zuwa Google Gemini (Google LLC, Amurka) ta sabarmu, ta HTTPS, don samar da amsa. Ba a aika wani bayanin shaida ba. Duba manufar sirri.';
+
+  @override
+  String get bot_settings_sources_info => 'Amintattun tushe da aka kafa a sabar: Alkur\'ani, Bukhari, Muslim, Tirmizi, Abu Dawud, Nasa\'i, Ibn Majah, Ibn Hanbal. An tace batun Musulunci/Hajji tun farko. Google ba ya ajiye tambayar.';
+
+  @override
+  String get bot_settings_enable_notifs => 'Kunna sanarwa';
+
+  @override
+  String get bot_settings_enable_notifs_desc => 'Karɓar tunatarwa dangane da wurin GPS ɗinka';
+
+  @override
+  String get bot_settings_clear_history => 'Share tarihi';
+
+  @override
+  String get bot_settings_clear_history_desc => 'Share duk tattaunawar da aka ajiye';
+
+  @override
+  String get bot_settings_messages_saved => 'Saƙonnin da aka ajiye';
+
+  @override
+  String get bot_settings_preferences => 'Zaɓuɓɓuka';
+
+  @override
+  String get bot_consent_title => 'Mataimakin Hajji na AI';
+
+  @override
+  String get bot_consent_intro => 'Mataimaki na amsa tambayoyin da suka shafi Hajji, Umra da Musulunci kawai. Ana tace sauran batutuwa tun farko.';
+
+  @override
+  String get bot_consent_data_sent => 'Bayanan da ake aikawa sabarmu:';
+
+  @override
+  String get bot_consent_data_list => '• Rubutun tambayarka\n• Harshen da aka zaɓa (FR / EN / AR / HA)\n• Saƙonnin ƙarshe na tattaunawar yanzu';
+
+  @override
+  String get bot_consent_no_identity => 'Ba a aika wani bayanin shaida ba (suna, fasfo, waya, imel, wurin GPS, lafiya).';
+
+  @override
+  String get bot_consent_third_party => 'Sarrafawa ta hanyar wata sabis ta AI:';
+
+  @override
+  String get bot_consent_third_party_desc => 'Don samar da amsa, sabarmu na aika tambayar, ta haɗin HTTPS mai ɓoyewa, zuwa Google Gemini (Google LLC, Amurka). Google na sarrafa tambayar don samar da amsa kawai kuma ba ya ajiye ta don horar da samfuransa (alkawarin Google don Gemini API).';
+
+  @override
+  String get bot_consent_refuse_note => 'Idan ka ƙi, mataimaki zai yi aiki a yanayin gida mai iyaka (amsoshin da aka riga aka loda, ba tare da AI ba).';
+
+  @override
+  String get bot_consent_refuse => 'Ƙi';
+
+  @override
+  String get bot_consent_accept => 'Na yarda';
+
+  @override
+  String get bot_collapsed_hint => 'An ɓoye mataimaki. Danna hannun da ke dama don mayar da shi.';
+
+  @override
+  String get bot_translate_consent_note => 'Kunna mataimakin AI don fassara tattaunawar.';
+
+  @override
+  String get bot_translate_enable_ai => 'Kunna';
 }

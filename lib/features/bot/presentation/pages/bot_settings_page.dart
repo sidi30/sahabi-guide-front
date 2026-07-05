@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
 import '../providers/bot_provider.dart';
 
 /// Page de paramètres du bot Hajj
@@ -46,7 +47,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.bot_settings_error(e.toString()))),
         );
       }
     } finally {
@@ -72,8 +73,8 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Paramètres LLM sauvegardés'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.bot_settings_llm_saved),
             backgroundColor: Colors.green,
           ),
         );
@@ -81,7 +82,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.bot_settings_error(e.toString()))),
         );
       }
     }
@@ -94,8 +95,8 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Paramètres de notifications sauvegardés'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.bot_settings_notif_saved),
             backgroundColor: Colors.green,
           ),
         );
@@ -103,32 +104,32 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.bot_settings_error(e.toString()))),
         );
       }
     }
   }
 
   Future<void> _clearHistory() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('⚠️ Confirmer'),
-        content: const Text(
-          'Voulez-vous vraiment effacer tout l\'historique de conversation ?\n\n'
-          'Cette action est irréversible.',
+        title: Text(l10n.bot_settings_clear_title),
+        content: Text(
+          l10n.bot_settings_clear_message,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Effacer'),
+            child: Text(l10n.bot_settings_clear_action),
           ),
         ],
       ),
@@ -141,8 +142,8 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Historique effacé'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.bot_settings_history_cleared),
               backgroundColor: Colors.green,
             ),
           );
@@ -150,7 +151,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur: $e')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.bot_settings_error(e.toString()))),
           );
         }
       }
@@ -159,36 +160,37 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Paramètres du Bot')),
+        appBar: AppBar(title: Text(l10n.bot_settings_title)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Paramètres du Bot'),
+        title: Text(l10n.bot_settings_title),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Section IA/LLM
-          _buildSectionHeader('🤖 Intelligence Artificielle (optionnel)'),
+          _buildSectionHeader(l10n.bot_settings_section_ai),
           const SizedBox(height: 8),
           _buildLLMSection(),
-          
+
           const SizedBox(height: 32),
-          
+
           // Section Notifications
-          _buildSectionHeader('🔔 Notifications'),
+          _buildSectionHeader(l10n.bot_settings_section_notifications),
           const SizedBox(height: 8),
           _buildNotificationsSection(),
-          
+
           const SizedBox(height: 32),
-          
+
           // Section Stockage
-          _buildSectionHeader('💾 Stockage'),
+          _buildSectionHeader(l10n.bot_settings_section_storage),
           const SizedBox(height: 8),
           _buildStorageSection(),
         ],
@@ -207,6 +209,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
   }
 
   Widget _buildLLMSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -214,12 +217,9 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SwitchListTile(
-              title: const Text('Activer l\'IA enrichie'),
-              subtitle: const Text(
-                "Le copilote transmet votre question à Google Gemini "
-                "(Google LLC, USA) via notre serveur, en HTTPS, pour "
-                "générer la réponse. Aucune donnée d'identité n'est "
-                "envoyée. Voir la politique de confidentialité.",
+              title: Text(l10n.bot_settings_enable_ai),
+              subtitle: Text(
+                l10n.bot_settings_enable_ai_desc,
               ),
               value: _llmEnabled,
               onChanged: (value) async {
@@ -234,18 +234,15 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
                 color: const Color(0xFF2A9D8F).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline, color: Color(0xFF1D3557), size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.info_outline, color: Color(0xFF1D3557), size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Sources authentifiées ancrées côté serveur : "
-                      "Coran, Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, "
-                      "Ibn Majah, Ibn Hanbal. Filtre thématique Islam/Hajj "
-                      "en amont. Google ne conserve pas la requête.",
-                      style: TextStyle(fontSize: 12),
+                      l10n.bot_settings_sources_info,
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ),
                 ],
@@ -258,15 +255,16 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
   }
 
   Widget _buildNotificationsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             SwitchListTile(
-              title: const Text('Activer les notifications'),
-              subtitle: const Text(
-                'Recevoir des rappels basés sur votre position GPS',
+              title: Text(l10n.bot_settings_enable_notifs),
+              subtitle: Text(
+                l10n.bot_settings_enable_notifs_desc,
               ),
               value: _notificationsEnabled,
               onChanged: (value) {
@@ -281,6 +279,7 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
   }
 
   Widget _buildStorageSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -288,31 +287,31 @@ class _BotSettingsPageState extends ConsumerState<BotSettingsPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Effacer l\'historique'),
-              subtitle: const Text(
-                'Supprimer toutes les conversations sauvegardées',
+              title: Text(l10n.bot_settings_clear_history),
+              subtitle: Text(
+                l10n.bot_settings_clear_history_desc,
               ),
               onTap: _clearHistory,
             ),
-            
+
             const Divider(),
-            
+
             FutureBuilder<Map<String, dynamic>>(
               future: Future.value(ref.read(storageServiceProvider).getStorageStats()),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const SizedBox.shrink();
                 }
-                
+
                 final stats = snapshot.data!;
                 return Column(
                   children: [
                     _buildStatRow(
-                      'Messages sauvegardés',
+                      l10n.bot_settings_messages_saved,
                       '${stats['messages_count'] ?? 0}',
                     ),
                     _buildStatRow(
-                      'Préférences',
+                      l10n.bot_settings_preferences,
                       '${stats['preferences_count'] ?? 0}',
                     ),
                   ],

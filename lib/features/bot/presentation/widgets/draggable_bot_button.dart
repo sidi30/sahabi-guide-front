@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sahabi_guide/l10n/app_localizations.dart';
 
 /// Bouton flottant de l'assistant, DÉPLAÇABLE et RANGEABLE.
 /// - Glisser pour le repositionner (position mémorisée).
@@ -198,12 +199,13 @@ class _DraggableBotButtonState extends State<DraggableBotButton> {
   /// Range l'assistant sur le bord droit (poignée). Réversible en touchant la poignée.
   Future<void> _collapse() async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _collapsed = true);
     await _persist();
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Assistant rangé. Touchez la poignée à droite pour le ressortir.'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(l10n.bot_collapsed_hint),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

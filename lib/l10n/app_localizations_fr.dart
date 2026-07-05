@@ -757,4 +757,290 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get connectivity_plans => 'Forfaits';
+
+  @override
+  String get bot_app_title => 'Assistant Hajj';
+
+  @override
+  String get bot_app_subtitle => 'Guide pas à pas';
+
+  @override
+  String get bot_init_error => 'Erreur d\'initialisation';
+
+  @override
+  String get bot_initializing => 'Initialisation du bot...';
+
+  @override
+  String bot_progress_percent(int percent) {
+    return 'Progression : $percent%';
+  }
+
+  @override
+  String get bot_hajj_completed => '🎉 Félicitations ! Hajj terminé';
+
+  @override
+  String get bot_welcome_title => 'Bienvenue dans votre\nguide du Hajj ! 🕋';
+
+  @override
+  String get bot_welcome_subtitle => 'Je vais vous accompagner étape par étape\ntout au long de votre pèlerinage';
+
+  @override
+  String get bot_start => 'Commencer';
+
+  @override
+  String get bot_restart_title => 'Recommencer ?';
+
+  @override
+  String get bot_restart_message => 'Voulez-vous vraiment recommencer la conversation depuis le début ?';
+
+  @override
+  String get bot_restart => 'Recommencer';
+
+  @override
+  String get bot_statistics => 'Statistiques';
+
+  @override
+  String get bot_stats_title => '📊 Statistiques';
+
+  @override
+  String get bot_stats_progress => '📈 Progression';
+
+  @override
+  String get bot_stats_current_step => 'Étape actuelle';
+
+  @override
+  String get bot_stats_step => 'Étape';
+
+  @override
+  String get bot_stats_progress_row => 'Progression';
+
+  @override
+  String get bot_stats_messages => 'Messages';
+
+  @override
+  String get bot_stats_gps => '📍 Localisation GPS';
+
+  @override
+  String get bot_stats_current_location => 'Lieu actuel';
+
+  @override
+  String get bot_stats_not_detected => 'Non détecté';
+
+  @override
+  String get bot_stats_in_holy_place => 'Dans lieu saint';
+
+  @override
+  String get bot_stats_yes => 'Oui ✅';
+
+  @override
+  String get bot_stats_suggested_duas => 'Duas suggérées';
+
+  @override
+  String get bot_stats_urgent_reminders => 'Rappels urgents';
+
+  @override
+  String get bot_history_title => 'Mes questions précédentes';
+
+  @override
+  String get bot_history_empty => 'Aucune question posée pour le moment.';
+
+  @override
+  String get bot_my_questions => 'Mes questions';
+
+  @override
+  String get bot_more => 'Plus';
+
+  @override
+  String get bot_handsfree_on_tooltip => 'Mode mains-libres activé (désactiver)';
+
+  @override
+  String get bot_handsfree_off_tooltip => 'Activer conversation vocale continue';
+
+  @override
+  String get bot_handsfree_on => '🎙️ Mode conversation continue activé';
+
+  @override
+  String get bot_handsfree_off => 'Mode conversation continue désactivé';
+
+  @override
+  String bot_tts_unavailable(String error) {
+    return '🔊 Lecture vocale indisponible : $error';
+  }
+
+  @override
+  String get bot_stt_no_internet => '📡 Pas d\'internet — la reconnaissance vocale nécessite une connexion (même sur émulateur)';
+
+  @override
+  String get bot_stt_network_slow => '⏱️ Réseau trop lent pour la reconnaissance vocale';
+
+  @override
+  String get bot_stt_no_match => '🤔 Je n\'ai pas compris, réessayez en parlant plus clairement';
+
+  @override
+  String get bot_stt_speech_timeout => '⏱️ Aucune voix détectée. Réessayez en parlant après avoir tapé le micro';
+
+  @override
+  String get bot_stt_audio => '🎙️ Problème micro. Vérifiez les permissions dans Paramètres Android';
+
+  @override
+  String get bot_stt_client => '❌ Erreur client de reconnaissance vocale';
+
+  @override
+  String get bot_stt_server => '❌ Serveur Google Speech indisponible';
+
+  @override
+  String get bot_stt_busy => 'Reconnaissance déjà en cours, patience...';
+
+  @override
+  String get bot_stt_permission => '🔒 Permission micro refusée. Autorisez dans Paramètres Android';
+
+  @override
+  String bot_stt_generic(String error) {
+    return 'Erreur vocale : $error';
+  }
+
+  @override
+  String get bot_stt_device_unavailable => 'Reconnaissance vocale indisponible sur cet appareil';
+
+  @override
+  String get bot_svc_welcome_intro => '🕋 As-salamu alaykum ! Je suis votre assistant personnel pour le Hajj.';
+
+  @override
+  String bot_svc_welcome_location(String location) {
+    return '📍 Je vois que vous êtes à $location !';
+  }
+
+  @override
+  String get bot_svc_welcome_guide => 'Je vais vous guider étape par étape à travers tous les rituels. Répondez simplement aux questions et je vous accompagnerai ! 🤲';
+
+  @override
+  String get bot_svc_urgent_reminders => '⚠️ RAPPELS URGENTS :';
+
+  @override
+  String get bot_svc_recommended_duas => '🤲 DUAS RECOMMANDÉES :';
+
+  @override
+  String get bot_svc_ai_response => '💡 Réponse IA';
+
+  @override
+  String get bot_svc_ai_enriched => '💡 Réponse enrichie par IA';
+
+  @override
+  String get bot_svc_ai_generated => '💡 Réponse générée par IA';
+
+  @override
+  String get bot_svc_help_more => '💡 Voici quelques informations supplémentaires :';
+
+  @override
+  String get bot_svc_help_see_rituals => 'Consultez la section Rituels pour plus de détails.';
+
+  @override
+  String get bot_svc_end => '🎉 Masha\'Allah ! Vous avez terminé toutes les étapes du Hajj !\n\n✨ Hajj Mabrour wa Sa\'y Mashkour !\n\nQu\'Allah accepte votre Hajj et vos bonnes actions. N\'hésitez pas à revenir si vous avez des questions. 🤲';
+
+  @override
+  String get bot_svc_ai_unavailable => '⚠️ Le service IA est momentanément indisponible. Réessayez.';
+
+  @override
+  String get bot_svc_no_answer => '🤔 Je n\'ai pas trouvé de réponse exacte à votre question.\n\nVous pouvez :\n- Reformuler votre question\n- Consulter la section \"Rituels\"\n- Poser une question plus générale';
+
+  @override
+  String get bot_settings_title => 'Paramètres du Bot';
+
+  @override
+  String bot_settings_error(String error) {
+    return 'Erreur : $error';
+  }
+
+  @override
+  String get bot_settings_llm_saved => '✅ Paramètres LLM sauvegardés';
+
+  @override
+  String get bot_settings_notif_saved => '✅ Paramètres de notifications sauvegardés';
+
+  @override
+  String get bot_settings_clear_title => '⚠️ Confirmer';
+
+  @override
+  String get bot_settings_clear_message => 'Voulez-vous vraiment effacer tout l\'historique de conversation ?\n\nCette action est irréversible.';
+
+  @override
+  String get bot_settings_clear_action => 'Effacer';
+
+  @override
+  String get bot_settings_history_cleared => '✅ Historique effacé';
+
+  @override
+  String get bot_settings_section_ai => '🤖 Intelligence Artificielle (optionnel)';
+
+  @override
+  String get bot_settings_section_notifications => '🔔 Notifications';
+
+  @override
+  String get bot_settings_section_storage => '💾 Stockage';
+
+  @override
+  String get bot_settings_enable_ai => 'Activer l\'IA enrichie';
+
+  @override
+  String get bot_settings_enable_ai_desc => 'Le copilote transmet votre question à Google Gemini (Google LLC, USA) via notre serveur, en HTTPS, pour générer la réponse. Aucune donnée d\'identité n\'est envoyée. Voir la politique de confidentialité.';
+
+  @override
+  String get bot_settings_sources_info => 'Sources authentifiées ancrées côté serveur : Coran, Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, Ibn Majah, Ibn Hanbal. Filtre thématique Islam/Hajj en amont. Google ne conserve pas la requête.';
+
+  @override
+  String get bot_settings_enable_notifs => 'Activer les notifications';
+
+  @override
+  String get bot_settings_enable_notifs_desc => 'Recevoir des rappels basés sur votre position GPS';
+
+  @override
+  String get bot_settings_clear_history => 'Effacer l\'historique';
+
+  @override
+  String get bot_settings_clear_history_desc => 'Supprimer toutes les conversations sauvegardées';
+
+  @override
+  String get bot_settings_messages_saved => 'Messages sauvegardés';
+
+  @override
+  String get bot_settings_preferences => 'Préférences';
+
+  @override
+  String get bot_consent_title => 'Assistant IA du Hajj';
+
+  @override
+  String get bot_consent_intro => 'L\'assistant répond uniquement aux questions liées au Hajj, à la Omra et à l\'Islam. Les autres sujets sont filtrés en amont.';
+
+  @override
+  String get bot_consent_data_sent => 'Données envoyées à notre serveur :';
+
+  @override
+  String get bot_consent_data_list => '• Le texte de votre question\n• La langue choisie (FR / EN / AR / HA)\n• Les derniers messages de la conversation en cours';
+
+  @override
+  String get bot_consent_no_identity => 'Aucune donnée d\'identité (nom, passeport, téléphone, email, position GPS, santé) n\'est envoyée.';
+
+  @override
+  String get bot_consent_third_party => 'Traitement par un service IA tiers :';
+
+  @override
+  String get bot_consent_third_party_desc => 'Pour générer la réponse, notre serveur transmet la question, via une connexion chiffrée HTTPS, à Google Gemini (Google LLC, USA). Google traite la requête uniquement pour produire la réponse et ne la conserve pas pour entraîner ses modèles (engagement Google pour l\'API Gemini).';
+
+  @override
+  String get bot_consent_refuse_note => 'En refusant, l\'assistant fonctionnera en mode local limité (réponses préchargées, sans IA).';
+
+  @override
+  String get bot_consent_refuse => 'Refuser';
+
+  @override
+  String get bot_consent_accept => 'J\'accepte';
+
+  @override
+  String get bot_collapsed_hint => 'Assistant rangé. Touchez la poignée à droite pour le ressortir.';
+
+  @override
+  String get bot_translate_consent_note => 'Activez l\'assistant IA pour traduire la conversation.';
+
+  @override
+  String get bot_translate_enable_ai => 'Activer';
 }

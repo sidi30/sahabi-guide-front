@@ -757,4 +757,290 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get connectivity_plans => 'الباقات';
+
+  @override
+  String get bot_app_title => 'مساعد الحج';
+
+  @override
+  String get bot_app_subtitle => 'دليل خطوة بخطوة';
+
+  @override
+  String get bot_init_error => 'خطأ في التهيئة';
+
+  @override
+  String get bot_initializing => 'جارٍ تهيئة المساعد...';
+
+  @override
+  String bot_progress_percent(int percent) {
+    return 'التقدم: $percent٪';
+  }
+
+  @override
+  String get bot_hajj_completed => '🎉 مبارك! اكتمل الحج';
+
+  @override
+  String get bot_welcome_title => 'مرحباً بك في\nدليل الحج! 🕋';
+
+  @override
+  String get bot_welcome_subtitle => 'سأرافقك خطوة بخطوة\nطوال رحلة حجّك';
+
+  @override
+  String get bot_start => 'ابدأ';
+
+  @override
+  String get bot_restart_title => 'إعادة البدء؟';
+
+  @override
+  String get bot_restart_message => 'هل تريد حقاً إعادة المحادثة من البداية؟';
+
+  @override
+  String get bot_restart => 'إعادة البدء';
+
+  @override
+  String get bot_statistics => 'الإحصائيات';
+
+  @override
+  String get bot_stats_title => '📊 الإحصائيات';
+
+  @override
+  String get bot_stats_progress => '📈 التقدم';
+
+  @override
+  String get bot_stats_current_step => 'الخطوة الحالية';
+
+  @override
+  String get bot_stats_step => 'الخطوة';
+
+  @override
+  String get bot_stats_progress_row => 'التقدم';
+
+  @override
+  String get bot_stats_messages => 'الرسائل';
+
+  @override
+  String get bot_stats_gps => '📍 تحديد الموقع GPS';
+
+  @override
+  String get bot_stats_current_location => 'الموقع الحالي';
+
+  @override
+  String get bot_stats_not_detected => 'غير محدد';
+
+  @override
+  String get bot_stats_in_holy_place => 'في مكان مقدّس';
+
+  @override
+  String get bot_stats_yes => 'نعم ✅';
+
+  @override
+  String get bot_stats_suggested_duas => 'الأدعية المقترحة';
+
+  @override
+  String get bot_stats_urgent_reminders => 'التذكيرات العاجلة';
+
+  @override
+  String get bot_history_title => 'أسئلتي السابقة';
+
+  @override
+  String get bot_history_empty => 'لم تطرح أي سؤال بعد.';
+
+  @override
+  String get bot_my_questions => 'أسئلتي';
+
+  @override
+  String get bot_more => 'المزيد';
+
+  @override
+  String get bot_handsfree_on_tooltip => 'وضع بدون استخدام اليدين مفعّل (إيقاف)';
+
+  @override
+  String get bot_handsfree_off_tooltip => 'تفعيل المحادثة الصوتية المستمرة';
+
+  @override
+  String get bot_handsfree_on => '🎙️ تم تفعيل وضع المحادثة المستمرة';
+
+  @override
+  String get bot_handsfree_off => 'تم إيقاف وضع المحادثة المستمرة';
+
+  @override
+  String bot_tts_unavailable(String error) {
+    return '🔊 التشغيل الصوتي غير متاح: $error';
+  }
+
+  @override
+  String get bot_stt_no_internet => '📡 لا يوجد إنترنت — يتطلب التعرف على الصوت اتصالاً (حتى على المحاكي)';
+
+  @override
+  String get bot_stt_network_slow => '⏱️ الشبكة بطيئة جداً للتعرف على الصوت';
+
+  @override
+  String get bot_stt_no_match => '🤔 لم أفهم، حاول التحدث بوضوح أكبر';
+
+  @override
+  String get bot_stt_speech_timeout => '⏱️ لم يُكتشف أي صوت. حاول مجدداً بالتحدث بعد الضغط على الميكروفون';
+
+  @override
+  String get bot_stt_audio => '🎙️ مشكلة في الميكروفون. تحقق من الأذونات في إعدادات أندرويد';
+
+  @override
+  String get bot_stt_client => '❌ خطأ في عميل التعرف على الصوت';
+
+  @override
+  String get bot_stt_server => '❌ خادم Google Speech غير متاح';
+
+  @override
+  String get bot_stt_busy => 'التعرف جارٍ بالفعل، يُرجى الانتظار...';
+
+  @override
+  String get bot_stt_permission => '🔒 تم رفض إذن الميكروفون. اسمح به في إعدادات أندرويد';
+
+  @override
+  String bot_stt_generic(String error) {
+    return 'خطأ صوتي: $error';
+  }
+
+  @override
+  String get bot_stt_device_unavailable => 'التعرف على الصوت غير متاح على هذا الجهاز';
+
+  @override
+  String get bot_svc_welcome_intro => '🕋 السلام عليكم! أنا مساعدك الشخصي للحج.';
+
+  @override
+  String bot_svc_welcome_location(String location) {
+    return '📍 أرى أنك في $location!';
+  }
+
+  @override
+  String get bot_svc_welcome_guide => 'سأرشدك خطوة بخطوة عبر جميع المناسك. أجب فقط عن الأسئلة وسأرافقك! 🤲';
+
+  @override
+  String get bot_svc_urgent_reminders => '⚠️ تذكيرات عاجلة:';
+
+  @override
+  String get bot_svc_recommended_duas => '🤲 أدعية موصى بها:';
+
+  @override
+  String get bot_svc_ai_response => '💡 إجابة بالذكاء الاصطناعي';
+
+  @override
+  String get bot_svc_ai_enriched => '💡 إجابة مُعزَّزة بالذكاء الاصطناعي';
+
+  @override
+  String get bot_svc_ai_generated => '💡 إجابة مُولَّدة بالذكاء الاصطناعي';
+
+  @override
+  String get bot_svc_help_more => '💡 إليك بعض المعلومات الإضافية:';
+
+  @override
+  String get bot_svc_help_see_rituals => 'راجع قسم المناسك لمزيد من التفاصيل.';
+
+  @override
+  String get bot_svc_end => '🎉 ما شاء الله! لقد أتممت جميع خطوات الحج!\n\n✨ حجٌّ مبرور وسعيٌ مشكور!\n\nتقبّل الله حجّك وأعمالك الصالحة. لا تتردد في العودة إن كان لديك أي أسئلة. 🤲';
+
+  @override
+  String get bot_svc_ai_unavailable => '⚠️ خدمة الذكاء الاصطناعي غير متاحة مؤقتاً. يُرجى إعادة المحاولة.';
+
+  @override
+  String get bot_svc_no_answer => '🤔 لم أجد إجابة دقيقة لسؤالك.\n\nيمكنك:\n- إعادة صياغة سؤالك\n- الاطلاع على قسم \"المناسك\"\n- طرح سؤال أكثر عمومية';
+
+  @override
+  String get bot_settings_title => 'إعدادات المساعد';
+
+  @override
+  String bot_settings_error(String error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String get bot_settings_llm_saved => '✅ تم حفظ إعدادات الذكاء الاصطناعي';
+
+  @override
+  String get bot_settings_notif_saved => '✅ تم حفظ إعدادات الإشعارات';
+
+  @override
+  String get bot_settings_clear_title => '⚠️ تأكيد';
+
+  @override
+  String get bot_settings_clear_message => 'هل تريد حقاً مسح كامل سجل المحادثات؟\n\nهذا الإجراء لا يمكن التراجع عنه.';
+
+  @override
+  String get bot_settings_clear_action => 'مسح';
+
+  @override
+  String get bot_settings_history_cleared => '✅ تم مسح السجل';
+
+  @override
+  String get bot_settings_section_ai => '🤖 الذكاء الاصطناعي (اختياري)';
+
+  @override
+  String get bot_settings_section_notifications => '🔔 الإشعارات';
+
+  @override
+  String get bot_settings_section_storage => '💾 التخزين';
+
+  @override
+  String get bot_settings_enable_ai => 'تفعيل الذكاء الاصطناعي المُعزَّز';
+
+  @override
+  String get bot_settings_enable_ai_desc => 'يرسل المساعد سؤالك إلى Google Gemini (Google LLC، الولايات المتحدة) عبر خادمنا، باستخدام HTTPS، لإنشاء الإجابة. لا تُرسل أي بيانات هوية. راجع سياسة الخصوصية.';
+
+  @override
+  String get bot_settings_sources_info => 'مصادر موثّقة مُرسَّخة على الخادم: القرآن، البخاري، مسلم، الترمذي، أبو داود، النسائي، ابن ماجه، ابن حنبل. تصفية موضوعية للإسلام/الحج مسبقاً. لا تحتفظ Google بالطلب.';
+
+  @override
+  String get bot_settings_enable_notifs => 'تفعيل الإشعارات';
+
+  @override
+  String get bot_settings_enable_notifs_desc => 'تلقّي تذكيرات بناءً على موقعك عبر GPS';
+
+  @override
+  String get bot_settings_clear_history => 'مسح السجل';
+
+  @override
+  String get bot_settings_clear_history_desc => 'حذف جميع المحادثات المحفوظة';
+
+  @override
+  String get bot_settings_messages_saved => 'الرسائل المحفوظة';
+
+  @override
+  String get bot_settings_preferences => 'التفضيلات';
+
+  @override
+  String get bot_consent_title => 'مساعد الحج بالذكاء الاصطناعي';
+
+  @override
+  String get bot_consent_intro => 'يجيب المساعد فقط عن الأسئلة المتعلقة بالحج والعمرة والإسلام. تُصفّى المواضيع الأخرى مسبقاً.';
+
+  @override
+  String get bot_consent_data_sent => 'البيانات المُرسَلة إلى خادمنا:';
+
+  @override
+  String get bot_consent_data_list => '• نص سؤالك\n• اللغة المختارة (FR / EN / AR / HA)\n• آخر رسائل المحادثة الحالية';
+
+  @override
+  String get bot_consent_no_identity => 'لا تُرسَل أي بيانات هوية (الاسم، جواز السفر، الهاتف، البريد الإلكتروني، الموقع GPS، الصحة).';
+
+  @override
+  String get bot_consent_third_party => 'المعالجة بواسطة خدمة ذكاء اصطناعي خارجية:';
+
+  @override
+  String get bot_consent_third_party_desc => 'لإنشاء الإجابة، يرسل خادمنا السؤال، عبر اتصال HTTPS مشفّر، إلى Google Gemini (Google LLC، الولايات المتحدة). تعالج Google الطلب فقط لإنتاج الإجابة ولا تحتفظ به لتدريب نماذجها (التزام Google بخصوص واجهة Gemini).';
+
+  @override
+  String get bot_consent_refuse_note => 'في حال الرفض، سيعمل المساعد في وضع محلي محدود (إجابات محمّلة مسبقاً، بدون ذكاء اصطناعي).';
+
+  @override
+  String get bot_consent_refuse => 'رفض';
+
+  @override
+  String get bot_consent_accept => 'أوافق';
+
+  @override
+  String get bot_collapsed_hint => 'تم إخفاء المساعد. المس المقبض على اليمين لإعادته.';
+
+  @override
+  String get bot_translate_consent_note => 'فعّل مساعد الذكاء الاصطناعي لترجمة المحادثة.';
+
+  @override
+  String get bot_translate_enable_ai => 'تفعيل';
 }

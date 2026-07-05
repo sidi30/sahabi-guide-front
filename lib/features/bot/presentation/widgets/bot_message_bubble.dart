@@ -62,7 +62,15 @@ class BotMessageBubble extends StatelessWidget {
   }
 
   Widget _buildBotBubble(BuildContext context) {
-    final parts = _splitContent(message.content);
+    // Rend le champ pré-rédigé correspondant à la locale active quand il existe
+    // (aujourd'hui seul [contentAr] est fourni), sinon le contenu principal.
+    // TODO(i18n): ajouter contentEn/contentHa au modèle pour couvrir en/ha.
+    final localeCode = Localizations.localeOf(context).languageCode;
+    final localized = localeCode == 'ar' ? message.contentAr : null;
+    final baseContent = (localized != null && localized.trim().isNotEmpty)
+        ? localized
+        : message.content;
+    final parts = _splitContent(baseContent);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

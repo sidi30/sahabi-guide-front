@@ -111,6 +111,21 @@ final botServiceProvider = Provider<BotService>((ref) {
   );
 });
 
+/// Résultat d'une tentative de traduction de l'historique au changement de
+/// langue. Permet à la page de donner un retour visuel (notamment quand le
+/// consentement IA manque) au lieu d'échouer silencieusement.
+enum TranslateHistoryOutcome {
+  /// L'historique affiché a été mis à jour (traduit ou originaux restaurés).
+  changed,
+
+  /// Rien à faire (même langue, historique vide, ou déjà à jour).
+  unchanged,
+
+  /// Une traduction IA serait nécessaire mais le consentement manque :
+  /// rien n'a été envoyé à l'IA, l'appelant doit inviter à l'activer.
+  consentRequired,
+}
+
 /// État du chat bot
 class BotChatState {
   final List<BotMessageModel> messages;
@@ -338,26 +353,18 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
   ///
   /// Les `quickReplies` ne sont PAS envoyés ici : l'ensemble FIXE est localisé
   /// via l10n (clés `qr:*`) et re-rendu automatiquement avec la locale.
-  Future<void> translateHistoryTo(String targetLang) async {
+  Future<TranslateHistoryOutcome> translateHistoryTo(String targetLang) async {
     // Première application : on mémorise juste la langue d'affichage courante.
     _displayLang ??= targetLang;
     if (_displayLang == targetLang) {
       _displayLang = targetLang;
-      return;
-    }
-
-    // Consent IA requis : la traduction transite par Gemini côté serveur.
-    // Si l'utilisateur n'a pas consenti, on met à jour la langue d'affichage
-    // sans envoyer le contenu au service IA.
-    if (!await AiConsentDialog.hasConsent()) {
-      _displayLang = targetLang;
-      return;
+      return TranslateHistoryOutcome.unchanged;
     }
 
     final messages = state.messages;
     if (messages.isEmpty) {
       _displayLang = targetLang;
-      return;
+      return TranslateHistoryOutcome.unchanged;
     }
 
     // Indices et textes source des messages à (re)traduire : on saute ceux dont
@@ -383,7 +390,17 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
       // Rien à traduire (tout est déjà en langue d'origine == cible).
       _safeState(state.copyWith(messages: restored));
       _displayLang = targetLang;
-      return;
+      return TranslateHistoryOutcome.changed;
+    }
+
+    // Consent IA requis : la traduction restante transite par Gemini côté
+    // serveur. Sans consentement, on applique les restaurations d'originaux
+    // déjà calculées mais on N'ENVOIE RIEN à l'IA, et on signale à l'appelant
+    // qu'un consentement est requis (retour visuel au lieu d'un skip silencieux).
+    if (!await AiConsentDialog.hasConsent()) {
+      _safeState(state.copyWith(messages: restored));
+      _displayLang = targetLang;
+      return TranslateHistoryOutcome.consentRequired;
     }
 
     _safeState(state.copyWith(messages: restored, isTranslating: true));
@@ -399,7 +416,7 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
         sourceLang: sourceLang,
       );
 
-      if (!mounted) return;
+      if (!mounted) return TranslateHistoryOutcome.changed;
 
       final updated = List<BotMessageModel>.from(restored);
       for (var k = 0; k < indices.length; k++) {
@@ -412,10 +429,12 @@ class BotChatNotifier extends StateNotifier<BotChatState> {
       _displayLang = targetLang;
       logger.d('Chat history translated to $targetLang '
           '(${indices.length} messages)');
+      return TranslateHistoryOutcome.changed;
     } catch (e, stackTrace) {
       logger.e('❌ Error translating history: $e', stackTrace: stackTrace);
       // On garde le texte actuel : pas de régression d'affichage.
       _safeState(state.copyWith(isTranslating: false));
+      return TranslateHistoryOutcome.changed;
     }
   }
 
