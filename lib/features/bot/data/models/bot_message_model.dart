@@ -43,6 +43,14 @@ class BotMessageModel {
   /// Code 2 lettres (`fr|en|ar|ha`) de la langue de [originalContent].
   final String? originalLang;
 
+  /// Libellés d'AFFICHAGE (localisés) des réponses rapides DYNAMIQUES : map
+  /// `valeur FR canonique -> libellé traduit`. Le rendu affiche le libellé
+  /// traduit tandis que la valeur ENVOYÉE au bot reste la clé (FR canonique),
+  /// pour que le matching des étapes (Oui/Non/…) reste correct quelle que soit
+  /// la langue affichée. `null` => on affiche la valeur brute (déjà en langue
+  /// d'origine). Transitoire : recalculé à chaque traduction, non persisté.
+  final Map<String, String>? quickReplyLabels;
+
   /// Citations RAG renvoyées par le backend (peut être vide / null pour les
   /// anciennes réponses ou les messages locaux).
   final List<BotSource>? sources;
@@ -65,6 +73,7 @@ class BotMessageModel {
     this.metadata,
     this.originalContent,
     this.originalLang,
+    this.quickReplyLabels,
     this.sources,
     this.confidence,
     this.abstained = false,
@@ -137,6 +146,8 @@ class BotMessageModel {
     Map<String, dynamic>? metadata,
     String? originalContent,
     String? originalLang,
+    Map<String, String>? quickReplyLabels,
+    bool clearQuickReplyLabels = false,
     List<BotSource>? sources,
     String? confidence,
     bool? abstained,
@@ -153,6 +164,9 @@ class BotMessageModel {
       metadata: metadata ?? this.metadata,
       originalContent: originalContent ?? this.originalContent,
       originalLang: originalLang ?? this.originalLang,
+      quickReplyLabels: clearQuickReplyLabels
+          ? null
+          : (quickReplyLabels ?? this.quickReplyLabels),
       sources: sources ?? this.sources,
       confidence: confidence ?? this.confidence,
       abstained: abstained ?? this.abstained,

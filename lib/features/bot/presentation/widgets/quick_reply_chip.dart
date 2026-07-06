@@ -58,11 +58,18 @@ class QuickReplyList extends StatelessWidget {
   final Function(String) onReplySelected;
   final bool isEnabled;
 
+  /// Libellés d'AFFICHAGE traduits des réponses rapides DYNAMIQUES : map
+  /// `valeur FR canonique -> libellé traduit`. Quand une entrée existe, le chip
+  /// affiche le libellé traduit mais ENVOIE toujours la valeur FR canonique
+  /// (clé), pour que le matching des étapes du bot reste correct.
+  final Map<String, String>? dynamicLabels;
+
   const QuickReplyList({
     super.key,
     required this.replies,
     required this.onReplySelected,
     this.isEnabled = true,
+    this.dynamicLabels,
   });
 
   @override
@@ -103,8 +110,12 @@ class QuickReplyList extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: replies.map((reply) {
-                // Clé fixe -> libellé localisé + envoi du FR canonique.
-                final label = QuickReplyKeys.localizedLabel(l10n, reply);
+                // Clé fixe (`qr:*`) -> libellé localisé via l10n. Sinon réponse
+                // dynamique -> libellé traduit s'il est fourni, à défaut la
+                // valeur brute. Dans tous les cas la valeur ENVOYÉE reste le FR
+                // canonique (le matching du bot est basé sur le FR).
+                final label = QuickReplyKeys.localizedLabel(l10n, reply) ??
+                    dynamicLabels?[reply];
                 final sendValue =
                     QuickReplyKeys.canonicalFr(reply) ?? reply;
                 return QuickReplyChip(

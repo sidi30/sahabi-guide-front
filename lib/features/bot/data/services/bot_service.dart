@@ -214,10 +214,13 @@ class BotService {
       quickReplies: _currentStep!.quickReplies,
       relatedStepId: _currentStep!.id,
       relatedRitualId: _currentStep!.relatedRitualId,
-      // Le corps de la question suit `locale` (question + libellés localisés) ;
-      // les items d'enrichissement (data) peuvent rester FR. On marque la langue
-      // d'origine pour permettre la traduction fidèle au changement de langue.
-      originalLang: _contentLang(locale),
+      // Le contenu du tour guidé n'est PAS localisé côté données : la question
+      // suit `getLocalizedQuestion` (arabe si `ar`, sinon FR) et la description
+      // + enrichissements restent FR. On marque donc HONNÊTEMENT la langue
+      // d'origine (`ar` pour l'arabe, sinon `fr`) pour que la couche de
+      // traduction (provider) transporte ce texte vers la langue affichée
+      // (ha/en) au lieu de le croire déjà traduit. Voir bot_provider.
+      originalLang: locale == 'ar' ? 'ar' : 'fr',
     );
     
     _messageHistory.add(message);

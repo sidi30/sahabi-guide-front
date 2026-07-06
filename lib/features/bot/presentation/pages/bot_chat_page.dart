@@ -610,9 +610,7 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () => ref
-                .read(botChatProvider.notifier)
-                .startConversation(locale: _currentLang),
+            onPressed: _handleStart,
             icon: const Icon(Icons.play_arrow_rounded),
             label: Text(l10n.bot_start),
             style: ElevatedButton.styleFrom(
@@ -682,6 +680,9 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
 
     return QuickReplyList(
       replies: lastMessage.quickReplies!,
+      // Libellés traduits des réponses rapides dynamiques du tour guidé
+      // (Oui/Non/…) : affichage localisé, envoi du FR canonique.
+      dynamicLabels: lastMessage.quickReplyLabels,
       // `reply` est la valeur ENVOYÉE au bot : pour une clé fixe (`qr:*`) c'est
       // déjà le libellé FR canonique mappé dans QuickReplyList ; pour une
       // réponse dynamique c'est la valeur brute. On suit la langue courante.
@@ -1007,6 +1008,37 @@ class _BotChatPageState extends ConsumerState<BotChatPage>
         ),
       ),
     );
+  }
+
+  /// Démarre le tour guidé dans la langue active. Le contenu scripté est produit
+  /// en FR puis traduit vers la langue affichée : si le consentement IA manque
+  /// (nécessaire pour ha/en), on invite à l'activer au lieu de rester en FR sans
+  /// explication.
+  Future<void> _handleStart() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l = AppLocalizations.of(context)!;
+    final lang = _currentLang;
+    final outcome = await ref
+        .read(botChatProvider.notifier)
+        .startConversation(locale: lang);
+    if (!mounted) return;
+    if (outcome == TranslateHistoryOutcome.consentRequired) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l.bot_translate_consent_note),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: l.bot_translate_enable_ai,
+            onPressed: () async {
+              final ok = await AiConsentDialog.ensureConsent(context);
+              if (ok && mounted) {
+                ref.read(botChatProvider.notifier).translateHistoryTo(lang);
+              }
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _handleTextInput() async {
