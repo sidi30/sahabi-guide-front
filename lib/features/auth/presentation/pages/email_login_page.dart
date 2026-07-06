@@ -54,10 +54,16 @@ class _EmailLoginPageState extends ConsumerState<EmailLoginPage> {
     final colors = ref.colors;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,6 +188,7 @@ class _EmailLoginPageState extends ConsumerState<EmailLoginPage> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

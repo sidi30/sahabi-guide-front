@@ -154,11 +154,17 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
         ),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Form(
+              key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -335,6 +341,7 @@ class _PassportOtpVerificationPageState extends ConsumerState<PassportOtpVerific
               ],
             ),
           ),
+        ),
         ),
       ),
     );
