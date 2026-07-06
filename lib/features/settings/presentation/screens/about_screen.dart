@@ -201,7 +201,6 @@ Nous travaillons en etroite collaboration avec des agences de voyage, des guides
                   _buildTechItem(context, 'Spring Boot', 'Backend robuste et securise'),
                   _buildTechItem(context, 'PostgreSQL', 'Base de donnees fiable'),
                   _buildTechItem(context, 'Google Maps', 'Cartographie precise'),
-                  _buildTechItem(context, 'Firebase', 'Notifications push'),
                 ],
               ),
             ),

@@ -287,33 +287,6 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           const SizedBox(height: 24),
 
           // Reseaux sociaux
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Suivez-nous',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildSocialButton(Icons.facebook, 'Facebook', () {}),
-                      _buildSocialButton(Icons.language, 'Twitter', () {}),
-                      _buildSocialButton(Icons.photo_camera, 'Instagram', () {}),
-                      _buildSocialButton(Icons.video_library, 'YouTube', () {}),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
           const SizedBox(height: 32),
         ],
       ),
@@ -358,30 +331,6 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
             Icon(Icons.copy, size: 20, color: ref.colors.textLight),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSocialButton(IconData icon, String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: ref.colors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: ref.colors.primary, size: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
       ),
     );
   }

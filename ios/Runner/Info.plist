@@ -63,14 +63,6 @@
 		<key>NSSpeechRecognitionUsageDescription</key>
 		<string>Sahabi Guide utilise la reconnaissance vocale pour la recherche et l'assistance par la voix.</string>
 		<!-- ============================================ -->
-		<!-- BACKGROUND MODES                             -->
-		<!-- ============================================ -->
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-			<string>remote-notification</string>
-		</array>
-		<!-- ============================================ -->
 		<!-- CONFIGURATION SUPPLÉMENTAIRE                 -->
 		<!-- ============================================ -->
 		<!-- Support du mode sombre -->

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -322,10 +323,12 @@ class _MyAppState extends ConsumerState<MyApp> {
         path: AppRoutes.bot,
         builder: (context, state) => const BotChatPage(),
       ),
-      GoRoute(
-        path: AppRoutes.botDebug,
-        builder: (context, state) => const BotDebugPage(),
-      ),
+      // Écran de diagnostic interne : exclu des builds release (App Review).
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.botDebug,
+          builder: (context, state) => const BotDebugPage(),
+        ),
       GoRoute(
         path: AppRoutes.profile,
         builder: (context, state) => const ProfilePage(),

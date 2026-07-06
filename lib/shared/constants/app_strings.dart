@@ -129,12 +129,7 @@ class AppStrings {
   static const String mapDescription = 'Trouvez les mosquées, centres islamiques et événements près de chez vous.';
   static const String healthTitle = 'Santé et Bien-être';
   static const String healthDescription = 'Gérez vos informations médicales et restez connecté avec votre communauté.';
-  
-  // Demo Credentials
-  static const String demoCredentials = 'Identifiants de démonstration:';
-  static const String demoEmail = 'Email: test@example.com';
-  static const String demoPassword = 'Mot de passe: password';
-  
+
   // Privacy
   static const String privacy = 'Confidentialité';
   static const String privacyNotice = 'Vos informations médicales sont stockées de manière sécurisée et chiffrée sur votre appareil. Elles ne sont partagées qu\'en cas d\'urgence avec votre consentement.';
