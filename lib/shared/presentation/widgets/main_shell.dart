@@ -70,6 +70,25 @@ class MainShell extends ConsumerWidget {
     );
   }
 
+  /// Libellé localisé de l'onglet de navigation (barre du bas + rail).
+  /// Sans ceci, les labels codés en dur ('Accueil'...) restaient en français
+  /// même en mode haoussa/anglais/arabe.
+  String _navLabel(BuildContext context, int index) {
+    final t = AppLocalizations.of(context)!;
+    switch (index) {
+      case 0:
+        return t.nav_home;
+      case 1:
+        return t.nav_rituals;
+      case 2:
+        return t.nav_map;
+      case 3:
+        return t.nav_videos;
+      default:
+        return '';
+    }
+  }
+
   String getTitleByIndex(BuildContext context, int index) {
     final t = AppLocalizations.of(context)!;
     switch (index) {
@@ -172,7 +191,7 @@ class MainShell extends ConsumerWidget {
                     (item) => NavigationRailDestination(
                       icon: Icon(item.icon),
                       selectedIcon: Icon(item.selectedIcon),
-                      label: Text(item.label),
+                      label: Text(_navLabel(context, _navigationItems.indexOf(item))),
                     ),
                   )
                   .toList(),
@@ -224,7 +243,7 @@ class MainShell extends ConsumerWidget {
 
                         return Expanded(
                           child: Semantics(
-                            label: item.label,
+                            label: _navLabel(context, index),
                             button: true,
                             selected: isSelected,
                             child: InkWell(
@@ -257,7 +276,7 @@ class MainShell extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      item.label,
+                                      _navLabel(context, index),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
