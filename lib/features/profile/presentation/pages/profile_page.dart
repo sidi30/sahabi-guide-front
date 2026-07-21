@@ -574,7 +574,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               final authNotifier = ref.read(authNotifierProvider.notifier);
               await authNotifier.logout();
               if (context.mounted) {
-                context.go('/auth-choice');
+                // Un utilisateur déjà onboardé revient sur l'écran de
+                // connexion, pas sur l'onboarding (genre/langue/rôle).
+                context.go('/email-login');
               }
             },
             style: ElevatedButton.styleFrom(
@@ -590,7 +592,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   /// Suppression de compte in-app : avertissement + confirmation par saisie du
   /// mot « SUPPRIMER », puis appel serveur (anonymisation + désactivation) et
-  /// retour à l'écran d'accueil. Conformité Apple 5.1.1(v).
+  /// retour à l'écran de connexion. Conformité Apple 5.1.1(v).
   void _deleteAccount(BuildContext context) {
     final confirmController = TextEditingController();
     showDialog(
@@ -671,7 +673,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             );
                           }
                           if (ok && context.mounted) {
-                            context.go('/auth-choice');
+                            // Compte supprimé : retour à l'écran de connexion /
+                            // création de compte, pas à l'onboarding.
+                            context.go('/email-login');
                           }
                         },
                   style: ElevatedButton.styleFrom(
