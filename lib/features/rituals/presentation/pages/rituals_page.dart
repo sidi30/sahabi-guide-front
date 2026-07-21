@@ -26,12 +26,14 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
   final profile = ref.watch(pilgrimProfileProvider);
   final userId = profile?.id;
 
-  // Genre : pour un compte, le backend le déduit du userId. Pour un anonyme (pas de
-  // compte), on l'envoie depuis le choix fait à la connexion (settings.gender, qui
-  // reflète la préférence 'pilgrim_gender'). Réactif : un changement déclenche un refetch.
-  String? gender = profile?.gender;
+  // Genre : la PRÉFÉRENCE LOCALE (bouton genre = settings.gender, reflet de
+  // 'pilgrim_gender') prime et est envoyée comme override au backend, qui l'honore
+  // désormais même pour un compte (userId ne sert qu'au filtrage Hajj/Omra).
+  // Fallback sur le genre du compte si aucune préférence locale n'est posée.
+  // Réactif : le provider watch settingsProvider -> un changement déclenche un refetch.
+  String? gender = settings.gender;
   if (gender == null || gender.isEmpty || gender == 'UNSPECIFIED') {
-    gender = settings.gender;
+    gender = profile?.gender;
   }
 
   // Langue d'affichage des étapes (résolues côté serveur).
