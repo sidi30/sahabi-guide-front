@@ -28,7 +28,9 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // minSdk 24 requis par flutter_tts 4.x (APIs audio Android N+)
         minSdk = 24
-        targetSdk = flutter.targetSdkVersion
+        // targetSdk 35 (Android 15) explicite : exigence Google Play (niveau
+        // d'API cible <= 1 an du dernier Android) avant le 31/08/2026.
+        targetSdk = 35
         // Assurer que versionCode est bien un entier (tiré de pubspec.yaml)
         versionCode = flutter.versionCode.toInt()
         versionName = flutter.versionName
