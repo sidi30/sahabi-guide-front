@@ -5,6 +5,7 @@ import 'package:sahabi_guide/features/settings/settings.dart';
 import 'package:sahabi_guide/shared/constants/app_locale.dart';
 import 'package:sahabi_guide/core/providers/language_provider.dart';
 import 'package:sahabi_guide/features/settings/presentation/screens/language_settings_screen.dart';
+import 'package:sahabi_guide/features/profile/presentation/pages/profile_page.dart';
 import 'package:sahabi_guide/core/theme/app_color_schemes.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -24,11 +25,37 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          _buildProfileLink(context),
           _buildGenderSection(context, ref, settings),
           _buildColorThemeSection(context, ref, settings),
           _buildThemeModeSection(context, ref, settings),
           _buildLanguageSection(context, ref, settings),
         ],
+      ),
+    );
+  }
+
+  /// Accès direct à la page « Mon profil » depuis les réglages.
+  Widget _buildProfileLink(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: ListTile(
+        leading: Icon(
+          Icons.account_circle_outlined,
+          size: 28,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(
+          'Mon profil',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        subtitle: const Text('Voir et modifier mes informations'),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProfilePage()),
+          );
+        },
       ),
     );
   }
@@ -253,25 +280,32 @@ class SettingsScreen extends ConsumerWidget {
     final currentLocale = ref.watch(languageProvider);
     final currentAppLocale = AppLocale.fromLocale(currentLocale);
 
-    return Column(
-      children: [
-        // UI Language Selection - Navigation vers l'écran dédié
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            leading: Icon(
-              Icons.language,
-              size: 28,
-              color: Theme.of(context).colorScheme.primary,
+    final theme = Theme.of(context);
+
+    // Une seule section « Langues » regroupant la langue de l'interface et la
+    // langue audio (voix), pour une hiérarchie claire dans les réglages.
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.translate, color: theme.colorScheme.primary),
+                const SizedBox(width: 12),
+                Text('Langues', style: theme.textTheme.titleLarge),
+              ],
             ),
-            title: Text(
-              localizations.settings_language,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            subtitle: Text(
-              currentAppLocale.displayName,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+          ),
+          const Divider(height: 1),
+
+          // Langue de l'interface — navigation vers l'écran dédié
+          ListTile(
+            leading: Icon(Icons.language, color: theme.colorScheme.primary),
+            title: Text(localizations.settings_language),
+            subtitle: Text(currentAppLocale.displayName),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.of(context).push(
@@ -281,58 +315,48 @@ class SettingsScreen extends ConsumerWidget {
               );
             },
           ),
-        ),
+          const Divider(height: 1),
 
-        // Audio Language Selection
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.headphones_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      localizations.settings_audio_language,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
+          // Langue audio (voix)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Row(
+              children: [
+                Icon(Icons.headphones_outlined,
+                    size: 20, color: theme.colorScheme.primary),
+                const SizedBox(width: 12),
+                Text(
+                  localizations.settings_audio_language,
+                  style: theme.textTheme.titleMedium,
                 ),
-              ),
-              const Divider(height: 1),
-              ...AudioLanguage.values.map((lang) {
-                return RadioListTile<AudioLanguage>(
-                  title: Text(_getAudioLanguageName(lang, localizations)),
-                  value: lang,
-                  groupValue: settings.audioLanguage,
-                  onChanged: (value) async {
-                    if (value != null) {
-                      await ref
-                          .read(settingsProvider.notifier)
-                          .setAudioLanguage(value);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(localizations.common_success),
-                            duration: const Duration(milliseconds: 900),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                );
-              }),
-              const SizedBox(height: 8),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+          ...AudioLanguage.values.map((lang) {
+            return RadioListTile<AudioLanguage>(
+              title: Text(_getAudioLanguageName(lang, localizations)),
+              value: lang,
+              groupValue: settings.audioLanguage,
+              onChanged: (value) async {
+                if (value != null) {
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setAudioLanguage(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.common_success),
+                        duration: const Duration(milliseconds: 900),
+                      ),
+                    );
+                  }
+                }
+              },
+            );
+          }),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 

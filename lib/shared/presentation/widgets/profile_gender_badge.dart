@@ -23,7 +23,10 @@ class ProfileGenderBadge extends ConsumerWidget {
     return Semantics(
       label: 'Profil : $label',
       child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        // Marge verticale seule : l'inset horizontal est géré par le parent
+        // (home padde déjà de 16 ; rituals ajoute son propre Padding). La marge
+        // basse évite que le badge soit collé à la carte d'accueil en dessous.
+        margin: const EdgeInsets.only(top: 4, bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.10),

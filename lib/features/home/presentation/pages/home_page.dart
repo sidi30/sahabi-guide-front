@@ -272,6 +272,33 @@ class HomePage extends ConsumerWidget {
     );
   }
 
+  /// Petit message chaleureux qui change chaque jour (déterministe : même
+  /// message toute la journée, un nouveau le lendemain). Indexé sur le jour de
+  /// l'année pour tourner sur toute la liste au fil des jours. Sans emoji
+  /// (cohérence icônes vectorielles).
+  static const List<String> _blessings = [
+    'Que la paix soit avec vous',
+    'Qu\'Allah facilite votre journée',
+    'Qu\'Allah accepte vos efforts',
+    'Chaque pas vous rapproche de Lui',
+    'Votre intention est déjà une récompense',
+    'Qu\'Allah illumine votre chemin',
+    'Un cœur reconnaissant est un cœur comblé',
+    'La patience est la clé de la sérénité',
+    'Qu\'Allah exauce vos invocations',
+    'Prenez soin de vous, vous êtes attendu',
+    'Que ce jour vous soit béni',
+    'Avancez en confiance, Il est avec vous',
+    'Gardez le sourire, la miséricorde est proche',
+    'Qu\'Allah préserve votre santé et votre foi',
+  ];
+
+  String _dailyBlessing(DateTime now) {
+    final dayOfYear =
+        now.difference(DateTime(now.year, 1, 1)).inDays; // 0..365
+    return _blessings[dayOfYear % _blessings.length];
+  }
+
   Widget _buildWelcomeSection(BuildContext context, WidgetRef ref, AuthState authState) {
     final colors = ref.colors;
     final now = DateTime.now();
@@ -322,9 +349,10 @@ class HomePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Que la paix soit avec vous',
+                  _dailyBlessing(now),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withValues(alpha: 0.92),
+                        height: 1.4,
                       ),
                 ),
               ],

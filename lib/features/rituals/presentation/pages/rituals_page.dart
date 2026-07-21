@@ -136,7 +136,10 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
     return Column(
       children: [
-        const ProfileGenderBadge(),
+        const Padding(
+          padding: EdgeInsets.only(left: 16, top: 8),
+          child: ProfileGenderBadge(),
+        ),
         const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(
