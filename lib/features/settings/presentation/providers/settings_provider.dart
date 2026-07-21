@@ -11,19 +11,14 @@ enum AppThemeMode { system, light, dark }
 
 /// Langue choisie pour le copilote vocal / assistant (bot).
 ///
-/// Couvre les langues d'interface classiques (fr/en/ar) et les langues
-/// africaines servies par le microservice voix backend (ha/dje/yo/sw/wo/bm).
-/// Codes canoniques alignés avec le backend : en, fr, ar, ha, dje, yo, sw, wo, bm.
+/// Langues actives uniquement : Français, Anglais, Arabe, Hausa.
+/// Codes canoniques alignés avec le backend : fr, en, ar, ha.
+/// (Zarma, Yoruba, Swahili, Wolof, Bambara désactivés.)
 enum AudioLanguage {
   french,
   english,
   arabic,
-  hausa,
-  zarma,
-  yoruba,
-  swahili,
-  wolof,
-  bambara;
+  hausa;
 
   /// Résout une [AudioLanguage] depuis un code canonique (fr, en, ha, ...).
   static AudioLanguage fromCode(String code) {
@@ -45,16 +40,6 @@ extension AudioLanguageX on AudioLanguage {
         return 'ar';
       case AudioLanguage.hausa:
         return 'ha';
-      case AudioLanguage.zarma:
-        return 'dje';
-      case AudioLanguage.yoruba:
-        return 'yo';
-      case AudioLanguage.swahili:
-        return 'sw';
-      case AudioLanguage.wolof:
-        return 'wo';
-      case AudioLanguage.bambara:
-        return 'bm';
     }
   }
 
@@ -68,16 +53,6 @@ extension AudioLanguageX on AudioLanguage {
         return 'العربية';
       case AudioLanguage.hausa:
         return 'Hausa';
-      case AudioLanguage.zarma:
-        return 'Zarma';
-      case AudioLanguage.yoruba:
-        return 'Yoruba';
-      case AudioLanguage.swahili:
-        return 'Kiswahili';
-      case AudioLanguage.wolof:
-        return 'Wolof';
-      case AudioLanguage.bambara:
-        return 'Bambara';
     }
   }
 }

@@ -86,8 +86,8 @@ class AppConstants {
   static const Map<String, String> supportedLanguages = {
     'fr': 'Français',
     'en': 'English',
+    'ar': 'العربية',
     'ha': 'Hausa',
-    'dje': 'Djerma',
   };
   
   // Default Values
