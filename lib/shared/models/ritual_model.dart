@@ -110,9 +110,12 @@ class RitualModel {
 
     return RitualModel(
       id: json['id'] as String,
-      name: json['name'] as String,
-      order: json['order'] as int,
-      description: json['description'] as String,
+      // Robuste au nom de champ : l'endpoint enrichi expose `title`/`code`, le
+      // contrat de base exposait `name`. On accepte les trois pour ne jamais
+      // crasher ("type 'Null' is not a subtype of type 'String'").
+      name: (json['name'] ?? json['title'] ?? json['code'] ?? '') as String,
+      order: (json['order'] ?? 0) as int,
+      description: (json['description'] ?? '') as String,
       type: _parseRitualType(json['type']),
       status: _parseRitualStatus(json['status']),
       scheduledTime: json['scheduledTime'] != null
