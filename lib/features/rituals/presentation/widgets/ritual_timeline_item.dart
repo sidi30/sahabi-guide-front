@@ -11,12 +11,15 @@ class RitualTimelineItem extends StatefulWidget {
   /// Override local de l'état « accompli » (suivi on-device), prioritaire sur
   /// le statut serveur pour que le marquage soit immédiatement visible.
   final bool isDone;
+  /// Position dans la liste affichée (0-based) — sert au numéro d'étape du cercle.
+  final int index;
 
   const RitualTimelineItem({
     super.key,
     required this.ritual,
     required this.isLast,
     required this.audioLanguage,
+    this.index = 0,
     this.onMarkAsCompleted,
     this.isDone = false,
   });
@@ -128,10 +131,17 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
               ),
             ],
           ),
-          child: Icon(
-            indicatorIcon,
-            color: Colors.white,
-            size: 20,
+          child: Center(
+            child: _completed
+                ? const Icon(Icons.check, color: Colors.white, size: 20)
+                : Text(
+                    '${widget.index + 1}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
         if (!widget.isLast)

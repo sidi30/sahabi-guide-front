@@ -146,6 +146,26 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       children: [
         _buildGenderToggle(),
         _buildPilgrimageToggle(),
+        // Ligne diagnostic : nb de rites réellement chargés + choix + version.
+        ritualsAsync.maybeWhen(
+          data: (r) {
+            final t = ref.watch(settingsProvider).pilgrimageType ?? 'défaut';
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 2),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${r.length} rites · $t · v1.4.3',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
         const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(
@@ -334,6 +354,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             key: ValueKey(ritual.id),
             ritual: ritual,
             isLast: isLast,
+            index: index,
             audioLanguage: audioLanguage,
             isDone: isDone,
             onMarkAsCompleted: () => _markAsCompleted(ritual),
