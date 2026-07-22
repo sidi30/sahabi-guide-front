@@ -180,7 +180,10 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final colorThemeIndex = prefs.getInt(_colorThemeKey) ?? 0;
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
-      final gender = prefs.getString(_genderKey);
+      // Défaut = homme : sans choix explicite, le sélecteur affiche « Homme » et
+      // l'app demande le contenu masculin. L'utilisatrice bascule sur « Femme » (le
+      // choix est alors persisté). Aligne l'app sur le défaut serveur (genre absent → MALE).
+      final gender = prefs.getString(_genderKey) ?? 'MALE';
       final pilgrimageType = prefs.getString(_pilgrimageTypeKey);
       // Migration one-shot : débloque une fois pour toutes les installs où le
       // drapeau « choix manuel » est resté figé (tests), afin que la couleur suive
