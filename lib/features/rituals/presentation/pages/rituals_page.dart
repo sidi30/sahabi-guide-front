@@ -169,8 +169,10 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       return Expanded(
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () =>
-              ref.read(settingsProvider.notifier).setGender(value),
+          onTap: () {
+            ref.read(settingsProvider.notifier).setGender(value);
+            ref.invalidate(ritualsProvider); // refetch garanti
+          },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -228,6 +230,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             // Re-tap sur le choix courant = revenir au défaut (compte).
             ref.read(settingsProvider.notifier)
                 .setPilgrimageType(isSel ? null : value);
+            ref.invalidate(ritualsProvider); // refetch garanti
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
