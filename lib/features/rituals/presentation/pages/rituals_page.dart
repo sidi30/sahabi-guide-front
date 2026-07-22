@@ -155,7 +155,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '${r.length} rites · $t · v1.4.3',
+                  '${r.length} rites · $t · v1.4.4',
                   style: TextStyle(
                     fontSize: 11,
                     color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
@@ -189,9 +189,11 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       return Expanded(
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {
-            ref.read(settingsProvider.notifier).setGender(value);
-            ref.invalidate(ritualsProvider); // refetch garanti
+          onTap: () async {
+            // Attendre la mise à jour de l'état AVANT d'invalider, sinon le provider
+            // se recalcule avec l'ancienne valeur (course) → mauvais contenu.
+            await ref.read(settingsProvider.notifier).setGender(value);
+            ref.invalidate(ritualsProvider);
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
@@ -246,11 +248,12 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       return Expanded(
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {
+          onTap: () async {
             // Re-tap sur le choix courant = revenir au défaut (compte).
-            ref.read(settingsProvider.notifier)
+            // Attendre le setter AVANT d'invalider (sinon course → ancien type).
+            await ref.read(settingsProvider.notifier)
                 .setPilgrimageType(isSel ? null : value);
-            ref.invalidate(ritualsProvider); // refetch garanti
+            ref.invalidate(ritualsProvider);
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),

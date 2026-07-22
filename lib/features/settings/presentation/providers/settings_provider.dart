@@ -274,12 +274,14 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   /// Choisit le pèlerinage affiché (Hajj/Omra). Envoyé au backend comme override
   /// de type : l'utilisateur voit les rites du pèlerinage choisi (+ les communs).
   Future<void> setPilgrimageType(String? type) async {
+    // État D'ABORD (synchrone) → tout watcher voit la nouvelle valeur immédiatement,
+    // même si l'appelant n'attend pas. Persistance ensuite (best-effort).
+    state = state.copyWith(pilgrimageType: type);
     if (type == null || type.isEmpty) {
       await prefs.remove(_pilgrimageTypeKey);
     } else {
       await prefs.setString(_pilgrimageTypeKey, type);
     }
-    state = state.copyWith(pilgrimageType: type);
   }
 
   /// Active/désactive l'état de menstruation. DONNÉE DE SANTÉ : reste strictement
