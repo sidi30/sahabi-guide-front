@@ -5,6 +5,7 @@ import '../../../../core/services/tts_service.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../data/ritual_guidance.dart';
 import '../../data/rite_images.dart';
+import 'step_reader_page.dart';
 
 class RitualDetailSection extends StatefulWidget {
   final RitualModel ritual;
@@ -26,8 +27,6 @@ class RitualDetailSection extends StatefulWidget {
 
 class _RitualDetailSectionState extends State<RitualDetailSection> {
   final TtsService _tts = sl<TtsService>();
-  bool _hasReadExplanation = false;
-  bool _hasWatchedVideo = false;
 
   /// Guide détaillé PROPRE à ce rituel (4 axes), sinon null.
   RitualGuidance? get _guidance =>
@@ -65,7 +64,6 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ? guidance.toSpeech(widget.ritual.name)
         : '${widget.ritual.name}. ${_getDetailedExplanation()}. '
             '${_getImportantSteps().join('. ')}';
-    setState(() => _hasReadExplanation = true);
     await _tts.speak(text, lang: widget.audioLanguage, tag: widget.ritual.id);
   }
 
@@ -93,9 +91,6 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
         if (await canLaunchUrl(youtubeAppUri)) {
           await launchUrl(youtubeAppUri, mode: LaunchMode.externalApplication);
-          setState(() {
-            _hasWatchedVideo = true;
-          });
           widget.onWatchVideo?.call();
           return;
         }
@@ -104,9 +99,6 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
       // Fallback: ouvrir dans le navigateur
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-        setState(() {
-          _hasWatchedVideo = true;
-        });
         widget.onWatchVideo?.call();
       } else {
         _showMessage(
@@ -128,6 +120,32 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
   void _markAsCompleted() {
     widget.onMarkAsCompleted?.call();
+  }
+
+  /// Ouvre le lecteur « comme un livre » (une étape par page, texte en grand,
+  /// images zoomables plein écran, vidéo). [startAt] = étape sur laquelle démarrer.
+  void _openReader(int startAt) {
+    final steps = _getImportantSteps();
+    if (steps.isEmpty) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => StepReaderPage(
+        ritualName: widget.ritual.name,
+        ritualDescription: _getDetailedExplanation(),
+        steps: steps,
+        images: imagesForRitual(widget.ritual.name),
+        videoUrl: widget.ritual.getVideoUrl(widget.audioLanguage),
+        initialIndex: startAt,
+      ),
+    ));
+  }
+
+  void _openImage(int index) {
+    final imgs = imagesForRitual(widget.ritual.name);
+    if (imgs.isEmpty) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => FullscreenImageViewer(images: imgs, initialIndex: index),
+    ));
   }
 
   void _showMessage(String message) {
@@ -241,7 +259,12 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ),
         const SizedBox(height: 20),
 
-        // Étapes importantes (ce qui est important à faire)
+        // Bouton « livre » : ouvre chaque étape en grand (lecture confortable).
+        if (steps.isNotEmpty) _buildOpenReaderButton(),
+        if (steps.isNotEmpty) const SizedBox(height: 16),
+
+        // Étapes importantes (ce qui est important à faire).
+        // Tap sur une étape -> l'ouvre en grand dans le lecteur.
         _buildListBlock(
           title: 'Étapes importantes',
           icon: Icons.list_alt,
@@ -249,6 +272,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           background: const Color(0xFFF0F9FF),
           items: steps,
           numbered: true,
+          onItemTap: _openReader,
         ),
 
         // Comment l'accomplir (possibilités / variantes)
@@ -286,7 +310,32 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     );
   }
 
+  /// Grand bouton d'appel : lire les étapes une par une en plein écran.
+  Widget _buildOpenReaderButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => _openReader(0),
+        icon: const Icon(Icons.menu_book, size: 22),
+        label: const Text(
+          'Lire étape par étape (grand format)',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1D3557),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+      ),
+    );
+  }
+
   /// Bloc générique « titre + liste » avec puces ou numéros.
+  /// [onItemTap] (facultatif) rend chaque ligne cliquable (ouvre le lecteur).
   Widget _buildListBlock({
     required String title,
     required IconData icon,
@@ -294,6 +343,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     required Color background,
     required List<String> items,
     required bool numbered,
+    void Function(int index)? onItemTap,
   }) {
     return Container(
       width: double.infinity,
@@ -324,46 +374,62 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           ...items.asMap().entries.map((entry) {
             final index = entry.key;
             final text = entry.value;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  numbered
-                      ? Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
+            final row = Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                numbered
+                    ? Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${index + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Icon(Icons.circle, size: 8, color: color),
                         ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      text,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF374151),
-                        height: 1.5,
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Icon(Icons.circle, size: 8, color: color),
                       ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: onItemTap != null ? 2 : null,
+                    overflow: onItemTap != null ? TextOverflow.ellipsis : null,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF374151),
+                      height: 1.5,
                     ),
                   ),
-                ],
+                ),
+                // Indice « ouvrir en grand »
+                if (onItemTap != null)
+                  Icon(Icons.open_in_full, size: 16, color: color),
+              ],
+            );
+            if (onItemTap == null) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: row,
+              );
+            }
+            return InkWell(
+              onTap: () => onItemTap(index),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: row,
               ),
             );
           }),
@@ -519,7 +585,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           separatorBuilder: (_, __) => const SizedBox(width: 12),
           itemBuilder: (context, i) {
             final im = imgs[i];
-            return ClipRRect(
+            return GestureDetector(
+              onTap: () => _openImage(i),
+              child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Stack(
                 alignment: Alignment.bottomLeft,
@@ -531,6 +599,20 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) =>
                         const SizedBox(width: 270, height: 190),
+                  ),
+                  // Pastille zoom en haut à droite
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.zoom_in,
+                          color: Colors.white, size: 18),
+                    ),
                   ),
                   Container(
                     width: 270,
@@ -556,6 +638,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                   ),
                 ],
               ),
+            ),
             );
           },
         ),
