@@ -77,6 +77,10 @@ class SettingsState {
   /// Genre du pèlerin (MALE/FEMALE/null) — pilote la palette par défaut.
   final String? gender;
 
+  /// Pèlerinage choisi pour l'affichage des rites : 'hajj' / 'omra' / null.
+  /// Envoyé au backend comme override de type (l'utilisateur choisit ce qu'il voit).
+  final String? pilgrimageType;
+
   /// L'utilisateur a-t-il choisi une palette manuellement ? Si oui, on respecte
   /// son choix ; sinon on applique la palette par défaut du genre.
   final bool colorThemeExplicit;
@@ -92,6 +96,7 @@ class SettingsState {
     this.audioLanguage = AudioLanguage.english,
     this.locale = AppLocale.fr, // Default to French
     this.gender,
+    this.pilgrimageType,
     this.colorThemeExplicit = false,
     this.menses = false,
   });
@@ -109,6 +114,7 @@ class SettingsState {
     AudioLanguage? audioLanguage,
     AppLocale? locale,
     String? gender,
+    String? pilgrimageType,
     bool? colorThemeExplicit,
     bool? menses,
   }) {
@@ -118,6 +124,7 @@ class SettingsState {
       audioLanguage: audioLanguage ?? this.audioLanguage,
       locale: locale ?? this.locale,
       gender: gender ?? this.gender,
+      pilgrimageType: pilgrimageType ?? this.pilgrimageType,
       colorThemeExplicit: colorThemeExplicit ?? this.colorThemeExplicit,
       menses: menses ?? this.menses,
     );
@@ -132,13 +139,14 @@ class SettingsState {
         other.audioLanguage == audioLanguage &&
         other.locale == locale &&
         other.gender == gender &&
+        other.pilgrimageType == pilgrimageType &&
         other.colorThemeExplicit == colorThemeExplicit &&
         other.menses == menses;
   }
 
   @override
   int get hashCode => Object.hash(
-      themeMode, colorTheme, audioLanguage, locale, gender, colorThemeExplicit, menses);
+      themeMode, colorTheme, audioLanguage, locale, gender, pilgrimageType, colorThemeExplicit, menses);
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -149,6 +157,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _languageKey = 'audio_language';
   static const _localeKey = 'app_locale';
   static const _genderKey = 'pilgrim_gender';
+  static const _pilgrimageTypeKey = 'pilgrimage_type_choice'; // 'hajj'/'omra'
   static const _colorThemeExplicitKey = 'color_theme_explicit';
   static const _mensesKey = 'pilgrim_menses'; // on-device uniquement (donnée santé)
   static const _genderColorMigratedKey = 'gender_color_migrated_v1';
@@ -164,6 +173,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final languageIndex = prefs.getInt(_languageKey) ?? 0;
       final localeCode = prefs.getString(_localeKey);
       final gender = prefs.getString(_genderKey);
+      final pilgrimageType = prefs.getString(_pilgrimageTypeKey);
       // Migration one-shot : débloque une fois pour toutes les installs où le
       // drapeau « choix manuel » est resté figé (tests), afin que la couleur suive
       // le genre. Après ça, un nouveau choix manuel persiste normalement.
@@ -203,6 +213,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
               )
             : defaultLocale,
         gender: gender,
+        pilgrimageType: pilgrimageType,
         colorThemeExplicit: colorThemeExplicit,
         menses: prefs.getBool(_mensesKey) ?? false,
       );
@@ -250,6 +261,17 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       colorTheme: genderTheme,
       colorThemeExplicit: false,
     );
+  }
+
+  /// Choisit le pèlerinage affiché (Hajj/Omra). Envoyé au backend comme override
+  /// de type : l'utilisateur voit les rites du pèlerinage choisi (+ les communs).
+  Future<void> setPilgrimageType(String? type) async {
+    if (type == null || type.isEmpty) {
+      await prefs.remove(_pilgrimageTypeKey);
+    } else {
+      await prefs.setString(_pilgrimageTypeKey, type);
+    }
+    state = state.copyWith(pilgrimageType: type);
   }
 
   /// Active/désactive l'état de menstruation. DONNÉE DE SANTÉ : reste strictement

@@ -141,9 +141,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   }
 
   bool get _canMarkAsCompleted {
+    // Le pèlerin peut marquer un rite accompli à tout moment (plus de blocage
+    // "il faut d'abord écouter/regarder" : il rendait le bouton inerte).
     return widget.ritual.status != RitualStatus.completed &&
-        widget.ritual.status != RitualStatus.overdue &&
-        (_hasReadExplanation || _hasWatchedVideo);
+        widget.ritual.status != RitualStatus.overdue;
   }
 
   @override

@@ -3,7 +3,7 @@ import '../../../../shared/models/dua_model.dart';
 
 
 abstract class RitualsRepository {
-  Future<List<RitualModel>> getRituals({bool forceRefresh = false, String? userId, String? gender, String? states, String? lang});
+  Future<List<RitualModel>> getRituals({bool forceRefresh = false, String? userId, String? gender, String? states, String? lang, String? type});
   Future<List<DuaModel>> getDuas();
   Future<RitualModel?> getRitualById(String id);
 }

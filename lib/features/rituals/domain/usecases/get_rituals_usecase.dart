@@ -13,6 +13,7 @@ class GetRitualsUseCase {
     String? gender,
     String? states,
     String? lang,
+    String? type,
   }) async {
     return await repository.getRituals(
       forceRefresh: forceRefresh,
@@ -20,6 +21,7 @@ class GetRitualsUseCase {
       gender: gender,
       states: states,
       lang: lang,
+      type: type,
     );
   }
 

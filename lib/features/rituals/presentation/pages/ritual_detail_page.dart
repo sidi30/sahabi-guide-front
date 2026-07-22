@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../domain/usecases/get_rituals_usecase.dart';
+import '../../data/datasources/rituals_remote_data_source.dart';
+import '../providers/local_progress_provider.dart';
+import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
 import '../widgets/video_player_widget.dart';
 
 final ritualDetailProvider =
@@ -346,15 +350,43 @@ class _RitualDetailPageState extends ConsumerState<RitualDetailPage> {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Mark as completed
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Marqué comme terminé')),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final isDone = ref
+                        .watch(localProgressProvider)
+                        .isRitualDone(ritual.id);
+                    return ElevatedButton.icon(
+                      onPressed: () async {
+                        final wasDone = ref
+                            .read(localProgressProvider)
+                            .isRitualDone(ritual.id);
+                        await ref
+                            .read(localProgressProvider.notifier)
+                            .toggleRitual(ritual.id);
+                        // Best-effort serveur (compte connecté), silencieux.
+                        final userId = ref.read(pilgrimProfileProvider)?.id;
+                        if (userId != null && userId.isNotEmpty) {
+                          unawaited(sl<RitualsRemoteDataSource>()
+                              .updateRitualProgress(userId, ritual.id,
+                                  wasDone ? 'NOT_STARTED' : 'COMPLETED')
+                              .catchError((_) => <String, dynamic>{}));
+                        }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(wasDone
+                                  ? 'Marquage annulé'
+                                  : 'Marqué comme terminé'),
+                            ),
+                          );
+                        }
+                      },
+                      icon: Icon(isDone ? Icons.check_circle : Icons.check),
+                      label: Text(isDone
+                          ? 'Rituel accompli'
+                          : 'Marquer comme terminé'),
                     );
                   },
-                  icon: const Icon(Icons.check),
-                  label: const Text('Marquer comme terminé'),
                 ),
               ),
             ],

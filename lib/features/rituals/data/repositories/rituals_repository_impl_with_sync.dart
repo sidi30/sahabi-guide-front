@@ -60,10 +60,14 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     String? gender,
     String? states,
     String? lang,
+    String? type,
   }) async {
-    // Un etat transitoire (ex. menses) ne doit jamais servir un cache generique :
-    // on force le rafraichissement pour obtenir le contenu adapte du serveur.
-    if (states != null && states.isNotEmpty) {
+    // Un etat transitoire (ex. menses) ou un choix explicite genre/type ne doit
+    // jamais servir un cache generique (le cache Hive n'est pas indexe par ces
+    // axes) : on force le rafraichissement pour obtenir le contenu adapte.
+    if ((states != null && states.isNotEmpty) ||
+        (gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED') ||
+        (type != null && type.isNotEmpty)) {
       forceRefresh = true;
     }
     // Stratégie offline-first avec synchronisation intelligente:
@@ -99,6 +103,7 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
           gender: gender,
           states: states,
           lang: lang,
+          type: type,
         );
         return freshRituals;
       }
@@ -123,6 +128,7 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     String? gender,
     String? states,
     String? lang,
+    String? type,
   }) async {
     if (remoteDataSource == null) {
       return await localDataSource.getRituals();
@@ -134,6 +140,7 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
         gender: gender,
         states: states,
         lang: lang,
+        type: type,
       );
       final rituals = remoteData.map((data) => RitualModel.fromJson(data)).toList();
 

@@ -13,6 +13,7 @@ class RitualsRemoteDataSource {
     String? gender,
     String? states,
     String? lang,
+    String? type, // choix Hajj/Omra (override d'affichage) : "hajj"/"omra"
   }) async {
     try {
       // Get auth token if available
@@ -37,6 +38,9 @@ class RitualsRemoteDataSource {
       }
       if (lang != null && lang.isNotEmpty) {
         queryParameters['lang'] = lang;
+      }
+      if (type != null && type.isNotEmpty) {
+        queryParameters['type'] = type;
       }
 
       final response = await _dioClient.get(
@@ -105,7 +109,7 @@ class RitualsRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/api/v1/users/$userId/rituals/progress',
+        '/api/v1/pilgrims/$userId/rituals/progress',
         options: options,
       );
 
@@ -136,7 +140,7 @@ class RitualsRemoteDataSource {
       final data = {'status': status};
 
       final response = await _dioClient.dio.patch(
-        '/api/v1/users/$userId/rituals/$ritualId',
+        '/api/v1/pilgrims/$userId/rituals/$ritualId',
         data: data,
         options: options,
       );

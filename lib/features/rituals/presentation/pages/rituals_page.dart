@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../data/datasources/rituals_remote_data_source.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -39,15 +41,20 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
   // Langue d'affichage des étapes (résolues côté serveur).
   final lang = settings.locale.locale.languageCode;
 
-  // Le cache Hive n'est pas indexé par genre : si un genre est connu, on force le
-  // refetch pour ne pas servir un contenu commun mis en cache avant le choix.
+  // Choix Hajj/Omra (override envoyé au backend). L'utilisateur choisit ce qu'il voit.
+  final type = settings.pilgrimageType;
+
+  // Le cache Hive n'est pas indexé par genre/type : si un genre ou un type est
+  // connu, on force le refetch pour ne pas servir un contenu mis en cache avant le choix.
   final hasGender = gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED';
+  final hasType = type != null && type.isNotEmpty;
 
   return await useCase(
-    forceRefresh: hasGender,
+    forceRefresh: hasGender || hasType,
     userId: userId,
     gender: gender,
     lang: lang,
+    type: type,
   );
 });
 
@@ -142,6 +149,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           padding: EdgeInsets.only(left: 16, top: 8),
           child: ProfileGenderBadge(),
         ),
+        _buildPilgrimageToggle(),
         const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(
@@ -151,6 +159,64 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           ),
         ),
       ],
+    );
+  }
+
+  /// Sélecteur Hajj / 'Omra : l'utilisateur choisit le pèlerinage à afficher.
+  /// Persiste dans settings.pilgrimageType et déclenche un refetch (backend override).
+  Widget _buildPilgrimageToggle() {
+    final selected = ref.watch(settingsProvider).pilgrimageType; // 'hajj'/'omra'/null
+    final primary = Theme.of(context).colorScheme.primary;
+
+    Widget seg(String label, String value, IconData icon) {
+      final isSel = selected == value;
+      return Expanded(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            // Re-tap sur le choix courant = revenir au défaut (compte).
+            ref.read(settingsProvider.notifier)
+                .setPilgrimageType(isSel ? null : value);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: isSel ? primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 18, color: isSel ? Colors.white : primary),
+                const SizedBox(width: 6),
+                Text(label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isSel ? Colors.white : primary,
+                    )),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          seg("'Omra", 'omra', Icons.brightness_5_outlined),
+          const SizedBox(width: 4),
+          seg('Hajj', 'hajj', Icons.brightness_7_outlined),
+        ],
+      ),
     );
   }
 
@@ -323,6 +389,19 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       await ref.read(localProgressProvider.notifier).toggleRitual(ritual.id);
       if (!wasDone) {
         await _ritualService.markAsCompleted(ritual); // notif prochain rite
+      }
+
+      // Best-effort : persister côté serveur pour un compte connecté (cross-device).
+      // Silencieux : le local fait foi, la synchro serveur ne doit jamais bloquer l'UI.
+      final userId = ref.read(pilgrimProfileProvider)?.id;
+      if (userId != null && userId.isNotEmpty) {
+        unawaited(sl<RitualsRemoteDataSource>()
+            .updateRitualProgress(
+              userId,
+              ritual.id,
+              wasDone ? 'NOT_STARTED' : 'COMPLETED',
+            )
+            .catchError((_) => <String, dynamic>{}));
       }
 
       if (mounted) {
