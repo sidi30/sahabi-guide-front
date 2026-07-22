@@ -16,18 +16,12 @@ class RitualsLocalDataSourceHive implements RitualsLocalDataSource {
     try {
       final cached = await _hiveCacheService.getRituals();
       // Fallback asset : cache Hive vide → premier lancement ou API offline.
-      // Sans seed, écran rituels vide → pas de vidéo, pas de bot, rien.
+      // Sans seed, écran rituels vide. IMPORTANT : on NE persiste PAS le seed en
+      // cache (sinon il se ferait passer pour un cache valide 7 jours et masquerait
+      // le contenu réel du serveur, genre/type-neutre). getRitualById() a son propre
+      // fallback seed. Ainsi une requête ciblée re-fetch toujours le vrai contenu.
       if (cached.isEmpty) {
-        final seed = await _loadSeedFromAsset();
-        // Persiste le seed en cache pour que getRitualById() le voie aussi.
-        if (seed.isNotEmpty) {
-          try {
-            await _hiveCacheService.saveRituals(seed);
-          } catch (_) {
-            // Si l'écriture échoue, on retourne quand même les données.
-          }
-        }
-        return seed;
+        return await _loadSeedFromAsset();
       }
       return cached;
     } catch (e) {

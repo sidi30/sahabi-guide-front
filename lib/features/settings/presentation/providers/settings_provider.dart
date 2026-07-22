@@ -68,6 +68,10 @@ AppColorTheme genderDefaultColorTheme(String? gender) {
 }
 
 // State class
+/// Sentinel interne pour distinguer "argument non fourni" de "null explicite"
+/// dans [SettingsState.copyWith] (permet d'effacer un champ nullable).
+const Object _unset = Object();
+
 class SettingsState {
   final AppThemeMode themeMode;
   final AppColorTheme colorTheme;
@@ -114,7 +118,9 @@ class SettingsState {
     AudioLanguage? audioLanguage,
     AppLocale? locale,
     String? gender,
-    String? pilgrimageType,
+    // Sentinel : permet de remettre pilgrimageType à null (déselection Hajj/Omra).
+    // Sans ça, `pilgrimageType ?? this.pilgrimageType` ne pourrait jamais l'effacer.
+    Object? pilgrimageType = _unset,
     bool? colorThemeExplicit,
     bool? menses,
   }) {
@@ -124,7 +130,9 @@ class SettingsState {
       audioLanguage: audioLanguage ?? this.audioLanguage,
       locale: locale ?? this.locale,
       gender: gender ?? this.gender,
-      pilgrimageType: pilgrimageType ?? this.pilgrimageType,
+      pilgrimageType: identical(pilgrimageType, _unset)
+          ? this.pilgrimageType
+          : pilgrimageType as String?,
       colorThemeExplicit: colorThemeExplicit ?? this.colorThemeExplicit,
       menses: menses ?? this.menses,
     );

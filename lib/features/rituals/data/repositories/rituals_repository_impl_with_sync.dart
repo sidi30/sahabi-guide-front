@@ -62,59 +62,60 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     String? lang,
     String? type,
   }) async {
-    // Un etat transitoire (ex. menses) ou un choix explicite genre/type ne doit
-    // jamais servir un cache generique (le cache Hive n'est pas indexe par ces
-    // axes) : on force le rafraichissement pour obtenir le contenu adapte.
-    if ((states != null && states.isNotEmpty) ||
+    // Requête "ciblée" (genre / type Hajj-Omra / état menses) : le cache Hive
+    // n'est PAS indexé par ces axes. Servir le cache (ou le seed neutre) pour une
+    // telle requête montrerait le MAUVAIS contenu (ex. Omra affichant les rites du
+    // Hajj). Pour ces requêtes : on force le fetch réseau et, en cas d'échec, on
+    // NE sert PAS le cache comme un succès — on propage l'erreur pour que l'UI
+    // affiche "Réessayer" au lieu d'un contenu erroné.
+    final bool keyed = (states != null && states.isNotEmpty) ||
         (gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED') ||
-        (type != null && type.isNotEmpty)) {
+        (type != null && type.isNotEmpty);
+    if (keyed) {
       forceRefresh = true;
     }
-    // Stratégie offline-first avec synchronisation intelligente:
-    // 1. Charger depuis le cache immédiatement (UI rapide)
-    // 2. Si connecté et forceRefresh ou cache obsolète, fetch depuis API
-    // 3. Mettre à jour le cache si l'API réussit
-    // 4. Fallback au cache si l'API échoue
 
     List<RitualModel> cachedRituals = [];
 
     try {
-      // Étape 1: Charger depuis le cache local
+      // Étape 1: cache local (uniquement pour l'affichage rapide non-ciblé).
       cachedRituals = await localDataSource.getRituals();
       developer.log(
         'Loaded ${cachedRituals.length} rituals from cache',
         name: 'RitualsRepository',
       );
 
-      // Si pas de connexion, retourner le cache
-      if (connectivityService != null && !connectivityService!.isConnected) {
-        developer.log(
-          'No connection, using cached rituals',
-          name: 'RitualsRepository',
-        );
+      // Hors-ligne : on sert le cache SEULEMENT pour une requête non ciblée.
+      // Pour une requête ciblée, on tente quand même le réseau (le cache mono-axe
+      // serait faux) ; s'il n'y a vraiment pas de réseau, l'erreur remontera.
+      if (!keyed &&
+          connectivityService != null &&
+          !connectivityService!.isConnected) {
+        developer.log('No connection, using cached rituals',
+            name: 'RitualsRepository');
         return cachedRituals;
       }
 
-      // Étape 2: Synchroniser avec le backend si nécessaire
+      // Étape 2: fetch backend si nécessaire.
       if (remoteDataSource != null && (forceRefresh || cachedRituals.isEmpty)) {
         developer.log('Fetching rituals from API', name: 'RitualsRepository');
-        final freshRituals = await _fetchAndCacheRituals(
+        return await _fetchAndCacheRituals(
           userId: userId,
           gender: gender,
           states: states,
           lang: lang,
           type: type,
         );
-        return freshRituals;
       }
 
       return cachedRituals;
     } catch (e) {
-      developer.log(
-        'Error in getRituals: $e',
-        name: 'RitualsRepository',
-      );
-      // En cas d'erreur, retourner le cache s'il existe
+      developer.log('Error in getRituals: $e', name: 'RitualsRepository');
+      // Requête ciblée : ne PAS masquer l'erreur avec un cache mono-axe erroné.
+      if (keyed) {
+        rethrow;
+      }
+      // Requête non ciblée : fallback cache toléré (offline-first).
       if (cachedRituals.isNotEmpty) {
         return cachedRituals;
       }

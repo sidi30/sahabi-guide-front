@@ -326,6 +326,9 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           final isDone = ref.watch(localProgressProvider).isRitualDone(ritual.id);
 
           return RitualTimelineItem(
+            // Clé sur l'identité du rite : l'état (expansion, TTS) suit le rite et
+            // ne « bave » plus d'un rite à l'autre quand la liste change (genre/type).
+            key: ValueKey(ritual.id),
             ritual: ritual,
             isLast: isLast,
             audioLanguage: audioLanguage,
