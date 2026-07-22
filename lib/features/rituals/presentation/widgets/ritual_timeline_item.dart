@@ -14,12 +14,16 @@ class RitualTimelineItem extends StatefulWidget {
   /// Position dans la liste affichée (0-based) — sert au numéro d'étape du cercle.
   final int index;
 
+  /// 'MALE'/'FEMALE' : voix d'écoute (homme/femme) transmise au lecteur.
+  final String? gender;
+
   const RitualTimelineItem({
     super.key,
     required this.ritual,
     required this.isLast,
     required this.audioLanguage,
     this.index = 0,
+    this.gender,
     this.onMarkAsCompleted,
     this.isDone = false,
   });
@@ -56,6 +60,8 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
                   RitualDetailSection(
                     ritual: widget.ritual,
                     audioLanguage: widget.audioLanguage,
+                    gender: widget.gender,
+                    isDone: widget.isDone,
                     onMarkAsCompleted: () {
                       widget.onMarkAsCompleted?.call();
                       setState(() {

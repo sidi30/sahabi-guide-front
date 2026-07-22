@@ -342,6 +342,8 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
             isLast: isLast,
             index: index,
             audioLanguage: audioLanguage,
+            // Voix d'écoute homme/femme selon le profil (défaut homme).
+            gender: settings.gender,
             isDone: isDone,
             onMarkAsCompleted: () => _markAsCompleted(ritual),
           );

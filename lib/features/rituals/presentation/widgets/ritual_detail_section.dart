@@ -13,12 +13,20 @@ class RitualDetailSection extends StatefulWidget {
   final VoidCallback? onMarkAsCompleted;
   final VoidCallback? onWatchVideo;
 
+  /// 'MALE'/'FEMALE' : voix d'écoute (homme/femme) dans le lecteur.
+  final String? gender;
+
+  /// Rite marqué accompli on-device (pour la page de fin du lecteur).
+  final bool isDone;
+
   const RitualDetailSection({
     super.key,
     required this.ritual,
     required this.audioLanguage,
     this.onMarkAsCompleted,
     this.onWatchVideo,
+    this.gender,
+    this.isDone = false,
   });
 
   @override
@@ -64,7 +72,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ? guidance.toSpeech(widget.ritual.name)
         : '${widget.ritual.name}. ${_getDetailedExplanation()}. '
             '${_getImportantSteps().join('. ')}';
-    await _tts.speak(text, lang: widget.audioLanguage, tag: widget.ritual.id);
+    await _tts.speak(text,
+        lang: widget.audioLanguage, tag: widget.ritual.id, gender: widget.gender);
   }
 
   Future<void> _pauseExplanation() async {
@@ -134,6 +143,11 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         steps: steps,
         images: imagesForRitual(widget.ritual.name),
         videoUrl: widget.ritual.getVideoUrl(widget.audioLanguage),
+        audioLanguage: widget.audioLanguage,
+        gender: widget.gender,
+        isCompleted:
+            widget.isDone || widget.ritual.status == RitualStatus.completed,
+        onToggleCompleted: widget.onMarkAsCompleted,
         initialIndex: startAt,
       ),
     ));

@@ -126,7 +126,10 @@ class TtsService extends ChangeNotifier {
 
   /// Lit [text] à voix haute dans la langue [lang] (code canonique fr/ar/en/
   /// ha/dje/...). [tag] identifie l'élément lu pour l'UI.
-  Future<void> speak(String text, {required String lang, String? tag}) async {
+  /// [gender] ('MALE'/'FEMALE') choisit une voix homme/femme quand la plateforme
+  /// l'expose, et ajuste le timbre (pitch) pour une distinction fiable partout.
+  Future<void> speak(String text,
+      {required String lang, String? tag, String? gender}) async {
     await _ensureInit();
     final cleaned = text.trim();
     if (cleaned.isEmpty) return;
@@ -139,19 +142,86 @@ class TtsService extends ChangeNotifier {
       await _speakBackend(cleaned, lang);
       return;
     }
-    await _speakOnDevice(cleaned, lang);
+    await _speakOnDevice(cleaned, lang, gender: gender);
   }
 
-  Future<void> _speakOnDevice(String text, String lang) async {
+  Future<void> _speakOnDevice(String text, String lang, {String? gender}) async {
     try {
       _setState(TtsState.speaking);
       final locale = await _onDeviceLocale(lang);
       await _tts.setLanguage(locale);
+      await _applyGenderVoice(locale, gender);
       await _tts.speak(text);
     } catch (e) {
       _errorMessage = e.toString();
       _setState(TtsState.error);
       onError?.call('Lecture vocale impossible: $e');
+    }
+  }
+
+  /// Sélectionne une voix homme/femme de meilleure qualité pour [locale] et règle
+  /// le timbre. Le pitch garantit une voix clairement masculine/féminine même
+  /// quand la plateforme n'étiquette pas le genre des voix. Une voix « enhanced /
+  /// premium / neural / network » est préférée pour un rendu moins robotique.
+  Future<void> _applyGenderVoice(String locale, String? gender) async {
+    final wantFemale = gender == 'FEMALE';
+    final wantMale = gender == 'MALE';
+    // 1) Timbre : garantie cross-plateforme d'une voix H/F distincte.
+    //    Femme = plus aigu, homme = plus grave, neutre = 1.0.
+    try {
+      await _tts.setPitch(wantFemale ? 1.18 : (wantMale ? 0.88 : 1.0));
+    } catch (_) {}
+    if (gender == null) return;
+
+    // 2) Voix : si la plateforme liste des voix, choisir la meilleure du bon
+    //    genre (champ 'gender' quand présent) et de meilleure qualité.
+    try {
+      final voices = await _tts.getVoices;
+      if (voices is! List) return;
+      final langPrefix = locale.split('-').first.toLowerCase();
+      final candidates = voices
+          .whereType<Map>()
+          .where((v) => (v['locale'] ?? '')
+              .toString()
+              .toLowerCase()
+              .startsWith(langPrefix))
+          .toList();
+      if (candidates.isEmpty) return;
+
+      Map? best;
+      int bestScore = -1;
+      for (final v in candidates) {
+        final name = (v['name'] ?? '').toString().toLowerCase();
+        final g = (v['gender'] ?? '').toString().toLowerCase();
+        int score = 0;
+        final wantG = wantFemale ? 'female' : 'male';
+        if (g == wantG) {
+          score += 5; // genre confirmé par la plateforme
+        } else if (g.isNotEmpty) {
+          continue; // genre connu mais opposé -> écarter
+        }
+        // qualité (moins robotique)
+        if (name.contains('enhanced') ||
+            name.contains('premium') ||
+            name.contains('neural') ||
+            name.contains('network')) {
+          score += 3;
+        } else if (name.contains('local')) {
+          score += 1;
+        }
+        if (score > bestScore) {
+          best = v;
+          bestScore = score;
+        }
+      }
+      if (best != null && bestScore >= 0) {
+        await _tts.setVoice({
+          'name': best['name'].toString(),
+          'locale': best['locale'].toString(),
+        });
+      }
+    } catch (_) {
+      // getVoices/setVoice non supporté -> le pitch suffit à distinguer H/F.
     }
   }
 
