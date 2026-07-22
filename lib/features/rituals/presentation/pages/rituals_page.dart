@@ -15,7 +15,6 @@ import '../../../../features/auth/presentation/providers/passport_auth_provider.
 import '../widgets/ritual_timeline_item.dart';
 import '../services/ritual_service.dart';
 import '../providers/local_progress_provider.dart';
-import '../../../../shared/presentation/widgets/profile_gender_badge.dart';
 import '../../../../shared/presentation/widgets/skeleton_loader.dart';
 import '../widgets/menses_guidance_banner.dart';
 import 'dua_detail_page.dart';
@@ -145,10 +144,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 16, top: 8),
-          child: ProfileGenderBadge(),
-        ),
+        _buildGenderToggle(),
         _buildPilgrimageToggle(),
         const MensesGuidanceBanner(),
         Expanded(
@@ -159,6 +155,61 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           ),
         ),
       ],
+    );
+  }
+
+  /// Sélecteur Homme / Femme directement sur la page rites : bascule immédiate
+  /// du genre (settings.gender) → le contenu des rites change en direct.
+  Widget _buildGenderToggle() {
+    final selected = ref.watch(settingsProvider).gender; // MALE/FEMALE/...
+    final primary = Theme.of(context).colorScheme.primary;
+
+    Widget seg(String label, String value, IconData icon) {
+      final isSel = selected == value;
+      return Expanded(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () =>
+              ref.read(settingsProvider.notifier).setGender(value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: isSel ? primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 18, color: isSel ? Colors.white : primary),
+                const SizedBox(width: 6),
+                Text(label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isSel ? Colors.white : primary,
+                    )),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          seg('Homme', 'MALE', Icons.man),
+          const SizedBox(width: 4),
+          seg('Femme', 'FEMALE', Icons.woman),
+        ],
+      ),
     );
   }
 

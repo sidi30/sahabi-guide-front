@@ -4,6 +4,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../data/ritual_guidance.dart';
+import '../../data/rite_images.dart';
 
 class RitualDetailSection extends StatefulWidget {
   final RitualModel ritual;
@@ -201,6 +202,8 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             ],
           ),
           const SizedBox(height: 16),
+          // Illustrations officielles (guide Ihram HAJ.GOV.SA), le cas échéant.
+          _buildImageGallery(),
 
           // Explication complète du rituel
           _buildExplanationSection(),
@@ -496,6 +499,66 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  /// Galerie d'illustrations officielles du rite (guide Ihram HAJ.GOV.SA).
+  /// Carrousel horizontal avec légende par section. Rien si aucune image.
+  Widget _buildImageGallery() {
+    final imgs = imagesForRitual(widget.ritual.name);
+    if (imgs.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: SizedBox(
+        height: 190,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.zero,
+          itemCount: imgs.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          itemBuilder: (context, i) {
+            final im = imgs[i];
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                alignment: Alignment.bottomLeft,
+                children: [
+                  Image.asset(
+                    im.asset,
+                    width: 270,
+                    height: 190,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 270, height: 190),
+                  ),
+                  Container(
+                    width: 270,
+                    padding: const EdgeInsets.fromLTRB(10, 20, 10, 8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.75),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Text(
+                      im.caption,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
