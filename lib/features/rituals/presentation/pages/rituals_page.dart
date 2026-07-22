@@ -20,7 +20,10 @@ import '../widgets/menses_guidance_banner.dart';
 import 'dua_detail_page.dart';
 
 final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) async {
-  ref.keepAlive(); // Keep data when switching tabs
+  // PAS de keepAlive : le contenu dépend d'axes (genre / type Hajj-Omra / langue).
+  // Épingler le 1er résultat (souvent calculé AVANT que le profil ou le choix ne soient
+  // posés) faisait persister un contenu périmé (ex. Omra figée sur 18 rites). autoDispose
+  // + watch(settingsProvider)/watch(pilgrimProfileProvider) garantit un refetch à jour.
   final useCase = sl<GetRitualsUseCase>();
   final settings = ref.watch(settingsProvider);
   // Récupérer l'ID utilisateur depuis le profil pour filtrer par type de pèlerinage (Hajj/Omra)
@@ -146,26 +149,6 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       children: [
         _buildGenderToggle(),
         _buildPilgrimageToggle(),
-        // Ligne diagnostic : nb de rites réellement chargés + choix + version.
-        ritualsAsync.maybeWhen(
-          data: (r) {
-            final t = ref.watch(settingsProvider).pilgrimageType ?? 'défaut';
-            return Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 2),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${r.length} rites · $t · v1.4.4',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-                  ),
-                ),
-              ),
-            );
-          },
-          orElse: () => const SizedBox.shrink(),
-        ),
         const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(

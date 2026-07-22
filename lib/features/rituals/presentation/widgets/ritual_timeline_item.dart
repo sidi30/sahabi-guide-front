@@ -83,61 +83,68 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
   }
 
   Widget _buildTimelineIndicator() {
-    Color indicatorColor;
-    IconData indicatorIcon;
+    // Jeu de couleurs par état, pensé pour la LISIBILITÉ du numéro :
+    //  - fill  : fond du cercle
+    //  - fg    : couleur du numéro (contraste AA garanti sur le fond)
+    //  - un anneau clair entoure le cercle pour le détacher du fond.
+    Color fill;
+    Color fg;
 
     if (_completed) {
-      indicatorColor = const Color(0xFF10B981);
-      indicatorIcon = Icons.check_circle;
-      return _indicatorColumn(indicatorColor, indicatorIcon);
+      fill = const Color(0xFF10B981); // Vert — accompli
+      fg = Colors.white;
+      return _indicatorColumn(fill, fg, done: true);
     }
 
     switch (widget.ritual.status) {
       case RitualStatus.completed:
-        indicatorColor = const Color(0xFF10B981); // Vert
-        indicatorIcon = Icons.check_circle;
-        break;
+        fill = const Color(0xFF10B981); // Vert
+        fg = Colors.white;
+        return _indicatorColumn(fill, fg, done: true);
       case RitualStatus.active:
-        indicatorColor = const Color(0xFF4FC3F7); // Bleu
-        indicatorIcon = Icons.access_time;
+        fill = const Color(0xFF2563EB); // Bleu franc — en cours (lisible, blanc dessus)
+        fg = Colors.white;
         break;
       case RitualStatus.overdue:
-        indicatorColor = const Color(0xFFEF4444); // Rouge
-        indicatorIcon = Icons.warning;
+        fill = const Color(0xFFDC2626); // Rouge — manqué
+        fg = Colors.white;
         break;
       case RitualStatus.pending:
-        indicatorColor = const Color(0xFFE5E7EB); // Gris
-        indicatorIcon = Icons.circle_outlined;
+        // À venir : cercle teinté clair + numéro FONCÉ (fort contraste), au lieu de
+        // blanc-sur-gris (illisible). Numéro dans la couleur de marque.
+        fill = const Color(0xFFE8F1EE);
+        fg = const Color(0xFF1D6B57);
         break;
     }
 
-    return _indicatorColumn(indicatorColor, indicatorIcon);
+    return _indicatorColumn(fill, fg);
   }
 
-  Widget _indicatorColumn(Color indicatorColor, IconData indicatorIcon) {
+  Widget _indicatorColumn(Color fill, Color fg, {bool done = false}) {
     return Column(
       children: [
         Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: indicatorColor,
+            color: fill,
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
             boxShadow: [
               BoxShadow(
-                color: indicatorColor.withValues(alpha: 0.3),
+                color: fill.withValues(alpha: 0.35),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Center(
-            child: _completed
-                ? const Icon(Icons.check, color: Colors.white, size: 20)
+            child: done
+                ? Icon(Icons.check, color: fg, size: 20)
                 : Text(
                     '${widget.index + 1}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: fg,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -150,9 +157,7 @@ class _RitualTimelineItemState extends State<RitualTimelineItem> {
             height: 80,
             margin: const EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
-              color: _completed
-                  ? const Color(0xFF10B981)
-                  : const Color(0xFFE5E7EB),
+              color: done ? const Color(0xFF10B981) : const Color(0xFFE5E7EB),
               borderRadius: BorderRadius.circular(1),
             ),
           ),
