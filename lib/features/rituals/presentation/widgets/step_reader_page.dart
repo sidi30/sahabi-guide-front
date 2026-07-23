@@ -153,8 +153,11 @@ class _StepReaderPageState extends State<StepReaderPage> {
       }
       if (!_audioOn || !mounted) break;
       await _tts.speak(widget.steps[p],
-          lang: widget.audioLanguage, tag: _ttsTag, gender: widget.gender);
-      // _tts.speak attend la fin de l'énoncé (awaitSpeakCompletion=true).
+          lang: widget.audioLanguage,
+          tag: _ttsTag,
+          gender: widget.gender,
+          natural: true);
+      // _tts.speak attend la fin de l'énoncé (voix serveur ou on-device).
       if (!_audioOn || !mounted) break;
     }
     _audioOn = false;
@@ -165,7 +168,10 @@ class _StepReaderPageState extends State<StepReaderPage> {
   Future<void> _readOne(int i) async {
     await _stopAudio();
     await _tts.speak(widget.steps[i],
-        lang: widget.audioLanguage, tag: _ttsTag, gender: widget.gender);
+        lang: widget.audioLanguage,
+        tag: _ttsTag,
+        gender: widget.gender,
+        natural: true);
   }
 
   void _onPageChanged(int i) {
@@ -525,11 +531,20 @@ class _StepReaderPageState extends State<StepReaderPage> {
       ),
       child: Row(
         children: [
-          _navButton(
-              icon: Icons.chevron_left,
-              label: 'Précédent',
-              enabled: !isFirst,
-              onTap: () => _go(-1)),
+          // QUITTER — toujours visible, à portée de pouce, sur CHAQUE page.
+          TextButton.icon(
+            onPressed: _exit,
+            icon: const Icon(Icons.close, size: 20),
+            label: const Text('Quitter',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFDC2626),
+              backgroundColor: const Color(0xFFDC2626).withValues(alpha: 0.08),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
           Expanded(
             child: Center(
               child: Row(
@@ -539,8 +554,8 @@ class _StepReaderPageState extends State<StepReaderPage> {
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: active ? 20 : 7,
-                    height: 7,
+                    width: active ? 18 : 6,
+                    height: 6,
                     decoration: BoxDecoration(
                       color:
                           active ? _accent(_index) : const Color(0xFFD1D5DB),
@@ -551,35 +566,22 @@ class _StepReaderPageState extends State<StepReaderPage> {
               ),
             ),
           ),
-          _navButton(
-              icon: Icons.chevron_right,
-              label: isLast ? 'Fin' : 'Suivant',
-              enabled: !isLast,
-              onTap: () => _go(1),
-              trailingIcon: true),
+          IconButton(
+            tooltip: 'Précédent',
+            onPressed: isFirst ? null : () => _go(-1),
+            icon: Icon(Icons.chevron_left,
+                size: 30,
+                color: isFirst ? const Color(0xFFCBD5E1) : _accent(_index)),
+          ),
+          IconButton(
+            tooltip: isLast ? 'Fin' : 'Suivant',
+            onPressed: isLast ? null : () => _go(1),
+            icon: Icon(Icons.chevron_right,
+                size: 30,
+                color: isLast ? const Color(0xFFCBD5E1) : _accent(_index)),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _navButton({
-    required IconData icon,
-    required String label,
-    required bool enabled,
-    required VoidCallback onTap,
-    bool trailingIcon = false,
-  }) {
-    final color = enabled ? _accent(_index) : const Color(0xFF9CA3AF);
-    final children = <Widget>[
-      if (!trailingIcon) Icon(icon, color: color, size: 22),
-      Text(label,
-          style: TextStyle(
-              color: color, fontWeight: FontWeight.w600, fontSize: 14)),
-      if (trailingIcon) Icon(icon, color: color, size: 22),
-    ];
-    return TextButton(
-      onPressed: enabled ? onTap : null,
-      child: Row(mainAxisSize: MainAxisSize.min, children: children),
     );
   }
 

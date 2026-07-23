@@ -128,8 +128,14 @@ class TtsService extends ChangeNotifier {
   /// ha/dje/...). [tag] identifie l'élément lu pour l'UI.
   /// [gender] ('MALE'/'FEMALE') choisit une voix homme/femme quand la plateforme
   /// l'expose, et ajuste le timbre (pitch) pour une distinction fiable partout.
+  /// [natural] = préférer la voix serveur (Piper fr/ar/en, MMS pour l'africain),
+  /// nettement moins robotique que la voix on-device. En cas d'échec réseau, on
+  /// retombe automatiquement sur la voix on-device (genrée) pour rester audible.
   Future<void> speak(String text,
-      {required String lang, String? tag, String? gender}) async {
+      {required String lang,
+      String? tag,
+      String? gender,
+      bool natural = false}) async {
     await _ensureInit();
     final cleaned = text.trim();
     if (cleaned.isEmpty) return;
@@ -138,11 +144,35 @@ class TtsService extends ChangeNotifier {
     _currentTag = tag;
     _errorMessage = null;
 
+    // Langues africaines : toujours via le backend (voix dédiée).
     if (backendLangs.contains(lang)) {
       await _speakBackend(cleaned, lang);
       return;
     }
+    // Mode naturel : fr/ar/en via la voix serveur (Piper), repli on-device.
+    if (natural && remoteApi != null) {
+      final ok = await _speakNatural(cleaned, lang);
+      if (ok) return;
+      // repli voix on-device (genrée) si le service voix est indisponible.
+    }
     await _speakOnDevice(cleaned, lang, gender: gender);
+  }
+
+  /// Tente la lecture via la voix serveur (WAV). Retourne false si indisponible
+  /// (l'appelant retombe alors sur la voix on-device).
+  Future<bool> _speakNatural(String text, String lang) async {
+    try {
+      _setState(TtsState.loading);
+      final bytes = await remoteApi!.tts(text, lang);
+      if (bytes == null || bytes.isEmpty) return false;
+      await _player.setAudioSource(_BytesAudioSource(bytes));
+      _setState(TtsState.speaking);
+      await _player.play(); // se termine à la fin de la lecture
+      return true;
+    } catch (e) {
+      AppLogger.debug('Voix naturelle indisponible ($lang): $e');
+      return false;
+    }
   }
 
   Future<void> _speakOnDevice(String text, String lang, {String? gender}) async {
