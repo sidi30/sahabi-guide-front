@@ -35,20 +35,8 @@ android {
         versionCode = flutter.versionCode.toInt()
         versionName = flutter.versionName
         
-        // Lire la clé Google Maps depuis local.properties
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use { localProperties.load(it) }
-        }
-        
-        // Google Maps API Key (depuis local.properties ou variable d'environnement)
-        // IMPORTANT: Ne jamais committer de clé API en dur dans le code
-        val googleMapsApiKey = localProperties.getProperty("googleMapsApiKey")
-            ?: System.getenv("GOOGLE_MAPS_API_KEY")
-            ?: throw GradleException("Google Maps API Key is required. Set 'googleMapsApiKey' in local.properties or GOOGLE_MAPS_API_KEY environment variable.")
-
-        manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
+        // Plus de clé Google Maps requise : la carte utilise flutter_map avec
+        // des tuiles vectorielles embarquées (assets/maps/*.pmtiles).
 
         // NDK ABI Filters pour optimiser la taille de l'APK
         ndk {

@@ -1,4 +1,4 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 
 enum PoiType {
   hotel,
@@ -28,6 +28,11 @@ class PoiModel {
   final String? imageUrl;
   final Map<String, dynamic>? additionalInfo;
   final String? agencyId;
+
+  /// POI de rattachement (hôtel de référence) quand ce lieu est un « à côté
+  /// de l'hôtel » attribué par l'agence : restaurant, pharmacie, mosquée.
+  final String? parentPoiId;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -42,6 +47,7 @@ class PoiModel {
     this.imageUrl,
     this.additionalInfo,
     this.agencyId,
+    this.parentPoiId,
     this.createdAt,
     this.updatedAt,
   });
@@ -57,14 +63,18 @@ class PoiModel {
     return PoiModel(
       id: json['id']?.toString() ?? '',
       name: json['name'] ?? 'POI sans nom',
-      description: metadata?['description']?.toString(),
+      // Les champs peuvent être dans metadata (API) ou à plat (relecture du
+      // cache local écrit par toJson) : accepter les deux.
+      description:
+          (metadata?['description'] ?? json['description'])?.toString(),
       type: _parsePoiType(json['type']),
       coordinates: LatLng(lat, lng),
-      address: metadata?['address']?.toString(),
-      phone: metadata?['phone']?.toString(),
-      imageUrl: metadata?['imageUrl']?.toString(),
+      address: (metadata?['address'] ?? json['address'])?.toString(),
+      phone: (metadata?['phone'] ?? json['phone'])?.toString(),
+      imageUrl: (metadata?['imageUrl'] ?? json['imageUrl'])?.toString(),
       additionalInfo: metadata,
       agencyId: json['agencyId']?.toString(),
+      parentPoiId: json['parentPoiId']?.toString(),
       createdAt: json['createdAt'] != null 
           ? DateTime.tryParse(json['createdAt']) 
           : null,
@@ -115,7 +125,9 @@ class PoiModel {
       'id': id,
       'name': name,
       'description': description,
-      'type': type.name.toUpperCase(),
+      // typeBackend et non type.name : « holySite » sérialisé en « HOLYSITE »
+      // se relisait en OTHER et faisait disparaître les sites sacrés du cache.
+      'type': typeBackend,
       'lat': coordinates.latitude,
       'lng': coordinates.longitude,
       'address': address,
@@ -123,6 +135,7 @@ class PoiModel {
       'imageUrl': imageUrl,
       'metadata': additionalInfo,
       'agencyId': agencyId,
+      'parentPoiId': parentPoiId,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

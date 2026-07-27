@@ -2,7 +2,7 @@ name: sahabi_guide
 description: Compagnon de pèlerinage intelligent pour le Hajj avec suivi GPS en temps réel, guide des rituels et système d'alertes.
 publish_to: "none"
 
-version: 1.5.0+154
+version: 1.6.0+155
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -52,8 +52,13 @@ dependencies:
   # error sur cet environnement. Lecture YouTube via launchUrl externe.
 
   # Maps & Location
-  # flutter_map remplacé par google_maps_flutter
-  google_maps_flutter: ^2.9.0
+  # Carte 100 % hors ligne : flutter_map rend des tuiles vectorielles PMTiles
+  # embarquées (assets/maps/). google_maps_flutter a été retiré — son SDK ne
+  # sait pas pré-télécharger ses tuiles, la carte restait grise sans réseau.
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  vector_map_tiles: ^8.0.0
+  vector_map_tiles_pmtiles: ^1.5.0
   geolocator: ^14.0.2
   battery_plus: ^6.0.2
 
@@ -87,6 +92,7 @@ dependencies:
   flutter_tts: ^4.2.0
 
   http: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -100,6 +106,7 @@ dev_dependencies:
   
   # Générateur de splash screen
   flutter_native_splash: ^2.4.1
+  pmtiles: ^1.3.0
 
 flutter:
   generate: true
@@ -126,6 +133,9 @@ flutter:
     - assets/video/
     - assets/favicon/
     - assets/google_fonts/
+    # Fonds de carte vectoriels hors ligne (PMTiles, OSM via Protomaps).
+    # Régénérables : scripts/build_offline_tiles.sh
+    - assets/maps/
     # - assets/audio/   # désactivé: dossier manquant
     # - assets/icons/   # désactivé: dossier manquant
 

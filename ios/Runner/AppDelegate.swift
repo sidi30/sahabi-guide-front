@@ -1,5 +1,4 @@
 import Flutter
-import GoogleMaps
 import UIKit
 
 @main
@@ -8,7 +7,8 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyBNUp3s4kAS7LRHScAUJezSRKSrTv7YnGk")
+    // Plus de SDK Google Maps : la carte est rendue par flutter_map à partir
+    // de tuiles vectorielles embarquées (voir OfflineTilesService).
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

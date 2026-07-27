@@ -50,6 +50,7 @@ import '../../features/map/data/datasources/position_remote_data_source.dart';
 import '../../features/map/data/repositories/pilgrim_position_repository_impl.dart';
 import '../../features/map/domain/repository/pilgrim_position_repository.dart';
 import '../../features/map/domain/usecases/get_latest_pilgrim_position_usecase.dart';
+import '../../features/map/data/services/offline_tiles_service.dart';
 import '../../features/map/data/services/poi_service.dart';
 
 // Tracking Feature
@@ -98,6 +99,7 @@ import '../../features/health/domain/usecases/update_health_profile_usecase.dart
 import '../../shared/services/storage_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/location_service.dart';
+import '../../shared/services/user_location_service.dart';
 import 'dart:io' show Platform;
 import 'package:audio_session/audio_session.dart';
 import '../services/audio_service.dart';
@@ -181,8 +183,16 @@ Future<void> initializeDependencies() async {
     () => LocationService(),
   );
 
+  // Fonds de carte vectoriels embarqués (PMTiles) — singleton : l'archive est
+  // ouverte une seule fois et partagée par tous les écrans carte.
+  sl.registerLazySingleton<OfflineTilesService>(() => OfflineTilesService());
+
+  sl.registerLazySingleton<UserLocationService>(
+    () => UserLocationService(sl<LocationService>(), sl<SharedPreferences>()),
+  );
+
   sl.registerLazySingleton<PrayerTimesService>(
-    () => PrayerTimesService(sl<LocationService>()),
+    () => PrayerTimesService(sl<UserLocationService>()),
   );
 
   // Auth Service
@@ -283,9 +293,14 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => GetLatestPilgrimPositionUseCase(sl()));
 
-  // POI Service
-  sl.registerLazySingleton(
-      () => PoiService(dioClient: sl(), secureStorage: sl()));
+  // POI Service — une seule instance, avec le cache : deux constructions
+  // parallèles (DI sans cache + écran avec cache) auraient donné deux
+  // comportements hors ligne différents selon le point d'entrée.
+  sl.registerLazySingleton(() => PoiService(
+        dioClient: sl(),
+        secureStorage: sl(),
+        cacheService: sl<CacheService>(),
+      ));
 
 // Position Tracking Feature
   sl.registerLazySingleton(() => PositionRepository(

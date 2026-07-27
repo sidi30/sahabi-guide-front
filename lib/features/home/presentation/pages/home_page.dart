@@ -7,10 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/location_change_coordinator.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/prayer_times_service.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../shared/presentation/widgets/skeleton_loader.dart';
+import '../../../../shared/services/user_location_service.dart';
+import '../../../../shared/widgets/location_picker_sheet.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
@@ -23,6 +26,13 @@ final prayerScheduleProvider =
   unawaited(sl<NotificationService>().schedulePrayerNotifications(schedule));
   return schedule;
 });
+
+/// Applique un changement de position (horaires + notifications), puis
+/// rafraîchit l'affichage.
+Future<void> _refreshPrayerLocation(WidgetRef ref, {bool forceGps = false}) async {
+  await LocationChangeCoordinator.apply(forceGps: forceGps);
+  ref.invalidate(prayerScheduleProvider);
+}
 
 final homeProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repository = sl<HomeRepository>();
@@ -398,6 +408,13 @@ class HomePage extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
+              TextButton(
+                onPressed: () async {
+                  final changed = await LocationPickerSheet.show(context);
+                  if (changed) await _refreshPrayerLocation(ref);
+                },
+                child: const Text('Choisir un lieu'),
+              ),
             ],
           ),
           data: (schedule) {
@@ -414,14 +431,40 @@ class HomePage extends ConsumerWidget {
                   children: [
                     Icon(Icons.schedule, color: colors.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text(
-                      'Prières d\'aujourd\'hui',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'Prières d\'aujourd\'hui',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Actualiser ma position',
+                      icon: const Icon(Icons.gps_fixed, size: 20),
+                      color: colors.primary,
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        await _refreshPrayerLocation(ref, forceGps: true);
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Position et horaires actualisés'),
+                            duration: Duration(seconds: 2),
                           ),
+                        );
+                      },
                     ),
                   ],
                 ),
+                Text(
+                  _formatFrenchDate(schedule.date),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: context.textSecondaryColor,
+                      ),
+                ),
+                const SizedBox(height: 10),
+                _buildLocationRow(context, ref, schedule),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -480,12 +523,215 @@ class HomePage extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                _buildPrayerStrip(context, ref, schedule),
               ],
             );
           },
         ),
       ),
     );
+  }
+
+  /// Ligne « d'où viennent ces horaires » : lieu, fraîcheur, fuseau du lieu.
+  /// Tapable pour changer de position (GPS ou lieu choisi).
+  Widget _buildLocationRow(
+      BuildContext context, WidgetRef ref, DailyPrayerSchedule schedule) {
+    final loc = schedule.location;
+    final approximate = schedule.isFallbackLocation;
+
+    final String label;
+    switch (loc.source) {
+      case LocationSource.manual:
+        label = loc.placeName ?? 'Lieu choisi';
+        break;
+      case LocationSource.gps:
+      case LocationSource.cachedGps:
+        label = loc.placeName ?? 'Ma position';
+        break;
+      case LocationSource.fallback:
+        label = 'La Mecque (par défaut)';
+        break;
+    }
+
+    final String hint;
+    switch (loc.source) {
+      case LocationSource.manual:
+        hint = 'Lieu choisi manuellement';
+        break;
+      case LocationSource.gps:
+        hint = 'GPS · à l\'instant';
+        break;
+      case LocationSource.cachedGps:
+        hint = 'GPS · ${_formatAge(loc.age)}';
+        break;
+      case LocationSource.fallback:
+        hint = 'Position indisponible — horaires approximatifs';
+        break;
+    }
+
+    final color = approximate ? context.warningColor : context.textSecondaryColor;
+
+    return InkWell(
+      onTap: () async {
+        final changed = await LocationPickerSheet.show(context);
+        if (changed) await _refreshPrayerLocation(ref);
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(
+              approximate ? Icons.location_off : Icons.place_outlined,
+              size: 16,
+              color: color,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      if (schedule.timeZoneDiffersFromDevice) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: context.infoColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'heure locale ${schedule.utcOffsetLabel}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: context.infoColor),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  Text(
+                    hint,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: color),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 18, color: context.textSecondaryColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Les 5 prières du jour d'un coup d'œil, la prochaine mise en évidence.
+  Widget _buildPrayerStrip(
+      BuildContext context, WidgetRef ref, DailyPrayerSchedule schedule) {
+    final colors = ref.colors;
+    final next = schedule.next;
+
+    return Row(
+      children: schedule.prayers.map((p) {
+        final isNext = next != null && p.name == next.name;
+        final isPast = p.time.isBefore(DateTime.now()) && !isNext;
+        return Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+            decoration: BoxDecoration(
+              color: isNext
+                  ? colors.primary.withValues(alpha: 0.12)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isNext
+                    ? colors.primary.withValues(alpha: 0.5)
+                    : Colors.transparent,
+              ),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  p.displayName,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isPast
+                            ? context.textSecondaryColor
+                            : context.textPrimaryColor,
+                        fontWeight:
+                            isNext ? FontWeight.bold : FontWeight.normal,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  p.formattedTime,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: isNext
+                            ? colors.primary
+                            : (isPast
+                                ? context.textSecondaryColor
+                                : context.textPrimaryColor),
+                        fontWeight:
+                            isNext ? FontWeight.bold : FontWeight.w500,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  static const List<String> _frDays = [
+    'lundi',
+    'mardi',
+    'mercredi',
+    'jeudi',
+    'vendredi',
+    'samedi',
+    'dimanche',
+  ];
+
+  static const List<String> _frMonths = [
+    'janvier',
+    'février',
+    'mars',
+    'avril',
+    'mai',
+    'juin',
+    'juillet',
+    'août',
+    'septembre',
+    'octobre',
+    'novembre',
+    'décembre',
+  ];
+
+  String _formatFrenchDate(DateTime d) =>
+      '${_frDays[d.weekday - 1]} ${d.day} ${_frMonths[d.month - 1]} ${d.year}';
+
+  String _formatAge(Duration d) {
+    if (d.inMinutes < 2) return 'à l\'instant';
+    if (d.inMinutes < 60) return 'il y a ${d.inMinutes} min';
+    if (d.inHours < 24) return 'il y a ${d.inHours} h';
+    return 'il y a ${d.inDays} j';
   }
 
   String _formatRemaining(Duration d) {

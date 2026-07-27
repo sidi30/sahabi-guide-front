@@ -97,5 +97,14 @@
 		<false/>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
+		<!-- Schemes interrogeables par url_launcher : appel d'un POI (tel:) et
+		     itinéraire ouvert dans Plans / Google Maps. -->
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>tel</string>
+			<string>https</string>
+			<string>comgooglemaps</string>
+			<string>maps</string>
+		</array>
 	</dict>
 </plist>
