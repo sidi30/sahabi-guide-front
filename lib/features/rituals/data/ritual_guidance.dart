@@ -11,6 +11,14 @@
 /// fragilité d'un `switch` sur le nom traduit. Source : consensus sunnite
 /// classique (manuels de Hajj). Contenu en français (langue par défaut de
 /// l'app) ; la lecture vocale s'appuie sur ce texte.
+///
+/// TODO(refonte-genre) cf. docs/refonte-genre-rites.md — SOURCE DE VÉRITÉ N°2 :
+/// prose française uniquement, NON filtrée par genre (elle contient des actes
+/// explicitement masculins : Idtiba'/Raml, Halq/Taqsir) et une dispense menstrues
+/// codée en dur. Elle ne sert plus qu'en repli quand le serveur ne renvoie aucune
+/// étape, et n'est jamais affichée à un profil féminin (cf.
+/// `RitualDetailSection._hidesStaticGuidance`). À SUPPRIMER une fois tous les
+/// rites migrés en schemaVersion 2 côté serveur.
 class RitualGuidance {
   final String explanation;
   final List<String> importantSteps;

@@ -1,8 +1,13 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import '../../../../core/services/notification_service.dart' show NotificationIds;
 import '../../../../shared/models/ritual_model.dart';
 
 /// 🔔 Service de rappels intelligents qui guide le pèlerin comme un vrai accompagnateur
+///
+/// Ids confinés à la plage « rappels intelligents » de [NotificationIds]
+/// (6000-6999) : les anciens ids (`hashCode % 1000000`, 999998, 999999)
+/// pouvaient tomber sur n'importe quelle autre plage.
 class SmartReminderService {
   final FlutterLocalNotificationsPlugin _notifications;
   
@@ -141,7 +146,7 @@ class SmartReminderService {
   /// 🌙 Rappel du soir - Bilan de la journée
   Future<void> scheduleDailySummary(DateTime bedtime) async {
     await _scheduleNotification(
-      id: 999999,
+      id: _dailySummaryId,
       title: '🌙 Bilan de votre journée spirituelle',
       body: 'Assalamu alaykum ! Comment s\'est passée votre journée ? '
           'Revoyons ensemble les rituels accomplis et préparons demain. '
@@ -155,7 +160,7 @@ class SmartReminderService {
   /// 🌅 Rappel du matin - Motivation
   Future<void> scheduleMorningMotivation(DateTime wakeupTime) async {
     await _scheduleNotification(
-      id: 999998,
+      id: _morningMotivationId,
       title: '🌅 Bon matin ! Nouvelle journée bénie',
       body: 'Assalamu alaykum ! Qu\'Allah vous accorde une journée pleine de bénédictions. '
           'Voici le programme des rituels d\'aujourd\'hui. '
@@ -259,9 +264,18 @@ class SmartReminderService {
   }
 
   int _getNotificationId(String ritualId, String type) {
-    // Génère un ID unique basé sur l'ID du rituel et le type
-    return '${ritualId}_$type'.hashCode.abs() % 1000000;
+    // ID déterministe (stable entre sessions, donc annulable) borné à la plage
+    // réservée à ce service.
+    return NotificationIds.stableId(
+      '${ritualId}_$type',
+      start: NotificationIds.smartReminderStart,
+      end: _dailySummaryId,
+    );
   }
+
+  /// Bilan du soir / motivation du matin : ids fixes en fin de plage.
+  static const int _dailySummaryId = NotificationIds.smartReminderEnd - 2;
+  static const int _morningMotivationId = NotificationIds.smartReminderEnd - 1;
 
   Importance _mapPriority(Priority priority) {
     switch (priority) {

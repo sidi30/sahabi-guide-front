@@ -46,7 +46,11 @@ class DuasLocalDataSourceImpl implements DuasLocalDataSource {
   Future<List<DuaModel>> getLocalDuas() async {
     try {
       final String jsonString = await rootBundle.loadString(_duasAssetPath);
-      final List<dynamic> jsonList = json.decode(jsonString);
+      final decoded = json.decode(jsonString);
+      // L'asset est un objet `{"duas": [...]}` ; on tolère aussi une liste nue
+      // (forme renvoyée par l'API et écrite par cacheDuas).
+      final List<dynamic> jsonList =
+          decoded is Map<String, dynamic> ? decoded['duas'] as List : decoded;
       return jsonList.map((json) => DuaModel.fromJson(json)).toList();
     } catch (e) {
       throw CacheException();

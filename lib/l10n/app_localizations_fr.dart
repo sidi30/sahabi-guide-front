@@ -642,6 +642,134 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rituals_details => 'Détails du rituel';
 
   @override
+  String get rituals_tab_rituals => 'Rituels';
+
+  @override
+  String get rituals_tab_duas => 'Douas';
+
+  @override
+  String get rituals_gender_male => 'Homme';
+
+  @override
+  String get rituals_gender_female => 'Femme';
+
+  @override
+  String get rituals_type_omra => '\'Omra';
+
+  @override
+  String get rituals_type_hajj => 'Hajj';
+
+  @override
+  String get rituals_empty => 'Aucun rituel trouvé';
+
+  @override
+  String get duas_empty => 'Aucune doua trouvée';
+
+  @override
+  String rituals_marked_done(String name) {
+    return '$name marqué comme accompli';
+  }
+
+  @override
+  String rituals_mark_undone(String name) {
+    return '$name : marquage annulé';
+  }
+
+  @override
+  String get duas_mark_read => 'Marquer lu';
+
+  @override
+  String get duas_mark_unread => 'Marquer non lu';
+
+  @override
+  String common_error_detail(String message) {
+    return 'Erreur : $message';
+  }
+
+  @override
+  String get ritual_detail_explanation_title => 'Explication détaillée';
+
+  @override
+  String get ritual_detail_steps_title => 'Étapes importantes';
+
+  @override
+  String get ritual_detail_howto_title => 'Comment l\'accomplir';
+
+  @override
+  String get ritual_detail_security_title => 'Sécurité';
+
+  @override
+  String get ritual_detail_tips_title => 'Conseils pratiques';
+
+  @override
+  String get ritual_detail_read_steps => 'Lire étape par étape (grand format)';
+
+  @override
+  String get ritual_detail_listen => 'Écouter l\'explication';
+
+  @override
+  String get ritual_detail_stop => 'Arrêter';
+
+  @override
+  String get ritual_detail_watch_video => 'Regarder la vidéo';
+
+  @override
+  String get ritual_detail_mark_done => 'Marquer comme accompli';
+
+  @override
+  String get ritual_detail_done => 'Rituel accompli';
+
+  @override
+  String get ritual_detail_missed => 'Rituel manqué';
+
+  @override
+  String get ritual_detail_no_video => 'Aucune vidéo disponible pour ce rituel';
+
+  @override
+  String get ritual_detail_video_open_failed => 'Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.';
+
+  @override
+  String ritual_detail_video_error(String message) {
+    return 'Erreur lors de l\'ouverture de la vidéo : $message';
+  }
+
+  @override
+  String get rituals_fallback_notice_title => 'Contenu générique non personnalisé';
+
+  @override
+  String get rituals_fallback_notice_body => 'Ces instructions ne tiennent pas compte de votre profil. Consultez votre guide.';
+
+  @override
+  String get rituals_fallback_female_body => 'Le contenu correspondant à votre profil n\'a pas pu être chargé. Pour ne pas vous induire en erreur, les instructions génériques (rédigées pour les hommes) ne sont pas affichées. Actualisez cette page ou réessayez une fois reconnectée, et consultez votre guide.';
+
+  @override
+  String get menses_title => 'Période d\'empêchement';
+
+  @override
+  String get menses_body => 'Le Tawaf et le Sa\'i sont reportés jusqu\'à la fin de vos menstrues et les grandes ablutions (Ghusl). Vous restez en état de sacralisation. Le pilier (Tawaf al-Ifadah) sera accompli ensuite, il ne se remplace pas.';
+
+  @override
+  String get menses_acts_button => 'Actes que vous pouvez accomplir';
+
+  @override
+  String get menses_acts_sheet_title => 'Vous pouvez vous rapprocher d\'Allah par :';
+
+  @override
+  String get menses_act_quran => 'Lire ou écouter le Coran (avec un gant ou une barrière si vous touchez le Livre).';
+
+  @override
+  String get menses_act_dhikr => 'Le Dhikr : Tahlîl, Takbîr, Tasbîh.';
+
+  @override
+  String get menses_act_salawat => 'Prier sur le Prophète (paix et salut sur lui).';
+
+  @override
+  String get menses_act_dua => 'Invoquer Allah pour vos besoins.';
+
+  @override
+  String get menses_acts_note => 'Les actes valent par l\'intention : vous obtenez la récompense de ce que vous aviez l\'intention d\'accomplir.';
+
+  @override
   String get videos_title => 'Vidéos';
 
   @override

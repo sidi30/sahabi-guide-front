@@ -7,13 +7,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/services/location_change_coordinator.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/prayer_times_service.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../shared/models/dua_model.dart';
 import '../../../../shared/presentation/widgets/skeleton_loader.dart';
 import '../../../../shared/services/user_location_service.dart';
 import '../../../../shared/widgets/location_picker_sheet.dart';
+import '../../../duas/data/datasources/duas_local_data_source.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
@@ -38,6 +42,45 @@ final prayerScheduleProvider =
   unawaited(sl<NotificationService>().schedulePrayerNotifications(schedule));
   return schedule;
 });
+
+/// Planifie la dua du jour (rappel matin + soir), au même endroit et de la
+/// même façon que les notifications de prière : dès que l'accueil est monté,
+/// sans bloquer l'UI. Re-planifie quand la langue change — les textes sont
+/// localisés au moment de la planification.
+///
+/// autoDispose comme [prayerScheduleProvider] : la dua tourne au jour, un
+/// provider épinglé garderait celle de la veille.
+final dailyDuaNotificationProvider =
+    FutureProvider.autoDispose<void>((ref) async {
+  ref.watch(languageProvider);
+
+  final now = DateTime.now();
+  final nextMidnight = DateTime(now.year, now.month, now.day + 1);
+  final timer = Timer(
+    nextMidnight.difference(now) + const Duration(seconds: 1),
+    ref.invalidateSelf,
+  );
+  ref.onDispose(timer.cancel);
+
+  final duas = await _localDuas();
+  await sl<NotificationService>().scheduleDailyDuaNotifications(duas);
+});
+
+/// Corpus de duas SANS réseau : cache de la dernière synchro, sinon le corpus
+/// embarqué. La rotation doit rester disponible hors ligne.
+Future<List<DuaModel>> _localDuas() async {
+  final local = sl<DuasLocalDataSource>();
+  try {
+    return await local.getCachedDuas();
+  } catch (_) {
+    try {
+      return await local.getLocalDuas();
+    } catch (e) {
+      AppLogger.error('[HomePage] corpus de duas indisponible', error: e);
+      return const [];
+    }
+  }
+}
 
 /// Applique un changement de position (horaires + notifications), puis
 /// rafraîchit l'affichage.
@@ -65,6 +108,9 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeData = ref.watch(homeProvider);
+    // Hook quotidien : planifie la dua du jour. Aucun rendu associé, on se
+    // contente de maintenir le provider vivant tant que l'accueil est monté.
+    ref.watch(dailyDuaNotificationProvider);
 
     return Scaffold(
       body: homeData.when(

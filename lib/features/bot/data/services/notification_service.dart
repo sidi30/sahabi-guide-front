@@ -3,10 +3,17 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:logger/logger.dart';
 import 'package:sahabi_guide/core/localization/notification_l10n.dart';
+import 'package:sahabi_guide/core/services/notification_service.dart'
+    show NotificationIds;
 import 'context_service.dart';
 
 /// Service de notifications locales pour le bot Hajj
 /// Gère les rappels basés sur GPS, heure, et contexte rituel
+///
+/// Tous les ids viennent de la plage bot de [NotificationIds] (5000-5999) :
+/// les ids fixes utilisés auparavant (1001-1003, 2001, 3001-3002, 4001)
+/// tombaient dans les plages rituels et prières, et se marchaient dessus entre
+/// eux (Arafat 1001 vs hydratation 1001).
 class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications;
   final ContextService contextService;
@@ -236,13 +243,26 @@ class NotificationService {
     }
   }
 
+  /// Ids fixes des rappels contextuels, tous dans la plage bot.
+  static const int _idArafatSunset = NotificationIds.botStart; // 5000
+  static const int _idArafatHydration = NotificationIds.botStart + 1; // 5001..
+  static const int _idMuzdalifahStones = NotificationIds.botStart + 10;
+  static const int _idMuzdalifahFajr = NotificationIds.botStart + 11;
+  static const int _idMinaRamy = NotificationIds.botStart + 20;
+  static const int _idMinaNight = NotificationIds.botStart + 21;
+  static const int _idMasjidTawaf = NotificationIds.botStart + 30;
+  static const int _idRitualReminderStart = NotificationIds.botStart + 100;
+  static const int _idRitualReminderEnd = NotificationIds.botStart + 600;
+  static const int _idUrgentStart = NotificationIds.botStart + 600;
+  static const int _idUrgentEnd = NotificationIds.botEnd;
+
   /// Notifications pour Arafat
   Future<void> _scheduleArafatNotifications(DateTime now) async {
     // Rappel 1 heure avant le coucher du soleil (approximatif: 18h)
     final sunsetReminder = DateTime(now.year, now.month, now.day, 17, 0);
     if (sunsetReminder.isAfter(now)) {
       await scheduleNotification(
-        id: 1001,
+        id: _idArafatSunset,
         title: '⚠️ IMPORTANT : Arafat',
         body: 'Le coucher du soleil approche dans 1h. Restez à Arafat et multipliez les invocations !',
         scheduledTime: sunsetReminder,
@@ -254,7 +274,7 @@ class NotificationService {
     for (int i = 1; i <= 3; i++) {
       final hydrationTime = now.add(Duration(hours: i * 2));
       await scheduleNotification(
-        id: 1000 + i,
+        id: _idArafatHydration + i - 1,
         title: '💧 Hydratation',
         body: 'N\'oubliez pas de boire de l\'eau régulièrement sous cette chaleur.',
         scheduledTime: hydrationTime,
@@ -268,7 +288,7 @@ class NotificationService {
     // Rappel collecte de cailloux
     final stonesReminder = now.add(const Duration(minutes: 30));
     await scheduleNotification(
-      id: 2001,
+      id: _idMuzdalifahStones,
       title: '🪨 Muzdalifah : Collecte de cailloux',
       body: 'N\'oubliez pas de collecter 49 cailloux (taille pois chiche) pour le Ramy.',
       scheduledTime: stonesReminder,
@@ -279,7 +299,7 @@ class NotificationService {
     final fajrTime = DateTime(now.year, now.month, now.day + 1, 5, 30);
     if (fajrTime.isAfter(now)) {
       await scheduleNotification(
-        id: 2002,
+        id: _idMuzdalifahFajr,
         title: '🌅 Prière du Fajr',
         body: 'Il est l\'heure de la prière du Fajr. Après la prière, vous pourrez partir vers Mina.',
         scheduledTime: fajrTime,
@@ -294,7 +314,7 @@ class NotificationService {
     final dhuhrTime = DateTime(now.year, now.month, now.day, 13, 0);
     if (dhuhrTime.isAfter(now)) {
       await scheduleNotification(
-        id: 3001,
+        id: _idMinaRamy,
         title: '🎯 Mina : Lapidation',
         body: 'C\'est l\'heure de lapider les Jamarat. Commencez après la prière du Dhuhr.',
         scheduledTime: dhuhrTime,
@@ -306,7 +326,7 @@ class NotificationService {
     final nightReminder = DateTime(now.year, now.month, now.day, 20, 0);
     if (nightReminder.isAfter(now)) {
       await scheduleNotification(
-        id: 3002,
+        id: _idMinaNight,
         title: '⛺ Mina : Nuit',
         body: 'N\'oubliez pas : vous devez passer la nuit à Mina pendant les jours de Tashriq.',
         scheduledTime: nightReminder,
@@ -320,7 +340,7 @@ class NotificationService {
     // Rappel Tawaf
     final tawafReminder = now.add(const Duration(hours: 1));
     await scheduleNotification(
-      id: 4001,
+      id: _idMasjidTawaf,
       title: '🕋 Masjid al-Haram',
       body: 'Profitez de votre présence dans le lieu le plus sacré pour accomplir le Tawaf.',
       scheduledTime: tawafReminder,
@@ -343,7 +363,14 @@ class NotificationService {
       final l10n = await NotificationL10n.load();
       final scheduledTime = DateTime.now().add(Duration(minutes: delayMinutes));
       await scheduleNotification(
-        id: DateTime.now().millisecondsSinceEpoch % 100000,
+        // Id dérivé de l'étape : re-planifier le même rappel le remplace au
+        // lieu d'en empiler un par appel (l'horodatage donnait un id neuf à
+        // chaque fois, hors de toute plage).
+        id: NotificationIds.stableId(
+          'bot_ritual:$stepName',
+          start: _idRitualReminderStart,
+          end: _idRitualReminderEnd,
+        ),
         title: '🕋 ${l10n.notif_ritual_step_reminder_title(stepName)}',
         body: message,
         scheduledTime: scheduledTime,
@@ -362,18 +389,30 @@ class NotificationService {
     String? stepId,
   }) async {
     await showNotification(
-      id: DateTime.now().millisecondsSinceEpoch % 100000,
+      id: NotificationIds.stableId(
+        'bot_urgent:${stepId ?? title}',
+        start: _idUrgentStart,
+        end: _idUrgentEnd,
+      ),
       title: title,
       body: message,
       payload: stepId,
     );
   }
 
-  /// Annule toutes les notifications
+  /// Annule les notifications DU BOT (plage 5000-5999). Un `cancelAll()`
+  /// emportait aussi les prières, la dua du jour et les rappels de rituels,
+  /// que ce service ne re-planifie jamais.
   Future<void> cancelAllNotifications() async {
     try {
-      await _notifications.cancelAll();
-      logger.d('All notifications cancelled');
+      final pending = await _notifications.pendingNotificationRequests();
+      for (final request in pending) {
+        if (request.id >= NotificationIds.botStart &&
+            request.id < NotificationIds.botEnd) {
+          await _notifications.cancel(request.id);
+        }
+      }
+      logger.d('Bot notifications cancelled');
     } catch (e) {
       logger.e('Error cancelling notifications: $e');
     }

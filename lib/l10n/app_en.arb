@@ -338,7 +338,72 @@
   "rituals_pending": "Pending",
   "rituals_mark_complete": "Mark as complete",
   "rituals_details": "Ritual details",
-  
+  "rituals_tab_rituals": "Rituals",
+  "rituals_tab_duas": "Duas",
+  "rituals_gender_male": "Male",
+  "rituals_gender_female": "Female",
+  "rituals_type_omra": "'Umrah",
+  "rituals_type_hajj": "Hajj",
+  "rituals_empty": "No ritual found",
+  "duas_empty": "No dua found",
+  "rituals_marked_done": "{name} marked as completed",
+  "@rituals_marked_done": {
+    "description": "Snackbar shown when a ritual is ticked off",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "rituals_mark_undone": "{name}: marking cancelled",
+  "@rituals_mark_undone": {
+    "description": "Snackbar shown when a ritual is un-ticked",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "duas_mark_read": "Mark as read",
+  "duas_mark_unread": "Mark as unread",
+  "common_error_detail": "Error: {message}",
+  "@common_error_detail": {
+    "description": "Error text followed by the technical message",
+    "placeholders": { "message": { "type": "String" } }
+  },
+
+  "ritual_detail_explanation_title": "Detailed explanation",
+  "ritual_detail_steps_title": "Key steps",
+  "ritual_detail_howto_title": "How to perform it",
+  "ritual_detail_security_title": "Safety",
+  "ritual_detail_tips_title": "Practical tips",
+  "ritual_detail_read_steps": "Read step by step (large format)",
+  "ritual_detail_listen": "Listen to the explanation",
+  "ritual_detail_stop": "Stop",
+  "ritual_detail_watch_video": "Watch the video",
+  "ritual_detail_mark_done": "Mark as completed",
+  "ritual_detail_done": "Ritual completed",
+  "ritual_detail_missed": "Ritual missed",
+  "ritual_detail_no_video": "No video available for this ritual",
+  "ritual_detail_video_open_failed": "Could not open the video. Check that YouTube is installed.",
+  "ritual_detail_video_error": "Error while opening the video: {message}",
+  "@ritual_detail_video_error": {
+    "description": "Snackbar shown when launching the ritual video throws",
+    "placeholders": { "message": { "type": "String" } }
+  },
+
+  "rituals_fallback_notice_title": "Generic content, not personalised",
+  "@rituals_fallback_notice_title": {
+    "description": "Warning banner shown when the server did not provide profile-aware ritual steps"
+  },
+  "rituals_fallback_notice_body": "These instructions do not take your profile into account. Check with your guide.",
+  "rituals_fallback_female_body": "The content matching your profile could not be loaded. To avoid misleading you, the generic instructions (written for men) are not shown. Refresh this page or try again once you are back online, and check with your guide.",
+
+  "menses_title": "Period of exemption",
+  "@menses_title": {
+    "description": "Title of the guidance banner shown to a female pilgrim during menstruation"
+  },
+  "menses_body": "Tawaf and Sa'i are postponed until your period ends and you have performed the major ablution (Ghusl). You remain in the state of Ihram. The pillar (Tawaf al-Ifadah) is performed afterwards; it cannot be replaced.",
+  "menses_acts_button": "Acts you can perform",
+  "menses_acts_sheet_title": "You can draw closer to Allah through:",
+  "menses_act_quran": "Reading or listening to the Quran (with a glove or a barrier if you touch the Book).",
+  "menses_act_dhikr": "Dhikr: Tahlil, Takbir, Tasbih.",
+  "menses_act_salawat": "Sending blessings upon the Prophet (peace and blessings be upon him).",
+  "menses_act_dua": "Calling upon Allah for your needs.",
+  "menses_acts_note": "Deeds are judged by intention: you receive the reward of what you intended to perform.",
+
   "videos_title": "Videos",
   "videos_educational": "Educational",
   "videos_tutorials": "Tutorials",

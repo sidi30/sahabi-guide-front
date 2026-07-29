@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/tts_service.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../data/ritual_guidance.dart';
 import '../../data/rite_images.dart';
@@ -37,6 +38,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   final TtsService _tts = sl<TtsService>();
 
   /// Guide détaillé PROPRE à ce rituel (4 axes), sinon null.
+  ///
+  /// TODO(refonte-genre) cf. docs/refonte-genre-rites.md : `ritual_guidance.dart`
+  /// est la source de vérité n°2 (prose française mixte, codée en dur). Elle doit
+  /// être SUPPRIMÉE une fois tous les rites migrés en schemaVersion 2 côté serveur.
   RitualGuidance? get _guidance =>
       guidanceFor(widget.ritual.id, widget.ritual.name);
 
@@ -68,10 +73,17 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   /// Remplace les anciens mp3 `assets/audio/...` absents du bundle.
   Future<void> _playExplanation() async {
     final guidance = _guidance;
-    final text = (guidance != null && !_isServerGendered)
+    // La guidance statique n'est jamais lue à une pèlerine (prose masculine).
+    final body = (guidance != null && !_isServerGendered && !_hidesStaticGuidance)
         ? guidance.toSpeech(widget.ritual.name)
         : '${widget.ritual.name}. ${_getDetailedExplanation()}. '
             '${_getImportantSteps().join('. ')}';
+    // Le mode dégradé est ANNONCÉ à voix haute : sinon l'auditrice/l'auditeur
+    // prendrait un contenu générique pour son contenu personnalisé.
+    final l10n = AppLocalizations.of(context)!;
+    final text = _isDegradedFallback
+        ? '${l10n.rituals_fallback_notice_title}. ${_fallbackNoticeBody(l10n)} $body'
+        : body;
     await _tts.speak(text,
         lang: widget.audioLanguage, tag: widget.ritual.id, gender: widget.gender);
   }
@@ -82,9 +94,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
   Future<void> _watchVideo() async {
     final videoUrl = widget.ritual.getVideoUrl(widget.audioLanguage);
+    final l10n = AppLocalizations.of(context)!;
 
     if (videoUrl == null || videoUrl.isEmpty) {
-      _showMessage('Aucune vidéo disponible pour ce rituel');
+      _showMessage(l10n.ritual_detail_no_video);
       return;
     }
 
@@ -110,11 +123,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         widget.onWatchVideo?.call();
       } else {
-        _showMessage(
-            'Impossible d\'ouvrir la vidéo. Vérifiez que YouTube est installé.');
+        _showMessage(l10n.ritual_detail_video_open_failed);
       }
     } catch (e) {
-      _showMessage('Erreur lors de l\'ouverture de la vidéo: $e');
+      _showMessage(l10n.ritual_detail_video_error(e.toString()));
     }
   }
 
@@ -223,9 +235,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Explication détaillée',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.ritual_detail_explanation_title,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1D3557),
@@ -257,20 +269,26 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     final howTo = _getHowTo();
     final security = _getSecurity();
     final info = _getPracticalInfo();
+    final explanation = _getDetailedExplanation();
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Repli sur du contenu non personnalisé : le signaler AVANT le contenu.
+        if (_isDegradedFallback) _buildFallbackNotice(),
+
         // Description principale
-        Text(
-          _getDetailedExplanation(),
-          style: const TextStyle(
-            fontSize: 15,
-            color: Color(0xFF374151),
-            height: 1.6,
-            fontWeight: FontWeight.w500,
+        if (explanation.isNotEmpty)
+          Text(
+            explanation,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Color(0xFF374151),
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
         const SizedBox(height: 20),
 
         // Bouton « livre » : ouvre chaque étape en grand (lecture confortable).
@@ -279,21 +297,22 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
         // Étapes importantes (ce qui est important à faire).
         // Tap sur une étape -> l'ouvre en grand dans le lecteur.
-        _buildListBlock(
-          title: 'Étapes importantes',
-          icon: Icons.list_alt,
-          color: const Color(0xFF4FC3F7),
-          background: const Color(0xFFF0F9FF),
-          items: steps,
-          numbered: true,
-          onItemTap: _openReader,
-        ),
+        if (steps.isNotEmpty)
+          _buildListBlock(
+            title: l10n.ritual_detail_steps_title,
+            icon: Icons.list_alt,
+            color: const Color(0xFF4FC3F7),
+            background: const Color(0xFFF0F9FF),
+            items: steps,
+            numbered: true,
+            onItemTap: _openReader,
+          ),
 
         // Comment l'accomplir (possibilités / variantes)
         if (howTo.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildListBlock(
-            title: 'Comment l\'accomplir',
+            title: l10n.ritual_detail_howto_title,
             icon: Icons.checklist_rtl,
             color: const Color(0xFF10B981),
             background: const Color(0xFFECFDF5),
@@ -306,7 +325,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         if (security.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildListBlock(
-            title: 'Sécurité',
+            title: l10n.ritual_detail_security_title,
             icon: Icons.health_and_safety_outlined,
             color: const Color(0xFFEF4444),
             background: const Color(0xFFFEF2F2),
@@ -331,9 +350,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
       child: ElevatedButton.icon(
         onPressed: () => _openReader(0),
         icon: const Icon(Icons.menu_book, size: 22),
-        label: const Text(
-          'Lire étape par étape (grand format)',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        label: Text(
+          AppLocalizations.of(context)!.ritual_detail_read_steps,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF1D3557),
@@ -467,13 +486,14 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.lightbulb_outline, color: Color(0xFFF59E0B), size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.lightbulb_outline,
+                  color: Color(0xFFF59E0B), size: 20),
+              const SizedBox(width: 8),
               Text(
-                'Conseils pratiques',
-                style: TextStyle(
+                AppLocalizations.of(context)!.ritual_detail_tips_title,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1D3557),
@@ -525,6 +545,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
 
   Widget _buildMediaButtons() {
     final isLoading = _tts.state == TtsState.loading && _isSpeaking;
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         // Bouton Audio (synthèse vocale de l'explication)
@@ -533,7 +554,9 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
             icon: isLoading
                 ? Icons.hourglass_top
                 : (_isSpeaking ? Icons.stop : Icons.play_arrow),
-            label: _isSpeaking ? 'Arrêter' : 'Écouter l\'explication',
+            label: _isSpeaking
+                ? l10n.ritual_detail_stop
+                : l10n.ritual_detail_listen,
             color: const Color(0xFF4FC3F7),
             onPressed: _isSpeaking ? _pauseExplanation : _playExplanation,
             isEnabled: true,
@@ -545,7 +568,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         Expanded(
           child: _buildMediaButton(
             icon: Icons.play_circle_outline,
-            label: 'Regarder la vidéo',
+            label: l10n.ritual_detail_watch_video,
             color: const Color(0xFF8B5CF6),
             onPressed: _watchVideo,
             isEnabled: widget.ritual.getVideoUrl(widget.audioLanguage) != null,
@@ -663,6 +686,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   Widget _buildMarkAsCompletedButton() {
     final isCompleted = widget.ritual.status == RitualStatus.completed;
     final isOverdue = widget.ritual.status == RitualStatus.overdue;
+    final l10n = AppLocalizations.of(context)!;
 
     return SizedBox(
       width: double.infinity,
@@ -674,10 +698,10 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
         ),
         label: Text(
           isCompleted
-              ? '✅ Rituel accompli'
+              ? '✅ ${l10n.ritual_detail_done}'
               : isOverdue
-                  ? '❌ Rituel manqué'
-                  : 'Marquer comme accompli',
+                  ? '❌ ${l10n.ritual_detail_missed}'
+                  : l10n.ritual_detail_mark_done,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -718,9 +742,79 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   /// effet visible.
   bool get _isServerGendered => widget.ritual.steps.isNotEmpty;
 
+  /// Profil courant féminin (bascule Homme/Femme de la page rites).
+  bool get _isFemale => widget.gender?.toUpperCase() == 'FEMALE';
+
+  /// Aucune étape serveur : on retombe sur la guidance statique (ou sur le repli
+  /// générique). Arrive quand le rite n'est pas encore migré en schemaVersion 2,
+  /// que le JSON est illisible côté serveur, hors-ligne sans cache, ou sur erreur
+  /// API. Le contenu affiché n'est alors ni personnalisé ni traduit : on le DIT.
+  bool get _isDegradedFallback => !_isServerGendered;
+
+  /// La guidance statique est une prose mixte contenant des actes explicitement
+  /// masculins (Idtiba', Raml, Halq/Taqsir) : on ne la sert jamais à une pèlerine.
+  /// Un bandeau seul vaut mieux qu'un contenu faux.
+  bool get _hidesStaticGuidance => _isDegradedFallback && _isFemale;
+
+  String _fallbackNoticeBody(AppLocalizations l10n) => _hidesStaticGuidance
+      ? l10n.rituals_fallback_female_body
+      : l10n.rituals_fallback_notice_body;
+
+  /// Bandeau de mode dégradé : rend le repli VISIBLE au lieu de le taire.
+  Widget _buildFallbackNotice() {
+    final l10n = AppLocalizations.of(context)!;
+    const amber = Color(0xFFB45309);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: amber.withValues(alpha: 0.4), width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: amber, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.rituals_fallback_notice_title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: amber,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _fallbackNoticeBody(l10n),
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    height: 1.45,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _getDetailedExplanation() {
     if (_isServerGendered && widget.ritual.description.isNotEmpty) {
       return widget.ritual.description;
+    }
+    if (_hidesStaticGuidance) {
+      // Seul du contenu serveur (neutre) est admis ici, jamais la prose statique.
+      if (widget.ritual.description.isNotEmpty) return widget.ritual.description;
+      return '';
     }
     final g = _guidance;
     if (g != null) return g.explanation;
@@ -731,6 +825,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   List<String> _getImportantSteps() {
     // Priorité au contenu gendré du serveur.
     if (_isServerGendered) return widget.ritual.steps;
+    if (_hidesStaticGuidance) return const [];
     final g = _guidance;
     if (g != null) return g.importantSteps;
     return [
@@ -744,11 +839,14 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
   List<String> _getHowTo() {
     // Pour un rite gendré, on n'affiche pas le "comment" statique mixte
     // (il contiendrait des actes de l'autre genre).
-    if (_isServerGendered) return const [];
+    if (_isServerGendered || _hidesStaticGuidance) return const [];
     return _guidance?.howTo ?? const [];
   }
 
   List<String> _getSecurity() {
+    // La section « Sécurité » statique porte aussi des consignes genrées
+    // (« (homme) », « Femmes : … ») : hors sujet pour un profil féminin en repli.
+    if (_hidesStaticGuidance) return const [];
     return _guidance?.security ?? const [];
   }
 
@@ -756,6 +854,7 @@ class _RitualDetailSectionState extends State<RitualDetailSection> {
     if (_isServerGendered && widget.ritual.practicalTips.isNotEmpty) {
       return widget.ritual.practicalTips;
     }
+    if (_hidesStaticGuidance) return widget.ritual.practicalTips;
     final g = _guidance;
     if (g != null) return g.practicalTips;
     if (widget.ritual.practicalTips.isNotEmpty) {

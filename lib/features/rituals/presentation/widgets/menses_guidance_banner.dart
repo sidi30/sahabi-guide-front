@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../settings/presentation/providers/settings_provider.dart';
 
 /// Bannière de guidage en période de menstrues/lochies (profil féminin uniquement).
@@ -16,6 +17,7 @@ class MensesGuidanceBanner extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final color = ref.colors.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -34,18 +36,16 @@ class MensesGuidanceBanner extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Période d\'empêchement',
+                  l10n.menses_title,
                   style: TextStyle(fontWeight: FontWeight.w700, color: color),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Le Tawaf et le Sa\'i sont reportés jusqu\'à la fin de vos menstrues et '
-            'les grandes ablutions (Ghusl). Vous restez en état de sacralisation. '
-            'Le pilier (Tawaf al-Ifadah) sera accompli ensuite, il ne se remplace pas.',
-            style: TextStyle(fontSize: 13.5, height: 1.4),
+          Text(
+            l10n.menses_body,
+            style: const TextStyle(fontSize: 13.5, height: 1.4),
           ),
           const SizedBox(height: 10),
           Row(
@@ -57,7 +57,7 @@ class MensesGuidanceBanner extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
                 icon: const Icon(Icons.menu_book_outlined, size: 18),
-                label: const Text('Actes que vous pouvez accomplir'),
+                label: Text(l10n.menses_acts_button),
               ),
             ],
           ),
@@ -72,11 +72,12 @@ class MensesGuidanceBanner extends ConsumerWidget {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (context) {
-        const acts = [
-          'Lire ou écouter le Coran (avec un gant ou une barrière si vous touchez le Livre).',
-          'Le Dhikr : Tahlîl, Takbîr, Tasbîh.',
-          'Prier sur le Prophète (paix et salut sur lui).',
-          'Invoquer Allah pour vos besoins.',
+        final l10n = AppLocalizations.of(context)!;
+        final acts = [
+          l10n.menses_act_quran,
+          l10n.menses_act_dhikr,
+          l10n.menses_act_salawat,
+          l10n.menses_act_dua,
         ];
         return SafeArea(
           child: Padding(
@@ -86,7 +87,7 @@ class MensesGuidanceBanner extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Vous pouvez vous rapprocher d\'Allah par :',
+                  l10n.menses_acts_sheet_title,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -106,10 +107,9 @@ class MensesGuidanceBanner extends ConsumerWidget {
                       ),
                     )),
                 const SizedBox(height: 4),
-                const Text(
-                  'Les actes valent par l\'intention : vous obtenez la récompense de '
-                  'ce que vous aviez l\'intention d\'accomplir.',
-                  style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                Text(
+                  l10n.menses_acts_note,
+                  style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
                 ),
               ],
             ),

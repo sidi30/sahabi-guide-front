@@ -4,6 +4,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/models/ritual_model.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../core/localization/notification_l10n.dart';
+import '../../../../core/services/notification_service.dart' show NotificationIds;
 import '../../../../core/utils/app_logger.dart';
 
 String _normalizeLanguage(String? code) {
@@ -108,17 +111,22 @@ class RitualService extends ChangeNotifier {
     }
   }
 
+  // TODO(consolidation) : ce planificateur double celui de
+  // `core/services/notification_service.dart` (canaux et textes distincts pour
+  // le même besoin). Tant que la fusion n'est pas faite, il DOIT rester dans la
+  // plage d'ids « rituels » de [NotificationIds] et ne jamais annuler au-delà.
   Future<void> _scheduleNextRitualNotification(RitualModel ritual) async {
     try {
-      // Planifier une notification 1h avant le prochain rituel
+      // Planifier une notification 1h après pour enchaîner sur le rituel suivant
       final now = DateTime.now();
       final notificationTime = now.add(const Duration(hours: 1));
 
       if (notificationTime.isAfter(now)) {
+        final l10n = await NotificationL10n.load();
         await _notifications.zonedSchedule(
-          ritual.order,
-          'Rappel Rituel',
-          'Préparez-vous pour: ${ritual.name}',
+          NotificationIds.ritualReminder(ritual.order),
+          l10n.notif_ritual_reminder_title,
+          l10n.notif_ritual_start_body(ritual.name),
           tz.TZDateTime.from(notificationTime, tz.local),
           const NotificationDetails(
             android: AndroidNotificationDetails(
@@ -141,25 +149,44 @@ class RitualService extends ChangeNotifier {
   }
 
   Future<void> scheduleRitualNotifications(List<RitualModel> rituals) async {
-    await _notifications.cancelAll();
+    // N'annule QUE les rappels de rituels : un `cancelAll()` effaçait aussi les
+    // prières quotidiennes et la dua du jour, jamais re-planifiées ici.
+    await _cancelRitualRange();
 
+    final l10n = await NotificationL10n.load();
     for (final ritual in rituals) {
       if (ritual.scheduledTime != null &&
           ritual.status != RitualStatus.completed) {
-        await _scheduleRitualNotification(ritual);
+        await _scheduleRitualNotification(ritual, l10n);
       }
     }
   }
 
-  Future<void> _scheduleRitualNotification(RitualModel ritual) async {
+  Future<void> _cancelRitualRange() async {
+    try {
+      final pending = await _notifications.pendingNotificationRequests();
+      for (final request in pending) {
+        if (request.id >= NotificationIds.ritualMainStart &&
+            request.id < NotificationIds.ritualOverdueEnd) {
+          await _notifications.cancel(request.id);
+        }
+      }
+    } catch (e) {
+      AppLogger.error('Erreur lors de l\'annulation des rappels de rituels',
+          error: e);
+    }
+  }
+
+  Future<void> _scheduleRitualNotification(
+      RitualModel ritual, AppLocalizations l10n) async {
     try {
       final scheduledTime =
           ritual.scheduledTime!.subtract(const Duration(hours: 1));
       if (scheduledTime.isAfter(DateTime.now())) {
         await _notifications.zonedSchedule(
-          ritual.order,
-          'Rappel Rituel: ${ritual.name}',
-          'Préparez-vous pour ${ritual.name} dans 1 heure.',
+          NotificationIds.ritualMain(ritual.order),
+          l10n.notif_ritual_reminder_title,
+          l10n.notif_ritual_start_body(ritual.name),
           tz.TZDateTime.from(scheduledTime, tz.local),
           const NotificationDetails(
             android: AndroidNotificationDetails(

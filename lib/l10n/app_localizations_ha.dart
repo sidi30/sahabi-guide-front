@@ -642,6 +642,134 @@ class AppLocalizationsHa extends AppLocalizations {
   String get rituals_details => 'Bayanin aiki';
 
   @override
+  String get rituals_tab_rituals => 'Ayyukan Hajji';
+
+  @override
+  String get rituals_tab_duas => 'Addu\'o\'i';
+
+  @override
+  String get rituals_gender_male => 'Namiji';
+
+  @override
+  String get rituals_gender_female => 'Mace';
+
+  @override
+  String get rituals_type_omra => 'Umra';
+
+  @override
+  String get rituals_type_hajj => 'Hajji';
+
+  @override
+  String get rituals_empty => 'Ba a sami wani aiki ba';
+
+  @override
+  String get duas_empty => 'Ba a sami addu\'a ba';
+
+  @override
+  String rituals_marked_done(String name) {
+    return 'An yi wa $name alama an kammala';
+  }
+
+  @override
+  String rituals_mark_undone(String name) {
+    return '$name: an soke alamar';
+  }
+
+  @override
+  String get duas_mark_read => 'Yi alama an karanta';
+
+  @override
+  String get duas_mark_unread => 'Yi alama ba a karanta ba';
+
+  @override
+  String common_error_detail(String message) {
+    return 'Kuskure: $message';
+  }
+
+  @override
+  String get ritual_detail_explanation_title => 'Cikakken bayani';
+
+  @override
+  String get ritual_detail_steps_title => 'Muhimman matakai';
+
+  @override
+  String get ritual_detail_howto_title => 'Yadda ake yin sa';
+
+  @override
+  String get ritual_detail_security_title => 'Tsaro';
+
+  @override
+  String get ritual_detail_tips_title => 'Shawarwari masu amfani';
+
+  @override
+  String get ritual_detail_read_steps => 'Karanta mataki-mataki (babban rubutu)';
+
+  @override
+  String get ritual_detail_listen => 'Saurari bayanin';
+
+  @override
+  String get ritual_detail_stop => 'Tsaya';
+
+  @override
+  String get ritual_detail_watch_video => 'Kalli bidiyo';
+
+  @override
+  String get ritual_detail_mark_done => 'Yi alama an kammala';
+
+  @override
+  String get ritual_detail_done => 'An kammala aikin';
+
+  @override
+  String get ritual_detail_missed => 'An rasa aikin';
+
+  @override
+  String get ritual_detail_no_video => 'Babu bidiyo don wannan aikin';
+
+  @override
+  String get ritual_detail_video_open_failed => 'Ba a iya buɗe bidiyo ba. Ka tabbatar an sanya YouTube.';
+
+  @override
+  String ritual_detail_video_error(String message) {
+    return 'Kuskure yayin buɗe bidiyo: $message';
+  }
+
+  @override
+  String get rituals_fallback_notice_title => 'Bayani na gama-gari, ba a keɓance shi ba';
+
+  @override
+  String get rituals_fallback_notice_body => 'Waɗannan umarnin ba su yi la\'akari da bayananka ba. Ka tuntuɓi jagoranka.';
+
+  @override
+  String get rituals_fallback_female_body => 'Ba a iya loda bayanin da ya dace da bayananki ba. Domin kada a ruɗe ki, ba a nuna umarnin gama-gari (waɗanda aka rubuta wa maza) ba. Ki sabunta wannan shafin ko ki sake gwadawa idan kin sami intanet, kuma ki tuntuɓi jagorarki.';
+
+  @override
+  String get menses_title => 'Période d\'empêchement';
+
+  @override
+  String get menses_body => 'Le Tawaf et le Sa\'i sont reportés jusqu\'à la fin de vos menstrues et les grandes ablutions (Ghusl). Vous restez en état de sacralisation. Le pilier (Tawaf al-Ifadah) sera accompli ensuite, il ne se remplace pas.';
+
+  @override
+  String get menses_acts_button => 'Actes que vous pouvez accomplir';
+
+  @override
+  String get menses_acts_sheet_title => 'Vous pouvez vous rapprocher d\'Allah par :';
+
+  @override
+  String get menses_act_quran => 'Lire ou écouter le Coran (avec un gant ou une barrière si vous touchez le Livre).';
+
+  @override
+  String get menses_act_dhikr => 'Le Dhikr : Tahlîl, Takbîr, Tasbîh.';
+
+  @override
+  String get menses_act_salawat => 'Prier sur le Prophète (paix et salut sur lui).';
+
+  @override
+  String get menses_act_dua => 'Invoquer Allah pour vos besoins.';
+
+  @override
+  String get menses_acts_note => 'Les actes valent par l\'intention : vous obtenez la récompense de ce que vous aviez l\'intention d\'accomplir.';
+
+  @override
   String get videos_title => 'Bidiyo';
 
   @override

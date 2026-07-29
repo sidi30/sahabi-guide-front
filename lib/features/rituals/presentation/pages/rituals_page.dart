@@ -7,6 +7,7 @@ import '../../data/datasources/rituals_remote_data_source.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
 import '../../../duas/domain/repositories/duas_repository.dart';
@@ -114,9 +115,11 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
   @override
   Widget build(BuildContext context) {
     final colors = ref.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.showDuasOnly ? 'Douas' : 'Rituels'),
+        title: Text(
+            widget.showDuasOnly ? l10n.rituals_tab_duas : l10n.rituals_tab_rituals),
         backgroundColor: colors.primary,
         foregroundColor: colors.textOnPrimary,
         bottom: widget.showDuasOnly
@@ -127,9 +130,11 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                 unselectedLabelColor: colors.textOnPrimary.withValues(alpha: 0.7),
                 indicatorColor: colors.textOnPrimary,
                 indicatorWeight: 3,
-                tabs: const [
-                  Tab(text: 'Rituels', icon: Icon(Icons.schedule)),
-                  Tab(text: 'Douas', icon: Icon(Icons.book)),
+                tabs: [
+                  Tab(
+                      text: l10n.rituals_tab_rituals,
+                      icon: const Icon(Icons.schedule)),
+                  Tab(text: l10n.rituals_tab_duas, icon: const Icon(Icons.book)),
                 ],
               ),
       ),
@@ -147,6 +152,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
   Widget _buildRitualsTab() {
     final ritualsAsync = ref.watch(ritualsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -155,7 +161,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
         const MensesGuidanceBanner(),
         Expanded(
           child: ritualsAsync.when(
-            data: (rituals) => _buildTimelineView(rituals, 'Aucun rituel trouvé'),
+            data: (rituals) => _buildTimelineView(rituals, l10n.rituals_empty),
             loading: () => const SkeletonList(),
             error: (error, stack) => _buildErrorWidget(error),
           ),
@@ -169,6 +175,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
   Widget _buildGenderToggle() {
     final selected = ref.watch(settingsProvider).gender; // MALE/FEMALE/...
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     Widget seg(String label, String value, IconData icon) {
       final isSel = selected == value;
@@ -215,9 +222,9 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       ),
       child: Row(
         children: [
-          seg('Homme', 'MALE', Icons.man),
+          seg(l10n.rituals_gender_male, 'MALE', Icons.man),
           const SizedBox(width: 4),
-          seg('Femme', 'FEMALE', Icons.woman),
+          seg(l10n.rituals_gender_female, 'FEMALE', Icons.woman),
         ],
       ),
     );
@@ -228,6 +235,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
   Widget _buildPilgrimageToggle() {
     final selected = ref.watch(settingsProvider).pilgrimageType; // 'hajj'/'omra'/null
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     Widget seg(String label, String value, IconData icon) {
       final isSel = selected == value;
@@ -275,9 +283,9 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       ),
       child: Row(
         children: [
-          seg("'Omra", 'omra', Icons.brightness_5_outlined),
+          seg(l10n.rituals_type_omra, 'omra', Icons.brightness_5_outlined),
           const SizedBox(width: 4),
-          seg('Hajj', 'hajj', Icons.brightness_7_outlined),
+          seg(l10n.rituals_type_hajj, 'hajj', Icons.brightness_7_outlined),
         ],
       ),
     );
@@ -285,9 +293,10 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
 
   Widget _buildDuasTab() {
     final duasAsync = ref.watch(duasProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return duasAsync.when(
-      data: (duas) => _buildDuasList(duas, 'Aucune dua trouvée'),
+      data: (duas) => _buildDuasList(duas, l10n.duas_empty),
       loading: () => const SkeletonList(),
       error: (error, stack) => _buildErrorWidget(error),
     );
@@ -379,6 +388,8 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       );
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       color: const Color(0xFFF8F9FA),
       child: ListView.builder(
@@ -431,7 +442,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
                   isRead ? Icons.check_circle : Icons.radio_button_unchecked,
                   color: isRead ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
                 ),
-                tooltip: isRead ? 'Marquer non lu' : 'Marquer lu',
+                tooltip: isRead ? l10n.duas_mark_unread : l10n.duas_mark_read,
                 onPressed: () =>
                     ref.read(localProgressProvider.notifier).toggleDua(dua.id),
               ),
@@ -474,11 +485,12 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
       }
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(wasDone
-                ? '↩️ ${ritual.name} : marquage annulé'
-                : '✅ ${ritual.name} marqué comme accompli'),
+                ? '↩️ ${l10n.rituals_mark_undone(ritual.name)}'
+                : '✅ ${l10n.rituals_marked_done(ritual.name)}'),
             backgroundColor:
                 wasDone ? const Color(0xFF6B7280) : const Color(0xFF10B981),
             duration: const Duration(seconds: 2),
@@ -503,6 +515,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
   }
 
   Widget _buildErrorWidget(Object error) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -514,7 +527,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
           ),
           const SizedBox(height: 16),
           Text(
-            'Erreur: $error',
+            l10n.common_error_detail(error.toString()),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium,
           ),
@@ -524,7 +537,7 @@ class _RitualsPageState extends ConsumerState<RitualsPage>
               ref.invalidate(ritualsProvider);
               ref.invalidate(duasProvider);
             },
-            child: const Text('Réessayer'),
+            child: Text(l10n.common_retry),
           ),
         ],
       ),

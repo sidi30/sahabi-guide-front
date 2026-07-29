@@ -1329,6 +1329,246 @@ abstract class AppLocalizations {
   /// **'Ritual details'**
   String get rituals_details;
 
+  /// No description provided for @rituals_tab_rituals.
+  ///
+  /// In en, this message translates to:
+  /// **'Rituals'**
+  String get rituals_tab_rituals;
+
+  /// No description provided for @rituals_tab_duas.
+  ///
+  /// In en, this message translates to:
+  /// **'Duas'**
+  String get rituals_tab_duas;
+
+  /// No description provided for @rituals_gender_male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get rituals_gender_male;
+
+  /// No description provided for @rituals_gender_female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get rituals_gender_female;
+
+  /// No description provided for @rituals_type_omra.
+  ///
+  /// In en, this message translates to:
+  /// **'\'Umrah'**
+  String get rituals_type_omra;
+
+  /// No description provided for @rituals_type_hajj.
+  ///
+  /// In en, this message translates to:
+  /// **'Hajj'**
+  String get rituals_type_hajj;
+
+  /// No description provided for @rituals_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No ritual found'**
+  String get rituals_empty;
+
+  /// No description provided for @duas_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No dua found'**
+  String get duas_empty;
+
+  /// Snackbar shown when a ritual is ticked off
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as completed'**
+  String rituals_marked_done(String name);
+
+  /// Snackbar shown when a ritual is un-ticked
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: marking cancelled'**
+  String rituals_mark_undone(String name);
+
+  /// No description provided for @duas_mark_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get duas_mark_read;
+
+  /// No description provided for @duas_mark_unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as unread'**
+  String get duas_mark_unread;
+
+  /// Error text followed by the technical message
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String common_error_detail(String message);
+
+  /// No description provided for @ritual_detail_explanation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed explanation'**
+  String get ritual_detail_explanation_title;
+
+  /// No description provided for @ritual_detail_steps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Key steps'**
+  String get ritual_detail_steps_title;
+
+  /// No description provided for @ritual_detail_howto_title.
+  ///
+  /// In en, this message translates to:
+  /// **'How to perform it'**
+  String get ritual_detail_howto_title;
+
+  /// No description provided for @ritual_detail_security_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get ritual_detail_security_title;
+
+  /// No description provided for @ritual_detail_tips_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Practical tips'**
+  String get ritual_detail_tips_title;
+
+  /// No description provided for @ritual_detail_read_steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Read step by step (large format)'**
+  String get ritual_detail_read_steps;
+
+  /// No description provided for @ritual_detail_listen.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the explanation'**
+  String get ritual_detail_listen;
+
+  /// No description provided for @ritual_detail_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get ritual_detail_stop;
+
+  /// No description provided for @ritual_detail_watch_video.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the video'**
+  String get ritual_detail_watch_video;
+
+  /// No description provided for @ritual_detail_mark_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as completed'**
+  String get ritual_detail_mark_done;
+
+  /// No description provided for @ritual_detail_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual completed'**
+  String get ritual_detail_done;
+
+  /// No description provided for @ritual_detail_missed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual missed'**
+  String get ritual_detail_missed;
+
+  /// No description provided for @ritual_detail_no_video.
+  ///
+  /// In en, this message translates to:
+  /// **'No video available for this ritual'**
+  String get ritual_detail_no_video;
+
+  /// No description provided for @ritual_detail_video_open_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the video. Check that YouTube is installed.'**
+  String get ritual_detail_video_open_failed;
+
+  /// Snackbar shown when launching the ritual video throws
+  ///
+  /// In en, this message translates to:
+  /// **'Error while opening the video: {message}'**
+  String ritual_detail_video_error(String message);
+
+  /// Warning banner shown when the server did not provide profile-aware ritual steps
+  ///
+  /// In en, this message translates to:
+  /// **'Generic content, not personalised'**
+  String get rituals_fallback_notice_title;
+
+  /// No description provided for @rituals_fallback_notice_body.
+  ///
+  /// In en, this message translates to:
+  /// **'These instructions do not take your profile into account. Check with your guide.'**
+  String get rituals_fallback_notice_body;
+
+  /// No description provided for @rituals_fallback_female_body.
+  ///
+  /// In en, this message translates to:
+  /// **'The content matching your profile could not be loaded. To avoid misleading you, the generic instructions (written for men) are not shown. Refresh this page or try again once you are back online, and check with your guide.'**
+  String get rituals_fallback_female_body;
+
+  /// Title of the guidance banner shown to a female pilgrim during menstruation
+  ///
+  /// In en, this message translates to:
+  /// **'Period of exemption'**
+  String get menses_title;
+
+  /// No description provided for @menses_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tawaf and Sa\'i are postponed until your period ends and you have performed the major ablution (Ghusl). You remain in the state of Ihram. The pillar (Tawaf al-Ifadah) is performed afterwards; it cannot be replaced.'**
+  String get menses_body;
+
+  /// No description provided for @menses_acts_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Acts you can perform'**
+  String get menses_acts_button;
+
+  /// No description provided for @menses_acts_sheet_title.
+  ///
+  /// In en, this message translates to:
+  /// **'You can draw closer to Allah through:'**
+  String get menses_acts_sheet_title;
+
+  /// No description provided for @menses_act_quran.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading or listening to the Quran (with a glove or a barrier if you touch the Book).'**
+  String get menses_act_quran;
+
+  /// No description provided for @menses_act_dhikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhikr: Tahlil, Takbir, Tasbih.'**
+  String get menses_act_dhikr;
+
+  /// No description provided for @menses_act_salawat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending blessings upon the Prophet (peace and blessings be upon him).'**
+  String get menses_act_salawat;
+
+  /// No description provided for @menses_act_dua.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling upon Allah for your needs.'**
+  String get menses_act_dua;
+
+  /// No description provided for @menses_acts_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Deeds are judged by intention: you receive the reward of what you intended to perform.'**
+  String get menses_acts_note;
+
   /// No description provided for @videos_title.
   ///
   /// In en, this message translates to:

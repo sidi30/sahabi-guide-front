@@ -642,6 +642,134 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rituals_details => 'Ritual details';
 
   @override
+  String get rituals_tab_rituals => 'Rituals';
+
+  @override
+  String get rituals_tab_duas => 'Duas';
+
+  @override
+  String get rituals_gender_male => 'Male';
+
+  @override
+  String get rituals_gender_female => 'Female';
+
+  @override
+  String get rituals_type_omra => '\'Umrah';
+
+  @override
+  String get rituals_type_hajj => 'Hajj';
+
+  @override
+  String get rituals_empty => 'No ritual found';
+
+  @override
+  String get duas_empty => 'No dua found';
+
+  @override
+  String rituals_marked_done(String name) {
+    return '$name marked as completed';
+  }
+
+  @override
+  String rituals_mark_undone(String name) {
+    return '$name: marking cancelled';
+  }
+
+  @override
+  String get duas_mark_read => 'Mark as read';
+
+  @override
+  String get duas_mark_unread => 'Mark as unread';
+
+  @override
+  String common_error_detail(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get ritual_detail_explanation_title => 'Detailed explanation';
+
+  @override
+  String get ritual_detail_steps_title => 'Key steps';
+
+  @override
+  String get ritual_detail_howto_title => 'How to perform it';
+
+  @override
+  String get ritual_detail_security_title => 'Safety';
+
+  @override
+  String get ritual_detail_tips_title => 'Practical tips';
+
+  @override
+  String get ritual_detail_read_steps => 'Read step by step (large format)';
+
+  @override
+  String get ritual_detail_listen => 'Listen to the explanation';
+
+  @override
+  String get ritual_detail_stop => 'Stop';
+
+  @override
+  String get ritual_detail_watch_video => 'Watch the video';
+
+  @override
+  String get ritual_detail_mark_done => 'Mark as completed';
+
+  @override
+  String get ritual_detail_done => 'Ritual completed';
+
+  @override
+  String get ritual_detail_missed => 'Ritual missed';
+
+  @override
+  String get ritual_detail_no_video => 'No video available for this ritual';
+
+  @override
+  String get ritual_detail_video_open_failed => 'Could not open the video. Check that YouTube is installed.';
+
+  @override
+  String ritual_detail_video_error(String message) {
+    return 'Error while opening the video: $message';
+  }
+
+  @override
+  String get rituals_fallback_notice_title => 'Generic content, not personalised';
+
+  @override
+  String get rituals_fallback_notice_body => 'These instructions do not take your profile into account. Check with your guide.';
+
+  @override
+  String get rituals_fallback_female_body => 'The content matching your profile could not be loaded. To avoid misleading you, the generic instructions (written for men) are not shown. Refresh this page or try again once you are back online, and check with your guide.';
+
+  @override
+  String get menses_title => 'Period of exemption';
+
+  @override
+  String get menses_body => 'Tawaf and Sa\'i are postponed until your period ends and you have performed the major ablution (Ghusl). You remain in the state of Ihram. The pillar (Tawaf al-Ifadah) is performed afterwards; it cannot be replaced.';
+
+  @override
+  String get menses_acts_button => 'Acts you can perform';
+
+  @override
+  String get menses_acts_sheet_title => 'You can draw closer to Allah through:';
+
+  @override
+  String get menses_act_quran => 'Reading or listening to the Quran (with a glove or a barrier if you touch the Book).';
+
+  @override
+  String get menses_act_dhikr => 'Dhikr: Tahlil, Takbir, Tasbih.';
+
+  @override
+  String get menses_act_salawat => 'Sending blessings upon the Prophet (peace and blessings be upon him).';
+
+  @override
+  String get menses_act_dua => 'Calling upon Allah for your needs.';
+
+  @override
+  String get menses_acts_note => 'Deeds are judged by intention: you receive the reward of what you intended to perform.';
+
+  @override
   String get videos_title => 'Videos';
 
   @override

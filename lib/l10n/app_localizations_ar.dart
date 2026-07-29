@@ -642,6 +642,134 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rituals_details => 'تفاصيل المنسك';
 
   @override
+  String get rituals_tab_rituals => 'المناسك';
+
+  @override
+  String get rituals_tab_duas => 'الأدعية';
+
+  @override
+  String get rituals_gender_male => 'رجل';
+
+  @override
+  String get rituals_gender_female => 'امرأة';
+
+  @override
+  String get rituals_type_omra => 'العمرة';
+
+  @override
+  String get rituals_type_hajj => 'الحج';
+
+  @override
+  String get rituals_empty => 'لا توجد مناسك';
+
+  @override
+  String get duas_empty => 'لا توجد أدعية';
+
+  @override
+  String rituals_marked_done(String name) {
+    return 'تم وضع علامة مُنجَز على $name';
+  }
+
+  @override
+  String rituals_mark_undone(String name) {
+    return '$name: أُلغيت العلامة';
+  }
+
+  @override
+  String get duas_mark_read => 'وضع علامة مقروء';
+
+  @override
+  String get duas_mark_unread => 'وضع علامة غير مقروء';
+
+  @override
+  String common_error_detail(String message) {
+    return 'خطأ: $message';
+  }
+
+  @override
+  String get ritual_detail_explanation_title => 'شرح مفصَّل';
+
+  @override
+  String get ritual_detail_steps_title => 'الخطوات المهمة';
+
+  @override
+  String get ritual_detail_howto_title => 'كيفية أدائه';
+
+  @override
+  String get ritual_detail_security_title => 'السلامة';
+
+  @override
+  String get ritual_detail_tips_title => 'نصائح عملية';
+
+  @override
+  String get ritual_detail_read_steps => 'القراءة خطوة بخطوة (بخط كبير)';
+
+  @override
+  String get ritual_detail_listen => 'الاستماع إلى الشرح';
+
+  @override
+  String get ritual_detail_stop => 'إيقاف';
+
+  @override
+  String get ritual_detail_watch_video => 'مشاهدة الفيديو';
+
+  @override
+  String get ritual_detail_mark_done => 'وضع علامة مُنجَز';
+
+  @override
+  String get ritual_detail_done => 'منسك مُنجَز';
+
+  @override
+  String get ritual_detail_missed => 'منسك فائت';
+
+  @override
+  String get ritual_detail_no_video => 'لا يوجد فيديو لهذا المنسك';
+
+  @override
+  String get ritual_detail_video_open_failed => 'تعذّر فتح الفيديو. تأكّد من تثبيت يوتيوب.';
+
+  @override
+  String ritual_detail_video_error(String message) {
+    return 'خطأ أثناء فتح الفيديو: $message';
+  }
+
+  @override
+  String get rituals_fallback_notice_title => 'محتوى عام غير مخصَّص';
+
+  @override
+  String get rituals_fallback_notice_body => 'هذه التعليمات لا تأخذ ملفك الشخصي بعين الاعتبار. راجع مرشدك.';
+
+  @override
+  String get rituals_fallback_female_body => 'تعذّر تحميل المحتوى الملائم لملفك الشخصي. وتفادياً لتضليلك، لا تُعرض التعليمات العامة (المكتوبة للرجال). حدّثي هذه الصفحة أو أعيدي المحاولة بعد الاتصال بالإنترنت، وراجعي مرشدتك.';
+
+  @override
+  String get menses_title => 'فترة العذر الشرعي';
+
+  @override
+  String get menses_body => 'يُؤجَّل الطواف والسعي إلى انتهاء الحيض والاغتسال (غُسل). وتبقين على إحرامك. ويُؤدَّى الركن (طواف الإفاضة) بعد ذلك، فهو لا يسقط ولا يُستبدل.';
+
+  @override
+  String get menses_acts_button => 'أعمال يمكنك القيام بها';
+
+  @override
+  String get menses_acts_sheet_title => 'يمكنك التقرّب إلى الله بـ:';
+
+  @override
+  String get menses_act_quran => 'قراءة القرآن أو الاستماع إليه (مع حائل إن مسستِ المصحف).';
+
+  @override
+  String get menses_act_dhikr => 'الذكر: التهليل والتكبير والتسبيح.';
+
+  @override
+  String get menses_act_salawat => 'الصلاة على النبي صلى الله عليه وسلم.';
+
+  @override
+  String get menses_act_dua => 'دعاء الله لقضاء حاجاتك.';
+
+  @override
+  String get menses_acts_note => 'الأعمال بالنيات: لكِ أجر ما نويتِ القيام به.';
+
+  @override
   String get videos_title => 'الفيديوهات';
 
   @override
