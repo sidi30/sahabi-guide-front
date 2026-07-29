@@ -17,9 +17,9 @@ import 'sos_fakes.dart';
 Widget overlayHarness(SosQueueNotifier notifier) {
   return ProviderScope(
     overrides: [sosQueueProvider.overrideWith((ref) => notifier)],
-    child: const MaterialApp(
-      locale: Locale('fr'),
-      localizationsDelegates: [
+    child: MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         ...haFallbackLocalizationsDelegates,
         GlobalMaterialLocalizations.delegate,
@@ -27,8 +27,15 @@ Widget overlayHarness(SosQueueNotifier notifier) {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      // Reproduit la vraie coquille : la couche SOS vit dans le `body`, avec
+      // une AppBar au-dessus et une barre de navigation en dessous. Le body est
+      // donc NETTEMENT plus court que l'écran — c'est précisément ce qui avait
+      // fait disparaître le bouton quand sa position était calculée sur la
+      // hauteur de l'écran.
       home: Scaffold(
-        body: Stack(children: [SosOverlay()]),
+        appBar: AppBar(title: const Text('x')),
+        bottomNavigationBar: const SizedBox(height: 80),
+        body: const Stack(children: [SosOverlay()]),
       ),
     ),
   );
@@ -36,6 +43,54 @@ Widget overlayHarness(SosQueueNotifier notifier) {
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets(
+      'le bouton est ENTIÈREMENT visible dans le body, pas sous la barre de nav',
+      (tester) async {
+    final notifier =
+        buildNotifier(store: FakeSosQueueStore(), api: FakeSosApi());
+
+    await tester.pumpWidget(overlayHarness(notifier));
+    await tester.pumpAndSettle();
+
+    final button = find.byType(SosFloatingButton);
+    expect(button, findsOneWidget);
+
+    // La zone réellement peinte du body : c'est elle qui doit contenir le
+    // bouton, pas l'écran entier.
+    final bodyRect = tester.getRect(find.byType(SosOverlay));
+    final buttonRect = tester.getRect(button);
+
+    expect(buttonRect.bottom, lessThanOrEqualTo(bodyRect.bottom),
+        reason: 'le bouton dépasse sous le body : invisible pour le pèlerin');
+    expect(buttonRect.top, greaterThanOrEqualTo(bodyRect.top));
+    expect(buttonRect.left, greaterThanOrEqualTo(bodyRect.left));
+    expect(buttonRect.right, lessThanOrEqualTo(bodyRect.right));
+
+    // Et il reste touchable : un appui ouvre bien le compte à rebours.
+    await tester.tap(button);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('ANNULER'), findsOneWidget);
+  });
+
+  testWidgets('un glissement ne peut pas sortir le bouton de la zone',
+      (tester) async {
+    final notifier =
+        buildNotifier(store: FakeSosQueueStore(), api: FakeSosApi());
+
+    await tester.pumpWidget(overlayHarness(notifier));
+    await tester.pumpAndSettle();
+
+    // Poussée volontairement excessive vers le bas à droite.
+    await tester.drag(find.byType(SosFloatingButton), const Offset(2000, 2000));
+    await tester.pumpAndSettle();
+
+    final bodyRect = tester.getRect(find.byType(SosOverlay));
+    final buttonRect = tester.getRect(find.byType(SosFloatingButton));
+
+    expect(buttonRect.bottom, lessThanOrEqualTo(bodyRect.bottom));
+    expect(buttonRect.right, lessThanOrEqualTo(bodyRect.right));
+  });
 
   testWidgets('déployé par défaut, un appui ouvre le compte à rebours',
       (tester) async {

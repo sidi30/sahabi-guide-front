@@ -17,12 +17,22 @@ class SosOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Positioned.fill(
-      child: Stack(
-        children: [
-          Positioned(top: 0, left: 0, right: 0, child: SosStatusBanner()),
-          _DraggableSosButton(),
-        ],
+    // LayoutBuilder, et NON MediaQuery : cette couche vit dans le `body` du
+    // Scaffold, plus court que l'écran (AppBar + bottomNavigationBar en sont
+    // retirés). Positionner le bouton d'après la hauteur de l'écran le plaçait
+    // SOUS le bas du body — invisible. Un bouton d'urgence introuvable ne sert
+    // à rien : la position se calcule sur la boîte réellement disponible.
+    return Positioned.fill(
+      child: LayoutBuilder(
+        builder: (context, constraints) => Stack(
+          children: [
+            const Positioned(top: 0, left: 0, right: 0, child: SosStatusBanner()),
+            _DraggableSosButton(
+              areaWidth: constraints.maxWidth,
+              areaHeight: constraints.maxHeight,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -41,7 +51,11 @@ class SosOverlay extends StatelessWidget {
 /// quelqu'un en détresse annulerait l'intérêt du bouton. Pour ressortir le
 /// bouton complet sans alerter : appui long sur la poignée.
 class _DraggableSosButton extends ConsumerStatefulWidget {
-  const _DraggableSosButton();
+  const _DraggableSosButton({required this.areaWidth, required this.areaHeight});
+
+  /// Dimensions de la zone où le bouton peut vivre (le `body`, pas l'écran).
+  final double areaWidth;
+  final double areaHeight;
 
   @override
   ConsumerState<_DraggableSosButton> createState() => _DraggableSosButtonState();
@@ -52,10 +66,31 @@ class _DraggableSosButtonState extends ConsumerState<_DraggableSosButton> {
   static const _kTop = 'sos_btn_top';
   static const _kCollapsed = 'sos_btn_collapsed';
 
-  /// Encombrement du bouton déployé (cohérent avec les contraintes minimales de
-  /// [SosFloatingButton] : 72 x 56, plus la marge du badge « × »).
-  static const double _width = 76;
-  static const double _height = 58;
+  /// Marge réservée au badge « × », qui déborde en haut à droite du bouton.
+  static const double _badgeInset = 10;
+
+  /// Estimation d'attente, remplacée par la mesure réelle dès le premier frame.
+  /// La largeur dépend du libellé (« URGENCE », « GAGGAWA », arabe…), donc de
+  /// la langue : la coder en dur laissait le bouton déborder de l'écran.
+  static const Size _fallbackBox = Size(120, 80);
+
+  final GlobalKey _boxKey = GlobalKey();
+  Size? _measuredBox;
+
+  /// Mesure le bouton après le rendu et rafraîchit les bornes si la taille a
+  /// changé (première frame, changement de langue, texte plus long).
+  void _measureAfterFrame() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = _boxKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return;
+      final size = Size(
+        box.size.width + _badgeInset,
+        box.size.height + _badgeInset,
+      );
+      if (_measuredBox != size) setState(() => _measuredBox = size);
+    });
+  }
 
   double? _left;
   double? _top;
@@ -96,23 +131,29 @@ class _DraggableSosButtonState extends ConsumerState<_DraggableSosButton> {
     if (!_loaded) return const SizedBox.shrink();
 
     final t = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
-    final padding = MediaQuery.of(context).padding;
+    final areaW = widget.areaWidth;
+    final areaH = widget.areaHeight;
 
-    // Défaut : bas-gauche, au-dessus de la barre de navigation, symétrique de
-    // l'assistant qui se range à droite.
-    double left = _left ?? 16;
-    double top = _top ?? (size.height - _height - padding.bottom - 96);
+    // Bornes calculées sur la zone réelle. `max` protège les très petites
+    // boîtes (tests, écrans courts) où la borne haute passerait sous la basse
+    // et ferait lever une assertion à clamp().
+    _measureAfterFrame();
+    final box = _measuredBox ?? _fallbackBox;
 
-    left = left.clamp(8.0, size.width - _width - 8);
-    top = top.clamp(padding.top + 8, size.height - _height - padding.bottom - 8);
+    final maxLeft = (areaW - box.width - 8).clamp(8.0, double.infinity);
+    final maxTop = (areaH - box.height - 8).clamp(8.0, double.infinity);
+
+    // Défaut : bas-gauche de la zone, symétrique de l'assistant à droite.
+    final left = (_left ?? 16).clamp(8.0, maxLeft);
+    final top = (_top ?? (areaH - box.height - 16)).clamp(8.0, maxTop);
 
     if (_collapsed) {
       const handleW = 34.0;
       const handleH = 64.0;
+      final maxHandleTop = (areaH - handleH - 8).clamp(8.0, double.infinity);
       return Positioned(
         left: 0,
-        top: top.clamp(padding.top + 8, size.height - handleH - padding.bottom - 8),
+        top: top.clamp(8.0, maxHandleTop),
         child: Semantics(
           button: true,
           label: t.sos_button_semantics,
@@ -152,21 +193,25 @@ class _DraggableSosButtonState extends ConsumerState<_DraggableSosButton> {
     return Positioned(
       left: left,
       top: top,
-      child: SizedBox(
-        width: _width + 10,
-        height: _height + 10,
+      child: Padding(
+        // Réserve la place du badge « × », qui déborde en haut à droite.
+        padding: const EdgeInsets.only(top: _badgeInset, right: _badgeInset),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(
-              left: 0,
-              top: 10,
+            // Enfant NON positionné : c'est lui qui dicte la taille du Stack,
+            // donc la boîte mesurée. Le libellé change de largeur selon la
+            // langue — la mesurer vaut mieux que la coder en dur.
+            KeyedSubtree(
+              key: _boxKey,
               child: GestureDetector(
                 onPanStart: (_) => _dragging = true,
                 onPanUpdate: (d) {
                   setState(() {
-                    _left = left + d.delta.dx;
-                    _top = top + d.delta.dy;
+                    // Borné à la zone : on ne doit pas pouvoir pousser le
+                    // bouton d'urgence hors de l'écran.
+                    _left = (left + d.delta.dx).clamp(8.0, maxLeft);
+                    _top = (top + d.delta.dy).clamp(8.0, maxTop);
                   });
                 },
                 onPanEnd: (_) {
@@ -183,8 +228,8 @@ class _DraggableSosButtonState extends ConsumerState<_DraggableSosButton> {
               ),
             ),
             Positioned(
-              right: 0,
-              top: 0,
+              right: -_badgeInset,
+              top: -_badgeInset,
               child: Semantics(
                 button: true,
                 label: t.sos_collapse_semantics,
