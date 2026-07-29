@@ -53,6 +53,24 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     }
   }
 
+  /// Clé composite d'indexation du cache : UNIQUE prédicat "requête ciblée".
+  /// null = requête neutre (clé legacy Hive, entrées non préfixées).
+  /// Inclut la LANGUE : un cache fr ne doit jamais être servi pour du ha.
+  static String? cacheKeyFor({
+    String? gender,
+    String? states,
+    String? lang,
+    String? type,
+  }) {
+    final g =
+        (gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED') ? gender : '';
+    final s = (states != null && states.isNotEmpty) ? states : '';
+    final l = (lang != null && lang.isNotEmpty) ? lang : '';
+    final t = (type != null && type.isNotEmpty) ? type : '';
+    if (g.isEmpty && s.isEmpty && l.isEmpty && t.isEmpty) return null;
+    return 'g=$g|t=$t|l=$l|s=$s';
+  }
+
   @override
   Future<List<RitualModel>> getRituals({
     bool forceRefresh = false,
@@ -62,36 +80,48 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     String? lang,
     String? type,
   }) async {
-    // Requête "ciblée" (genre / type Hajj-Omra / état menses) : le cache Hive
-    // n'est PAS indexé par ces axes. Servir le cache (ou le seed neutre) pour une
-    // telle requête montrerait le MAUVAIS contenu (ex. Omra affichant les rites du
-    // Hajj). Pour ces requêtes : on force le fetch réseau et, en cas d'échec, on
-    // NE sert PAS le cache comme un succès — on propage l'erreur pour que l'UI
-    // affiche "Réessayer" au lieu d'un contenu erroné.
-    final bool keyed = (states != null && states.isNotEmpty) ||
-        (gender != null && gender.isNotEmpty && gender != 'UNSPECIFIED') ||
-        (type != null && type.isNotEmpty);
+    // Requête "ciblée" (genre / type Hajj-Omra / langue / état menses) : le cache
+    // Hive est indexé par cette clé composite — chaque combinaison a son propre
+    // lot d'entrées. On force le fetch réseau pour rester frais, mais en cas
+    // d'échec on sert le cache de CETTE clé (jamais celui d'une autre clé, ni le
+    // seed neutre) ; on n'échoue que s'il n'existe aucun cache pour cette clé.
+    final cacheKey =
+        cacheKeyFor(gender: gender, states: states, lang: lang, type: type);
+    final bool keyed = cacheKey != null;
     if (keyed) {
       forceRefresh = true;
     }
 
+    final bool offline =
+        connectivityService != null && !connectivityService!.isConnected;
     List<RitualModel> cachedRituals = [];
 
     try {
-      // Étape 1: cache local (uniquement pour l'affichage rapide non-ciblé).
-      cachedRituals = await localDataSource.getRituals();
+      // Mémoriser la requête ciblée : l'auto-sync (retour réseau) recharge CE
+      // contenu, pas une requête neutre.
+      if (keyed) {
+        await localDataSource.saveLastRitualsQuery({
+          'userId': userId,
+          'gender': gender,
+          'states': states,
+          'lang': lang,
+          'type': type,
+        });
+      }
+
+      // Étape 1: cache local pour CETTE clé (stale accepté hors-ligne : mieux
+      // vaut du contenu périmé que rien ; le TTL déclenchera un refresh en ligne).
+      cachedRituals = await localDataSource.getRituals(
+          cacheKey: cacheKey, allowStale: offline);
       developer.log(
-        'Loaded ${cachedRituals.length} rituals from cache',
+        'Loaded ${cachedRituals.length} rituals from cache (key: $cacheKey)',
         name: 'RitualsRepository',
       );
 
-      // Hors-ligne : on sert le cache SEULEMENT pour une requête non ciblée.
-      // Pour une requête ciblée, on tente quand même le réseau (le cache mono-axe
-      // serait faux) ; s'il n'y a vraiment pas de réseau, l'erreur remontera.
-      if (!keyed &&
-          connectivityService != null &&
-          !connectivityService!.isConnected) {
-        developer.log('No connection, using cached rituals',
+      // Hors-ligne : servir le cache de la clé s'il existe. Sinon on tente
+      // quand même le réseau — s'il n'y en a vraiment pas, l'erreur remontera.
+      if (offline && cachedRituals.isNotEmpty) {
+        developer.log('No connection, using cached rituals (key: $cacheKey)',
             name: 'RitualsRepository');
         return cachedRituals;
       }
@@ -111,13 +141,12 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
       return cachedRituals;
     } catch (e) {
       developer.log('Error in getRituals: $e', name: 'RitualsRepository');
-      // Requête ciblée : ne PAS masquer l'erreur avec un cache mono-axe erroné.
-      if (keyed) {
-        rethrow;
-      }
-      // Requête non ciblée : fallback cache toléré (offline-first).
-      if (cachedRituals.isNotEmpty) {
-        return cachedRituals;
+      // Échec réseau : fallback sur le cache de CETTE clé, même expiré.
+      // Échouer ("Réessayer" côté UI) seulement si aucun cache pour cette clé.
+      final stale =
+          await localDataSource.getRituals(cacheKey: cacheKey, allowStale: true);
+      if (stale.isNotEmpty) {
+        return stale;
       }
       rethrow;
     }
@@ -131,8 +160,11 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     String? lang,
     String? type,
   }) async {
+    final cacheKey =
+        cacheKeyFor(gender: gender, states: states, lang: lang, type: type);
+
     if (remoteDataSource == null) {
-      return await localDataSource.getRituals();
+      return await localDataSource.getRituals(cacheKey: cacheKey);
     }
 
     try {
@@ -153,10 +185,11 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
             .reduce((a, b) => a > b ? a : b);
       }
 
-      // Sauvegarder dans le cache
-      await localDataSource.saveRituals(rituals, contentVersion: maxContentVersion);
+      // Sauvegarder dans le cache, sous la clé composite de la requête
+      await localDataSource.saveRituals(rituals,
+          contentVersion: maxContentVersion, cacheKey: cacheKey);
       developer.log(
-        'Saved ${rituals.length} rituals to cache (version: $maxContentVersion)',
+        'Saved ${rituals.length} rituals to cache (key: $cacheKey, version: $maxContentVersion)',
         name: 'RitualsRepository',
       );
 
@@ -177,7 +210,17 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
     _isSyncingRituals = true;
     try {
       developer.log('Auto-syncing rituals...', name: 'RitualsRepository');
-      await _fetchAndCacheRituals();
+      // Resynchroniser avec les paramètres de la dernière requête ciblée
+      // (contenu réellement affiché), pas une requête neutre qui écraserait
+      // le mauvais lot de cache.
+      final last = await localDataSource.getLastRitualsQuery();
+      await _fetchAndCacheRituals(
+        userId: last?['userId'],
+        gender: last?['gender'],
+        states: last?['states'],
+        lang: last?['lang'],
+        type: last?['type'],
+      );
       developer.log('Auto-sync rituals completed', name: 'RitualsRepository');
     } catch (e) {
       developer.log('Auto-sync rituals failed: $e', name: 'RitualsRepository');
@@ -189,18 +232,21 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
   @override
   Future<List<DuaModel>> getDuas({bool forceRefresh = false}) async {
     // Stratégie similaire aux rituels
+    final bool offline =
+        connectivityService != null && !connectivityService!.isConnected;
     List<DuaModel> cachedDuas = [];
 
     try {
-      // Charger depuis le cache
-      cachedDuas = await localDataSource.getDuas();
+      // Charger depuis le cache (stale accepté hors-ligne : mieux vaut du
+      // contenu périmé que rien ; le TTL déclenchera un refresh en ligne).
+      cachedDuas = await localDataSource.getDuas(allowStale: offline);
       developer.log(
         'Loaded ${cachedDuas.length} duas from cache',
         name: 'RitualsRepository',
       );
 
       // Si pas de connexion, retourner le cache
-      if (connectivityService != null && !connectivityService!.isConnected) {
+      if (offline) {
         developer.log('No connection, using cached duas', name: 'RitualsRepository');
         return cachedDuas;
       }
@@ -215,8 +261,10 @@ class RitualsRepositoryImplWithSync implements RitualsRepository {
       return cachedDuas;
     } catch (e) {
       developer.log('Error in getDuas: $e', name: 'RitualsRepository');
-      if (cachedDuas.isNotEmpty) {
-        return cachedDuas;
+      // Échec réseau : servir le cache même expiré plutôt que rien.
+      final stale = await localDataSource.getDuas(allowStale: true);
+      if (stale.isNotEmpty) {
+        return stale;
       }
       rethrow;
     }

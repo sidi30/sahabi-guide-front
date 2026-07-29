@@ -103,10 +103,21 @@ class PassportAuthRemoteDataSourceImpl implements PassportAuthRemoteDataSource {
       if (response.statusCode == 200) {
         return PassportAuthResponse.fromJson(response.data);
       } else {
-        throw Exception('Token invalide');
+        throw AuthNetworkException(
+            'Réponse inattendue du serveur (${response.statusCode})');
       }
+    } on DioException catch (e) {
+      // Distinguer un VRAI rejet d'auth (401/403) d'une erreur réseau/serveur :
+      // seul le rejet explicite doit entraîner la destruction de la session.
+      final status = e.response?.statusCode;
+      if (status == 401 || status == 403) {
+        throw AuthRejectedException('Token invalide ou expiré');
+      }
+      throw AuthNetworkException('Erreur réseau lors de la validation: ${e.message}');
+    } on AuthNetworkException {
+      rethrow;
     } catch (e) {
-      throw Exception('Erreur de validation du token: $e');
+      throw AuthNetworkException('Erreur de validation du token: $e');
     }
   }
 

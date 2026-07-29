@@ -99,9 +99,9 @@ void main() {
       expect(AppConstants.supportedLanguages['ha'], 'Hausa');
     });
 
-    test('includes Djerma', () {
-      expect(AppConstants.supportedLanguages.containsKey('dje'), isTrue);
-      expect(AppConstants.supportedLanguages['dje'], 'Djerma');
+    test('includes Arabic', () {
+      expect(AppConstants.supportedLanguages.containsKey('ar'), isTrue);
+      expect(AppConstants.supportedLanguages['ar'], 'العربية');
     });
 
     test('has exactly 4 supported languages', () {

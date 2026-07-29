@@ -14,17 +14,12 @@ void main() {
   });
 
   group('AudioLanguage', () {
-    test('has all expected values', () {
-      expect(AudioLanguage.values.length, 9);
+    test('has all expected values (langues actives : fr/en/ar/ha)', () {
+      expect(AudioLanguage.values.length, 4);
       expect(AudioLanguage.values, contains(AudioLanguage.french));
       expect(AudioLanguage.values, contains(AudioLanguage.english));
       expect(AudioLanguage.values, contains(AudioLanguage.arabic));
       expect(AudioLanguage.values, contains(AudioLanguage.hausa));
-      expect(AudioLanguage.values, contains(AudioLanguage.zarma));
-      expect(AudioLanguage.values, contains(AudioLanguage.yoruba));
-      expect(AudioLanguage.values, contains(AudioLanguage.swahili));
-      expect(AudioLanguage.values, contains(AudioLanguage.wolof));
-      expect(AudioLanguage.values, contains(AudioLanguage.bambara));
     });
 
     test('code returns correct language codes', () {
@@ -32,27 +27,20 @@ void main() {
       expect(AudioLanguage.english.code, 'en');
       expect(AudioLanguage.arabic.code, 'ar');
       expect(AudioLanguage.hausa.code, 'ha');
-      expect(AudioLanguage.zarma.code, 'dje');
-      expect(AudioLanguage.yoruba.code, 'yo');
-      expect(AudioLanguage.swahili.code, 'sw');
-      expect(AudioLanguage.wolof.code, 'wo');
-      expect(AudioLanguage.bambara.code, 'bm');
     });
 
     test('label returns correct display names', () {
+      expect(AudioLanguage.french.label, 'Français');
       expect(AudioLanguage.english.label, 'English');
+      expect(AudioLanguage.arabic.label, 'العربية');
       expect(AudioLanguage.hausa.label, 'Hausa');
-      expect(AudioLanguage.zarma.label, 'Zarma');
-      expect(AudioLanguage.yoruba.label, 'Yoruba');
-      expect(AudioLanguage.swahili.label, 'Kiswahili');
-      expect(AudioLanguage.wolof.label, 'Wolof');
-      expect(AudioLanguage.bambara.label, 'Bambara');
     });
 
     test('fromCode resolves canonical codes', () {
+      expect(AudioLanguage.fromCode('fr'), AudioLanguage.french);
+      expect(AudioLanguage.fromCode('en'), AudioLanguage.english);
+      expect(AudioLanguage.fromCode('ar'), AudioLanguage.arabic);
       expect(AudioLanguage.fromCode('ha'), AudioLanguage.hausa);
-      expect(AudioLanguage.fromCode('dje'), AudioLanguage.zarma);
-      expect(AudioLanguage.fromCode('yo'), AudioLanguage.yoruba);
       expect(AudioLanguage.fromCode('zz'), AudioLanguage.french);
     });
   });
@@ -62,14 +50,14 @@ void main() {
       const state = SettingsState();
       expect(state.themeMode, AppThemeMode.system);
       expect(state.colorTheme, AppColorTheme.serenity);
-      expect(state.audioLanguage, AudioLanguage.english);
+      expect(state.audioLanguage, AudioLanguage.french);
     });
 
     test('factory initial returns default state', () {
       final state = SettingsState.initial();
       expect(state.themeMode, AppThemeMode.system);
       expect(state.colorTheme, AppColorTheme.serenity);
-      expect(state.audioLanguage, AudioLanguage.english);
+      expect(state.audioLanguage, AudioLanguage.french);
     });
 
     test('currentColorScheme returns the scheme for the colorTheme', () {
@@ -167,10 +155,16 @@ void main() {
       expect(identical(notifier.state, stateBefore), isTrue);
     });
 
+    test('setAudioLanguage persists the language CODE (not the enum index)', () async {
+      await notifier.setAudioLanguage(AudioLanguage.hausa);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('audio_language'), 'ha');
+    });
+
     test('loadSettings restores saved values', () async {
       // Save some values
       await notifier.setThemeMode(AppThemeMode.dark);
-      await notifier.setAudioLanguage(AudioLanguage.zarma);
+      await notifier.setAudioLanguage(AudioLanguage.arabic);
 
       // Create a new notifier with same prefs
       final prefs = await SharedPreferences.getInstance();
@@ -179,7 +173,17 @@ void main() {
       await newNotifier.loadSettings();
 
       expect(newNotifier.state.themeMode, AppThemeMode.dark);
-      expect(newNotifier.state.audioLanguage, AudioLanguage.zarma);
+      expect(newNotifier.state.audioLanguage, AudioLanguage.arabic);
+    });
+
+    test('loadSettings migrates a legacy int index to the enum value', () async {
+      // Anciennes versions : index d'enum stocké en int (1 = english).
+      SharedPreferences.setMockInitialValues({'audio_language': 1});
+      final prefs = await SharedPreferences.getInstance();
+      final migratedNotifier = SettingsNotifier(prefs: prefs);
+      await migratedNotifier.loadSettings();
+
+      expect(migratedNotifier.state.audioLanguage, AudioLanguage.english);
     });
 
     test('loadSettings handles invalid indices gracefully', () async {
@@ -194,7 +198,7 @@ void main() {
 
       // Should fall back to defaults
       expect(safeNotifier.state.themeMode, AppThemeMode.system);
-      expect(safeNotifier.state.audioLanguage, AudioLanguage.english);
+      expect(safeNotifier.state.audioLanguage, AudioLanguage.french);
     });
   });
 

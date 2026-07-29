@@ -5,6 +5,7 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../data/datasources/rituals_remote_data_source.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/ritual_model.dart';
 import '../../../../shared/models/dua_model.dart';
@@ -40,8 +41,10 @@ final ritualsProvider = FutureProvider.autoDispose<List<RitualModel>>((ref) asyn
     gender = profile?.gender;
   }
 
-  // Langue d'affichage des étapes (résolues côté serveur).
-  final lang = settings.locale.locale.languageCode;
+  // Langue d'affichage des étapes (résolues côté serveur). SOURCE UNIQUE :
+  // languageCodeProvider (langue choisie dans l'écran Langue, clé 'app_language')
+  // — PAS settings.locale, qui n'est jamais mise à jour par ce choix.
+  final lang = ref.watch(languageCodeProvider);
 
   // Choix Hajj/Omra (override envoyé au backend). L'utilisateur choisit ce qu'il voit.
   final type = settings.pilgrimageType;

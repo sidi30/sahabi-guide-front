@@ -1,5 +1,7 @@
+import '../../../../core/utils/token_validator.dart';
 import '../datasources/passport_auth_local_data_source.dart';
 import '../datasources/passport_auth_remote_data_source.dart';
+import '../exceptions/auth_exceptions.dart';
 import '../models/passport_auth_models.dart';
 
 abstract class PassportAuthRepository {
@@ -63,11 +65,10 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
 
   @override
   Future<PassportAuthResponse> validateToken(String token) async {
-    try {
-      return await remoteDataSource.validateToken(token);
-    } catch (e) {
-      throw Exception('Erreur de validation du token: $e');
-    }
+    // Passthrough : les exceptions typées (AuthRejectedException /
+    // AuthNetworkException) doivent remonter telles quelles pour que
+    // isLoggedIn puisse distinguer rejet explicite et erreur réseau.
+    return await remoteDataSource.validateToken(token);
   }
 
   @override
@@ -133,11 +134,19 @@ class PassportAuthRepositoryImpl implements PassportAuthRepository {
 
     try {
       final response = await validateToken(token);
-      return response.success;
-    } catch (e) {
-      // Si le token est invalide, nettoyer la session
+      if (!response.success) {
+        // Rejet explicite du serveur : la session est réellement invalide.
+        await clearSession();
+        return false;
+      }
+      return true;
+    } on AuthRejectedException {
       await clearSession();
       return false;
+    } catch (e) {
+      // Erreur réseau/timeout/5xx : le rejet n'est pas prouvé. Ne PAS détruire
+      // la session — considérer loggé tant que le token local n'est pas expiré.
+      return !TokenValidator.isTokenExpired(token);
     }
   }
 

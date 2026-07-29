@@ -42,30 +42,51 @@ class HiveCacheService {
 
   // ==================== RITUALS ====================
 
-  /// Sauvegarde une liste de rituels dans le cache
-  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion}) async {
+  /// Préfixe d'entrée dans la box rituels pour une clé composite
+  /// (gender/type/lang/states). `cacheKey == null` = clé legacy : entrées non
+  /// préfixées, telles qu'écrites par les anciennes versions (migration douce).
+  String _ritualEntryPrefix(String? cacheKey) =>
+      cacheKey == null ? '' : '$cacheKey::';
+
+  /// Clé de métadonnées associée à une clé composite (legacy = 'rituals').
+  String _ritualsMetaKey(String? cacheKey) =>
+      cacheKey == null ? 'rituals' : 'rituals::$cacheKey';
+
+  bool _entryMatchesKey(String entryKey, String? cacheKey) => cacheKey == null
+      ? !entryKey.contains('::')
+      : entryKey.startsWith(_ritualEntryPrefix(cacheKey));
+
+  /// Sauvegarde une liste de rituels dans le cache, sous la clé composite
+  /// [cacheKey] (null = entrée legacy neutre). Chaque clé a son propre lot
+  /// d'entrées : sauvegarder une clé n'écrase pas le cache des autres.
+  Future<void> saveRituals(List<RitualModel> rituals,
+      {int? contentVersion, String? cacheKey}) async {
     if (!isInitialized) {
       throw StateError('HiveCacheService not initialized. Call initialize() first.');
     }
 
     try {
-      // Effacer les rituels existants
-      await _ritualsBox!.clear();
-      
+      // Effacer uniquement les rituels existants de CETTE clé
+      final stale = _ritualsBox!.keys
+          .where((k) => _entryMatchesKey(k.toString(), cacheKey))
+          .toList();
+      await _ritualsBox!.deleteAll(stale);
+
       // Sauvegarder les nouveaux rituels
+      final prefix = _ritualEntryPrefix(cacheKey);
       for (final ritual in rituals) {
-        await _ritualsBox!.put(ritual.id, ritual);
+        await _ritualsBox!.put('$prefix${ritual.id}', ritual);
       }
-      
+
       // Sauvegarder les métadonnées
       await _saveMetadata(
-        key: 'rituals',
+        key: _ritualsMetaKey(cacheKey),
         contentVersion: contentVersion,
         itemCount: rituals.length,
       );
-      
+
       developer.log(
-        'Saved ${rituals.length} rituals to cache (version: $contentVersion)',
+        'Saved ${rituals.length} rituals to cache (key: $cacheKey, version: $contentVersion)',
         name: 'HiveCacheService',
       );
     } catch (e) {
@@ -74,24 +95,34 @@ class HiveCacheService {
     }
   }
 
-  /// Récupère tous les rituels du cache
-  Future<List<RitualModel>> getRituals() async {
+  /// Récupère les rituels du cache pour la clé composite [cacheKey]
+  /// (null = entrées legacy). [allowStale] : servir le cache même expiré
+  /// (hors-ligne, mieux vaut du stale que rien) — le TTL reste utilisé pour
+  /// déclencher un refresh au retour du réseau.
+  Future<List<RitualModel>> getRituals(
+      {String? cacheKey, bool allowStale = false}) async {
     if (!isInitialized) {
       throw StateError('HiveCacheService not initialized. Call initialize() first.');
     }
 
     try {
       // Vérifier si le cache est encore valide
-      final isValid = await _isCacheValid('rituals');
-      
-      if (!isValid) {
-        developer.log('Rituals cache expired', name: 'HiveCacheService');
+      final isValid = await _isCacheValid(_ritualsMetaKey(cacheKey));
+
+      if (!isValid && !allowStale) {
+        developer.log('Rituals cache expired (key: $cacheKey)', name: 'HiveCacheService');
         return [];
       }
-      
-      final rituals = _ritualsBox!.values.toList();
-      developer.log('Loaded ${rituals.length} rituals from cache', name: 'HiveCacheService');
-      
+
+      final rituals = _ritualsBox!.keys
+          .where((k) => _entryMatchesKey(k.toString(), cacheKey))
+          .map((k) => _ritualsBox!.get(k))
+          .whereType<RitualModel>()
+          .toList();
+      developer.log(
+          'Loaded ${rituals.length} rituals from cache (key: $cacheKey, stale: ${!isValid})',
+          name: 'HiveCacheService');
+
       return rituals;
     } catch (e) {
       developer.log('Error loading rituals: $e', name: 'HiveCacheService');
@@ -99,12 +130,19 @@ class HiveCacheService {
     }
   }
 
-  /// Récupère un rituel par son ID
+  /// Récupère un rituel par son ID (toutes clés composites confondues)
   Future<RitualModel?> getRitualById(String id) async {
     if (!isInitialized) return null;
-    
+
     try {
-      return _ritualsBox!.get(id);
+      final direct = _ritualsBox!.get(id);
+      if (direct != null) return direct;
+      // Entrées indexées par clé composite : chercher un suffixe '::id'.
+      final suffix = '::$id';
+      for (final k in _ritualsBox!.keys) {
+        if (k.toString().endsWith(suffix)) return _ritualsBox!.get(k);
+      }
+      return null;
     } catch (e) {
       developer.log('Error loading ritual $id: $e', name: 'HiveCacheService');
       return null;
@@ -116,13 +154,22 @@ class HiveCacheService {
     if (!isInitialized) return;
     
     try {
-      final ritual = await getRitualById(ritualId);
-      if (ritual != null) {
-        final updatedRitual = ritual.copyWith(
-          status: status,
-          completedAt: completedAt,
-        );
-        await _ritualsBox!.put(ritualId, updatedRitual);
+      // Mettre à jour toutes les entrées de ce rite (legacy + clés composites),
+      // sous leur clé de stockage réelle — pas de duplicat sous l'id nu.
+      final suffix = '::$ritualId';
+      final matching = _ritualsBox!.keys
+          .where((k) => k == ritualId || k.toString().endsWith(suffix))
+          .toList();
+      for (final key in matching) {
+        final ritual = _ritualsBox!.get(key);
+        if (ritual != null) {
+          await _ritualsBox!.put(
+            key,
+            ritual.copyWith(status: status, completedAt: completedAt),
+          );
+        }
+      }
+      if (matching.isNotEmpty) {
         developer.log('Updated ritual $ritualId status to $status', name: 'HiveCacheService');
       }
     } catch (e) {
@@ -173,8 +220,10 @@ class HiveCacheService {
     }
   }
 
-  /// Récupère toutes les duas du cache
-  Future<List<DuaModel>> getDuas() async {
+  /// Récupère toutes les duas du cache. [allowStale] : servir le cache même
+  /// expiré (hors-ligne) plutôt que rien ; le TTL garde son rôle de
+  /// déclencheur de refresh au retour du réseau.
+  Future<List<DuaModel>> getDuas({bool allowStale = false}) async {
     if (!isInitialized) {
       throw StateError('HiveCacheService not initialized. Call initialize() first.');
     }
@@ -182,12 +231,12 @@ class HiveCacheService {
     try {
       // Vérifier si le cache est encore valide
       final isValid = await _isCacheValid('duas');
-      
-      if (!isValid) {
+
+      if (!isValid && !allowStale) {
         developer.log('Duas cache expired', name: 'HiveCacheService');
         return [];
       }
-      
+
       final duas = _duasBox!.values.toList();
       developer.log('Loaded ${duas.length} duas from cache', name: 'HiveCacheService');
       
@@ -245,6 +294,33 @@ class HiveCacheService {
       developer.log('Updated dua ${dua.id}', name: 'HiveCacheService');
     } catch (e) {
       developer.log('Error updating dua: $e', name: 'HiveCacheService');
+    }
+  }
+
+  // ==================== LAST QUERY ====================
+
+  static const String _lastRitualsQueryKey = 'rituals_last_query';
+
+  /// Persiste les paramètres (gender/type/lang/states/userId) de la dernière
+  /// requête rituels, pour que l'auto-sync au retour du réseau resynchronise
+  /// le contenu réellement affiché et non une requête neutre.
+  Future<void> saveLastRitualsQuery(Map<String, String?> params) async {
+    if (_metadataBox == null) return;
+    await _metadataBox!.put(_lastRitualsQueryKey, params);
+  }
+
+  /// Paramètres de la dernière requête rituels (null si jamais enregistrés).
+  Future<Map<String, String?>?> getLastRitualsQuery() async {
+    if (_metadataBox == null) return null;
+    try {
+      final data = _metadataBox!.get(_lastRitualsQueryKey);
+      if (data is Map) {
+        return data.map((k, v) => MapEntry(k.toString(), v as String?));
+      }
+      return null;
+    } catch (e) {
+      developer.log('Error loading last rituals query: $e', name: 'HiveCacheService');
+      return null;
     }
   }
 

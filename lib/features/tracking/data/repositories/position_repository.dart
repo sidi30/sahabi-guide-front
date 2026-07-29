@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/constants.dart';
 import '../models/position_model.dart';
 
 /// Repository pour gérer les positions GPS via l'API
@@ -15,7 +16,7 @@ class PositionRepository {
         _secureStorage = secureStorage;
 
   /// Envoie une nouvelle position GPS au serveur
-  /// Endpoint: POST /api/v1/geo/positions
+  /// Endpoint: POST /api/v1/users/{userId}/positions (PositionController)
   Future<PositionModel> sendPosition({
     required String userId,
     required double lat,
@@ -27,10 +28,10 @@ class PositionRepository {
     DateTime? timestamp,
   }) async {
     try {
-      final token = await _secureStorage.read(key: 'jwt_token');
-      
+      final token = await _secureStorage.read(key: AppConstants.authTokenKey);
+
       final response = await _dioClient.post(
-        '/api/v1/geo/positions',
+        '/api/v1/users/$userId/positions',
         data: {
           'userId': userId,
           'lat': lat,
@@ -55,13 +56,13 @@ class PositionRepository {
   }
 
   /// Récupère la dernière position d'un utilisateur
-  /// Endpoint: GET /api/v1/geo/users/{userId}/positions/latest
+  /// Endpoint: GET /api/v1/users/{userId}/position/latest (PositionController)
   Future<PositionModel?> getLatestPosition(String userId) async {
     try {
-      final token = await _secureStorage.read(key: 'jwt_token');
-      
+      final token = await _secureStorage.read(key: AppConstants.authTokenKey);
+
       final response = await _dioClient.get(
-        '/api/v1/geo/users/$userId/positions/latest',
+        '/api/v1/users/$userId/position/latest',
         options: Options(
           headers: {
             if (token != null) 'Authorization': 'Bearer $token',
@@ -83,7 +84,7 @@ class PositionRepository {
   }
 
   /// Récupère l'historique des positions d'un utilisateur
-  /// Endpoint: GET /api/v1/geo/users/{userId}/positions
+  /// Endpoint: GET /api/v1/users/{userId}/positions (PositionController)
   Future<List<PositionModel>> getPositionHistory({
     required String userId,
     int page = 0,
@@ -93,8 +94,8 @@ class PositionRepository {
     DateTime? to,
   }) async {
     try {
-      final token = await _secureStorage.read(key: 'jwt_token');
-      
+      final token = await _secureStorage.read(key: AppConstants.authTokenKey);
+
       final queryParams = <String, dynamic>{
         'page': page,
         'size': size,
@@ -104,7 +105,7 @@ class PositionRepository {
       };
 
       final response = await _dioClient.get(
-        '/api/v1/geo/users/$userId/positions',
+        '/api/v1/users/$userId/positions',
         queryParameters: queryParams,
         options: Options(
           headers: {

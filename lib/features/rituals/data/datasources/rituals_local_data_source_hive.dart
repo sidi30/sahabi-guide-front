@@ -12,19 +12,25 @@ class RitualsLocalDataSourceHive implements RitualsLocalDataSource {
   RitualsLocalDataSourceHive(this._hiveCacheService);
 
   @override
-  Future<List<RitualModel>> getRituals() async {
+  Future<List<RitualModel>> getRituals(
+      {String? cacheKey, bool allowStale = false}) async {
     try {
-      final cached = await _hiveCacheService.getRituals();
+      final cached = await _hiveCacheService.getRituals(
+          cacheKey: cacheKey, allowStale: allowStale);
       // Fallback asset : cache Hive vide → premier lancement ou API offline.
       // Sans seed, écran rituels vide. IMPORTANT : on NE persiste PAS le seed en
       // cache (sinon il se ferait passer pour un cache valide 7 jours et masquerait
       // le contenu réel du serveur, genre/type-neutre). getRitualById() a son propre
-      // fallback seed. Ainsi une requête ciblée re-fetch toujours le vrai contenu.
-      if (cached.isEmpty) {
+      // fallback seed. Le seed est NEUTRE : servi uniquement pour la clé legacy —
+      // pour une clé ciblée (genre/type/lang), il montrerait le mauvais contenu.
+      if (cached.isEmpty && cacheKey == null) {
         return await _loadSeedFromAsset();
       }
       return cached;
     } catch (e) {
+      if (cacheKey != null) {
+        throw Exception('Failed to load cached rituals: $e');
+      }
       try {
         return await _loadSeedFromAsset();
       } catch (_) {
@@ -43,18 +49,20 @@ class RitualsLocalDataSourceHive implements RitualsLocalDataSource {
   }
 
   @override
-  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion}) async {
+  Future<void> saveRituals(List<RitualModel> rituals,
+      {int? contentVersion, String? cacheKey}) async {
     try {
-      await _hiveCacheService.saveRituals(rituals, contentVersion: contentVersion);
+      await _hiveCacheService.saveRituals(rituals,
+          contentVersion: contentVersion, cacheKey: cacheKey);
     } catch (e) {
       throw Exception('Failed to save rituals to cache: $e');
     }
   }
 
   @override
-  Future<List<DuaModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas({bool allowStale = false}) async {
     try {
-      return await _hiveCacheService.getDuas();
+      return await _hiveCacheService.getDuas(allowStale: allowStale);
     } catch (e) {
       throw Exception('Failed to load cached duas: $e');
     }
@@ -112,6 +120,16 @@ class RitualsLocalDataSourceHive implements RitualsLocalDataSource {
     } catch (e) {
       return false;
     }
+  }
+
+  @override
+  Future<void> saveLastRitualsQuery(Map<String, String?> params) async {
+    await _hiveCacheService.saveLastRitualsQuery(params);
+  }
+
+  @override
+  Future<Map<String, String?>?> getLastRitualsQuery() async {
+    return await _hiveCacheService.getLastRitualsQuery();
   }
 }
 

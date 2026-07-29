@@ -297,10 +297,10 @@ class AuthService {
 
   /// Valide un token existant
   Future<bool> validateToken([String? token]) async {
-    try {
-      final tokenToValidate = token ?? _currentToken;
-      if (tokenToValidate == null) return false;
+    final tokenToValidate = token ?? _currentToken;
+    if (tokenToValidate == null) return false;
 
+    try {
       // Vérifier l'expiration locale d'abord
       if (TokenValidator.isTokenExpired(tokenToValidate)) {
         AppLogger.warning('Token expiré localement');
@@ -323,9 +323,20 @@ class AuthService {
       }
 
       return false;
+    } on DioException catch (e) {
+      // Retourner false UNIQUEMENT sur rejet explicite (401/403). Sur erreur
+      // réseau/timeout/5xx, la validité n'est pas tranchée : fallback sur
+      // l'expiration locale pour ne pas détruire une session valide hors ligne.
+      final status = e.response?.statusCode;
+      if (status == 401 || status == 403) {
+        AppLogger.warning('Token rejeté par le serveur ($status)');
+        return false;
+      }
+      AppLogger.warning('Validation token impossible (réseau): ${e.message}');
+      return !TokenValidator.isTokenExpired(tokenToValidate);
     } catch (e) {
       AppLogger.error('Erreur validation token', error: e);
-      return false;
+      return !TokenValidator.isTokenExpired(tokenToValidate);
     }
   }
 

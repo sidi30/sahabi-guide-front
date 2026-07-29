@@ -38,6 +38,28 @@ class TokenInvalidException implements Exception {
   String toString() => message;
 }
 
+/// Rejet d'authentification EXPLICITE par le serveur (401/403).
+/// Seule cette exception autorise la destruction de la session locale.
+class AuthRejectedException implements Exception {
+  final String message;
+
+  AuthRejectedException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+/// Erreur réseau / timeout / 5xx pendant un appel d'auth : ne prouve PAS que
+/// la session est invalide. Ne JAMAIS détruire la session sur cette exception.
+class AuthNetworkException implements Exception {
+  final String message;
+
+  AuthNetworkException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 
 
 

@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sahabi_guide/features/auth/data/datasources/passport_auth_local_data_source.dart';
 import 'package:sahabi_guide/features/auth/data/datasources/passport_auth_remote_data_source.dart';
+import 'package:sahabi_guide/features/auth/data/exceptions/auth_exceptions.dart';
 import 'package:sahabi_guide/features/auth/data/models/passport_auth_models.dart';
 import 'package:sahabi_guide/features/auth/data/repositories/passport_auth_repository_impl.dart';
 
@@ -270,11 +273,11 @@ void main() {
       expect(result, false);
     });
 
-    test('returns false and clears session when token validation fails', () async {
+    test('returns false and clears session on explicit auth rejection', () async {
       when(mockLocalDataSource.getToken())
           .thenAnswer((_) async => 'invalid-token');
       when(mockRemoteDataSource.validateToken('invalid-token'))
-          .thenThrow(Exception('Invalid'));
+          .thenThrow(AuthRejectedException('Token invalide'));
       when(mockLocalDataSource.deleteToken())
           .thenAnswer((_) async {});
       when(mockLocalDataSource.deletePilgrimProfile())
@@ -286,6 +289,35 @@ void main() {
 
       expect(result, false);
       verify(mockLocalDataSource.deleteToken()).called(1);
+    });
+
+    test('keeps session on network error when local token is not expired', () async {
+      // JWT factice non expiré (exp dans le futur) : hors-ligne, l'utilisateur
+      // reste loggé et la session locale n'est PAS détruite.
+      final payload = base64Url.encode(utf8.encode(json.encode({
+        'exp': DateTime.now().add(const Duration(days: 1)).millisecondsSinceEpoch ~/ 1000,
+      })));
+      final freshToken = 'header.$payload.sig';
+      when(mockLocalDataSource.getToken()).thenAnswer((_) async => freshToken);
+      when(mockRemoteDataSource.validateToken(freshToken))
+          .thenThrow(AuthNetworkException('timeout'));
+
+      final result = await repository.isLoggedIn();
+
+      expect(result, true);
+      verifyNever(mockLocalDataSource.deleteToken());
+    });
+
+    test('returns false but keeps session on network error with unreadable token', () async {
+      when(mockLocalDataSource.getToken())
+          .thenAnswer((_) async => 'not-a-jwt');
+      when(mockRemoteDataSource.validateToken('not-a-jwt'))
+          .thenThrow(AuthNetworkException('timeout'));
+
+      final result = await repository.isLoggedIn();
+
+      expect(result, false);
+      verifyNever(mockLocalDataSource.deleteToken());
     });
   });
 

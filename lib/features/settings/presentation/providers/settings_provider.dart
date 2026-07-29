@@ -97,7 +97,7 @@ class SettingsState {
   const SettingsState({
     this.themeMode = AppThemeMode.system,
     this.colorTheme = AppColorTheme.serenity, // Thème par défaut
-    this.audioLanguage = AudioLanguage.english,
+    this.audioLanguage = AudioLanguage.french, // Défaut aligné locale (cible francophone)
     this.locale = AppLocale.fr, // Default to French
     this.gender,
     this.pilgrimageType,
@@ -178,7 +178,21 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     try {
       final themeIndex = prefs.getInt(_themeKey) ?? 0;
       final colorThemeIndex = prefs.getInt(_colorThemeKey) ?? 0;
-      final languageIndex = prefs.getInt(_languageKey) ?? 0;
+      // AudioLanguage persistée par CODE ('fr') — stable si l'enum change.
+      // Migration douce : les anciennes versions stockaient l'index d'enum (int).
+      final storedLanguage = prefs.get(_languageKey);
+      AudioLanguage audioLanguage;
+      if (storedLanguage is String) {
+        audioLanguage = AudioLanguage.fromCode(storedLanguage);
+      } else if (storedLanguage is int) {
+        audioLanguage = storedLanguage < AudioLanguage.values.length
+            ? AudioLanguage.values[storedLanguage]
+            : AudioLanguage.french;
+        // Conversion one-shot vers le code (écriture non bloquante).
+        unawaited(prefs.setString(_languageKey, audioLanguage.code));
+      } else {
+        audioLanguage = AudioLanguage.french;
+      }
       final localeCode = prefs.getString(_localeKey);
       // Défaut = homme : sans choix explicite, le sélecteur affiche « Homme » et
       // l'app demande le contenu masculin. L'utilisatrice bascule sur « Femme » (le
@@ -214,9 +228,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         colorTheme: colorThemeIndex < AppColorTheme.values.length
             ? AppColorTheme.values[colorThemeIndex]
             : AppColorTheme.serenity,
-        audioLanguage: languageIndex < AudioLanguage.values.length
-            ? AudioLanguage.values[languageIndex]
-            : AudioLanguage.english,
+        audioLanguage: audioLanguage,
         locale: localeCode != null
             ? AppLocale.values.firstWhere(
                 (e) => e.locale.languageCode == localeCode,
@@ -229,8 +241,22 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         menses: prefs.getBool(_mensesKey) ?? false,
       );
     } catch (e) {
-      // Reset to default settings if loading fails
-      await prefs.clear();
+      // Reset des SEULES clés du module settings : prefs est partagé par toute
+      // l'app (langue 'app_language', onboarding, caches...) — un clear()
+      // global détruirait ces états sans rapport avec l'échec de chargement.
+      for (final key in const [
+        _themeKey,
+        _colorThemeKey,
+        _languageKey,
+        _localeKey,
+        _genderKey,
+        _pilgrimageTypeKey,
+        _colorThemeExplicitKey,
+        _mensesKey,
+        _genderColorMigratedKey,
+      ]) {
+        await prefs.remove(key);
+      }
       state = SettingsState.initial();
     }
   }
@@ -297,7 +323,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> setAudioLanguage(AudioLanguage language) async {
     if (state.audioLanguage == language) return; // No change needed
-    await prefs.setInt(_languageKey, language.index);
+    // Persistance par CODE : l'index d'enum n'est pas stable si l'enum évolue.
+    await prefs.setString(_languageKey, language.code);
     state = state.copyWith(audioLanguage: language);
   }
 

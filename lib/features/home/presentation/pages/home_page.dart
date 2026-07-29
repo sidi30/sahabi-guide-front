@@ -18,7 +18,19 @@ import '../../domain/repositories/home_repository.dart';
 import '../../../auth/presentation/providers/passport_auth_provider.dart';
 
 final prayerScheduleProvider =
-    FutureProvider<DailyPrayerSchedule>((ref) async {
+    FutureProvider.autoDispose<DailyPrayerSchedule>((ref) async {
+  // autoDispose : les horaires sont ceux du JOUR courant — un provider épinglé
+  // continuerait d'afficher ceux de la veille. Le timer recalcule au passage de
+  // minuit si l'écran reste ouvert ; un timer échu en arrière-plan se déclenche
+  // au resume de l'app (Dart le rattrape), couvrant aussi ce cas.
+  final now = DateTime.now();
+  final nextMidnight = DateTime(now.year, now.month, now.day + 1);
+  final timer = Timer(
+    nextMidnight.difference(now) + const Duration(seconds: 1),
+    ref.invalidateSelf,
+  );
+  ref.onDispose(timer.cancel);
+
   final service = sl<PrayerTimesService>();
   final schedule = await service.getTodaySchedule();
   // Schedule daily notifications once we have a schedule.

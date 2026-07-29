@@ -5,47 +5,70 @@ import '../../../../shared/models/dua_model.dart';
 import '../../../../core/cache/cache_service.dart';
 
 abstract class RitualsLocalDataSource {
-  Future<List<RitualModel>> getRituals();
-  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion});
+  /// [cacheKey] : clé composite (gender/type/lang/states) — null = cache
+  /// neutre legacy. [allowStale] : servir le cache même expiré (hors-ligne).
+  Future<List<RitualModel>> getRituals({String? cacheKey, bool allowStale = false});
+  Future<void> saveRituals(List<RitualModel> rituals,
+      {int? contentVersion, String? cacheKey});
   Future<void> markAsCompleted(String ritualId);
-  Future<List<DuaModel>> getDuas();
+  Future<List<DuaModel>> getDuas({bool allowStale = false});
   Future<void> saveDuas(List<DuaModel> duas);
   Future<void> clearCache();
   Future<RitualModel?> getRitualById(String id);
   Future<bool> ritualsNeedUpdate(int? serverContentVersion);
+
+  /// Paramètres de la dernière requête rituels (pour resynchroniser le contenu
+  /// réellement affiché au retour du réseau).
+  Future<void> saveLastRitualsQuery(Map<String, String?> params);
+  Future<Map<String, String?>?> getLastRitualsQuery();
 }
 
 class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   static const String _ritualsKey = 'rituals_list';
   static const String _duasKey = 'duas_list';
-  
+  static const String _lastQueryKey = 'rituals_last_query';
+
   final CacheService _cacheService;
 
   RitualsLocalDataSourceImpl(this._cacheService);
 
+  /// Clé de stockage pour une clé composite (null = clé legacy inchangée).
+  String _ritualsStorageKey(String? cacheKey) =>
+      cacheKey == null ? _ritualsKey : '$_ritualsKey::$cacheKey';
+
   @override
-  Future<List<RitualModel>> getRituals() async {
+  Future<List<RitualModel>> getRituals(
+      {String? cacheKey, bool allowStale = false}) async {
+    // NB: CacheService (SharedPreferences) purge lui-même les entrées expirées
+    // à la lecture — allowStale n'est donc effectif que sur l'implémentation
+    // Hive (celle branchée en DI). Implémentation conservée pour les tests.
     try {
-      final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
+      final cached =
+          await _cacheService.get<List<dynamic>>(_ritualsStorageKey(cacheKey));
 
       // Fallback asset : si pas de cache (ex. premier lancement, API offline)
       // on charge le seed bundle pour avoir des rituels avec UUIDs réels et
       // URLs vidéo YouTube. Sinon l'écran rituels serait vide.
+      // Seed NEUTRE uniquement pour la clé legacy : pour une clé ciblée
+      // (genre/type/lang), il montrerait le mauvais contenu.
       if (cached == null) {
-        return await _loadSeedFromAsset();
+        return cacheKey == null ? await _loadSeedFromAsset() : <RitualModel>[];
       }
 
       final rituals = cached.data
           .map((json) => RitualModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      if (rituals.isEmpty) {
+      if (rituals.isEmpty && cacheKey == null) {
         return await _loadSeedFromAsset();
       }
 
       return rituals;
     } catch (e) {
       // Cache corrompu → on tente le seed asset plutôt que de tout casser.
+      if (cacheKey != null) {
+        throw Exception('Failed to load cached rituals: $e');
+      }
       try {
         return await _loadSeedFromAsset();
       } catch (_) {
@@ -64,11 +87,12 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   }
 
   @override
-  Future<void> saveRituals(List<RitualModel> rituals, {int? contentVersion}) async {
+  Future<void> saveRituals(List<RitualModel> rituals,
+      {int? contentVersion, String? cacheKey}) async {
     try {
       final ritualsJson = rituals.map((r) => r.toJson()).toList();
       await _cacheService.set(
-        key: _ritualsKey,
+        key: _ritualsStorageKey(cacheKey),
         data: ritualsJson,
         contentVersion: contentVersion,
       );
@@ -78,7 +102,7 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   }
 
   @override
-  Future<List<DuaModel>> getDuas() async {
+  Future<List<DuaModel>> getDuas({bool allowStale = false}) async {
     try {
       final cached = await _cacheService.get<List<dynamic>>(_duasKey);
       
@@ -154,15 +178,31 @@ class RitualsLocalDataSourceImpl implements RitualsLocalDataSource {
   @override
   Future<bool> ritualsNeedUpdate(int? serverContentVersion) async {
     if (serverContentVersion == null) return false;
-    
+
     try {
       final cached = await _cacheService.get<List<dynamic>>(_ritualsKey);
       if (cached == null) return true;
-      
+
       final cachedVersion = cached.contentVersion ?? 0;
       return serverContentVersion > cachedVersion;
     } catch (e) {
       return true;
+    }
+  }
+
+  @override
+  Future<void> saveLastRitualsQuery(Map<String, String?> params) async {
+    await _cacheService.set(key: _lastQueryKey, data: params);
+  }
+
+  @override
+  Future<Map<String, String?>?> getLastRitualsQuery() async {
+    try {
+      final cached = await _cacheService.get<Map<String, dynamic>>(_lastQueryKey);
+      if (cached == null) return null;
+      return cached.data.map((k, v) => MapEntry(k, v as String?));
+    } catch (e) {
+      return null;
     }
   }
 }
