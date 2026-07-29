@@ -564,5 +564,31 @@
   "bot_collapsed_hint": "Assistant tucked away. Tap the handle on the right to bring it back.",
 
   "bot_translate_consent_note": "Enable the AI assistant to translate the conversation.",
-  "bot_translate_enable_ai": "Enable"
+  "bot_translate_enable_ai": "Enable",
+
+  "sos_button_label": "EMERGENCY",
+  "sos_button_semantics": "Emergency button. Sends a call for help to your agency.",
+  "sos_countdown_title": "Sending SOS in",
+  "sos_countdown_hint": "Tap CANCEL to stop.",
+  "sos_countdown_semantics": "SOS will be sent in {count} seconds.",
+  "@sos_countdown_semantics": {
+    "description": "Screen-reader announcement of the SOS countdown",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "sos_cancel": "CANCEL",
+  "sos_status_sending": "Sending…",
+  "sos_status_sent": "SOS received by your agency",
+  "sos_status_pending": "No network — SOS pending, will retry automatically",
+  "sos_status_attempt": "Attempt {count}",
+  "@sos_status_attempt": {
+    "description": "How many delivery attempts have been made for a pending SOS",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "sos_status_failed": "Sending failed — retry",
+  "sos_status_failed_auth": "Cannot send — please log in again",
+  "sos_retry": "Retry",
+  "sos_position_gps": "GPS position attached",
+  "sos_position_last_known": "Last known position attached",
+  "sos_position_declared": "Declared place attached",
+  "sos_position_none": "Sent without position"
 }

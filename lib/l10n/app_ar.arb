@@ -411,5 +411,23 @@
   "bot_collapsed_hint": "تم إخفاء المساعد. المس المقبض على اليمين لإعادته.",
 
   "bot_translate_consent_note": "فعّل مساعد الذكاء الاصطناعي لترجمة المحادثة.",
-  "bot_translate_enable_ai": "تفعيل"
+  "bot_translate_enable_ai": "تفعيل",
+
+  "sos_button_label": "طوارئ",
+  "sos_button_semantics": "زر الطوارئ. يرسل نداء استغاثة إلى وكالتك.",
+  "sos_countdown_title": "إرسال نداء الاستغاثة خلال",
+  "sos_countdown_hint": "المس إلغاء للإيقاف.",
+  "sos_countdown_semantics": "سيتم إرسال نداء الاستغاثة خلال {count} ثانية.",
+  "sos_cancel": "إلغاء",
+  "sos_status_sending": "جارٍ الإرسال…",
+  "sos_status_sent": "وكالتك استلمت نداء الاستغاثة",
+  "sos_status_pending": "لا توجد شبكة — نداء الاستغاثة في الانتظار، ستتم إعادة المحاولة تلقائيًا",
+  "sos_status_attempt": "المحاولة {count}",
+  "sos_status_failed": "فشل الإرسال — أعد المحاولة",
+  "sos_status_failed_auth": "تعذّر الإرسال — يرجى تسجيل الدخول من جديد",
+  "sos_retry": "إعادة المحاولة",
+  "sos_position_gps": "تم إرفاق موقع GPS",
+  "sos_position_last_known": "تم إرفاق آخر موقع معروف",
+  "sos_position_declared": "تم إرفاق المكان المُعلَن",
+  "sos_position_none": "أُرسل بدون موقع"
 }

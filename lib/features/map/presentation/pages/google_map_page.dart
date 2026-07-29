@@ -806,15 +806,15 @@ class _GoogleMapPageState extends State<GoogleMapPage>
               ],
             ),
           ),
+          // L'urgence n'est plus ici : elle passe par le bouton SOS de la
+          // coquille principale (file persistante + confirmation serveur).
+          // L'ancien bouton visait /api/v1/alerts/emergency, qui n'existe pas.
           Positioned(
             bottom: 230,
             left: 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildActionButton('Urgence', Icons.warning_rounded,
-                    context.errorColor, _sendEmergencySignal),
-                const SizedBox(height: 12),
                 _buildActionButton('Guide', Icons.phone_rounded,
                     context.accentColor, _callGuide),
               ],
@@ -1416,61 +1416,6 @@ class _GoogleMapPageState extends State<GoogleMapPage>
             backgroundColor: context.errorColor,
           ),
         );
-      }
-    }
-  }
-
-  void _sendEmergencySignal() async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning_rounded, color: dialogContext.errorColor),
-            const SizedBox(width: 8),
-            const Text('Signal d\'Urgence'),
-          ],
-        ),
-        content: const Text(
-          'Ceci enverra un signal d\'urgence à votre guide et aux contacts d\'urgence. Continuer ?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: dialogContext.errorColor,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Envoyer'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await _poiService.triggerEmergency();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Signal d\'urgence envoyé !'),
-              backgroundColor: context.errorColor,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erreur: $e'),
-              backgroundColor: context.errorColor,
-            ),
-          );
-        }
       }
     }
   }

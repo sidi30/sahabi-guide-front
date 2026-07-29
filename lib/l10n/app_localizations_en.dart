@@ -1171,4 +1171,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_translate_enable_ai => 'Enable';
+
+  @override
+  String get sos_button_label => 'EMERGENCY';
+
+  @override
+  String get sos_button_semantics =>
+      'Emergency button. Sends a call for help to your agency.';
+
+  @override
+  String get sos_countdown_title => 'Sending SOS in';
+
+  @override
+  String get sos_countdown_hint => 'Tap CANCEL to stop.';
+
+  @override
+  String sos_countdown_semantics(int count) {
+    return 'SOS will be sent in $count seconds.';
+  }
+
+  @override
+  String get sos_cancel => 'CANCEL';
+
+  @override
+  String get sos_status_sending => 'Sending…';
+
+  @override
+  String get sos_status_sent => 'SOS received by your agency';
+
+  @override
+  String get sos_status_pending =>
+      'No network — SOS pending, will retry automatically';
+
+  @override
+  String sos_status_attempt(int count) {
+    return 'Attempt $count';
+  }
+
+  @override
+  String get sos_status_failed => 'Sending failed — retry';
+
+  @override
+  String get sos_status_failed_auth => 'Cannot send — please log in again';
+
+  @override
+  String get sos_retry => 'Retry';
+
+  @override
+  String get sos_position_gps => 'GPS position attached';
+
+  @override
+  String get sos_position_last_known => 'Last known position attached';
+
+  @override
+  String get sos_position_declared => 'Declared place attached';
+
+  @override
+  String get sos_position_none => 'Sent without position';
 }

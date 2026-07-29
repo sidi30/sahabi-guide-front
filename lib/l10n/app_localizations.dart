@@ -2354,6 +2354,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable'**
   String get bot_translate_enable_ai;
+
+  /// No description provided for @sos_button_label.
+  ///
+  /// In en, this message translates to:
+  /// **'EMERGENCY'**
+  String get sos_button_label;
+
+  /// No description provided for @sos_button_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency button. Sends a call for help to your agency.'**
+  String get sos_button_semantics;
+
+  /// No description provided for @sos_countdown_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending SOS in'**
+  String get sos_countdown_title;
+
+  /// No description provided for @sos_countdown_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap CANCEL to stop.'**
+  String get sos_countdown_hint;
+
+  /// Screen-reader announcement of the SOS countdown
+  ///
+  /// In en, this message translates to:
+  /// **'SOS will be sent in {count} seconds.'**
+  String sos_countdown_semantics(int count);
+
+  /// No description provided for @sos_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCEL'**
+  String get sos_cancel;
+
+  /// No description provided for @sos_status_sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get sos_status_sending;
+
+  /// No description provided for @sos_status_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS received by your agency'**
+  String get sos_status_sent;
+
+  /// No description provided for @sos_status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'No network — SOS pending, will retry automatically'**
+  String get sos_status_pending;
+
+  /// How many delivery attempts have been made for a pending SOS
+  ///
+  /// In en, this message translates to:
+  /// **'Attempt {count}'**
+  String sos_status_attempt(int count);
+
+  /// No description provided for @sos_status_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending failed — retry'**
+  String get sos_status_failed;
+
+  /// No description provided for @sos_status_failed_auth.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot send — please log in again'**
+  String get sos_status_failed_auth;
+
+  /// No description provided for @sos_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get sos_retry;
+
+  /// No description provided for @sos_position_gps.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS position attached'**
+  String get sos_position_gps;
+
+  /// No description provided for @sos_position_last_known.
+  ///
+  /// In en, this message translates to:
+  /// **'Last known position attached'**
+  String get sos_position_last_known;
+
+  /// No description provided for @sos_position_declared.
+  ///
+  /// In en, this message translates to:
+  /// **'Declared place attached'**
+  String get sos_position_declared;
+
+  /// No description provided for @sos_position_none.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent without position'**
+  String get sos_position_none;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

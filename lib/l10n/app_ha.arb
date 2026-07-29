@@ -385,5 +385,23 @@
   "bot_collapsed_hint": "An ɓoye mataimaki. Danna hannun da ke dama don mayar da shi.",
 
   "bot_translate_consent_note": "Kunna mataimakin AI don fassara tattaunawar.",
-  "bot_translate_enable_ai": "Kunna"
+  "bot_translate_enable_ai": "Kunna",
+
+  "sos_button_label": "GAGGAWA",
+  "sos_button_semantics": "Maɓallin gaggawa. Yana aika kiran taimako zuwa hukumarka.",
+  "sos_countdown_title": "Za a aika SOS cikin",
+  "sos_countdown_hint": "Danna SOKE don dakatarwa.",
+  "sos_countdown_semantics": "Za a aika SOS cikin daƙiƙa {count}.",
+  "sos_cancel": "SOKE",
+  "sos_status_sending": "Ana aikawa…",
+  "sos_status_sent": "Hukumarka ta karɓi SOS",
+  "sos_status_pending": "Babu hanyar sadarwa — SOS na jira, za a sake gwadawa ta atomatik",
+  "sos_status_attempt": "Gwaji na {count}",
+  "sos_status_failed": "Aikawa ta gaza — sake gwadawa",
+  "sos_status_failed_auth": "Ba a iya aikawa ba — sake shiga",
+  "sos_retry": "Sake gwadawa",
+  "sos_position_gps": "An haɗa wurin GPS",
+  "sos_position_last_known": "An haɗa wuri na ƙarshe da aka sani",
+  "sos_position_declared": "An haɗa wurin da ka bayyana",
+  "sos_position_none": "An aika ba tare da wuri ba"
 }

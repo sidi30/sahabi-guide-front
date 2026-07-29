@@ -185,36 +185,4 @@ class PoiService {
       rethrow;
     }
   }
-
-  /// Déclenche une alerte d'urgence via l'API backend
-  Future<void> triggerEmergency() async {
-    try {
-      AppLogger.info('🚨 Déclenchement de l\'urgence...');
-      final token = await _secureStorage.read(key: 'auth_token');
-      
-      // TODO: Vérifier le bon endpoint d'urgence dans le backend
-      const endpoint = '/api/v1/alerts/emergency';
-      
-      final response = await _dioClient.post(
-        endpoint,
-        data: {
-          'type': 'EMERGENCY',
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-        options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : {},
-        ),
-      );
-      
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        AppLogger.info('✅ Urgence déclenchée avec succès');
-      } else {
-        throw Exception('Échec du déclenchement d\'urgence: ${response.statusCode}');
-      }
-    } catch (e) {
-      AppLogger.error('❌ Erreur lors du déclenchement d\'urgence: $e');
-      rethrow;
-    }
-  }
-
 }

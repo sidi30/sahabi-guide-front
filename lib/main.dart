@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +28,7 @@ import 'features/auth/presentation/pages/email_login_page.dart';
 import 'features/auth/presentation/pages/email_otp_verification_page.dart';
 import 'features/auth/presentation/pages/visitor_registration_page.dart';
 import 'features/auth/presentation/providers/passport_auth_provider.dart';
+import 'features/sos/presentation/providers/sos_provider.dart';
 import 'features/health/presentation/pages/health_page.dart';
 import 'features/connectivity/presentation/pages/connectivity_esim_page.dart';
 import 'features/alerts/presentation/pages/alerts_page.dart';
@@ -195,6 +198,15 @@ class _MyAppState extends ConsumerState<MyApp> {
   // Le routeur est construit une seule fois et réutilisé entre les rebuilds
   // (locale/thème via AnimatedSwitcher) pour ne pas perdre l'état de navigation.
   late final GoRouter _router = _buildRouter();
+
+  @override
+  void initState() {
+    super.initState();
+    // Un SOS non confirmé lors de la session précédente doit repartir dès le
+    // lancement, sans attendre que le pèlerin atteigne un écran qui affiche le
+    // bouton d'urgence. Lire le provider suffit : il déclenche sa reprise.
+    ref.read(sosQueueProvider);
+  }
 
   // Build router with auth guard support
   GoRouter _buildRouter() {
@@ -414,6 +426,17 @@ class _MyAppState extends ConsumerState<MyApp> {
     final currentThemeMode = settings.themeMode;
     final colorScheme = settings.currentColorScheme;
     final locale = ref.watch(languageProvider);
+
+    // Reconnexion réussie : un SOS refusé faute de session valide repart tout
+    // seul. Sans ceci, le pèlerin devrait penser à appuyer sur « Réessayer »
+    // après s'être reconnecté.
+    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
+      final justLoggedIn =
+          previous?.isAuthenticated != true && next.isAuthenticated;
+      if (justLoggedIn) {
+        unawaited(ref.read(sosQueueProvider.notifier).rearmAll());
+      }
+    });
 
     // Compte agence : on synchronise le genre du profil vers les réglages pour que
     // le badge + la palette par défaut reflètent le profil dès la connexion.

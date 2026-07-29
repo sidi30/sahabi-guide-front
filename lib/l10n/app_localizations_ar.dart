@@ -1171,4 +1171,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bot_translate_enable_ai => 'تفعيل';
+
+  @override
+  String get sos_button_label => 'طوارئ';
+
+  @override
+  String get sos_button_semantics => 'زر الطوارئ. يرسل نداء استغاثة إلى وكالتك.';
+
+  @override
+  String get sos_countdown_title => 'إرسال نداء الاستغاثة خلال';
+
+  @override
+  String get sos_countdown_hint => 'المس إلغاء للإيقاف.';
+
+  @override
+  String sos_countdown_semantics(int count) {
+    return 'سيتم إرسال نداء الاستغاثة خلال $count ثانية.';
+  }
+
+  @override
+  String get sos_cancel => 'إلغاء';
+
+  @override
+  String get sos_status_sending => 'جارٍ الإرسال…';
+
+  @override
+  String get sos_status_sent => 'وكالتك استلمت نداء الاستغاثة';
+
+  @override
+  String get sos_status_pending =>
+      'لا توجد شبكة — نداء الاستغاثة في الانتظار، ستتم إعادة المحاولة تلقائيًا';
+
+  @override
+  String sos_status_attempt(int count) {
+    return 'المحاولة $count';
+  }
+
+  @override
+  String get sos_status_failed => 'فشل الإرسال — أعد المحاولة';
+
+  @override
+  String get sos_status_failed_auth =>
+      'تعذّر الإرسال — يرجى تسجيل الدخول من جديد';
+
+  @override
+  String get sos_retry => 'إعادة المحاولة';
+
+  @override
+  String get sos_position_gps => 'تم إرفاق موقع GPS';
+
+  @override
+  String get sos_position_last_known => 'تم إرفاق آخر موقع معروف';
+
+  @override
+  String get sos_position_declared => 'تم إرفاق المكان المُعلَن';
+
+  @override
+  String get sos_position_none => 'أُرسل بدون موقع';
 }

@@ -411,5 +411,23 @@
   "bot_collapsed_hint": "Assistant rangé. Touchez la poignée à droite pour le ressortir.",
 
   "bot_translate_consent_note": "Activez l'assistant IA pour traduire la conversation.",
-  "bot_translate_enable_ai": "Activer"
+  "bot_translate_enable_ai": "Activer",
+
+  "sos_button_label": "URGENCE",
+  "sos_button_semantics": "Bouton d'urgence. Envoie un appel au secours à votre agence.",
+  "sos_countdown_title": "Envoi du SOS dans",
+  "sos_countdown_hint": "Touchez ANNULER pour arrêter.",
+  "sos_countdown_semantics": "Envoi du SOS dans {count} secondes.",
+  "sos_cancel": "ANNULER",
+  "sos_status_sending": "Envoi en cours…",
+  "sos_status_sent": "SOS reçu par votre agence",
+  "sos_status_pending": "Pas de réseau — SOS en attente, nouvelle tentative automatique",
+  "sos_status_attempt": "Tentative {count}",
+  "sos_status_failed": "Échec de l'envoi — réessayer",
+  "sos_status_failed_auth": "Envoi impossible — reconnectez-vous",
+  "sos_retry": "Réessayer",
+  "sos_position_gps": "Position GPS jointe",
+  "sos_position_last_known": "Dernière position connue jointe",
+  "sos_position_declared": "Lieu déclaré joint",
+  "sos_position_none": "Envoyé sans position"
 }

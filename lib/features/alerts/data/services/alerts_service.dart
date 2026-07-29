@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../shared/models/alert_model.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../core/utils/app_logger.dart';
 
 class AlertsService {
   final DioClient _dioClient;
@@ -125,51 +124,13 @@ class AlertsService {
     }
   }
 
-  /// Marque une alerte comme lue (endpoint personnalisé - à ajouter au backend)
-  Future<void> markAsRead(String alertId) async {
-    try {
-      final token = await _secureStorage.read(key: 'auth_token');
-      if (token == null) throw Exception('Token d\'authentification manquant');
-
-      // Pour l'instant on simule - il faudra ajouter cet endpoint au backend
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // TODO: Implémenter l'endpoint réel
-      // final response = await _dioClient.dio.patch(
-      //   '/api/v1/alerts/$alertId/read',
-      //   options: Options(
-      //     headers: {'Authorization': 'Bearer $token'},
-      //   ),
-      // );
-      
-      AppLogger.debug('Alerte $alertId marquée comme lue');
-    } catch (e) {
-      throw Exception('Erreur lors du marquage comme lu: $e');
-    }
-  }
-
-  /// Résout une alerte (endpoint personnalisé - à ajouter au backend)
-  Future<void> resolveAlert(String alertId) async {
-    try {
-      final token = await _secureStorage.read(key: 'auth_token');
-      if (token == null) throw Exception('Token d\'authentification manquant');
-
-      // Pour l'instant on simule - il faudra ajouter cet endpoint au backend
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // TODO: Implémenter l'endpoint réel
-      // final response = await _dioClient.dio.patch(
-      //   '/api/v1/alerts/$alertId/resolve',
-      //   options: Options(
-      //     headers: {'Authorization': 'Bearer $token'},
-      //   ),
-      // );
-      
-      AppLogger.debug('Alerte $alertId résolue');
-    } catch (e) {
-      throw Exception('Erreur lors de la résolution: $e');
-    }
-  }
+  // Pas de markAsRead / resolveAlert ici : `/api/v1/alerts/**` est servi par la
+  // chaine de securite OIDC (back-office Keycloak). Un jeton pelerin n'y est
+  // jamais valide, ces appels echouaient donc systematiquement. Le traitement
+  // des alertes se fait depuis le dashboard ; l'app est en consultation seule.
+  // Cote API, AlertAccessGuard.assertCanAcknowledgeAlert porte deja la regle
+  // « le pelerin destinataire peut marquer la sienne comme lue » : il suffira
+  // d'un handler sous /api/v1/pilgrims/ pour rendre ce geste a l'app.
 }
 
 

@@ -1171,4 +1171,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_translate_enable_ai => 'Activer';
+
+  @override
+  String get sos_button_label => 'URGENCE';
+
+  @override
+  String get sos_button_semantics =>
+      'Bouton d\'urgence. Envoie un appel au secours à votre agence.';
+
+  @override
+  String get sos_countdown_title => 'Envoi du SOS dans';
+
+  @override
+  String get sos_countdown_hint => 'Touchez ANNULER pour arrêter.';
+
+  @override
+  String sos_countdown_semantics(int count) {
+    return 'Envoi du SOS dans $count secondes.';
+  }
+
+  @override
+  String get sos_cancel => 'ANNULER';
+
+  @override
+  String get sos_status_sending => 'Envoi en cours…';
+
+  @override
+  String get sos_status_sent => 'SOS reçu par votre agence';
+
+  @override
+  String get sos_status_pending =>
+      'Pas de réseau — SOS en attente, nouvelle tentative automatique';
+
+  @override
+  String sos_status_attempt(int count) {
+    return 'Tentative $count';
+  }
+
+  @override
+  String get sos_status_failed => 'Échec de l\'envoi — réessayer';
+
+  @override
+  String get sos_status_failed_auth => 'Envoi impossible — reconnectez-vous';
+
+  @override
+  String get sos_retry => 'Réessayer';
+
+  @override
+  String get sos_position_gps => 'Position GPS jointe';
+
+  @override
+  String get sos_position_last_known => 'Dernière position connue jointe';
+
+  @override
+  String get sos_position_declared => 'Lieu déclaré joint';
+
+  @override
+  String get sos_position_none => 'Envoyé sans position';
 }

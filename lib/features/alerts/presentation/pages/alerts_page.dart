@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../features/auth/presentation/providers/passport_auth_provider.dart';
+import '../../../../features/sos/presentation/widgets/sos_button.dart';
+import '../../../../features/sos/presentation/widgets/sos_status_banner.dart';
 import '../../../../shared/models/alert_model.dart';
 import '../providers/alerts_provider.dart';
 import '../widgets/alert_card.dart';
@@ -99,6 +100,10 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
       ),
       body: Column(
         children: [
+          // État du dernier appel au secours : visible ici aussi, c'est la page
+          // où l'on vient vérifier qu'une alerte est bien partie.
+          const SosStatusBanner(),
+
           // Filtres
           Container(
             color: Colors.grey[100],
@@ -132,15 +137,13 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
         ],
       ),
       
-      // Bouton flottant de creation d'alerte de test : reserve au debug,
-      // jamais embarque dans un build release.
-      floatingActionButton: kDebugMode
-          ? FloatingActionButton(
-              onPressed: () => _showCreateAlertDialog(),
-              backgroundColor: ref.colors.accent,
-              child: const Icon(Icons.add_alert, color: Colors.white),
-            )
-          : null,
+      // Le bouton « alerte de test » (AlertType.other, sans effet réel) a été
+      // remplacé par le vrai appel au secours : un seul bouton d'alerte dans
+      // l'app, et il envoie un SOS.
+      floatingActionButton: const Padding(
+        padding: EdgeInsets.only(bottom: 8),
+        child: SosFloatingButton(),
+      ),
     );
   }
 
@@ -239,8 +242,9 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
           return AlertCard(
             alert: alert,
             onTap: () => _showAlertDetail(alert),
-            onMarkAsRead: alert.isRead ? null : () => _markAsRead(alert.id),
-            onResolve: alert.isResolved ? null : () => _resolveAlert(alert.id),
+            // Consultation seule : voir le commentaire dans la feuille de détail.
+            onMarkAsRead: null,
+            onResolve: null,
           );
         },
       ),
@@ -344,44 +348,15 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
                 if (alert.resolvedAt != null)
                   _buildMetadataRow('Résolue le', DateFormat('dd/MM/yyyy à HH:mm').format(alert.resolvedAt!)),
                 
-                const SizedBox(height: 20),
-                
-                // Actions
-                Row(
-                  children: [
-                    if (!alert.isRead)
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            _markAsRead(alert.id);
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.done),
-                          label: const Text('Marquer comme lue'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ref.colors.primary,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ),
-                    if (!alert.isRead && !alert.isResolved) const SizedBox(width: 12),
-                    if (!alert.isResolved)
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            _resolveAlert(alert.id);
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.check_circle),
-                          label: const Text('Résoudre'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                // Pas d'action « lue » / « résoudre » ici : /api/v1/alerts/** vit
+                // dans la chaine de securite OIDC (back-office). Un jeton pelerin
+                // n'y est jamais valide, donc ces appels echouaient a tous les
+                // coups. Le traitement des alertes appartient au guide, depuis le
+                // dashboard ; le pelerin les consulte. Voir AlertAccessGuard
+                // .assertCanAcknowledgeAlert cote API : la regle « le pelerin
+                // destinataire peut marquer la sienne comme lue » y est ecrite et
+                // testee, il ne manque qu'un handler sous /api/v1/pilgrims/ le
+                // jour ou l'on voudra rendre ce geste a l'app.
               ],
             ),
           ),
@@ -483,54 +458,6 @@ class _AlertsPageState extends ConsumerState<AlertsPage>
     }
   }
 
-  Future<void> _markAsRead(String alertId) async {
-    await ref.read(alertsNotifierProvider.notifier).markAsRead(alertId);
-  }
-
-  Future<void> _resolveAlert(String alertId) async {
-    await ref.read(alertsNotifierProvider.notifier).resolveAlert(alertId);
-  }
-
-  void _showCreateAlertDialog() {
-    // Dialog simple pour créer une alerte de test
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Créer une alerte de test'),
-        content: const Text('Voulez-vous créer une alerte de test ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              // Sans pèlerin identifié, on ne peut pas rattacher l'alerte.
-              if (_pilgrimId == null) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Aucun pèlerin identifié : alerte non créée.'),
-                    ),
-                  );
-                }
-                return;
-              }
-              await ref.read(alertsNotifierProvider.notifier).createAlert(
-                pilgrimId: _pilgrimId,
-                type: AlertType.other,
-                title: 'Alerte de test',
-                message: 'Ceci est une alerte de test créée depuis l\'application mobile.',
-                priority: AlertPriority.medium,
-              );
-            },
-            child: const Text('Créer'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 

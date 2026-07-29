@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../../../features/bot/presentation/widgets/draggable_bot_button.dart';
+import '../../../features/sos/presentation/widgets/sos_overlay.dart';
 
 class NavigationItem {
   final IconData icon;
@@ -207,6 +208,10 @@ class MainShell extends ConsumerWidget {
           // Assistant flottant déplaçable/rangeable : présent sur les 4 onglets
           // principaux (les pages plein écran poussées au-dessus le masquent).
           const DraggableBotButton(),
+          // Appel au secours : joignable en un geste depuis Accueil, Rituels,
+          // Carte et Vidéos. Absent des écrans d'authentification, qui ne
+          // passent pas par cette coquille.
+          const SosOverlay(),
         ],
       ),
       // Bottom Navigation for mobile

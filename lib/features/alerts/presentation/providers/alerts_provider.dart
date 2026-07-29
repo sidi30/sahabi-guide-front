@@ -143,52 +143,10 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
     }
   }
 
-  /// Marque une alerte comme lue
-  Future<void> markAsRead(String alertId) async {
-    try {
-      await _alertsService.markAsRead(alertId);
-
-      // Mettre à jour localement
-      final updatedAlerts = state.alerts.map((alert) {
-        if (alert.id == alertId) {
-          return alert.copyWith(
-            status: AlertStatus.read,
-            readAt: DateTime.now(),
-          );
-        }
-        return alert;
-      }).toList();
-
-      state = state.copyWith(
-        alerts: updatedAlerts,
-        hasUnread: updatedAlerts.any((alert) => !alert.isRead),
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
-  }
-
-  /// Résout une alerte
-  Future<void> resolveAlert(String alertId) async {
-    try {
-      await _alertsService.resolveAlert(alertId);
-
-      // Mettre à jour localement
-      final updatedAlerts = state.alerts.map((alert) {
-        if (alert.id == alertId) {
-          return alert.copyWith(
-            status: AlertStatus.resolved,
-            resolvedAt: DateTime.now(),
-          );
-        }
-        return alert;
-      }).toList();
-
-      state = state.copyWith(alerts: updatedAlerts);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
-  }
+  // markAsRead / resolveAlert retirés, ainsi que le helper qui remplaçait une
+  // alerte par la version renvoyée par le serveur : l'app est en consultation
+  // seule sur les alertes (voir AlertsService). Le traitement se fait depuis le
+  // dashboard.
 
   /// Actualise les alertes
   Future<void> refresh(String pilgrimId) async {

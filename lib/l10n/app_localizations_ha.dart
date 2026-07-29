@@ -1171,4 +1171,61 @@ class AppLocalizationsHa extends AppLocalizations {
 
   @override
   String get bot_translate_enable_ai => 'Kunna';
+
+  @override
+  String get sos_button_label => 'GAGGAWA';
+
+  @override
+  String get sos_button_semantics =>
+      'Maɓallin gaggawa. Yana aika kiran taimako zuwa hukumarka.';
+
+  @override
+  String get sos_countdown_title => 'Za a aika SOS cikin';
+
+  @override
+  String get sos_countdown_hint => 'Danna SOKE don dakatarwa.';
+
+  @override
+  String sos_countdown_semantics(int count) {
+    return 'Za a aika SOS cikin daƙiƙa $count.';
+  }
+
+  @override
+  String get sos_cancel => 'SOKE';
+
+  @override
+  String get sos_status_sending => 'Ana aikawa…';
+
+  @override
+  String get sos_status_sent => 'Hukumarka ta karɓi SOS';
+
+  @override
+  String get sos_status_pending =>
+      'Babu hanyar sadarwa — SOS na jira, za a sake gwadawa ta atomatik';
+
+  @override
+  String sos_status_attempt(int count) {
+    return 'Gwaji na $count';
+  }
+
+  @override
+  String get sos_status_failed => 'Aikawa ta gaza — sake gwadawa';
+
+  @override
+  String get sos_status_failed_auth => 'Ba a iya aikawa ba — sake shiga';
+
+  @override
+  String get sos_retry => 'Sake gwadawa';
+
+  @override
+  String get sos_position_gps => 'An haɗa wurin GPS';
+
+  @override
+  String get sos_position_last_known => 'An haɗa wuri na ƙarshe da aka sani';
+
+  @override
+  String get sos_position_declared => 'An haɗa wurin da ka bayyana';
+
+  @override
+  String get sos_position_none => 'An aika ba tare da wuri ba';
 }
