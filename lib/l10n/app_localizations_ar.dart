@@ -1173,6 +1173,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bot_translate_enable_ai => 'تفعيل';
 
   @override
+  String get sos_collapsed_hint => 'تم إخفاء زر الطوارئ على الحافة. لمسة واحدة تكفي دائماً لطلب النجدة.';
+
+  @override
+  String get sos_collapse_semantics => 'إخفاء زر الطوارئ على حافة الشاشة.';
+
+  @override
   String get sos_button_label => 'طوارئ';
 
   @override
@@ -1199,8 +1205,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sos_status_sent => 'وكالتك استلمت نداء الاستغاثة';
 
   @override
-  String get sos_status_pending =>
-      'لا توجد شبكة — نداء الاستغاثة في الانتظار، ستتم إعادة المحاولة تلقائيًا';
+  String get sos_status_pending => 'لا توجد شبكة — نداء الاستغاثة في الانتظار، ستتم إعادة المحاولة تلقائيًا';
 
   @override
   String sos_status_attempt(int count) {
@@ -1211,8 +1216,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sos_status_failed => 'فشل الإرسال — أعد المحاولة';
 
   @override
-  String get sos_status_failed_auth =>
-      'تعذّر الإرسال — يرجى تسجيل الدخول من جديد';
+  String get sos_status_failed_auth => 'تعذّر الإرسال — يرجى تسجيل الدخول من جديد';
 
   @override
   String get sos_retry => 'إعادة المحاولة';

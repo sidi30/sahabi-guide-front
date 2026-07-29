@@ -387,6 +387,8 @@
   "bot_translate_consent_note": "Kunna mataimakin AI don fassara tattaunawar.",
   "bot_translate_enable_ai": "Kunna",
 
+  "sos_collapsed_hint": "An ajiye SOS a gefe. Danna sau ɗaya yana isa don kiran taimako.",
+  "sos_collapse_semantics": "Ajiye maɓallin gaggawa a gefen allo.",
   "sos_button_label": "GAGGAWA",
   "sos_button_semantics": "Maɓallin gaggawa. Yana aika kiran taimako zuwa hukumarka.",
   "sos_countdown_title": "Za a aika SOS cikin",

@@ -2355,6 +2355,18 @@ abstract class AppLocalizations {
   /// **'Enable'**
   String get bot_translate_enable_ai;
 
+  /// No description provided for @sos_collapsed_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS tucked to the edge. One tap still raises the alarm.'**
+  String get sos_collapsed_hint;
+
+  /// No description provided for @sos_collapse_semantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuck the emergency button to the screen edge.'**
+  String get sos_collapse_semantics;
+
   /// No description provided for @sos_button_label.
   ///
   /// In en, this message translates to:

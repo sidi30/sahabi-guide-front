@@ -566,6 +566,8 @@
   "bot_translate_consent_note": "Enable the AI assistant to translate the conversation.",
   "bot_translate_enable_ai": "Enable",
 
+  "sos_collapsed_hint": "SOS tucked to the edge. One tap still raises the alarm.",
+  "sos_collapse_semantics": "Tuck the emergency button to the screen edge.",
   "sos_button_label": "EMERGENCY",
   "sos_button_semantics": "Emergency button. Sends a call for help to your agency.",
   "sos_countdown_title": "Sending SOS in",

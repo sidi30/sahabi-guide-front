@@ -1173,11 +1173,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_translate_enable_ai => 'Activer';
 
   @override
+  String get sos_collapsed_hint => 'SOS rangé sur le bord. Un seul appui suffit toujours pour alerter.';
+
+  @override
+  String get sos_collapse_semantics => 'Ranger le bouton d\'urgence sur le bord de l\'écran.';
+
+  @override
   String get sos_button_label => 'URGENCE';
 
   @override
-  String get sos_button_semantics =>
-      'Bouton d\'urgence. Envoie un appel au secours à votre agence.';
+  String get sos_button_semantics => 'Bouton d\'urgence. Envoie un appel au secours à votre agence.';
 
   @override
   String get sos_countdown_title => 'Envoi du SOS dans';
@@ -1200,8 +1205,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sos_status_sent => 'SOS reçu par votre agence';
 
   @override
-  String get sos_status_pending =>
-      'Pas de réseau — SOS en attente, nouvelle tentative automatique';
+  String get sos_status_pending => 'Pas de réseau — SOS en attente, nouvelle tentative automatique';
 
   @override
   String sos_status_attempt(int count) {

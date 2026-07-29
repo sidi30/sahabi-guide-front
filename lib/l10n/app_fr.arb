@@ -413,6 +413,8 @@
   "bot_translate_consent_note": "Activez l'assistant IA pour traduire la conversation.",
   "bot_translate_enable_ai": "Activer",
 
+  "sos_collapsed_hint": "SOS rangé sur le bord. Un seul appui suffit toujours pour alerter.",
+  "sos_collapse_semantics": "Ranger le bouton d'urgence sur le bord de l'écran.",
   "sos_button_label": "URGENCE",
   "sos_button_semantics": "Bouton d'urgence. Envoie un appel au secours à votre agence.",
   "sos_countdown_title": "Envoi du SOS dans",

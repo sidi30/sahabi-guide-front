@@ -1173,11 +1173,16 @@ class AppLocalizationsHa extends AppLocalizations {
   String get bot_translate_enable_ai => 'Kunna';
 
   @override
+  String get sos_collapsed_hint => 'An ajiye SOS a gefe. Danna sau ɗaya yana isa don kiran taimako.';
+
+  @override
+  String get sos_collapse_semantics => 'Ajiye maɓallin gaggawa a gefen allo.';
+
+  @override
   String get sos_button_label => 'GAGGAWA';
 
   @override
-  String get sos_button_semantics =>
-      'Maɓallin gaggawa. Yana aika kiran taimako zuwa hukumarka.';
+  String get sos_button_semantics => 'Maɓallin gaggawa. Yana aika kiran taimako zuwa hukumarka.';
 
   @override
   String get sos_countdown_title => 'Za a aika SOS cikin';
@@ -1200,8 +1205,7 @@ class AppLocalizationsHa extends AppLocalizations {
   String get sos_status_sent => 'Hukumarka ta karɓi SOS';
 
   @override
-  String get sos_status_pending =>
-      'Babu hanyar sadarwa — SOS na jira, za a sake gwadawa ta atomatik';
+  String get sos_status_pending => 'Babu hanyar sadarwa — SOS na jira, za a sake gwadawa ta atomatik';
 
   @override
   String sos_status_attempt(int count) {

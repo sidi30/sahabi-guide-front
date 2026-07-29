@@ -413,6 +413,8 @@
   "bot_translate_consent_note": "فعّل مساعد الذكاء الاصطناعي لترجمة المحادثة.",
   "bot_translate_enable_ai": "تفعيل",
 
+  "sos_collapsed_hint": "تم إخفاء زر الطوارئ على الحافة. لمسة واحدة تكفي دائماً لطلب النجدة.",
+  "sos_collapse_semantics": "إخفاء زر الطوارئ على حافة الشاشة.",
   "sos_button_label": "طوارئ",
   "sos_button_semantics": "زر الطوارئ. يرسل نداء استغاثة إلى وكالتك.",
   "sos_countdown_title": "إرسال نداء الاستغاثة خلال",
