@@ -11,6 +11,7 @@ import 'edit_profile_page.dart';
 import '../../../settings/presentation/screens/notifications_settings_screen.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../settings/presentation/screens/privacy_screen.dart';
+import '../../../tracking/presentation/pages/position_sharing_settings_page.dart';
 import '../../../settings/presentation/screens/help_screen.dart';
 import '../../../settings/presentation/screens/contact_screen.dart';
 import '../../../settings/presentation/screens/about_screen.dart';
@@ -313,6 +314,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildSettingsTile(
+                'Partage de position',
+                'Désactivé par défaut — vous décidez',
+                Icons.location_on_outlined,
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PositionSharingSettingsPage(),
                     ),
                   );
                 },

@@ -20,6 +20,7 @@ import 'core/router/auth_guard.dart';
 import 'core/utils/app_logger.dart';
 import 'core/providers/language_provider.dart';
 import 'core/services/language_service.dart';
+import 'features/tracking/presentation/providers/position_sharing_provider.dart';
 import 'features/auth/presentation/pages/auth_choice_page.dart';
 import 'features/auth/presentation/pages/gender_setup_page.dart';
 import 'features/auth/presentation/pages/passport_login_page.dart';
@@ -147,6 +148,8 @@ Future<void> main() async {
       overrides: [
         settingsProvider.overrideWith((ref) => settingsNotifier),
         languageServiceProvider.overrideWithValue(languageService),
+        positionSharingProvider
+            .overrideWith((ref) => PositionSharingNotifier(prefs)),
       ],
       child: const MyApp(),
     ),
@@ -430,6 +433,13 @@ class _MyAppState extends ConsumerState<MyApp> {
     // Reconnexion réussie : un SOS refusé faute de session valide repart tout
     // seul. Sans ceci, le pèlerin devrait penser à appuyer sur « Réessayer »
     // après s'être reconnecté.
+    // Partage de position : SEUL point d'allumage du suivi GPS. `watch` et non
+    // `read` — le contrôleur doit être RÉÉVALUÉ à chaque changement
+    // d'authentification ou de réglage, sinon il ne s'exécuterait qu'une fois au
+    // lancement et ne s'arrêterait jamais à la déconnexion. Il ne démarre rien
+    // tant que le pèlerin n'a pas activé le partage lui-même.
+    ref.watch(positionSharingControllerProvider);
+
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
       final justLoggedIn =
           previous?.isAuthenticated != true && next.isAuthenticated;
